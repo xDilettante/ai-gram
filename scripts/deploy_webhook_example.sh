@@ -6,9 +6,6 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "${SCRIPT_DIR}/env.sh"
 
 require_env AIGRAM_BOT_TOKEN >/dev/null
-require_env AIGRAM_DEPLOY_HOST >/dev/null
-require_env AIGRAM_DEPLOY_USER >/dev/null
-require_env AIGRAM_DEPLOY_SSH_KEY >/dev/null
 require_env AIGRAM_DEPLOY_DIR >/dev/null
 require_env AIGRAM_SERVICE_NAME >/dev/null
 require_env AIGRAM_WEBHOOK_URL >/dev/null
@@ -17,14 +14,10 @@ REMOTE_ENV_DIR="$(optional_env AIGRAM_REMOTE_ENV_DIR /etc/aigram)"
 LISTEN_ADDR="$(optional_env AIGRAM_LISTEN_ADDR :8090)"
 BINARY_PATH="${REPO_ROOT}/build/aigram-webhook-server"
 TEMPLATE_PATH="${REPO_ROOT}/deploy/systemd/aigram-example.service.tmpl"
-REMOTE="${AIGRAM_DEPLOY_USER}@${AIGRAM_DEPLOY_HOST}"
+configure_deploy_ssh
 REMOTE_ENV_FILE="${REMOTE_ENV_DIR}/${AIGRAM_SERVICE_NAME}.env"
 REMOTE_EXEC_START="${AIGRAM_DEPLOY_DIR}/aigram-webhook-server"
 
-if [ ! -f "${AIGRAM_DEPLOY_SSH_KEY}" ]; then
-  echo "AIGRAM_DEPLOY_SSH_KEY does not point to a readable private key file" >&2
-  exit 1
-fi
 if [[ ! "${AIGRAM_SERVICE_NAME}" =~ ^[A-Za-z0-9_.@-]+$ ]]; then
   echo "AIGRAM_SERVICE_NAME must contain only letters, digits, underscore, dot, at, or dash" >&2
   exit 1
@@ -34,9 +27,8 @@ if [[ "${AIGRAM_DEPLOY_DIR}" != /* ]] || [[ "${REMOTE_ENV_DIR}" != /* ]]; then
   exit 1
 fi
 
-SSH_OPTS=(-i "${AIGRAM_DEPLOY_SSH_KEY}" -o IdentitiesOnly=yes -o StrictHostKeyChecking=accept-new)
-SSH_CMD=(ssh "${SSH_OPTS[@]}" "${REMOTE}")
-SCP_CMD=(scp "${SSH_OPTS[@]}")
+SSH_CMD=(ssh "${DEPLOY_SSH_OPTS[@]}" "${DEPLOY_REMOTE}")
+SCP_CMD=(scp "${DEPLOY_SSH_OPTS[@]}")
 
 shell_quote() {
   printf '%s' "$1" | sed "s/'/'\\''/g; s/^/'/; s/$/'/"
@@ -81,22 +73,24 @@ echo "Building linux/amd64 webhook example binary."
 } >"${tmp_dir}/service.env"
 chmod 600 "${tmp_dir}/service.env"
 
+REMOTE_SERVICE_USER="${AIGRAM_DEPLOY_USER:-$("${SSH_CMD[@]}" 'id -un')}"
+
 sed \
   -e "s|__SERVICE_DESCRIPTION__|$(sed_escape "ai-gram webhook smoke example")|g" \
   -e "s|__ENV_FILE__|$(sed_escape "${REMOTE_ENV_FILE}")|g" \
   -e "s|__EXEC_START__|$(sed_escape "${REMOTE_EXEC_START}")|g" \
   -e "s|__WORKING_DIRECTORY__|$(sed_escape "${AIGRAM_DEPLOY_DIR}")|g" \
-  -e "s|__USER__|$(sed_escape "${AIGRAM_DEPLOY_USER}")|g" \
+  -e "s|__USER__|$(sed_escape "${REMOTE_SERVICE_USER}")|g" \
   "${TEMPLATE_PATH}" >"${tmp_dir}/service.service"
 
 remote_tmp="$("${SSH_CMD[@]}" 'mktemp -d /tmp/aigram-deploy.XXXXXX')"
 
 echo "Uploading webhook binary, systemd unit, and redacted environment file to remote temp directory."
-"${SCP_CMD[@]}" "${BINARY_PATH}" "${REMOTE}:${remote_tmp}/aigram-webhook-server" >/dev/null
-"${SCP_CMD[@]}" "${tmp_dir}/service.env" "${REMOTE}:${remote_tmp}/service.env" >/dev/null
-"${SCP_CMD[@]}" "${tmp_dir}/service.service" "${REMOTE}:${remote_tmp}/service.service" >/dev/null
+"${SCP_CMD[@]}" "${BINARY_PATH}" "${DEPLOY_REMOTE}:${remote_tmp}/aigram-webhook-server" >/dev/null
+"${SCP_CMD[@]}" "${tmp_dir}/service.env" "${DEPLOY_REMOTE}:${remote_tmp}/service.env" >/dev/null
+"${SCP_CMD[@]}" "${tmp_dir}/service.service" "${DEPLOY_REMOTE}:${remote_tmp}/service.service" >/dev/null
 
-echo "Installing service ${AIGRAM_SERVICE_NAME} on ${AIGRAM_DEPLOY_HOST}."
+echo "Installing service ${AIGRAM_SERVICE_NAME} on ${DEPLOY_REMOTE_LABEL}."
 "${SSH_CMD[@]}" bash -s -- "${remote_tmp}" "${AIGRAM_DEPLOY_DIR}" "${REMOTE_ENV_DIR}" "${AIGRAM_SERVICE_NAME}" <<'REMOTE_SCRIPT'
 set -euo pipefail
 

@@ -49,3 +49,29 @@ mask_secret() {
     printf '%s****%s' "${value:0:2}" "${value: -2}"
   fi
 }
+
+configure_deploy_ssh() {
+  DEPLOY_SSH_OPTS=()
+
+  if [ -n "${AIGRAM_DEPLOY_SSH_TARGET:-}" ]; then
+    DEPLOY_REMOTE="${AIGRAM_DEPLOY_SSH_TARGET}"
+    DEPLOY_REMOTE_LABEL="${AIGRAM_DEPLOY_SSH_TARGET}"
+    return 0
+  fi
+
+  require_env AIGRAM_DEPLOY_HOST >/dev/null
+  require_env AIGRAM_DEPLOY_USER >/dev/null
+
+  DEPLOY_REMOTE="${AIGRAM_DEPLOY_USER}@${AIGRAM_DEPLOY_HOST}"
+  DEPLOY_REMOTE_LABEL="${AIGRAM_DEPLOY_HOST}"
+
+  if [ -n "${AIGRAM_DEPLOY_SSH_KEY:-}" ]; then
+    if [ ! -f "${AIGRAM_DEPLOY_SSH_KEY}" ]; then
+      echo "AIGRAM_DEPLOY_SSH_KEY does not point to a readable private key file" >&2
+      return 1
+    fi
+    DEPLOY_SSH_OPTS=(-i "${AIGRAM_DEPLOY_SSH_KEY}" -o IdentitiesOnly=yes)
+  fi
+
+  DEPLOY_SSH_OPTS+=(-o StrictHostKeyChecking=accept-new)
+}

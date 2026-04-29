@@ -50,20 +50,37 @@ Set `AIGRAM_CHAT_ID` and at least one of `AIGRAM_MEDIA_PATH` or `AIGRAM_FILE_ID`
 
 ## Deploy webhook example
 
-Fill these variables in `.env.local`:
+The recommended deploy target configuration is an SSH alias from `~/.ssh/config`. Example:
+
+```sshconfig
+Host vk1
+    HostName example.invalid
+    User deploy
+    IdentityFile ~/.ssh/id_ed25519
+```
+
+Then `.env.local` can reference only the alias:
 
 ```bash
 AIGRAM_BOT_TOKEN=
 AIGRAM_WEBHOOK_URL=
-AIGRAM_DEPLOY_HOST=
-AIGRAM_DEPLOY_USER=
-AIGRAM_DEPLOY_SSH_KEY=
+AIGRAM_DEPLOY_SSH_TARGET=vk1
 AIGRAM_DEPLOY_DIR=/opt/aigram-test
 AIGRAM_SERVICE_NAME=aigram-webhook-test
 AIGRAM_REMOTE_ENV_DIR=/etc/aigram
 AIGRAM_LISTEN_ADDR=:8090
 AIGRAM_WEBHOOK_SECRET=
 ```
+
+The fallback mode still supports explicit host/user/key variables when no alias is set:
+
+```bash
+AIGRAM_DEPLOY_HOST=
+AIGRAM_DEPLOY_USER=
+AIGRAM_DEPLOY_SSH_KEY=
+```
+
+If `AIGRAM_DEPLOY_SSH_TARGET` is set, the deploy scripts run `ssh <target>` and `scp ... <target>:...` directly and do not require `AIGRAM_DEPLOY_HOST`, `AIGRAM_DEPLOY_USER`, or `AIGRAM_DEPLOY_SSH_KEY`.
 
 Then run:
 
@@ -108,6 +125,7 @@ This stops the systemd service only. It does not remove files, the remote env fi
 - Do not paste the bot token into prompts; prefer giving Codex local access to `.env.local`.
 - Do not log the bot token or full token-bearing Bot API/download URLs.
 - The server token is stored in `/etc/aigram/*.env` with `chmod 600`.
+- Prefer `AIGRAM_DEPLOY_SSH_TARGET` for existing SSH aliases; use explicit host/user/key only as a fallback.
 - `AIGRAM_WEBHOOK_SECRET` must match both `SetWebhook` and `webhook.Config`.
 - Official Telegram webhook delivery requires a public HTTPS URL.
 - A local Telegram Bot API server running in `--local` mode can use HTTP/local webhook URLs when `AIGRAM_BASE_URL` points to that server.
