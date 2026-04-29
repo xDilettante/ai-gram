@@ -106,7 +106,11 @@ func newDispatcher(b *aigram.Bot) (*dispatch.Dispatcher, error) {
 			return nil
 		}
 		logSafeUpdate(update, "command")
-		_, err := b.SendMessage(ctx, aigram.SendMessageParams{ChatID: aigram.ChatIDInt(message.Chat.ID), Text: "Webhook bot is running"})
+		_, err := b.SendMessage(ctx, aigram.SendMessageParams{
+			ChatID:      aigram.ChatIDInt(message.Chat.ID),
+			Text:        "Webhook bot is running. Choose an action:",
+			ReplyMarkup: demoKeyboard(),
+		})
 		return err
 	}); err != nil {
 		return nil, err
@@ -117,22 +121,68 @@ func newDispatcher(b *aigram.Bot) (*dispatch.Dispatcher, error) {
 			return nil
 		}
 		logSafeUpdate(update, "message")
-		_, err := b.SendMessage(ctx, aigram.SendMessageParams{ChatID: aigram.ChatIDInt(message.Chat.ID), Text: "echo: " + message.Text})
+		_, err := b.SendMessage(ctx, aigram.SendMessageParams{ChatID: aigram.ChatIDInt(message.Chat.ID), Text: "echo received"})
 		return err
 	}); err != nil {
 		return nil, err
 	}
-	if err := dp.OnCallbackDataFunc("demo:yes", func(ctx context.Context, update telegram.Update) error {
-		if update.CallbackQuery == nil {
+	if err := dp.OnCallbackDataFunc("demo:edit", func(ctx context.Context, update telegram.Update) error {
+		callback := update.CallbackQuery
+		if callback == nil {
 			return nil
 		}
 		logSafeUpdate(update, "callback_query")
-		_, err := b.AnswerCallbackQuery(ctx, aigram.AnswerCallbackQueryParams{CallbackQueryID: update.CallbackQuery.ID, Text: "OK"})
+		if _, err := b.AnswerCallbackQuery(ctx, aigram.AnswerCallbackQueryParams{CallbackQueryID: callback.ID, Text: "Editing message"}); err != nil {
+			return err
+		}
+		if callback.Message == nil {
+			_, err := b.AnswerCallbackQuery(ctx, aigram.AnswerCallbackQueryParams{CallbackQueryID: callback.ID, Text: "Inline message cannot be edited by this demo", ShowAlert: true})
+			return err
+		}
+
+		removeKeyboard := removeKeyboardMarkup()
+		_, err := b.EditMessageText(ctx, aigram.EditMessageTextParams{
+			Target:      aigram.EditTargetChat(aigram.ChatIDInt(callback.Message.Chat.ID), callback.Message.MessageID),
+			Text:        "Message edited by ai-gram",
+			ReplyMarkup: &removeKeyboard,
+		})
+		return err
+	}); err != nil {
+		return nil, err
+	}
+	if err := dp.OnCallbackDataFunc("demo:remove_keyboard", func(ctx context.Context, update telegram.Update) error {
+		callback := update.CallbackQuery
+		if callback == nil {
+			return nil
+		}
+		logSafeUpdate(update, "callback_query")
+		if _, err := b.AnswerCallbackQuery(ctx, aigram.AnswerCallbackQueryParams{CallbackQueryID: callback.ID, Text: "Removing keyboard"}); err != nil {
+			return err
+		}
+		if callback.Message == nil {
+			return nil
+		}
+		_, err := b.EditMessageReplyMarkup(ctx, aigram.EditMessageReplyMarkupParams{
+			Target: aigram.EditTargetChat(aigram.ChatIDInt(callback.Message.Chat.ID), callback.Message.MessageID),
+		})
 		return err
 	}); err != nil {
 		return nil, err
 	}
 	return dp, nil
+}
+
+func demoKeyboard() aigram.InlineKeyboardMarkup {
+	return aigram.NewInlineKeyboard([]aigram.InlineKeyboardButton{
+		aigram.InlineButtonCallback("Edit message", "demo:edit"),
+		aigram.InlineButtonCallback("Remove keyboard", "demo:remove_keyboard"),
+	})
+}
+
+func removeKeyboardMarkup() aigram.InlineKeyboardMarkup {
+	return aigram.NewInlineKeyboard([]aigram.InlineKeyboardButton{
+		aigram.InlineButtonCallback("Remove keyboard", "demo:remove_keyboard"),
+	})
 }
 
 func logSafeUpdate(update telegram.Update, matched string) {
@@ -165,11 +215,24 @@ func logSafeUpdate(update telegram.Update, matched string) {
 		command = message.Command()
 	}
 
+	callbackData := safeCallbackData(update)
 	if command != "" {
-		log.Printf("webhook update_id=%d update_type=%s matched=%s chat_id=%d from_user_id=%d command=%s has_text=%t has_media=%t", update.UpdateID, updateType, matched, chatID, userID, command, hasText, hasMedia)
+		log.Printf("webhook update_id=%d update_type=%s matched=%s chat_id=%d from_user_id=%d command=%s has_text=%t has_media=%t callback_data=%s", update.UpdateID, updateType, matched, chatID, userID, command, hasText, hasMedia, callbackData)
 		return
 	}
-	log.Printf("webhook update_id=%d update_type=%s matched=%s chat_id=%d from_user_id=%d has_text=%t has_media=%t", update.UpdateID, updateType, matched, chatID, userID, hasText, hasMedia)
+	log.Printf("webhook update_id=%d update_type=%s matched=%s chat_id=%d from_user_id=%d has_text=%t has_media=%t callback_data=%s", update.UpdateID, updateType, matched, chatID, userID, hasText, hasMedia, callbackData)
+}
+
+func safeCallbackData(update telegram.Update) string {
+	if update.CallbackQuery == nil {
+		return ""
+	}
+	switch update.CallbackQuery.Data {
+	case "demo:edit", "demo:remove_keyboard":
+		return update.CallbackQuery.Data
+	default:
+		return "<redacted>"
+	}
 }
 
 func shutdownServer(server *http.Server) {
