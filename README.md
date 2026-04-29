@@ -2,7 +2,7 @@
 
 `ai-gram` is a Go library project for working with the Telegram Bot API.
 
-The project is in an early architecture stage. It provides a minimal package skeleton, practical incoming update types, a foundational HTTP core, the first public Bot API methods, minimal file download support, webhook management methods, a managed long polling runner, an inbound webhook HTTP handler, a small update dispatcher/router, and helper middleware. It does not yet implement FSM, scenes, storage, file upload, or full Bot API coverage.
+The project is in an early architecture stage. It provides a minimal package skeleton, practical incoming update types, a foundational HTTP core, the first public Bot API methods, media sending by file_id or URL, minimal file download support, webhook management methods, a managed long polling runner, an inbound webhook HTTP handler, a small update dispatcher/router, and helper middleware. It does not yet implement FSM, scenes, storage, file upload, multipart media upload, or full Bot API coverage.
 
 ## Статус
 
@@ -14,7 +14,7 @@ The project is in an early architecture stage. It provides a minimal package ske
 - Dispatcher/router: supports predicates, message/command/callback routes, middleware, fallback, and error handling.
 - Middleware helpers: recover, timeout, and hook-based observability are available.
 - Long polling transport: managed runner is available. Webhook transport: inbound HTTP handler is available.
-- Telegram Bot API method coverage: `GetMe`, `SendMessage`, the manual `GetUpdates` API call, `GetFile`, `DownloadFile`, and JSON-only webhook management methods (`SetWebhook`, `DeleteWebhook`, `GetWebhookInfo`) are implemented. The rest of the Bot API is not implemented yet.
+- Telegram Bot API method coverage: `GetMe`, `SendMessage`, `SendPhoto`, `SendDocument`, the manual `GetUpdates` API call, `GetFile`, `DownloadFile`, and JSON-only webhook management methods (`SetWebhook`, `DeleteWebhook`, `GetWebhookInfo`) are implemented. The rest of the Bot API is not implemented yet.
 - Public API stability: not guaranteed before the first stable release.
 
 ## Планируемая архитектура
@@ -64,6 +64,42 @@ if err != nil {
 }
 fmt.Println(message.MessageID)
 ```
+
+
+Send media without upload:
+
+```go
+photoMessage, err := b.SendPhoto(ctx, aigram.SendPhotoParams{
+    ChatID:  aigram.ChatIDInt(123456789),
+    Photo:   aigram.FileID("existing-photo-file-id"),
+    Caption: "Photo from file_id",
+})
+if err != nil {
+    return err
+}
+fmt.Println(photoMessage.MessageID)
+
+photoByURL, err := b.SendPhoto(ctx, aigram.SendPhotoParams{
+    ChatID: aigram.ChatIDInt(123456789),
+    Photo:  aigram.FileURL("https://example.com/photo.jpg"),
+})
+if err != nil {
+    return err
+}
+fmt.Println(photoByURL.MessageID)
+
+documentMessage, err := b.SendDocument(ctx, aigram.SendDocumentParams{
+    ChatID:   aigram.ChatIDInt(123456789),
+    Document: aigram.FileID("existing-document-file-id"),
+    Caption:  "Document from file_id",
+})
+if err != nil {
+    return err
+}
+fmt.Println(documentMessage.MessageID)
+```
+
+Media sending currently supports only existing Telegram `file_id` values and HTTP/HTTPS URLs. Local file upload, `io.Reader` upload, `attach://`, thumbnails, and multipart/form-data will be added separately later.
 
 Fetch updates manually with one `getUpdates` API call:
 
@@ -199,7 +235,7 @@ if err := b.DownloadFile(ctx, file.FilePath, &buf); err != nil {
 fmt.Println("downloaded bytes:", buf.Len())
 ```
 
-For large files pass an `*os.File` or another streaming `io.Writer` instead of `bytes.Buffer`. Telegram download URLs contain the bot token; ai-gram builds them internally and does not expose them as a public API. The regular cloud Bot API has Telegram-side file download limits. File sending, upload, multipart/form-data, and `sendPhoto`/`sendDocument` style methods are not implemented yet.
+For large files pass an `*os.File` or another streaming `io.Writer` instead of `bytes.Buffer`. Telegram download URLs contain the bot token; ai-gram builds them internally and does not expose them as a public API. The regular cloud Bot API has Telegram-side file download limits. File upload, multipart/form-data, and local media upload methods are not implemented yet.
 
 Serve inbound webhook updates with `net/http`:
 
@@ -266,7 +302,7 @@ if err != nil {
 fmt.Println(ok)
 ```
 
-Webhook management is JSON-only for now. Certificate upload, multipart/form-data, file upload/sending, FSM, scenes, storage, dependency injection, and full Bot API coverage are not implemented yet.
+Webhook management is JSON-only for now. Certificate upload, multipart/form-data, local file upload, FSM, scenes, storage, dependency injection, and full Bot API coverage are not implemented yet.
 
 ## Development checks
 

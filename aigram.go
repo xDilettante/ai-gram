@@ -15,6 +15,12 @@ type BotConfig = bot.BotConfig
 // SendMessageParams contains supported parameters for sendMessage.
 type SendMessageParams = bot.SendMessageParams
 
+// SendPhotoParams contains supported parameters for sendPhoto.
+type SendPhotoParams = bot.SendPhotoParams
+
+// SendDocumentParams contains supported parameters for sendDocument.
+type SendDocumentParams = bot.SendDocumentParams
+
 // GetUpdatesParams contains supported parameters for getUpdates.
 type GetUpdatesParams = bot.GetUpdatesParams
 
@@ -29,6 +35,9 @@ type DeleteWebhookParams = bot.DeleteWebhookParams
 
 // ChatID identifies a Telegram chat by numeric ID or username string.
 type ChatID = bot.ChatID
+
+// FileRef identifies media by Telegram file_id or by an HTTP(S) URL.
+type FileRef = bot.FileRef
 
 // APIError represents a Telegram Bot API response with ok=false.
 type APIError = telegramerrors.APIError
@@ -75,4 +84,14 @@ func ChatIDInt(id int64) ChatID {
 // ChatIDString creates a string chat ID, such as a channel username.
 func ChatIDString(id string) ChatID {
 	return bot.ChatIDString(id)
+}
+
+// FileID creates a file reference from an existing Telegram file_id.
+func FileID(id string) FileRef {
+	return bot.FileID(id)
+}
+
+// FileURL creates a file reference from an HTTP(S) URL.
+func FileURL(rawURL string) FileRef {
+	return bot.FileURL(rawURL)
 }
