@@ -223,6 +223,14 @@ type CallbackQuery struct {
 	GameShortName   string   `json:"game_short_name,omitempty"`
 }
 
+// File represents a Telegram file metadata object.
+type File struct {
+	FileID       string `json:"file_id"`
+	FileUniqueID string `json:"file_unique_id"`
+	FileSize     int64  `json:"file_size,omitempty"`
+	FilePath     string `json:"file_path,omitempty"`
+}
+
 // WebhookInfo describes current Telegram webhook status.
 type WebhookInfo struct {
 	URL                          string   `json:"url"`

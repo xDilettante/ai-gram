@@ -18,6 +18,9 @@ type SendMessageParams = bot.SendMessageParams
 // GetUpdatesParams contains supported parameters for getUpdates.
 type GetUpdatesParams = bot.GetUpdatesParams
 
+// GetFileParams contains supported parameters for getFile.
+type GetFileParams = bot.GetFileParams
+
 // SetWebhookParams contains supported parameters for setWebhook.
 type SetWebhookParams = bot.SetWebhookParams
 
@@ -50,6 +53,9 @@ type CallbackQuery = telegram.CallbackQuery
 
 // WebhookInfo describes current Telegram webhook status.
 type WebhookInfo = telegram.WebhookInfo
+
+// File represents a Telegram file metadata object.
+type File = telegram.File
 
 // New creates a Bot from config.
 func New(config BotConfig) (*Bot, error) {

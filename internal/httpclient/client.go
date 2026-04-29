@@ -71,6 +71,40 @@ func New(doer Doer) *Client {
 
 // Do sends req with ctx attached, reads the full response body, and closes it.
 func (c *Client) Do(ctx context.Context, req *http.Request) ([]byte, error) {
+	resp, err := c.open(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, fmt.Errorf("read telegram response body: %w", err)
+	}
+
+	return body, nil
+}
+
+// Copy sends req with ctx attached, streams the response body into w, and closes it.
+func (c *Client) Copy(ctx context.Context, req *http.Request, w io.Writer) error {
+	if w == nil {
+		return stderrors.New("writer is required")
+	}
+
+	resp, err := c.open(ctx, req)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	if _, err := io.Copy(w, resp.Body); err != nil {
+		return fmt.Errorf("copy telegram response body: %w", err)
+	}
+
+	return nil
+}
+
+func (c *Client) open(ctx context.Context, req *http.Request) (*http.Response, error) {
 	if ctx == nil {
 		return nil, stderrors.New("context is required")
 	}
@@ -88,17 +122,13 @@ func (c *Client) Do(ctx context.Context, req *http.Request) ([]byte, error) {
 	if resp.Body == nil {
 		return nil, stderrors.New("telegram request returned nil response body")
 	}
-	defer resp.Body.Close()
-
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, fmt.Errorf("read telegram response body: %w", err)
-	}
 	if resp.StatusCode < http.StatusOK || resp.StatusCode >= http.StatusMultipleChoices {
+		defer resp.Body.Close()
+		_, _ = io.Copy(io.Discard, resp.Body)
 		return nil, &StatusError{StatusCode: resp.StatusCode}
 	}
 
-	return body, nil
+	return resp, nil
 }
 
 func sanitizeTransportError(err error) error {

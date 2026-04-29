@@ -15,7 +15,10 @@ import (
 	"ai-gram/internal/httpclient"
 )
 
-const defaultBaseURL = "https://api.telegram.org"
+const (
+	defaultBaseURL     = "https://api.telegram.org"
+	defaultFileBaseURL = "https://api.telegram.org/file"
+)
 
 var errEmptyToken = stderrors.New("bot token is required")
 
@@ -23,9 +26,10 @@ var errEmptyToken = stderrors.New("bot token is required")
 //
 // Bot is safe to share between goroutines after construction. The token is stored privately and is not included in errors.
 type Bot struct {
-	token   string
-	baseURL string
-	client  *httpclient.Client
+	token       string
+	baseURL     string
+	fileBaseURL string
+	client      *httpclient.Client
 }
 
 // BotConfig configures a Bot.
@@ -34,6 +38,8 @@ type BotConfig struct {
 	Token string
 	// BaseURL is an optional Telegram Bot API base URL override for tests or compatible servers.
 	BaseURL string
+	// FileBaseURL is an optional Telegram Bot API file download base URL override.
+	FileBaseURL string
 	// HTTPClient is an optional HTTP client used for future API calls.
 	HTTPClient *http.Client
 }
@@ -45,6 +51,7 @@ func New(config BotConfig) (*Bot, error) {
 	}
 
 	baseURL := strings.TrimRight(config.BaseURL, "/")
+	baseURLExplicit := baseURL != ""
 	if baseURL == "" {
 		baseURL = defaultBaseURL
 	}
@@ -52,10 +59,23 @@ func New(config BotConfig) (*Bot, error) {
 		return nil, err
 	}
 
+	fileBaseURL := strings.TrimRight(config.FileBaseURL, "/")
+	if fileBaseURL == "" {
+		if baseURLExplicit {
+			fileBaseURL = baseURL + "/file"
+		} else {
+			fileBaseURL = defaultFileBaseURL
+		}
+	}
+	if err := validateBaseURL(fileBaseURL); err != nil {
+		return nil, err
+	}
+
 	return &Bot{
-		token:   config.Token,
-		baseURL: baseURL,
-		client:  httpclient.New(config.HTTPClient),
+		token:       config.Token,
+		baseURL:     baseURL,
+		fileBaseURL: fileBaseURL,
+		client:      httpclient.New(config.HTTPClient),
 	}, nil
 }
 
