@@ -2,13 +2,13 @@
 
 `ai-gram` is a Go library project for working with the Telegram Bot API.
 
-The project is in an early architecture stage. It provides a minimal package skeleton, a foundational HTTP core, the first public Bot API methods, webhook management methods, a managed long polling runner, an inbound webhook HTTP handler, a small update dispatcher/router, and helper middleware. It does not yet implement FSM, scenes, storage, file upload/download, or full Bot API coverage.
+The project is in an early architecture stage. It provides a minimal package skeleton, practical incoming update types, a foundational HTTP core, the first public Bot API methods, webhook management methods, a managed long polling runner, an inbound webhook HTTP handler, a small update dispatcher/router, and helper middleware. It does not yet implement FSM, scenes, storage, file upload/download, or full Bot API coverage.
 
 ## Статус
 
 - Minimal Go module: present.
 - Root facade package `aigram`: present.
-- Base Telegram data types: started with a minimal subset.
+- Base Telegram data types: include practical incoming message fields for text entities, captions, media, contacts, locations, venues, and callback queries.
 - Bot client package: scaffolded with token validation, private token storage, and an internal HTTP call core.
 - Typed Telegram API errors: scaffolded.
 - Dispatcher/router: supports predicates, message/command/callback routes, middleware, fallback, and error handling.
@@ -103,6 +103,43 @@ if err := d.OnMessageFunc(func(ctx context.Context, update telegram.Update) erro
     return err
 }
 ```
+
+
+Handle common incoming message shapes:
+
+```go
+if err := d.OnMessageFunc(func(ctx context.Context, update telegram.Update) error {
+    message := update.EffectiveMessage()
+    if message == nil {
+        return nil
+    }
+
+    switch {
+    case message.IsCommand("start"):
+        fmt.Println("command args:", message.CommandArguments())
+    case message.HasPhoto():
+        largest := message.Photo[len(message.Photo)-1]
+        fmt.Println("photo:", largest.FileID)
+    case message.HasDocument():
+        fmt.Println("document:", message.Document.FileName)
+    default:
+        fmt.Println("text:", message.Text)
+    }
+
+    return nil
+}); err != nil {
+    return err
+}
+
+if err := d.OnCallbackDataFunc("confirm", func(ctx context.Context, update telegram.Update) error {
+    fmt.Println("callback data:", update.CallbackQuery.Data)
+    return nil
+}); err != nil {
+    return err
+}
+```
+
+Telegram types currently support decoding incoming media and helper methods for handling them. Sending files, file upload/download, and `getFile` will be added separately later.
 
 Add helper middleware:
 

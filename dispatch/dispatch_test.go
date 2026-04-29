@@ -116,6 +116,7 @@ func TestOnCommandMatching(t *testing.T) {
 	}{
 		{name: "exact", text: "/start", want: true},
 		{name: "payload", text: "/start payload", want: true},
+		{name: "bot username payload", text: "/start@BotName payload", want: true},
 		{name: "newline payload", text: "/start\npayload", want: true},
 		{name: "prefix only", text: "/startx", want: false},
 		{name: "plain text", text: "start", want: false},

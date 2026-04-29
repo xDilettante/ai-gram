@@ -6,8 +6,6 @@ import (
 	stderrors "errors"
 	"reflect"
 	"strings"
-	"unicode"
-	"unicode/utf8"
 
 	"ai-gram/telegram"
 )
@@ -201,11 +199,7 @@ func Message() Predicate {
 // Command matches updates with the given slash command.
 func Command(command string) Predicate {
 	return func(update telegram.Update) bool {
-		if !validCommand(command) || update.Message == nil {
-			return false
-		}
-
-		return commandMatches(update.Message.Text, command)
+		return validCommand(command) && update.Message != nil && update.Message.IsCommand(command)
 	}
 }
 
@@ -280,18 +274,4 @@ func isNilHandler(handler Handler) bool {
 
 func validCommand(command string) bool {
 	return command != "" && !strings.HasPrefix(command, "/") && !strings.ContainsAny(command, " \t\n\r")
-}
-
-func commandMatches(text string, command string) bool {
-	prefix := "/" + command
-	if text == prefix {
-		return true
-	}
-	if !strings.HasPrefix(text, prefix) {
-		return false
-	}
-
-	rest := text[len(prefix):]
-	r, _ := utf8.DecodeRuneInString(rest)
-	return unicode.IsSpace(r)
 }
