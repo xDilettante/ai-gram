@@ -18,6 +18,12 @@ type SendMessageParams = bot.SendMessageParams
 // GetUpdatesParams contains supported parameters for getUpdates.
 type GetUpdatesParams = bot.GetUpdatesParams
 
+// SetWebhookParams contains supported parameters for setWebhook.
+type SetWebhookParams = bot.SetWebhookParams
+
+// DeleteWebhookParams contains supported parameters for deleteWebhook.
+type DeleteWebhookParams = bot.DeleteWebhookParams
+
 // ChatID identifies a Telegram chat by numeric ID or username string.
 type ChatID = bot.ChatID
 
@@ -41,6 +47,9 @@ type Chat = telegram.Chat
 
 // CallbackQuery represents an incoming callback query.
 type CallbackQuery = telegram.CallbackQuery
+
+// WebhookInfo describes current Telegram webhook status.
+type WebhookInfo = telegram.WebhookInfo
 
 // New creates a Bot from config.
 func New(config BotConfig) (*Bot, error) {

@@ -3,23 +3,19 @@ package webhook
 
 import (
 	"context"
-	"crypto/subtle"
 	"encoding/json"
 	stderrors "errors"
 	"mime"
 	"net/http"
-	"regexp"
 
+	"ai-gram/internal/telegramsecret"
 	"ai-gram/telegram"
 )
 
 const (
-	secretTokenHeader    = "X-Telegram-Bot-Api-Secret-Token"
-	defaultMaxBodyBytes  = 1 << 20
-	maxSecretTokenLength = 256
+	secretTokenHeader   = "X-Telegram-Bot-Api-Secret-Token"
+	defaultMaxBodyBytes = 1 << 20
 )
-
-var validSecretTokenPattern = regexp.MustCompile(`^[A-Za-z0-9_-]+$`)
 
 // Handler handles one Telegram update.
 type Handler interface {
@@ -56,7 +52,7 @@ func New(handler Handler, config Config) (http.Handler, error) {
 	if handler == nil {
 		return nil, stderrors.New("handler is required")
 	}
-	if err := validateSecretToken(config.SecretToken); err != nil {
+	if err := telegramsecret.Validate(config.SecretToken); err != nil {
 		return nil, err
 	}
 	maxBodyBytes := config.MaxBodyBytes
@@ -112,20 +108,6 @@ func (r *receiver) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	_, _ = w.Write([]byte("ok\n"))
 }
 
-func validateSecretToken(secretToken string) error {
-	if secretToken == "" {
-		return nil
-	}
-	if len(secretToken) > maxSecretTokenLength {
-		return stderrors.New("secret token length must be between 1 and 256")
-	}
-	if !validSecretTokenPattern.MatchString(secretToken) {
-		return stderrors.New("secret token contains invalid characters")
-	}
-
-	return nil
-}
-
 func isJSONContentType(contentType string) bool {
 	if contentType == "" {
 		return false
@@ -143,7 +125,7 @@ func secretTokenMatches(expected string, actual string) bool {
 		return false
 	}
 
-	return subtle.ConstantTimeCompare([]byte(actual), []byte(expected)) == 1
+	return telegramsecret.ConstantTimeEqual(actual, expected)
 }
 
 func statusForDecodeError(err error) int {

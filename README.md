@@ -2,7 +2,7 @@
 
 `ai-gram` is a Go library project for working with the Telegram Bot API.
 
-The project is in an early architecture stage. It provides a minimal package skeleton, a foundational HTTP core, the first public Bot API methods, a managed long polling runner, an inbound webhook HTTP handler, a small update dispatcher/router, and helper middleware. It does not yet implement FSM, scenes, or storage.
+The project is in an early architecture stage. It provides a minimal package skeleton, a foundational HTTP core, the first public Bot API methods, webhook management methods, a managed long polling runner, an inbound webhook HTTP handler, a small update dispatcher/router, and helper middleware. It does not yet implement FSM, scenes, storage, file upload/download, or full Bot API coverage.
 
 ## Статус
 
@@ -14,7 +14,7 @@ The project is in an early architecture stage. It provides a minimal package ske
 - Dispatcher/router: supports predicates, message/command/callback routes, middleware, fallback, and error handling.
 - Middleware helpers: recover, timeout, and hook-based observability are available.
 - Long polling transport: managed runner is available. Webhook transport: inbound HTTP handler is available.
-- Telegram Bot API method coverage: `GetMe`, `SendMessage`, and the manual `GetUpdates` API call are implemented. The rest of the Bot API is not implemented yet.
+- Telegram Bot API method coverage: `GetMe`, `SendMessage`, the manual `GetUpdates` API call, and JSON-only webhook management methods (`SetWebhook`, `DeleteWebhook`, `GetWebhookInfo`) are implemented. The rest of the Bot API is not implemented yet.
 - Public API stability: not guaranteed before the first stable release.
 
 ## Планируемая архитектура
@@ -156,7 +156,56 @@ if err := http.ListenAndServe(":8080", nil); err != nil {
 }
 ```
 
-The webhook transport only receives updates. Bot API methods for `SetWebhook`, `DeleteWebhook`, and webhook info will be added separately later. FSM, scenes, storage, dependency injection, and full Bot API coverage are not implemented yet.
+Manage webhook registration through outbound Bot API methods:
+
+```go
+secret := "my_secret_123"
+
+ok, err := b.SetWebhook(ctx, aigram.SetWebhookParams{
+    URL:         "https://example.com/telegram/webhook",
+    SecretToken: secret,
+})
+if err != nil {
+    return err
+}
+if !ok {
+    return fmt.Errorf("set webhook returned false")
+}
+
+webhookHandler, err := webhook.New(d, webhook.Config{
+    SecretToken: secret,
+})
+if err != nil {
+    return err
+}
+http.Handle("/telegram/webhook", webhookHandler)
+```
+
+The `SecretToken` passed to `SetWebhook` must match `transport/webhook.Config.SecretToken` so inbound requests can be verified.
+
+Read current webhook status:
+
+```go
+info, err := b.GetWebhookInfo(ctx)
+if err != nil {
+    return err
+}
+fmt.Println(info.URL, info.PendingUpdateCount)
+```
+
+Delete a webhook:
+
+```go
+ok, err := b.DeleteWebhook(ctx, aigram.DeleteWebhookParams{
+    DropPendingUpdates: true,
+})
+if err != nil {
+    return err
+}
+fmt.Println(ok)
+```
+
+Webhook management is JSON-only for now. Certificate upload, multipart/form-data, files, FSM, scenes, storage, dependency injection, and full Bot API coverage are not implemented yet.
 
 ## Development checks
 
