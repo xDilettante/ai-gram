@@ -42,6 +42,9 @@ type SetWebhookParams = bot.SetWebhookParams
 // DeleteWebhookParams contains supported parameters for deleteWebhook.
 type DeleteWebhookParams = bot.DeleteWebhookParams
 
+// AnswerCallbackQueryParams contains supported parameters for answerCallbackQuery.
+type AnswerCallbackQueryParams = bot.AnswerCallbackQueryParams
+
 // ChatID identifies a Telegram chat by numeric ID or username string.
 type ChatID = bot.ChatID
 
