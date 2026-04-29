@@ -12,6 +12,12 @@ type Bot = bot.Bot
 // BotConfig configures a Bot.
 type BotConfig = bot.BotConfig
 
+// SendMessageParams contains supported parameters for sendMessage.
+type SendMessageParams = bot.SendMessageParams
+
+// ChatID identifies a Telegram chat by numeric ID or username string.
+type ChatID = bot.ChatID
+
 // APIError represents a Telegram Bot API response with ok=false.
 type APIError = telegramerrors.APIError
 
@@ -33,7 +39,22 @@ type Chat = telegram.Chat
 // CallbackQuery represents an incoming callback query.
 type CallbackQuery = telegram.CallbackQuery
 
+// New creates a Bot from config.
+func New(config BotConfig) (*Bot, error) {
+	return bot.New(config)
+}
+
 // NewBot creates a Bot from config.
 func NewBot(config BotConfig) (*Bot, error) {
-	return bot.New(config)
+	return New(config)
+}
+
+// ChatIDInt creates a numeric chat ID.
+func ChatIDInt(id int64) ChatID {
+	return bot.ChatIDInt(id)
+}
+
+// ChatIDString creates a string chat ID, such as a channel username.
+func ChatIDString(id string) ChatID {
+	return bot.ChatIDString(id)
 }

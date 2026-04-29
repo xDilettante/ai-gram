@@ -111,7 +111,7 @@ func (b *Bot) call(ctx context.Context, method string, payload any, result any) 
 	if !response.OK {
 		return &apierrors.APIError{
 			Code:        response.ErrorCode,
-			Description: response.Description,
+			Description: b.redactToken(response.Description),
 			Parameters:  response.Parameters,
 		}
 	}
@@ -140,6 +140,14 @@ func encodePayload(payload any) ([]byte, error) {
 	}
 
 	return body, nil
+}
+
+func (b *Bot) redactToken(message string) string {
+	if b == nil || b.token == "" || message == "" {
+		return message
+	}
+
+	return strings.ReplaceAll(message, b.token, "[redacted]")
 }
 
 func validateBaseURL(baseURL string) error {

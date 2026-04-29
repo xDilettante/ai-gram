@@ -10,21 +10,20 @@ type Update struct {
 
 // Message represents a Telegram message with the minimal fields needed by early dispatcher work.
 type Message struct {
-	MessageID int    `json:"message_id"`
+	MessageID int64  `json:"message_id"`
 	From      *User  `json:"from,omitempty"`
 	Chat      Chat   `json:"chat"`
-	Date      int    `json:"date"`
+	Date      int64  `json:"date"`
 	Text      string `json:"text,omitempty"`
 }
 
 // User represents a Telegram user or bot account.
 type User struct {
-	ID           int64  `json:"id"`
-	IsBot        bool   `json:"is_bot"`
-	FirstName    string `json:"first_name"`
-	LastName     string `json:"last_name,omitempty"`
-	Username     string `json:"username,omitempty"`
-	LanguageCode string `json:"language_code,omitempty"`
+	ID        int64  `json:"id"`
+	IsBot     bool   `json:"is_bot"`
+	FirstName string `json:"first_name"`
+	LastName  string `json:"last_name,omitempty"`
+	Username  string `json:"username,omitempty"`
 }
 
 // Chat represents a Telegram chat.

@@ -2,7 +2,7 @@
 
 `ai-gram` is a Go library project for working with the Telegram Bot API.
 
-The project is in an early architecture stage. It provides a minimal package skeleton and a few foundational contracts, but it does not yet implement Telegram Bot API methods, long polling, webhooks, or a production dispatcher.
+The project is in an early architecture stage. It provides a minimal package skeleton, a foundational HTTP core, and the first public Bot API methods, but it does not yet implement long polling, webhooks, or a production dispatcher.
 
 ## Статус
 
@@ -13,7 +13,7 @@ The project is in an early architecture stage. It provides a minimal package ske
 - Typed Telegram API errors: scaffolded.
 - Dispatcher contracts and middleware composition: scaffolded.
 - Long polling and webhook transports: placeholders only.
-- Telegram Bot API method coverage: public methods such as SendMessage, GetMe, and GetUpdates are not implemented yet.
+- Telegram Bot API method coverage: only `GetMe` and `SendMessage` are implemented. `GetUpdates` and the rest of the Bot API are not implemented yet.
 - Public API stability: not guaranteed before the first stable release.
 
 ## Планируемая архитектура
@@ -30,6 +30,40 @@ The library is split into small packages with clear responsibilities:
 - `aigram` is a lightweight root facade that re-exports the most important public types.
 
 The intended dependency direction is data types first, then the Bot API client and transports, then dispatching and middleware. Transports deliver updates; dispatchers process already received updates; the API client does not know about dispatching.
+
+## Usage examples
+
+Create a bot and call `getMe`:
+
+```go
+ctx := context.Background()
+
+b, err := aigram.New(aigram.BotConfig{Token: token})
+if err != nil {
+    return err
+}
+
+me, err := b.GetMe(ctx)
+if err != nil {
+    return err
+}
+fmt.Println(me.Username)
+```
+
+Send a text message:
+
+```go
+message, err := b.SendMessage(ctx, aigram.SendMessageParams{
+    ChatID: aigram.ChatIDInt(123456789),
+    Text:   "Hello from ai-gram",
+})
+if err != nil {
+    return err
+}
+fmt.Println(message.MessageID)
+```
+
+Only these first methods are available for now; the library does not yet claim full Telegram Bot API coverage.
 
 ## Development checks
 
