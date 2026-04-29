@@ -64,6 +64,8 @@ func (e *StatusError) Error() string {
 func New(doer Doer) *Client {
 	if doer == nil {
 		doer = &http.Client{Timeout: defaultTimeout}
+	} else if client, ok := doer.(*http.Client); ok && client == nil {
+		doer = &http.Client{Timeout: defaultTimeout}
 	}
 
 	return &Client{doer: doer}
