@@ -2,7 +2,7 @@
 
 `ai-gram` is a Go library project for working with the Telegram Bot API.
 
-The project is in an early architecture stage. It provides a minimal package skeleton, a foundational HTTP core, the first public Bot API methods, and a managed long polling runner. It does not yet implement webhooks or a production dispatcher/router.
+The project is in an early architecture stage. It provides a minimal package skeleton, a foundational HTTP core, the first public Bot API methods, a managed long polling runner, and a small update dispatcher/router. It does not yet implement webhooks, FSM, scenes, or storage.
 
 ## Статус
 
@@ -11,7 +11,7 @@ The project is in an early architecture stage. It provides a minimal package ske
 - Base Telegram data types: started with a minimal subset.
 - Bot client package: scaffolded with token validation, private token storage, and an internal HTTP call core.
 - Typed Telegram API errors: scaffolded.
-- Dispatcher contracts and middleware composition: scaffolded.
+- Dispatcher/router: supports predicates, message/command/callback routes, middleware, fallback, and error handling.
 - Long polling transport: managed runner is available. Webhook transport: placeholder only.
 - Telegram Bot API method coverage: `GetMe`, `SendMessage`, and the manual `GetUpdates` API call are implemented. The rest of the Bot API is not implemented yet.
 - Public API stability: not guaranteed before the first stable release.
@@ -24,7 +24,7 @@ The library is split into small packages with clear responsibilities:
 - `bot` contains the primary Bot API client type and configuration. It owns token handling and an unexported JSON call core that will later power public Telegram methods.
 - `internal/httpclient` contains low-level HTTP sending helpers, response body handling, and HTTP status checks. It is internal and must not leak into the public API.
 - `errors` contains typed errors returned by Telegram Bot API responses.
-- `dispatch` defines update handling, middleware, and dispatcher contracts without depending on HTTP details.
+- `dispatch` defines update routing, middleware, fallback handling, and error handling without depending on HTTP details.
 - `transport/longpoll` provides a managed runner that repeatedly calls `GetUpdates` and passes updates to a handler.
 - `transport/webhook` is reserved for webhook update delivery.
 - `aigram` is a lightweight root facade that re-exports the most important public types.
@@ -80,15 +80,32 @@ for _, update := range updates {
 }
 ```
 
-Run managed long polling with a small handler:
+Create a small dispatcher:
 
 ```go
-runner, err := longpoll.New(b, longpoll.HandlerFunc(func(ctx context.Context, update telegram.Update) error {
-    if update.Message != nil {
-        fmt.Println(update.Message.Text)
-    }
+d := dispatch.New(dispatch.WithErrorHandler(func(ctx context.Context, update telegram.Update, err error) {
+    fmt.Println("handler error:", err)
+}))
+
+if err := d.OnCommandFunc("start", func(ctx context.Context, update telegram.Update) error {
+    fmt.Println("start command")
     return nil
-}), longpoll.Config{
+}); err != nil {
+    return err
+}
+
+if err := d.OnMessageFunc(func(ctx context.Context, update telegram.Update) error {
+    fmt.Println(update.Message.Text)
+    return nil
+}); err != nil {
+    return err
+}
+```
+
+Run managed long polling with the dispatcher:
+
+```go
+runner, err := longpoll.New(b, d, longpoll.Config{
     Timeout: 30,
 })
 if err != nil {
@@ -100,7 +117,7 @@ if err := runner.Run(ctx); err != nil {
 }
 ```
 
-The long polling runner is intentionally small: it fetches updates and calls a handler. A full dispatcher/router will be added separately later. The library does not yet claim full Telegram Bot API coverage or webhook support.
+The long polling runner fetches updates and calls a handler; `dispatch.Dispatcher` is one compatible handler implementation. FSM, scenes, storage, dependency injection, full Bot API coverage, and webhook support are not implemented yet.
 
 ## Development checks
 
