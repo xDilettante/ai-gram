@@ -28,7 +28,10 @@ type DeleteWebhookParams struct {
 
 // SetWebhook sets the bot webhook URL.
 func (b *Bot) SetWebhook(ctx context.Context, params SetWebhookParams) (bool, error) {
-	if err := params.validate(); err != nil {
+	if b == nil {
+		return false, stderrors.New("bot is required")
+	}
+	if err := params.validateWithLocalHTTP(b.baseURL != defaultBaseURL); err != nil {
 		return false, err
 	}
 
@@ -61,12 +64,19 @@ func (b *Bot) GetWebhookInfo(ctx context.Context) (*telegram.WebhookInfo, error)
 }
 
 func (params SetWebhookParams) validate() error {
+	return params.validateWithLocalHTTP(false)
+}
+
+func (params SetWebhookParams) validateWithLocalHTTP(allowHTTP bool) error {
 	if params.URL == "" {
 		return stderrors.New("webhook URL is required")
 	}
 	parsed, err := url.Parse(params.URL)
-	if err != nil || parsed.Scheme != "https" || parsed.Host == "" {
-		return stderrors.New("webhook URL must be an absolute https URL")
+	if err != nil || parsed.Host == "" {
+		return stderrors.New("webhook URL must be an absolute http(s) URL")
+	}
+	if parsed.Scheme != "https" && !(allowHTTP && parsed.Scheme == "http") {
+		return stderrors.New("webhook URL must be an absolute https URL unless a custom Bot API base URL is used")
 	}
 	if params.MaxConnections < 0 {
 		return stderrors.New("max_connections must not be negative")

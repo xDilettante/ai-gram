@@ -105,6 +105,31 @@ func TestSetWebhookValidation(t *testing.T) {
 	}
 }
 
+func TestSetWebhookAllowsHTTPWithCustomBaseURL(t *testing.T) {
+	const token = "123:secret"
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		var payload map[string]any
+		if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
+			t.Fatalf("decode payload: %v", err)
+		}
+		if got := payload["url"]; got != "http://127.0.0.1:8080/webhook" {
+			t.Fatalf("unexpected url: %#v", got)
+		}
+		w.Header().Set("Content-Type", "application/json")
+		_, _ = w.Write([]byte(`{"ok":true,"result":true}`))
+	}))
+	defer server.Close()
+
+	bot := newTestBot(t, token, server.URL, server.Client())
+	ok, err := bot.SetWebhook(context.Background(), SetWebhookParams{URL: "http://127.0.0.1:8080/webhook"})
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if !ok {
+		t.Fatal("expected true result")
+	}
+}
+
 func TestSetWebhookReturnsAPIErrorAndRedactsSecrets(t *testing.T) {
 	const token = "123:secret"
 	const secret = "webhook_SECRET-123"

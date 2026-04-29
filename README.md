@@ -491,6 +491,21 @@ fmt.Println(ok)
 
 Webhook management is JSON-only for now. Webhook certificate upload, media groups, thumbnails, message editing, answerInlineQuery, WebApp/LoginUrl buttons, payments, sendAnimation, sendVideoNote, FSM, scenes, storage, dependency injection, and full Bot API coverage are not implemented yet.
 
+
+## Examples
+
+Runnable examples are available under `examples/`:
+
+- `examples/echo_longpoll` — basic long polling echo bot.
+- `examples/inline_longpoll` — inline keyboard callbacks with `AnswerCallbackQuery`.
+- `examples/webhook_server` — inbound webhook server with `SetWebhook`.
+- `examples/media_upload` — document upload and file download smoke checks.
+- `examples/local_api_server` — connectivity check for a local Telegram Bot API server.
+
+## Manual testing
+
+Manual smoke testing instructions are in [`docs/MANUAL_TESTING.md`](docs/MANUAL_TESTING.md). The examples require real environment variables at runtime, but they are written so `go test ./...` can compile them without a token.
+
 ## Development checks
 
 ```bash
