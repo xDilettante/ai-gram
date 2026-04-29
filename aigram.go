@@ -45,6 +45,18 @@ type DeleteWebhookParams = bot.DeleteWebhookParams
 // AnswerCallbackQueryParams contains supported parameters for answerCallbackQuery.
 type AnswerCallbackQueryParams = bot.AnswerCallbackQueryParams
 
+// EditMessageResult contains the result returned by edit message methods.
+type EditMessageResult = bot.EditMessageResult
+
+// EditMessageTarget identifies a chat or inline message for edit methods.
+type EditMessageTarget = bot.EditMessageTarget
+
+// EditMessageTextParams contains supported parameters for editMessageText.
+type EditMessageTextParams = bot.EditMessageTextParams
+
+// EditMessageReplyMarkupParams contains supported parameters for editMessageReplyMarkup.
+type EditMessageReplyMarkupParams = bot.EditMessageReplyMarkupParams
+
 // ChatID identifies a Telegram chat by numeric ID or username string.
 type ChatID = bot.ChatID
 
@@ -120,6 +132,16 @@ func ChatIDInt(id int64) ChatID {
 // ChatIDString creates a string chat ID, such as a channel username.
 func ChatIDString(id string) ChatID {
 	return bot.ChatIDString(id)
+}
+
+// EditTargetChat creates an edit target for a regular chat message.
+func EditTargetChat(chatID ChatID, messageID int64) EditMessageTarget {
+	return bot.EditTargetChat(chatID, messageID)
+}
+
+// EditTargetInline creates an edit target for an inline message.
+func EditTargetInline(inlineMessageID string) EditMessageTarget {
+	return bot.EditTargetInline(inlineMessageID)
 }
 
 // FileID creates a file reference from an existing Telegram file_id.

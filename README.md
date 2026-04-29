@@ -2,7 +2,7 @@
 
 `ai-gram` is a Go library project for working with the Telegram Bot API.
 
-The project is in an early architecture stage. It provides a minimal package skeleton, practical incoming update types, a foundational HTTP core, the first public Bot API methods, media sending by file_id, URL, or multipart upload, minimal file download support, webhook management methods, a managed long polling runner, an inbound webhook HTTP handler, a small update dispatcher/router, and helper middleware. It does not yet implement FSM, scenes, storage, media groups, thumbnails, editMessageReplyMarkup/editMessageText, sendAnimation/sendVideoNote, or full Bot API coverage.
+The project is in an early architecture stage. It provides a minimal package skeleton, practical incoming update types, a foundational HTTP core, the first public Bot API methods, media sending by file_id, URL, or multipart upload, minimal file download support, webhook management methods, a managed long polling runner, an inbound webhook HTTP handler, a small update dispatcher/router, and helper middleware. It does not yet implement FSM, scenes, storage, media groups, thumbnails, sendAnimation/sendVideoNote, or full Bot API coverage.
 
 ## Статус
 
@@ -14,7 +14,7 @@ The project is in an early architecture stage. It provides a minimal package ske
 - Dispatcher/router: supports predicates, message/command/callback routes, middleware, fallback, and error handling.
 - Middleware helpers: recover, timeout, and hook-based observability are available.
 - Long polling transport: managed runner is available. Webhook transport: inbound HTTP handler is available.
-- Telegram Bot API method coverage: `GetMe`, `SendMessage`, `SendPhoto`, `SendDocument`, `SendVideo`, `SendAudio`, `SendVoice`, `AnswerCallbackQuery`, reply markup for supported send methods, the manual `GetUpdates` API call, `GetFile`, `DownloadFile`, multipart upload for media send methods, and JSON-only webhook management methods (`SetWebhook`, `DeleteWebhook`, `GetWebhookInfo`) are implemented. The rest of the Bot API is not implemented yet.
+- Telegram Bot API method coverage: `GetMe`, `SendMessage`, `SendPhoto`, `SendDocument`, `SendVideo`, `SendAudio`, `SendVoice`, `AnswerCallbackQuery`, `EditMessageText`, `EditMessageReplyMarkup`, reply markup for supported send and edit methods, the manual `GetUpdates` API call, `GetFile`, `DownloadFile`, multipart upload for media send methods, and JSON-only webhook management methods (`SetWebhook`, `DeleteWebhook`, `GetWebhookInfo`) are implemented. The rest of the Bot API is not implemented yet.
 - Public API stability: not guaranteed before the first stable release.
 
 ## Планируемая архитектура
@@ -149,7 +149,46 @@ if err != nil {
 }
 ```
 
-Reply markup currently supports inline keyboards, reply keyboards, keyboard removal, and force reply. `AnswerCallbackQuery` can acknowledge callback taps with a toast or alert. Message editing, WebApp/LoginUrl buttons, payments, and a keyboard builder DSL will be added separately later.
+Edit a message from a callback query and remove the inline keyboard:
+
+```go
+d := dispatch.New()
+
+if err := d.OnCallbackDataFunc("confirm", func(ctx context.Context, update telegram.Update) error {
+    if update.CallbackQuery == nil {
+        return nil
+    }
+
+    if _, err := b.AnswerCallbackQuery(ctx, aigram.AnswerCallbackQueryParams{
+        CallbackQueryID: update.CallbackQuery.ID,
+        Text:            "Готово",
+    }); err != nil {
+        return err
+    }
+
+    msg := update.CallbackQuery.Message
+    if msg == nil {
+        return nil
+    }
+
+    if _, err := b.EditMessageText(ctx, aigram.EditMessageTextParams{
+        Target: aigram.EditTargetChat(aigram.ChatIDInt(msg.Chat.ID), msg.MessageID),
+        Text:   "Confirmed",
+    }); err != nil {
+        return err
+    }
+
+    _, err := b.EditMessageReplyMarkup(ctx, aigram.EditMessageReplyMarkupParams{
+        Target: aigram.EditTargetChat(aigram.ChatIDInt(msg.Chat.ID), msg.MessageID),
+        // nil ReplyMarkup removes the inline keyboard.
+    })
+    return err
+}); err != nil {
+    return err
+}
+```
+
+Reply markup currently supports inline keyboards, reply keyboards, keyboard removal, and force reply for send methods. Edit methods intentionally accept only inline keyboard markup. `AnswerCallbackQuery` can acknowledge callback taps with a toast or alert. `editMessageCaption`, `editMessageMedia`, WebApp/LoginUrl buttons, payments, and a keyboard builder DSL will be added separately later.
 
 Send media by `file_id`, URL, or multipart upload:
 
