@@ -1,33 +1,162 @@
-// Package webhook contains the future webhook update transport.
+// Package webhook contains an HTTP handler for incoming Telegram webhook updates.
 package webhook
 
-// Config describes future webhook receiver options.
+import (
+	"context"
+	"crypto/subtle"
+	"encoding/json"
+	stderrors "errors"
+	"mime"
+	"net/http"
+	"regexp"
+
+	"ai-gram/telegram"
+)
+
+const (
+	secretTokenHeader    = "X-Telegram-Bot-Api-Secret-Token"
+	defaultMaxBodyBytes  = 1 << 20
+	maxSecretTokenLength = 256
+)
+
+var validSecretTokenPattern = regexp.MustCompile(`^[A-Za-z0-9_-]+$`)
+
+// Handler handles one Telegram update.
+type Handler interface {
+	HandleUpdate(context.Context, telegram.Update) error
+}
+
+// HandlerFunc adapts a function to Handler.
+type HandlerFunc func(context.Context, telegram.Update) error
+
+// HandleUpdate calls f(ctx, update).
+func (f HandlerFunc) HandleUpdate(ctx context.Context, update telegram.Update) error {
+	return f(ctx, update)
+}
+
+// Config configures a webhook HTTP handler.
 type Config struct {
-	// Path is the HTTP path that will receive Telegram webhook updates.
-	Path string
-	// SecretToken is the Telegram webhook secret token used to validate incoming requests.
+	// SecretToken is the optional Telegram webhook secret token.
 	SecretToken string
-	// MaxBodyBytes limits the accepted request body size when webhook I/O is implemented.
+	// MaxBodyBytes limits the accepted request body size.
 	MaxBodyBytes int64
+	// OnError handles errors returned by the update handler.
+	OnError func(context.Context, *telegram.Update, error)
 }
 
-// Receiver is a placeholder for a future webhook update receiver.
-//
-// Request handling and shutdown operations will accept context.Context when implemented.
-type Receiver struct {
-	config Config
+type receiver struct {
+	handler      Handler
+	secretToken  string
+	maxBodyBytes int64
+	onError      func(context.Context, *telegram.Update, error)
 }
 
-// New creates a Receiver scaffold with config.
-func New(config Config) *Receiver {
-	return &Receiver{config: config}
-}
-
-// Config returns the Receiver configuration.
-func (r *Receiver) Config() Config {
-	if r == nil {
-		return Config{}
+// New creates an HTTP handler for Telegram webhook requests.
+func New(handler Handler, config Config) (http.Handler, error) {
+	if handler == nil {
+		return nil, stderrors.New("handler is required")
+	}
+	if err := validateSecretToken(config.SecretToken); err != nil {
+		return nil, err
+	}
+	maxBodyBytes := config.MaxBodyBytes
+	if maxBodyBytes <= 0 {
+		maxBodyBytes = defaultMaxBodyBytes
 	}
 
-	return r.config
+	return &receiver{
+		handler:      handler,
+		secretToken:  config.SecretToken,
+		maxBodyBytes: maxBodyBytes,
+		onError:      config.OnError,
+	}, nil
+}
+
+func (r *receiver) ServeHTTP(w http.ResponseWriter, req *http.Request) {
+	if req.Method != http.MethodPost {
+		writeSafeError(w, http.StatusMethodNotAllowed, "method not allowed")
+		return
+	}
+	if !isJSONContentType(req.Header.Get("Content-Type")) {
+		writeSafeError(w, http.StatusUnsupportedMediaType, "unsupported media type")
+		return
+	}
+	if r.secretToken != "" && !secretTokenMatches(r.secretToken, req.Header.Get(secretTokenHeader)) {
+		writeSafeError(w, http.StatusUnauthorized, "unauthorized")
+		return
+	}
+
+	body := http.MaxBytesReader(w, req.Body, r.maxBodyBytes)
+	defer body.Close()
+
+	var update telegram.Update
+	decoder := json.NewDecoder(body)
+	if err := decoder.Decode(&update); err != nil {
+		writeSafeError(w, statusForDecodeError(err), "bad request")
+		return
+	}
+	if decoder.More() {
+		writeSafeError(w, http.StatusBadRequest, "bad request")
+		return
+	}
+
+	if err := r.handler.HandleUpdate(req.Context(), update); err != nil {
+		if r.onError != nil {
+			r.onError(req.Context(), &update, err)
+		}
+		writeSafeError(w, http.StatusInternalServerError, "internal server error")
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	_, _ = w.Write([]byte("ok\n"))
+}
+
+func validateSecretToken(secretToken string) error {
+	if secretToken == "" {
+		return nil
+	}
+	if len(secretToken) > maxSecretTokenLength {
+		return stderrors.New("secret token length must be between 1 and 256")
+	}
+	if !validSecretTokenPattern.MatchString(secretToken) {
+		return stderrors.New("secret token contains invalid characters")
+	}
+
+	return nil
+}
+
+func isJSONContentType(contentType string) bool {
+	if contentType == "" {
+		return false
+	}
+
+	mediaType, _, err := mime.ParseMediaType(contentType)
+	return err == nil && mediaType == "application/json"
+}
+
+func secretTokenMatches(expected string, actual string) bool {
+	if expected == "" {
+		return true
+	}
+	if len(expected) != len(actual) {
+		return false
+	}
+
+	return subtle.ConstantTimeCompare([]byte(actual), []byte(expected)) == 1
+}
+
+func statusForDecodeError(err error) int {
+	var maxBytesErr *http.MaxBytesError
+	if stderrors.As(err, &maxBytesErr) {
+		return http.StatusRequestEntityTooLarge
+	}
+
+	return http.StatusBadRequest
+}
+
+func writeSafeError(w http.ResponseWriter, status int, message string) {
+	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
+	w.WriteHeader(status)
+	_, _ = w.Write([]byte(message + "\n"))
 }

@@ -2,7 +2,7 @@
 
 `ai-gram` is a Go library project for working with the Telegram Bot API.
 
-The project is in an early architecture stage. It provides a minimal package skeleton, a foundational HTTP core, the first public Bot API methods, a managed long polling runner, a small update dispatcher/router, and helper middleware. It does not yet implement webhooks, FSM, scenes, or storage.
+The project is in an early architecture stage. It provides a minimal package skeleton, a foundational HTTP core, the first public Bot API methods, a managed long polling runner, an inbound webhook HTTP handler, a small update dispatcher/router, and helper middleware. It does not yet implement FSM, scenes, or storage.
 
 ## Статус
 
@@ -13,7 +13,7 @@ The project is in an early architecture stage. It provides a minimal package ske
 - Typed Telegram API errors: scaffolded.
 - Dispatcher/router: supports predicates, message/command/callback routes, middleware, fallback, and error handling.
 - Middleware helpers: recover, timeout, and hook-based observability are available.
-- Long polling transport: managed runner is available. Webhook transport: placeholder only.
+- Long polling transport: managed runner is available. Webhook transport: inbound HTTP handler is available.
 - Telegram Bot API method coverage: `GetMe`, `SendMessage`, and the manual `GetUpdates` API call are implemented. The rest of the Bot API is not implemented yet.
 - Public API stability: not guaranteed before the first stable release.
 
@@ -28,7 +28,7 @@ The library is split into small packages with clear responsibilities:
 - `dispatch` defines update routing, middleware, fallback handling, and error handling without depending on HTTP details.
 - `middleware` provides reusable dispatch middleware helpers for panic recovery, per-update timeout contexts, and hook-based observability.
 - `transport/longpoll` provides a managed runner that repeatedly calls `GetUpdates` and passes updates to a handler.
-- `transport/webhook` is reserved for webhook update delivery.
+- `transport/webhook` provides an inbound `net/http` handler for Telegram webhook updates.
 - `aigram` is a lightweight root facade that re-exports the most important public types.
 
 The intended dependency direction is data types first, then the Bot API client and transports, then dispatching and middleware. Transports deliver updates; dispatchers process already received updates; the API client does not know about dispatching.
@@ -138,7 +138,25 @@ if err := runner.Run(ctx); err != nil {
 }
 ```
 
-The long polling runner fetches updates and calls a handler; `dispatch.Dispatcher` is one compatible handler implementation. FSM, scenes, storage, dependency injection, full Bot API coverage, and webhook support are not implemented yet.
+The long polling runner fetches updates and calls a handler; `dispatch.Dispatcher` is one compatible handler implementation.
+
+Serve inbound webhook updates with `net/http`:
+
+```go
+webhookHandler, err := webhook.New(d, webhook.Config{
+    SecretToken: "your-secret-token",
+})
+if err != nil {
+    return err
+}
+
+http.Handle("/telegram/webhook", webhookHandler)
+if err := http.ListenAndServe(":8080", nil); err != nil {
+    return err
+}
+```
+
+The webhook transport only receives updates. Bot API methods for `SetWebhook`, `DeleteWebhook`, and webhook info will be added separately later. FSM, scenes, storage, dependency injection, and full Bot API coverage are not implemented yet.
 
 ## Development checks
 
