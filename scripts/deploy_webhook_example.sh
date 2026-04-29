@@ -94,6 +94,8 @@ echo "Uploading webhook binary, systemd unit, and redacted environment file to r
 "${SCP_CMD[@]}" "${tmp_dir}/service.service" "${DEPLOY_REMOTE}:${remote_tmp}/service.service" >/dev/null
 
 echo "Installing service ${AIGRAM_SERVICE_NAME} on ${DEPLOY_REMOTE_LABEL}."
+set +e
+{
 "${SSH_CMD[@]}" bash -s -- "${remote_tmp}" "${AIGRAM_DEPLOY_DIR}" "${REMOTE_ENV_DIR}" "${AIGRAM_SERVICE_NAME}" <<'REMOTE_SCRIPT'
 set -euo pipefail
 
@@ -134,6 +136,12 @@ if [ "${restart_rc}" -ne 0 ]; then
 fi
 exit "${status_rc}"
 REMOTE_SCRIPT
+} 2>&1 | sanitize_stream
+remote_status=${PIPESTATUS[0]}
+set -e
+if [ "${remote_status}" -ne 0 ]; then
+  exit "${remote_status}"
+fi
 remote_tmp=""
 
 echo "Deploy finished. Remote env file: ${REMOTE_ENV_FILE}; webhook secret: $(mask_secret "${AIGRAM_WEBHOOK_SECRET:-}")"

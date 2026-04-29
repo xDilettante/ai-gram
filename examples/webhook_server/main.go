@@ -45,7 +45,16 @@ func run() error {
 	if err != nil {
 		return err
 	}
-	handler, err := webhook.New(dp, webhook.Config{SecretToken: secret})
+	handler, err := webhook.New(dp, webhook.Config{
+		SecretToken: secret,
+		OnError: func(ctx context.Context, update *telegram.Update, err error) {
+			if update != nil {
+				log.Printf("webhook handler error update_id=%d: %v", update.UpdateID, err)
+				return
+			}
+			log.Printf("webhook handler error: %v", err)
+		},
+	})
 	if err != nil {
 		return err
 	}
@@ -96,6 +105,7 @@ func newDispatcher(b *aigram.Bot) (*dispatch.Dispatcher, error) {
 		if message == nil {
 			return nil
 		}
+		log.Printf("webhook update_id=%d command=start", update.UpdateID)
 		_, err := b.SendMessage(ctx, aigram.SendMessageParams{ChatID: aigram.ChatIDInt(message.Chat.ID), Text: "Webhook bot is running"})
 		return err
 	}); err != nil {
@@ -106,6 +116,7 @@ func newDispatcher(b *aigram.Bot) (*dispatch.Dispatcher, error) {
 		if message == nil || message.Text == "" {
 			return nil
 		}
+		log.Printf("webhook update_id=%d message=text", update.UpdateID)
 		_, err := b.SendMessage(ctx, aigram.SendMessageParams{ChatID: aigram.ChatIDInt(message.Chat.ID), Text: "echo: " + message.Text})
 		return err
 	}); err != nil {
@@ -115,6 +126,7 @@ func newDispatcher(b *aigram.Bot) (*dispatch.Dispatcher, error) {
 		if update.CallbackQuery == nil {
 			return nil
 		}
+		log.Printf("webhook update_id=%d callback=demo:yes", update.UpdateID)
 		_, err := b.AnswerCallbackQuery(ctx, aigram.AnswerCallbackQueryParams{CallbackQueryID: update.CallbackQuery.ID, Text: "OK"})
 		return err
 	}); err != nil {

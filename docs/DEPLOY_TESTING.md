@@ -75,9 +75,13 @@ After discovery, run:
 
 The script runs `examples/local_api_server`, which calls `GetMe` and `GetWebhookInfo`. If `AIGRAM_BASE_URL` is still unknown, it will invoke discovery and then fail with a clear message if no local Bot API server is found.
 
+If discovery selected a loopback base URL such as `http://127.0.0.1:8081` on `vk1`, the smoke script checks whether that URL is reachable locally. When it is not reachable, it opens a temporary SSH tunnel to `vk1`, rewrites `AIGRAM_BASE_URL`/`AIGRAM_FILE_BASE_URL` for the current process, and closes the tunnel on exit.
+
 ## Long polling smoke
 
 Long polling can use the official Telegram API or the discovered local Bot API server. The example calls `DeleteWebhook` with `drop_pending_updates=true` before polling because Telegram webhook and long polling modes are mutually exclusive.
+
+When `AIGRAM_BASE_URL` points to a remote loopback discovered on `vk1`, the script uses the same temporary SSH tunnel mechanism as `smoke_local_api.sh`.
 
 ```bash
 ./scripts/smoke_longpoll.sh
@@ -95,6 +99,8 @@ Set at least one of `AIGRAM_MEDIA_PATH` or `AIGRAM_FILE_ID` in `.env.local`:
 
 - `AIGRAM_MEDIA_PATH` uploads a local file through `SendDocument` and `FileUpload`.
 - `AIGRAM_FILE_ID` calls `GetFile` and downloads the file into memory through `DownloadFile`.
+
+When `AIGRAM_BASE_URL`/`AIGRAM_FILE_BASE_URL` point to a remote loopback discovered on `vk1`, the script opens a temporary SSH tunnel and rewrites those URLs only for the smoke process.
 
 ## Deploy webhook example
 
@@ -152,11 +158,13 @@ AIGRAM_DEPLOY_SSH_KEY=
 ./scripts/remote_logs.sh
 ```
 
-This shows:
+This shows the latest systemd journal lines for the service:
 
 ```bash
 journalctl -u "$AIGRAM_SERVICE_NAME" -n 120 --no-pager
 ```
+
+The script filters output before printing it locally: configured bot token, webhook secret, and generic `/bot<TOKEN>/...` endpoints are redacted. The deploy script applies the same filter to `systemctl status` and journal output printed after restart.
 
 ## Stop remote service
 
@@ -189,7 +197,7 @@ Important distinctions:
 - `127.0.0.1` and `localhost` always mean the machine where the command runs.
 - Local `127.0.0.1` is the user's workstation; `ssh vk1 'curl http://127.0.0.1:8081/...'` is the `vk1` loopback.
 - A local Telegram Bot API server can be reachable on `vk1` as `http://127.0.0.1:8081` while being unreachable directly from the user's machine.
-- `smoke_local_api.sh` runs locally, so when discovery selects a remote loopback `AIGRAM_BASE_URL`, the script may need an SSH tunnel such as `127.0.0.1:8081 -> vk1:127.0.0.1:8081`.
+- Smoke scripts run locally. When discovery selects a remote loopback `AIGRAM_BASE_URL`, the scripts now open a temporary SSH tunnel automatically, for example local `127.0.0.1:18081 -> vk1:127.0.0.1:8081`.
 - A webhook URL must be reachable by the component that sends webhook requests: official Telegram, the local Telegram Bot API server, or a synthetic local probe.
 
 Recommended checks:
@@ -206,10 +214,10 @@ Check local access separately:
 curl -sS --max-time 2 http://127.0.0.1:8081/ || true
 ```
 
-If `vk1` can reach the Bot API but the local workstation cannot, create an SSH tunnel before running local smoke scripts:
+If `vk1` can reach the Bot API but the local workstation cannot, the smoke scripts should create and clean up a temporary SSH tunnel automatically. For manual debugging, use a tunnel like this and stop it when done:
 
 ```bash
-ssh -N -L 127.0.0.1:8081:127.0.0.1:8081 vk1
+ssh -N -L 127.0.0.1:18081:127.0.0.1:8081 vk1
 ```
 
 When a network check fails, first record where it ran: locally or through `ssh vk1`. Then check routing/TUN, tunnel state, firewall/listening ports, systemd logs, and `getWebhookInfo` before changing library code. Never print the bot token, webhook secret, token-bearing URLs, or full `/bot<TOKEN>/...` endpoints while debugging.

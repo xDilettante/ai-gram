@@ -126,3 +126,148 @@ configure_deploy_ssh() {
 
   DEPLOY_SSH_OPTS+=(-o StrictHostKeyChecking=accept-new)
 }
+
+sanitize_stream() {
+  local token="${AIGRAM_BOT_TOKEN:-}"
+  local secret="${AIGRAM_WEBHOOK_SECRET:-}"
+  python3 -c '
+import os, re, sys
+text = sys.stdin.read()
+for value, repl in ((os.environ.get("AIGRAM_BOT_TOKEN", ""), "<BOT_TOKEN>"), (os.environ.get("AIGRAM_WEBHOOK_SECRET", ""), "<WEBHOOK_SECRET>")):
+    if value:
+        text = text.replace(value, repl)
+text = re.sub(r"/bot[0-9]+:[A-Za-z0-9_-]+/", "/bot<TOKEN>/", text)
+text = re.sub(r"bot[0-9]+:[A-Za-z0-9_-]+", "bot<TOKEN>", text)
+sys.stdout.write(text)
+'
+}
+
+is_loopback_url() {
+  case "${1:-}" in
+    http://127.0.0.1|http://127.0.0.1:*|http://127.0.0.1/*|http://127.0.0.1:*/*|\
+    https://127.0.0.1|https://127.0.0.1:*|https://127.0.0.1/*|https://127.0.0.1:*/*|\
+    http://localhost|http://localhost:*|http://localhost/*|http://localhost:*/*|\
+    https://localhost|https://localhost:*|https://localhost/*|https://localhost:*/*)
+      return 0
+      ;;
+    *) return 1 ;;
+  esac
+}
+
+url_scheme() {
+  local url="$1"
+  printf '%s\n' "${url%%://*}"
+}
+
+url_port() {
+  local url="$1"
+  local rest hostport port scheme
+  scheme="${url%%://*}"
+  rest="${url#*://}"
+  hostport="${rest%%/*}"
+  if [[ "${hostport}" == *:* ]]; then
+    port="${hostport##*:}"
+  elif [ "${scheme}" = "https" ]; then
+    port="443"
+  else
+    port="80"
+  fi
+  if [[ ! "${port}" =~ ^[0-9]+$ ]]; then
+    echo "cannot parse port from URL: ${url}" >&2
+    return 1
+  fi
+  printf '%s\n' "${port}"
+}
+
+url_path_suffix() {
+  local url="$1"
+  local rest="${url#*://}"
+  if [[ "${rest}" == */* ]]; then
+    printf '/%s\n' "${rest#*/}"
+  else
+    printf '\n'
+  fi
+}
+
+local_http_reachable() {
+  local url="$1"
+  local code
+  code=$(curl -sS --max-time 2 -o /dev/null -w '%{http_code}' "${url}" 2>/dev/null || true)
+  [ -n "${code}" ] && [ "${code}" != "000" ]
+}
+
+find_free_local_port() {
+  local preferred="$1"
+  local port
+  for port in "${preferred}" 18081 18080 18090 18181 18180 18190 19081 19080 19090; do
+    if [[ "${port}" =~ ^[0-9]+$ ]] && ! ss -ltn 2>/dev/null | awk '{print $4}' | grep -Eq "(^|:)${port}$"; then
+      printf '%s\n' "${port}"
+      return 0
+    fi
+  done
+  echo "cannot find a free local port for SSH tunnel" >&2
+  return 1
+}
+
+cleanup_smoke_tunnels() {
+  local pid
+  for pid in ${AIGRAM_SMOKE_TUNNEL_PIDS:-}; do
+    kill "${pid}" >/dev/null 2>&1 || true
+    wait "${pid}" >/dev/null 2>&1 || true
+  done
+  AIGRAM_SMOKE_TUNNEL_PIDS=""
+}
+
+prepare_smoke_tunnel() {
+  local base="${AIGRAM_BASE_URL:-}"
+  local remote_port local_port local_base suffix preferred wait_attempt
+
+  [ -n "${base}" ] || return 0
+  is_loopback_url "${base}" || return 0
+
+  if local_http_reachable "${base}"; then
+    echo "Loopback Bot API base URL is reachable locally: ${base}"
+    return 0
+  fi
+
+  configure_deploy_ssh
+  remote_port="$(url_port "${base}")"
+  if [ "${remote_port}" -lt 1000 ]; then
+    preferred=$((18000 + remote_port))
+  else
+    preferred=$((10000 + remote_port))
+  fi
+  local_port="$(find_free_local_port "${preferred}")"
+  suffix="$(url_path_suffix "${base}")"
+  local_base="$(url_scheme "${base}")://127.0.0.1:${local_port}${suffix}"
+
+  echo "Local ${base} is not reachable; opening temporary SSH tunnel via ${DEPLOY_REMOTE_LABEL}: 127.0.0.1:${local_port} -> 127.0.0.1:${remote_port}."
+  ssh "${DEPLOY_SSH_OPTS[@]}" -o ExitOnForwardFailure=yes -N -L "127.0.0.1:${local_port}:127.0.0.1:${remote_port}" "${DEPLOY_REMOTE}" >/tmp/aigram-smoke-tunnel.log 2>&1 &
+  local pid=$!
+  AIGRAM_SMOKE_TUNNEL_PIDS="${AIGRAM_SMOKE_TUNNEL_PIDS:-} ${pid}"
+  export AIGRAM_SMOKE_TUNNEL_PIDS
+
+  for wait_attempt in 1 2 3 4 5; do
+    if local_http_reachable "${local_base}"; then
+      export AIGRAM_BASE_URL="${local_base}"
+      if [ -z "${AIGRAM_FILE_BASE_URL:-}" ] || is_loopback_url "${AIGRAM_FILE_BASE_URL}"; then
+        export AIGRAM_FILE_BASE_URL="${local_base%/}/file"
+      fi
+      echo "Using tunneled Bot API base URL: ${AIGRAM_BASE_URL}"
+      return 0
+    fi
+    sleep 0.4
+  done
+
+  echo "SSH tunnel started but ${local_base} is not reachable; see /tmp/aigram-smoke-tunnel.log" >&2
+  return 1
+}
+
+run_sanitized() {
+  local status
+  set +e
+  "$@" 2>&1 | sanitize_stream
+  status=${PIPESTATUS[0]}
+  set -e
+  return "${status}"
+}

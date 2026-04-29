@@ -9,7 +9,8 @@ require_env AIGRAM_SERVICE_NAME >/dev/null
 
 configure_deploy_ssh
 
-ssh "${DEPLOY_SSH_OPTS[@]}" "${DEPLOY_REMOTE}" bash -s -- "${AIGRAM_SERVICE_NAME}" <<'REMOTE_SCRIPT'
+set +e
+ssh "${DEPLOY_SSH_OPTS[@]}" "${DEPLOY_REMOTE}" bash -s -- "${AIGRAM_SERVICE_NAME}" <<'REMOTE_SCRIPT' 2>&1 | sanitize_stream
 set -euo pipefail
 service_name="$1"
 if [ "$(id -u)" -eq 0 ]; then
@@ -20,3 +21,6 @@ else
   journalctl -u "${service_name}" -n 120 --no-pager
 fi
 REMOTE_SCRIPT
+status=${PIPESTATUS[0]}
+set -e
+exit "${status}"
