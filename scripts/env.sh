@@ -162,7 +162,9 @@ export_bot_token_for_role() {
 }
 
 shell_quote() {
-  printf '%s' "$1" | sed "s/'/'\\''/g; s/^/'/; s/$/'/"
+  printf "'"
+  printf '%s' "${1:-}" | sed "s/'/'\\\\''/g"
+  printf "'"
 }
 
 deploy_ssh_target() {

@@ -10,7 +10,7 @@ BOTAPI_SSH_CMD=(ssh "${BOTAPI_SSH_OPTS[@]}" "${BOTAPI_REMOTE}")
 
 remote_binary_probe='set -e
 if [ -n "${AIGRAM_BOTAPI_BINARY:-}" ]; then
-  if [ -x "${AIGRAM_BOTAPI_BINARY}" ]; then
+  if [ -f "${AIGRAM_BOTAPI_BINARY}" ] && [ -x "${AIGRAM_BOTAPI_BINARY}" ]; then
     printf "%s\n" "${AIGRAM_BOTAPI_BINARY}"
     exit 0
   fi
@@ -22,7 +22,7 @@ for candidate in \
   "$HOME/telegram-bot-api/build/telegram-bot-api" \
   "$HOME/telegram-bot-api/telegram-bot-api" \
   "$HOME/bin/telegram-bot-api"; do
-  if [ -x "$candidate" ]; then
+  if [ -f "$candidate" ] && [ -x "$candidate" ]; then
     printf "%s\n" "$candidate"
     exit 0
   fi

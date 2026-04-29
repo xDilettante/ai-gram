@@ -27,7 +27,7 @@ find_remote_binary() {
   local probe
   probe='set -e
 if [ -n "${AIGRAM_BOTAPI_BINARY:-}" ]; then
-  [ -x "${AIGRAM_BOTAPI_BINARY}" ] && printf "%s\n" "${AIGRAM_BOTAPI_BINARY}"
+  [ -f "${AIGRAM_BOTAPI_BINARY}" ] && [ -x "${AIGRAM_BOTAPI_BINARY}" ] && printf "%s\n" "${AIGRAM_BOTAPI_BINARY}"
   exit 0
 fi
 for candidate in \
@@ -36,7 +36,7 @@ for candidate in \
   "$HOME/telegram-bot-api/build/telegram-bot-api" \
   "$HOME/telegram-bot-api/telegram-bot-api" \
   "$HOME/bin/telegram-bot-api"; do
-  if [ -x "$candidate" ]; then
+  if [ -f "$candidate" ] && [ -x "$candidate" ]; then
     printf "%s\n" "$candidate"
     exit 0
   fi
