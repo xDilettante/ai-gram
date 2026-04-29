@@ -45,6 +45,9 @@ type DeleteWebhookParams = bot.DeleteWebhookParams
 // AnswerCallbackQueryParams contains supported parameters for answerCallbackQuery.
 type AnswerCallbackQueryParams = bot.AnswerCallbackQueryParams
 
+// DeleteMessageParams contains supported parameters for deleteMessage.
+type DeleteMessageParams = bot.DeleteMessageParams
+
 // EditMessageResult contains the result returned by edit message methods.
 type EditMessageResult = bot.EditMessageResult
 
@@ -56,6 +59,9 @@ type EditMessageTextParams = bot.EditMessageTextParams
 
 // EditMessageReplyMarkupParams contains supported parameters for editMessageReplyMarkup.
 type EditMessageReplyMarkupParams = bot.EditMessageReplyMarkupParams
+
+// EditMessageCaptionParams contains supported parameters for editMessageCaption.
+type EditMessageCaptionParams = bot.EditMessageCaptionParams
 
 // ChatID identifies a Telegram chat by numeric ID or username string.
 type ChatID = bot.ChatID

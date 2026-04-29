@@ -88,6 +88,15 @@ type EditMessageReplyMarkupParams struct {
 	ReplyMarkup *telegram.InlineKeyboardMarkup `json:"reply_markup,omitempty"`
 }
 
+// EditMessageCaptionParams contains supported parameters for editMessageCaption.
+type EditMessageCaptionParams struct {
+	Target          EditMessageTarget              `json:"-"`
+	Caption         string                         `json:"caption,omitempty"`
+	ParseMode       string                         `json:"parse_mode,omitempty"`
+	CaptionEntities []telegram.MessageEntity       `json:"caption_entities,omitempty"`
+	ReplyMarkup     *telegram.InlineKeyboardMarkup `json:"reply_markup,omitempty"`
+}
+
 // EditMessageText edits text and inline keyboard markup for an existing chat or inline message.
 func (b *Bot) EditMessageText(ctx context.Context, params EditMessageTextParams) (*EditMessageResult, error) {
 	if err := params.validate(); err != nil {
@@ -110,6 +119,20 @@ func (b *Bot) EditMessageReplyMarkup(ctx context.Context, params EditMessageRepl
 
 	var result EditMessageResult
 	if err := b.call(ctx, "editMessageReplyMarkup", params.payload(), &result); err != nil {
+		return nil, err
+	}
+
+	return &result, nil
+}
+
+// EditMessageCaption edits the caption and inline keyboard markup for an existing chat or inline message.
+func (b *Bot) EditMessageCaption(ctx context.Context, params EditMessageCaptionParams) (*EditMessageResult, error) {
+	if err := params.validate(); err != nil {
+		return nil, err
+	}
+
+	var result EditMessageResult
+	if err := b.call(ctx, "editMessageCaption", params.payload(), &result); err != nil {
 		return nil, err
 	}
 
@@ -173,6 +196,22 @@ func (params EditMessageReplyMarkupParams) validate() error {
 	return nil
 }
 
+func (params EditMessageCaptionParams) validate() error {
+	if err := params.Target.validate(); err != nil {
+		return err
+	}
+	if err := validateCaptionFormatting(params.ParseMode, params.CaptionEntities); err != nil {
+		return err
+	}
+	if params.ReplyMarkup != nil {
+		if err := telegram.ValidateReplyMarkup(*params.ReplyMarkup); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
 type editMessageTextPayload struct {
 	ChatID              *ChatID                        `json:"chat_id,omitempty"`
 	MessageID           int64                          `json:"message_id,omitempty"`
@@ -191,36 +230,64 @@ type editMessageReplyMarkupPayload struct {
 	ReplyMarkup     *telegram.InlineKeyboardMarkup `json:"reply_markup,omitempty"`
 }
 
+type editMessageCaptionPayload struct {
+	ChatID          *ChatID                        `json:"chat_id,omitempty"`
+	MessageID       int64                          `json:"message_id,omitempty"`
+	InlineMessageID string                         `json:"inline_message_id,omitempty"`
+	Caption         string                         `json:"caption"`
+	ParseMode       string                         `json:"parse_mode,omitempty"`
+	CaptionEntities []telegram.MessageEntity       `json:"caption_entities,omitempty"`
+	ReplyMarkup     *telegram.InlineKeyboardMarkup `json:"reply_markup,omitempty"`
+}
+
 func (params EditMessageTextParams) payload() editMessageTextPayload {
+	chatID, messageID, inlineMessageID := params.Target.payloadValues()
 	payload := editMessageTextPayload{
-		InlineMessageID:     params.Target.InlineMessageID,
+		ChatID:              chatID,
+		MessageID:           messageID,
+		InlineMessageID:     inlineMessageID,
 		Text:                params.Text,
 		ParseMode:           params.ParseMode,
 		Entities:            params.Entities,
 		LinkPreviewDisabled: params.LinkPreviewDisabled,
 		ReplyMarkup:         params.ReplyMarkup,
 	}
-	if params.Target.ChatID.valid() {
-		chatID := params.Target.ChatID
-		payload.ChatID = &chatID
-		payload.MessageID = params.Target.MessageID
-	}
 
 	return payload
 }
 
 func (params EditMessageReplyMarkupParams) payload() editMessageReplyMarkupPayload {
+	chatID, messageID, inlineMessageID := params.Target.payloadValues()
 	payload := editMessageReplyMarkupPayload{
-		InlineMessageID: params.Target.InlineMessageID,
+		ChatID:          chatID,
+		MessageID:       messageID,
+		InlineMessageID: inlineMessageID,
 		ReplyMarkup:     params.ReplyMarkup,
-	}
-	if params.Target.ChatID.valid() {
-		chatID := params.Target.ChatID
-		payload.ChatID = &chatID
-		payload.MessageID = params.Target.MessageID
 	}
 
 	return payload
+}
+
+func (params EditMessageCaptionParams) payload() editMessageCaptionPayload {
+	chatID, messageID, inlineMessageID := params.Target.payloadValues()
+	return editMessageCaptionPayload{
+		ChatID:          chatID,
+		MessageID:       messageID,
+		InlineMessageID: inlineMessageID,
+		Caption:         params.Caption,
+		ParseMode:       params.ParseMode,
+		CaptionEntities: params.CaptionEntities,
+		ReplyMarkup:     params.ReplyMarkup,
+	}
+}
+
+func (target EditMessageTarget) payloadValues() (*ChatID, int64, string) {
+	if target.ChatID.valid() {
+		chatID := target.ChatID
+		return &chatID, target.MessageID, ""
+	}
+
+	return nil, 0, target.InlineMessageID
 }
 
 func validateEntityFormatting(parseMode string, entities []telegram.MessageEntity) error {

@@ -397,3 +397,211 @@ func TestEditMessageResponseAndContextErrors(t *testing.T) {
 		assertNoToken(t, err, token)
 	})
 }
+
+func TestEditMessageCaptionChatTargetSendsPayloadAndDecodesMessage(t *testing.T) {
+	const token = "123:secret"
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodPost {
+			t.Fatalf("unexpected method: %s", r.Method)
+		}
+		if r.URL.Path != "/bot"+token+"/editMessageCaption" {
+			t.Fatalf("unexpected path: %q", r.URL.Path)
+		}
+		var payload map[string]any
+		if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
+			t.Fatalf("decode payload: %v", err)
+		}
+		if payload["chat_id"] != float64(12345) || payload["message_id"] != float64(77) {
+			t.Fatalf("unexpected target payload: %#v", payload)
+		}
+		if payload["caption"] != "edited caption" || payload["parse_mode"] != "HTML" {
+			t.Fatalf("unexpected caption payload: %#v", payload)
+		}
+		reply := payload["reply_markup"].(map[string]any)
+		if _, ok := reply["inline_keyboard"]; !ok {
+			t.Fatalf("reply_markup missing inline keyboard: %#v", reply)
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		_, _ = w.Write([]byte(`{"ok":true,"result":{"message_id":77,"chat":{"id":12345,"type":"private"},"date":100,"caption":"edited caption"}}`))
+	}))
+	defer server.Close()
+
+	bot := newTestBot(t, token, server.URL, server.Client())
+	markup := telegram.NewInlineKeyboard([]telegram.InlineKeyboardButton{telegram.InlineButtonCallback("OK", "ok")})
+	result, err := bot.EditMessageCaption(context.Background(), EditMessageCaptionParams{
+		Target:      EditTargetChat(ChatIDInt(12345), 77),
+		Caption:     "edited caption",
+		ParseMode:   "HTML",
+		ReplyMarkup: &markup,
+	})
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if result == nil || !result.IsOK() || !result.IsMessage() || result.Message.Caption != "edited caption" {
+		t.Fatalf("unexpected result: %+v", result)
+	}
+}
+
+func TestEditMessageCaptionInlineTargetDecodesTrue(t *testing.T) {
+	const token = "123:secret"
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path != "/bot"+token+"/editMessageCaption" {
+			t.Fatalf("unexpected path: %q", r.URL.Path)
+		}
+		var payload map[string]any
+		if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
+			t.Fatalf("decode payload: %v", err)
+		}
+		if payload["inline_message_id"] != "inline-id" {
+			t.Fatalf("unexpected inline_message_id: %#v", payload)
+		}
+		if _, ok := payload["chat_id"]; ok {
+			t.Fatalf("chat_id should be omitted: %#v", payload)
+		}
+		if _, ok := payload["message_id"]; ok {
+			t.Fatalf("message_id should be omitted: %#v", payload)
+		}
+		w.Header().Set("Content-Type", "application/json")
+		_, _ = w.Write([]byte(`{"ok":true,"result":true}`))
+	}))
+	defer server.Close()
+
+	bot := newTestBot(t, token, server.URL, server.Client())
+	result, err := bot.EditMessageCaption(context.Background(), EditMessageCaptionParams{Target: EditTargetInline("inline-id"), Caption: "edited caption"})
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if result == nil || !result.IsOK() || result.IsMessage() {
+		t.Fatalf("unexpected result: %+v", result)
+	}
+}
+
+func TestEditMessageCaptionAllowsEmptyCaption(t *testing.T) {
+	const token = "123:secret"
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		var payload map[string]any
+		if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
+			t.Fatalf("decode payload: %v", err)
+		}
+		if got, ok := payload["caption"]; !ok || got != "" {
+			t.Fatalf("empty caption should be sent to remove caption: %#v", payload)
+		}
+		w.Header().Set("Content-Type", "application/json")
+		_, _ = w.Write([]byte(`{"ok":true,"result":{"message_id":77,"chat":{"id":12345,"type":"private"},"date":100}}`))
+	}))
+	defer server.Close()
+
+	bot := newTestBot(t, token, server.URL, server.Client())
+	result, err := bot.EditMessageCaption(context.Background(), EditMessageCaptionParams{Target: EditTargetChat(ChatIDInt(12345), 77)})
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if result == nil || !result.IsOK() || !result.IsMessage() {
+		t.Fatalf("unexpected result: %+v", result)
+	}
+}
+
+func TestEditMessageCaptionValidation(t *testing.T) {
+	const token = "123:secret"
+	bot := newTestBot(t, token, "https://example.test", nil)
+	markup := telegram.InlineKeyboardMarkup{}
+	tests := []struct {
+		name   string
+		params EditMessageCaptionParams
+	}{
+		{name: "invalid target", params: EditMessageCaptionParams{Caption: "caption"}},
+		{name: "parse mode with caption entities", params: EditMessageCaptionParams{Target: EditTargetChat(ChatIDInt(123), 1), Caption: "caption", ParseMode: "HTML", CaptionEntities: []telegram.MessageEntity{{Type: telegram.EntityBold, Offset: 0, Length: 1}}}},
+		{name: "invalid markup", params: EditMessageCaptionParams{Target: EditTargetChat(ChatIDInt(123), 1), Caption: "caption", ReplyMarkup: &markup}},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result, err := bot.EditMessageCaption(context.Background(), tt.params)
+			if err == nil {
+				t.Fatal("expected error")
+			}
+			if result != nil {
+				t.Fatalf("expected nil result, got %+v", result)
+			}
+			assertNoToken(t, err, token)
+		})
+	}
+}
+
+func TestEditMessageCaptionReturnsAPIError(t *testing.T) {
+	const token = "123:secret"
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		_, _ = w.Write([]byte(`{"ok":false,"error_code":400,"description":"Bad Request"}`))
+	}))
+	defer server.Close()
+
+	bot := newTestBot(t, token, server.URL, server.Client())
+	result, err := bot.EditMessageCaption(context.Background(), EditMessageCaptionParams{Target: EditTargetChat(ChatIDInt(123), 1), Caption: "caption"})
+	if err == nil {
+		t.Fatal("expected error")
+	}
+	if result != nil {
+		t.Fatalf("expected nil result, got %+v", result)
+	}
+	var apiErr *apierrors.APIError
+	if !stderrors.As(err, &apiErr) {
+		t.Fatalf("expected APIError, got %T", err)
+	}
+	assertNoToken(t, err, token)
+}
+
+func TestEditMessageCaptionResponseAndContextErrors(t *testing.T) {
+	const token = "123:secret"
+
+	t.Run("cancelled context", func(t *testing.T) {
+		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			t.Fatal("request should not reach server")
+		}))
+		defer server.Close()
+		bot := newTestBot(t, token, server.URL, server.Client())
+		ctx, cancel := context.WithCancel(context.Background())
+		cancel()
+		result, err := bot.EditMessageCaption(ctx, EditMessageCaptionParams{Target: EditTargetChat(ChatIDInt(123), 1), Caption: "caption"})
+		if err == nil {
+			t.Fatal("expected error")
+		}
+		if result != nil {
+			t.Fatalf("expected nil result, got %+v", result)
+		}
+		assertNoToken(t, err, token)
+	})
+
+	t.Run("invalid json", func(t *testing.T) {
+		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			w.Header().Set("Content-Type", "application/json")
+			_, _ = w.Write([]byte(`not-json`))
+		}))
+		defer server.Close()
+		bot := newTestBot(t, token, server.URL, server.Client())
+		result, err := bot.EditMessageCaption(context.Background(), EditMessageCaptionParams{Target: EditTargetChat(ChatIDInt(123), 1), Caption: "caption"})
+		if err == nil {
+			t.Fatal("expected error")
+		}
+		if result != nil {
+			t.Fatalf("expected nil result, got %+v", result)
+		}
+		assertNoToken(t, err, token)
+	})
+
+	t.Run("http status", func(t *testing.T) {
+		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			http.Error(w, "server error", http.StatusInternalServerError)
+		}))
+		defer server.Close()
+		bot := newTestBot(t, token, server.URL, server.Client())
+		result, err := bot.EditMessageCaption(context.Background(), EditMessageCaptionParams{Target: EditTargetChat(ChatIDInt(123), 1), Caption: "caption"})
+		if err == nil {
+			t.Fatal("expected error")
+		}
+		if result != nil {
+			t.Fatalf("expected nil result, got %+v", result)
+		}
+		assertNoToken(t, err, token)
+	})
+}
