@@ -105,6 +105,7 @@ Checklist:
 - Press `Edit message`: the client shows a toast from `AnswerCallbackQuery`, and the original message text changes to `Message edited by ai-gram`.
 - Press `Remove keyboard`: the client shows a toast from `AnswerCallbackQuery`, and the inline keyboard disappears.
 - For the deployed webhook example, inspect safe logs with `./scripts/remote_logs.sh`; logs should include `update_id`, `update_type`, `chat_id`, `from_user_id`, `command`, `has_text`, `has_media`, and only known short `demo:*` callback data.
+- Successful webhook actions are logged explicitly as safe action lines, for example `action=answer_callback_query`, `action=edit_message_text`, `action=edit_message_reply_markup`, and `action=send_message`.
 
 ## Media upload/download checklist
 

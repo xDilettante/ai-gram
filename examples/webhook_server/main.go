@@ -111,7 +111,11 @@ func newDispatcher(b *aigram.Bot) (*dispatch.Dispatcher, error) {
 			Text:        "Webhook bot is running. Choose an action:",
 			ReplyMarkup: demoKeyboard(),
 		})
-		return err
+		if err != nil {
+			return err
+		}
+		log.Printf("webhook action=send_message ok=true update_id=%d chat_id=%d", update.UpdateID, message.Chat.ID)
+		return nil
 	}); err != nil {
 		return nil, err
 	}
@@ -122,7 +126,11 @@ func newDispatcher(b *aigram.Bot) (*dispatch.Dispatcher, error) {
 		}
 		logSafeUpdate(update, "message")
 		_, err := b.SendMessage(ctx, aigram.SendMessageParams{ChatID: aigram.ChatIDInt(message.Chat.ID), Text: "echo received"})
-		return err
+		if err != nil {
+			return err
+		}
+		log.Printf("webhook action=send_message ok=true update_id=%d chat_id=%d", update.UpdateID, message.Chat.ID)
+		return nil
 	}); err != nil {
 		return nil, err
 	}
@@ -135,9 +143,9 @@ func newDispatcher(b *aigram.Bot) (*dispatch.Dispatcher, error) {
 		if _, err := b.AnswerCallbackQuery(ctx, aigram.AnswerCallbackQueryParams{CallbackQueryID: callback.ID, Text: "Editing message"}); err != nil {
 			return err
 		}
+		log.Printf("webhook action=answer_callback_query ok=true update_id=%d callback_data=%s", update.UpdateID, safeCallbackData(update))
 		if callback.Message == nil {
-			_, err := b.AnswerCallbackQuery(ctx, aigram.AnswerCallbackQueryParams{CallbackQueryID: callback.ID, Text: "Inline message cannot be edited by this demo", ShowAlert: true})
-			return err
+			return nil
 		}
 
 		removeKeyboard := removeKeyboardMarkup()
@@ -146,7 +154,11 @@ func newDispatcher(b *aigram.Bot) (*dispatch.Dispatcher, error) {
 			Text:        "Message edited by ai-gram",
 			ReplyMarkup: &removeKeyboard,
 		})
-		return err
+		if err != nil {
+			return err
+		}
+		log.Printf("webhook action=edit_message_text ok=true update_id=%d chat_id=%d message_id=%d", update.UpdateID, callback.Message.Chat.ID, callback.Message.MessageID)
+		return nil
 	}); err != nil {
 		return nil, err
 	}
@@ -159,13 +171,18 @@ func newDispatcher(b *aigram.Bot) (*dispatch.Dispatcher, error) {
 		if _, err := b.AnswerCallbackQuery(ctx, aigram.AnswerCallbackQueryParams{CallbackQueryID: callback.ID, Text: "Removing keyboard"}); err != nil {
 			return err
 		}
+		log.Printf("webhook action=answer_callback_query ok=true update_id=%d callback_data=%s", update.UpdateID, safeCallbackData(update))
 		if callback.Message == nil {
 			return nil
 		}
 		_, err := b.EditMessageReplyMarkup(ctx, aigram.EditMessageReplyMarkupParams{
 			Target: aigram.EditTargetChat(aigram.ChatIDInt(callback.Message.Chat.ID), callback.Message.MessageID),
 		})
-		return err
+		if err != nil {
+			return err
+		}
+		log.Printf("webhook action=edit_message_reply_markup ok=true update_id=%d chat_id=%d message_id=%d", update.UpdateID, callback.Message.Chat.ID, callback.Message.MessageID)
+		return nil
 	}); err != nil {
 		return nil, err
 	}
