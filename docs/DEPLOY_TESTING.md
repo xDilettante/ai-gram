@@ -101,25 +101,69 @@ Run discovery first:
 The script:
 
 1. Uses `AIGRAM_DEPLOY_SSH_TARGET` directly, or legacy `AIGRAM_DEPLOY_USER@AIGRAM_DEPLOY_HOST` as fallback.
-2. Applies defaults:
+2. Uses `AIGRAM_BOTAPI_SSH_TARGET` for the local Telegram Bot API server when it is set; otherwise it falls back to the deploy SSH target.
+3. Applies defaults:
    - `AIGRAM_DEPLOY_DIR=/opt/aigram-test`
    - `AIGRAM_SERVICE_NAME=aigram-webhook-test`
    - `AIGRAM_REMOTE_ENV_DIR=/etc/aigram`
    - `AIGRAM_LISTEN_ADDR=:8090`
-3. Checks SSH connectivity.
-4. Tries to discover a local Telegram Bot API server on the remote host:
+   - `AIGRAM_BOTAPI_PORT=8081`
+   - `AIGRAM_BOTAPI_BIND_ADDR=127.0.0.1`
+   - `AIGRAM_BOTAPI_SERVICE_NAME=telegram-bot-api`
+4. Checks SSH connectivity to both deploy and Bot API targets.
+5. Checks outbound HTTPS reachability to `api.telegram.org` from the Bot API target.
+6. Tries to discover a local Telegram Bot API server on the Bot API target:
+   - `http://<AIGRAM_BOTAPI_BIND_ADDR>:<AIGRAM_BOTAPI_PORT>`
    - `http://127.0.0.1:8081`
    - `http://127.0.0.1:8080`
    - `http://localhost:8081`
    - `http://localhost:8080`
-   - `http://<remote_ip>:8081`
-   - `http://<remote_ip>:8080`
-5. Computes `AIGRAM_FILE_BASE_URL` as `<base>/file` when a local base URL is found.
-6. Computes `AIGRAM_WEBHOOK_URL` for local Bot API mode.
-7. Generates `AIGRAM_WEBHOOK_SECRET` if it is not set.
-8. Writes `.deploy/generated.env` and prints a token-safe summary.
+7. Computes `AIGRAM_FILE_BASE_URL` as `<base>/file` when a local base URL is found.
+8. Computes `AIGRAM_WEBHOOK_URL` for local Bot API mode when deploy and Bot API targets are the same. If the targets differ, discovery keeps the Bot API values but reports that an explicit webhook URL is required for deploy.
+9. Generates `AIGRAM_WEBHOOK_SECRET` if it is not set.
+10. Writes `.deploy/generated.env` and prints a token-safe summary.
 
 `.env.local` has priority over `.deploy/generated.env`. To override auto-discovery, set the variable explicitly in `.env.local` and rerun `./scripts/discover_env.sh`.
+
+
+## Separate Bot API server host
+
+Use this when the webhook example is deployed on one server, but the local Telegram Bot API server runs on another server. This is useful when the deploy host cannot reach `api.telegram.org`, while another host can run `telegram-bot-api` in local mode.
+
+Example `.env.local`:
+
+```bash
+AIGRAM_DEPLOY_SSH_TARGET=vk1
+AIGRAM_BOTAPI_SSH_TARGET=tgapi1
+AIGRAM_BOTAPI_PORT=8081
+AIGRAM_BOTAPI_BIND_ADDR=127.0.0.1
+```
+
+If `AIGRAM_BOTAPI_SSH_TARGET` is empty, the harness uses `AIGRAM_DEPLOY_SSH_TARGET` as the Bot API target. The local Bot API base URL is checked on the Bot API target, not necessarily on the deploy target. When the Bot API server listens on its remote loopback, local smoke scripts open the temporary SSH tunnel to `AIGRAM_BOTAPI_SSH_TARGET`. Discovery can still be used for local Bot API smoke without a webhook URL; deploy requires `AIGRAM_WEBHOOK_URL` when the targets differ.
+
+Check a candidate Bot API host without changing it:
+
+```bash
+./scripts/check_botapi_host.sh
+```
+
+The check reports SSH reachability, DNS/HTTPS reachability to `api.telegram.org`, local listeners on ports `8081`/`8080`, default binary locations, and systemd status for `AIGRAM_BOTAPI_SERVICE_NAME`. It does not call `logOut`, `close`, or any migration operation.
+
+To prepare a `telegram-bot-api` systemd service, first run the setup script without confirmation to see the plan:
+
+```bash
+./scripts/setup_botapi_service.sh
+```
+
+Apply the plan only after setting the required Telegram application credentials and explicit confirmation:
+
+```bash
+TELEGRAM_API_ID=... TELEGRAM_API_HASH=... AIGRAM_CONFIRM_SETUP_BOTAPI=1 ./scripts/setup_botapi_service.sh
+```
+
+The setup script stores credentials in an env file, defaults to `/etc/aigram/telegram-bot-api.env`, with `chmod 600`. It copies the discovered binary into the configured workdir, defaults to `/opt/telegram-bot-api`, creates a systemd service, and starts it. It never calls `logOut` or `close`.
+
+When `AIGRAM_BOTAPI_SSH_TARGET` differs from `AIGRAM_DEPLOY_SSH_TARGET`, do not use `http://127.0.0.1:<port>/webhook` for `AIGRAM_WEBHOOK_URL`; that loopback would point at the Bot API server host, not the webhook service host. Set `AIGRAM_WEBHOOK_URL` explicitly to an HTTP/HTTPS URL reachable from the Bot API host. Also ensure `AIGRAM_BASE_URL` and `AIGRAM_FILE_BASE_URL` are reachable from the deployed webhook service if it needs to answer messages through the Bot API server.
 
 ## Local Telegram Bot API server smoke
 
@@ -131,13 +175,13 @@ After discovery, run:
 
 The script runs `examples/local_api_server`, which calls `GetMe` and `GetWebhookInfo`. If `AIGRAM_BASE_URL` is still unknown, it will invoke discovery and then fail with a clear message if no local Bot API server is found.
 
-If discovery selected a loopback base URL such as `http://127.0.0.1:8081` on `vk1`, the smoke script checks whether that URL is reachable locally. When it is not reachable, it opens a temporary SSH tunnel to `vk1`, rewrites `AIGRAM_BASE_URL`/`AIGRAM_FILE_BASE_URL` for the current process, and closes the tunnel on exit.
+If discovery selected a loopback base URL such as `http://127.0.0.1:8081` on the Bot API SSH target, the smoke script checks whether that URL is reachable locally. When it is not reachable, it opens a temporary SSH tunnel to the Bot API SSH target, rewrites `AIGRAM_BASE_URL`/`AIGRAM_FILE_BASE_URL` for the current process, and closes the tunnel on exit.
 
 ## Long polling smoke
 
 Long polling can use the official Telegram API or the discovered local Bot API server. The example calls `DeleteWebhook` with `drop_pending_updates=true` before polling because Telegram webhook and long polling modes are mutually exclusive.
 
-When `AIGRAM_BASE_URL` points to a remote loopback discovered on `vk1`, the script uses the same temporary SSH tunnel mechanism as `smoke_local_api.sh`.
+When `AIGRAM_BASE_URL` points to a remote loopback discovered on the Bot API SSH target, the script uses the same temporary SSH tunnel mechanism as `smoke_local_api.sh`.
 
 ```bash
 ./scripts/smoke_longpoll.sh
@@ -156,7 +200,7 @@ Set at least one of `AIGRAM_MEDIA_PATH` or `AIGRAM_FILE_ID` in `.env.local`:
 - `AIGRAM_MEDIA_PATH` uploads a local file through `SendDocument` and `FileUpload`.
 - `AIGRAM_FILE_ID` calls `GetFile` and downloads the file into memory through `DownloadFile`.
 
-When `AIGRAM_BASE_URL`/`AIGRAM_FILE_BASE_URL` point to a remote loopback discovered on `vk1`, the script opens a temporary SSH tunnel and rewrites those URLs only for the smoke process.
+When `AIGRAM_BASE_URL`/`AIGRAM_FILE_BASE_URL` point to a remote loopback discovered on the Bot API SSH target, the script opens a temporary SSH tunnel to that target and rewrites those URLs only for the smoke process.
 
 ## Deploy webhook example
 
@@ -190,6 +234,9 @@ AIGRAM_FILE_BASE_URL="http://127.0.0.1:8081/file"
 AIGRAM_WEBHOOK_URL="http://127.0.0.1:8090/webhook"
 AIGRAM_WEBHOOK_SECRET="manual_secret_123"
 AIGRAM_LISTEN_ADDR=":8090"
+AIGRAM_BOTAPI_SSH_TARGET="tgapi1"
+AIGRAM_BOTAPI_PORT="8081"
+AIGRAM_BOTAPI_BIND_ADDR="127.0.0.1"
 ```
 
 If no local Telegram Bot API server is used, the library falls back to official `api.telegram.org`. In that mode Telegram requires an explicit public HTTPS webhook URL:
@@ -198,7 +245,7 @@ If no local Telegram Bot API server is used, the library falls back to official 
 AIGRAM_WEBHOOK_URL="https://example.com/telegram/webhook"
 ```
 
-HTTP webhook URLs are acceptable only for local Telegram Bot API server mode.
+HTTP webhook URLs are acceptable only for local Telegram Bot API server mode. If the Bot API target and deploy target are different, the webhook URL must be explicitly reachable from the Bot API target and must not be a deploy-host loopback URL.
 
 Legacy SSH fallback is still supported when no alias is set:
 
@@ -270,7 +317,7 @@ Notifications are sent through `examples/notify_user`, which uses the ai-gram `S
 - Prefer `AIGRAM_DEPLOY_SSH_TARGET` for existing SSH aliases; use explicit host/user/key only as a fallback.
 - `AIGRAM_WEBHOOK_SECRET` must match both `SetWebhook` and `webhook.Config`; discovery writes one value used by both.
 - Official Telegram webhook delivery requires a public HTTPS URL.
-- A local Telegram Bot API server running in `--local` mode can use HTTP/local webhook URLs when `AIGRAM_BASE_URL` points to that server.
+- A local Telegram Bot API server running in `--local` mode can use HTTP/local webhook URLs when `AIGRAM_BASE_URL` points to that server and the webhook URL is reachable from the Bot API host.
 
 ## Troubleshooting
 
@@ -283,7 +330,7 @@ Important distinctions:
 - `127.0.0.1` and `localhost` always mean the machine where the command runs.
 - Local `127.0.0.1` is the user's workstation; `ssh vk1 'curl http://127.0.0.1:8081/...'` is the `vk1` loopback.
 - A local Telegram Bot API server can be reachable on `vk1` as `http://127.0.0.1:8081` while being unreachable directly from the user's machine.
-- Smoke scripts run locally. When discovery selects a remote loopback `AIGRAM_BASE_URL`, the scripts now open a temporary SSH tunnel automatically, for example local `127.0.0.1:18081 -> vk1:127.0.0.1:8081`.
+- Smoke scripts run locally. When discovery selects a remote loopback `AIGRAM_BASE_URL`, the scripts now open a temporary SSH tunnel automatically to the Bot API SSH target, for example local `127.0.0.1:18081 -> tgapi1:127.0.0.1:8081`.
 - A webhook URL must be reachable by the component that sends webhook requests: official Telegram, the local Telegram Bot API server, or a synthetic local probe.
 
 Recommended checks:
@@ -300,10 +347,10 @@ Check local access separately:
 curl -sS --max-time 2 http://127.0.0.1:8081/ || true
 ```
 
-If `vk1` can reach the Bot API but the local workstation cannot, the smoke scripts should create and clean up a temporary SSH tunnel automatically. For manual debugging, use a tunnel like this and stop it when done:
+If the Bot API SSH target can reach the Bot API but the local workstation cannot, the smoke scripts should create and clean up a temporary SSH tunnel automatically. For manual debugging, use a tunnel like this and stop it when done:
 
 ```bash
-ssh -N -L 127.0.0.1:18081:127.0.0.1:8081 vk1
+ssh -N -L 127.0.0.1:18081:127.0.0.1:8081 tgapi1
 ```
 
 When a network check fails, first record where it ran: locally or through `ssh vk1`. Then check routing/TUN, tunnel state, firewall/listening ports, systemd logs, and `getWebhookInfo` before changing library code. Never print the bot token, webhook secret, token-bearing URLs, or full `/bot<TOKEN>/...` endpoints while debugging.

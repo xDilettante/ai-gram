@@ -506,9 +506,9 @@ Runnable examples are available under `examples/`:
 
 Manual smoke testing instructions are in [`docs/MANUAL_TESTING.md`](docs/MANUAL_TESTING.md). The examples require real environment variables at runtime, but they are written so `go test ./...` can compile them without a token.
 
-Deployment-oriented manual integration checks are described in [`docs/DEPLOY_TESTING.md`](docs/DEPLOY_TESTING.md). The deploy harness can start from a minimal `.env.local` with bot token, chat ID, and SSH alias, then write discovered values to ignored `.deploy/generated.env`. Smoke scripts can open a temporary SSH tunnel when a discovered local Bot API server listens only on the remote loopback, and remote logs are redacted before printing.
+Deployment-oriented manual integration checks are described in [`docs/DEPLOY_TESTING.md`](docs/DEPLOY_TESTING.md). The deploy harness can start from a minimal `.env.local` with bot token, chat ID, and SSH alias, then write discovered values to ignored `.deploy/generated.env`. Smoke scripts can open a temporary SSH tunnel when a discovered local Bot API server listens only on a remote loopback; the Bot API server may live on a separate SSH target from the webhook deploy target. Remote logs are redacted before printing.
 
-The integration harness supports role-specific test bot tokens (`MAIN`, `LOCAL`, `WEBHOOK`, `NOTIFY`, and others) while preserving the legacy single-token `AIGRAM_BOT_TOKEN` mode.
+The integration harness supports role-specific test bot tokens (`MAIN`, `LOCAL`, `WEBHOOK`, `NOTIFY`, and others) while preserving the legacy single-token `AIGRAM_BOT_TOKEN` mode. Set `AIGRAM_BOTAPI_SSH_TARGET` when the local Telegram Bot API server runs on a different SSH host than the webhook example.
 
 Manual smoke scripts can also send short Telegram notifications when you need to send a message, press an inline button, check media, or inspect logs. See [`docs/DEPLOY_TESTING.md`](docs/DEPLOY_TESTING.md#telegram-notifications-during-smoke-checks).
 

@@ -49,6 +49,9 @@ apply_env_defaults() {
   export AIGRAM_SERVICE_NAME="${AIGRAM_SERVICE_NAME:-aigram-webhook-test}"
   export AIGRAM_REMOTE_ENV_DIR="${AIGRAM_REMOTE_ENV_DIR:-/etc/aigram}"
   export AIGRAM_LISTEN_ADDR="${AIGRAM_LISTEN_ADDR:-:8090}"
+  export AIGRAM_BOTAPI_PORT="${AIGRAM_BOTAPI_PORT:-8081}"
+  export AIGRAM_BOTAPI_BIND_ADDR="${AIGRAM_BOTAPI_BIND_ADDR:-127.0.0.1}"
+  export AIGRAM_BOTAPI_SERVICE_NAME="${AIGRAM_BOTAPI_SERVICE_NAME:-telegram-bot-api}"
 }
 
 load_env_file "${ENV_FILE}"
@@ -195,6 +198,50 @@ configure_deploy_ssh() {
   DEPLOY_SSH_OPTS+=(-o StrictHostKeyChecking=accept-new)
 }
 
+botapi_ssh_target() {
+  if [ -n "${AIGRAM_BOTAPI_SSH_TARGET:-}" ]; then
+    printf '%s\n' "${AIGRAM_BOTAPI_SSH_TARGET}"
+    return 0
+  fi
+  deploy_ssh_target
+}
+
+botapi_port() {
+  printf '%s\n' "${AIGRAM_BOTAPI_PORT:-8081}"
+}
+
+botapi_bind_addr() {
+  printf '%s\n' "${AIGRAM_BOTAPI_BIND_ADDR:-127.0.0.1}"
+}
+
+botapi_base_url_remote() {
+  printf 'http://%s:%s\n' "$(botapi_bind_addr)" "$(botapi_port)"
+}
+
+botapi_base_url_for_local_client() {
+  botapi_base_url_remote
+}
+
+configure_botapi_ssh() {
+  BOTAPI_SSH_OPTS=()
+  BOTAPI_REMOTE="$(botapi_ssh_target)"
+  BOTAPI_REMOTE_LABEL="${BOTAPI_REMOTE}"
+
+  if [ -z "${AIGRAM_BOTAPI_SSH_TARGET:-}" ]; then
+    configure_deploy_ssh
+    BOTAPI_SSH_OPTS=("${DEPLOY_SSH_OPTS[@]}")
+    BOTAPI_REMOTE="${DEPLOY_REMOTE}"
+    BOTAPI_REMOTE_LABEL="${DEPLOY_REMOTE_LABEL}"
+    return 0
+  fi
+
+  BOTAPI_SSH_OPTS=(-o StrictHostKeyChecking=accept-new)
+}
+
+same_ssh_target() {
+  [ "${1:-}" = "${2:-}" ]
+}
+
 sanitize_stream() {
   python3 -c '
 import os, re, sys
@@ -208,6 +255,7 @@ token_names = (
     "AIGRAM_BOT_TOKEN_MIGRATION",
     "AIGRAM_BOT_TOKEN_DESTRUCTIVE",
     "AIGRAM_BOT_TOKEN_NOTIFY",
+    "TELEGRAM_API_HASH",
 )
 for name in token_names:
     value = os.environ.get(name, "")
@@ -310,7 +358,7 @@ prepare_smoke_tunnel() {
     return 0
   fi
 
-  configure_deploy_ssh
+  configure_botapi_ssh
   remote_port="$(url_port "${base}")"
   if [ "${remote_port}" -lt 1000 ]; then
     preferred=$((18000 + remote_port))
@@ -321,8 +369,8 @@ prepare_smoke_tunnel() {
   suffix="$(url_path_suffix "${base}")"
   local_base="$(url_scheme "${base}")://127.0.0.1:${local_port}${suffix}"
 
-  echo "Local ${base} is not reachable; opening temporary SSH tunnel via ${DEPLOY_REMOTE_LABEL}: 127.0.0.1:${local_port} -> 127.0.0.1:${remote_port}."
-  ssh "${DEPLOY_SSH_OPTS[@]}" -o ExitOnForwardFailure=yes -N -L "127.0.0.1:${local_port}:127.0.0.1:${remote_port}" "${DEPLOY_REMOTE}" >/tmp/aigram-smoke-tunnel.log 2>&1 &
+  echo "Local ${base} is not reachable; opening temporary SSH tunnel: local 127.0.0.1:${local_port} -> ${BOTAPI_REMOTE_LABEL}:127.0.0.1:${remote_port}."
+  ssh "${BOTAPI_SSH_OPTS[@]}" -o ExitOnForwardFailure=yes -N -L "127.0.0.1:${local_port}:127.0.0.1:${remote_port}" "${BOTAPI_REMOTE}" >/tmp/aigram-smoke-tunnel.log 2>&1 &
   local pid=$!
   AIGRAM_SMOKE_TUNNEL_PIDS="${AIGRAM_SMOKE_TUNNEL_PIDS:-} ${pid}"
   export AIGRAM_SMOKE_TUNNEL_PIDS

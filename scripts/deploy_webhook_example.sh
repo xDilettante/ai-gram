@@ -18,6 +18,7 @@ LISTEN_ADDR="${AIGRAM_LISTEN_ADDR}"
 BINARY_PATH="${REPO_ROOT}/build/aigram-webhook-server"
 TEMPLATE_PATH="${REPO_ROOT}/deploy/systemd/aigram-example.service.tmpl"
 configure_deploy_ssh
+configure_botapi_ssh
 REMOTE_ENV_FILE="${REMOTE_ENV_DIR}/${AIGRAM_SERVICE_NAME}.env"
 REMOTE_EXEC_START="${AIGRAM_DEPLOY_DIR}/aigram-webhook-server"
 
@@ -28,6 +29,12 @@ fi
 if [[ "${AIGRAM_DEPLOY_DIR}" != /* ]] || [[ "${REMOTE_ENV_DIR}" != /* ]]; then
   echo "AIGRAM_DEPLOY_DIR and AIGRAM_REMOTE_ENV_DIR must be absolute paths" >&2
   exit 1
+fi
+if ! same_ssh_target "${BOTAPI_REMOTE}" "${DEPLOY_REMOTE}"; then
+  if [ -z "${AIGRAM_WEBHOOK_URL:-}" ] || is_loopback_url "${AIGRAM_WEBHOOK_URL:-}" || is_loopback_url "${AIGRAM_BASE_URL:-}" || is_loopback_url "${AIGRAM_FILE_BASE_URL:-}" ; then
+    echo "Bot API server и webhook service на разных серверах. Укажи AIGRAM_WEBHOOK_URL, доступный с Bot API server, и AIGRAM_BASE_URL/AIGRAM_FILE_BASE_URL, доступные с deploy server." >&2
+    exit 1
+  fi
 fi
 
 SSH_CMD=(ssh "${DEPLOY_SSH_OPTS[@]}" "${DEPLOY_REMOTE}")
@@ -157,4 +164,4 @@ remote_tmp=""
 echo "Deploy finished. Remote env file: ${REMOTE_ENV_FILE}; webhook secret: $(mask_secret "${AIGRAM_WEBHOOK_SECRET:-}")"
 echo "Use ./scripts/remote_logs.sh for logs and ./scripts/remote_stop.sh to stop the service."
 DEPLOY_SUCCEEDED=1
-notify_user "Webhook example задеплоен на vk1. Отправь /start webhook test bot и затем проверь логи."
+notify_user "Webhook example задеплоен на ${DEPLOY_REMOTE_LABEL}. Отправь /start webhook test bot и затем проверь логи."
