@@ -506,7 +506,7 @@ Runnable examples are available under `examples/`:
 
 Manual smoke testing instructions are in [`docs/MANUAL_TESTING.md`](docs/MANUAL_TESTING.md). The examples require real environment variables at runtime, but they are written so `go test ./...` can compile them without a token.
 
-Deployment-oriented manual integration checks are described in [`docs/DEPLOY_TESTING.md`](docs/DEPLOY_TESTING.md). The deploy harness uses `.env.local`, SSH, and systemd without committing secrets.
+Deployment-oriented manual integration checks are described in [`docs/DEPLOY_TESTING.md`](docs/DEPLOY_TESTING.md). The deploy harness can start from a minimal `.env.local` with bot token, chat ID, and SSH alias, then write discovered values to ignored `.deploy/generated.env`.
 
 ## Development checks
 

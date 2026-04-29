@@ -1,9 +1,11 @@
 .env
 .env.*
 !.env.example
+.deploy/
 deploy/*.local
 *.key
 *.pem
+*.kate-swp
 *.log
 node_modules/
 dist/

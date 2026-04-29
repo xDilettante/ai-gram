@@ -6,12 +6,15 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "${SCRIPT_DIR}/env.sh"
 
 require_env AIGRAM_BOT_TOKEN >/dev/null
-require_env AIGRAM_DEPLOY_DIR >/dev/null
-require_env AIGRAM_SERVICE_NAME >/dev/null
+if [ ! -f "${GENERATED_ENV_FILE}" ]; then
+  "${SCRIPT_DIR}/discover_env.sh"
+  load_generated_env_missing "${GENERATED_ENV_FILE}"
+  apply_env_defaults
+fi
 require_env AIGRAM_WEBHOOK_URL >/dev/null
 
-REMOTE_ENV_DIR="$(optional_env AIGRAM_REMOTE_ENV_DIR /etc/aigram)"
-LISTEN_ADDR="$(optional_env AIGRAM_LISTEN_ADDR :8090)"
+REMOTE_ENV_DIR="${AIGRAM_REMOTE_ENV_DIR}"
+LISTEN_ADDR="${AIGRAM_LISTEN_ADDR}"
 BINARY_PATH="${REPO_ROOT}/build/aigram-webhook-server"
 TEMPLATE_PATH="${REPO_ROOT}/deploy/systemd/aigram-example.service.tmpl"
 configure_deploy_ssh

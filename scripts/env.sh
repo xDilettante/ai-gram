@@ -9,13 +9,53 @@ fi
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 ENV_FILE="${REPO_ROOT}/.env.local"
+GENERATED_ENV_FILE="${REPO_ROOT}/.deploy/generated.env"
 
-if [ -f "${ENV_FILE}" ]; then
-  set -a
-  # shellcheck disable=SC1090
-  source "${ENV_FILE}"
-  set +a
+load_env_file() {
+  local file="$1"
+  if [ -f "${file}" ]; then
+    set -a
+    # shellcheck disable=SC1090
+    source "${file}"
+    set +a
+  fi
+}
+
+load_generated_env_missing() {
+  local file="${1:-${GENERATED_ENV_FILE}}"
+  local line name raw value
+
+  [ -f "${file}" ] || return 0
+
+  while IFS= read -r line || [ -n "${line}" ]; do
+    case "${line}" in
+      ''|'#'*) continue ;;
+    esac
+    name="${line%%=*}"
+    raw="${line#*=}"
+    if [[ ! "${name}" =~ ^[A-Za-z_][A-Za-z0-9_]*$ ]]; then
+      continue
+    fi
+    if [ -z "${!name:-}" ]; then
+      eval "value=${raw}"
+      printf -v "${name}" '%s' "${value}"
+      export "${name}"
+    fi
+  done <"${file}"
+}
+
+apply_env_defaults() {
+  export AIGRAM_DEPLOY_DIR="${AIGRAM_DEPLOY_DIR:-/opt/aigram-test}"
+  export AIGRAM_SERVICE_NAME="${AIGRAM_SERVICE_NAME:-aigram-webhook-test}"
+  export AIGRAM_REMOTE_ENV_DIR="${AIGRAM_REMOTE_ENV_DIR:-/etc/aigram}"
+  export AIGRAM_LISTEN_ADDR="${AIGRAM_LISTEN_ADDR:-:8090}"
+}
+
+load_env_file "${ENV_FILE}"
+if [ "${AIGRAM_SKIP_GENERATED_ENV:-}" != "1" ]; then
+  load_generated_env_missing "${GENERATED_ENV_FILE}"
 fi
+apply_env_defaults
 
 require_env() {
   local name="$1"
@@ -50,19 +90,30 @@ mask_secret() {
   fi
 }
 
-configure_deploy_ssh() {
-  DEPLOY_SSH_OPTS=()
+shell_quote() {
+  printf '%s' "$1" | sed "s/'/'\\''/g; s/^/'/; s/$/'/"
+}
 
+deploy_ssh_target() {
   if [ -n "${AIGRAM_DEPLOY_SSH_TARGET:-}" ]; then
-    DEPLOY_REMOTE="${AIGRAM_DEPLOY_SSH_TARGET}"
-    DEPLOY_REMOTE_LABEL="${AIGRAM_DEPLOY_SSH_TARGET}"
+    printf '%s\n' "${AIGRAM_DEPLOY_SSH_TARGET}"
     return 0
   fi
 
   require_env AIGRAM_DEPLOY_HOST >/dev/null
   require_env AIGRAM_DEPLOY_USER >/dev/null
+  printf '%s@%s\n' "${AIGRAM_DEPLOY_USER}" "${AIGRAM_DEPLOY_HOST}"
+}
 
-  DEPLOY_REMOTE="${AIGRAM_DEPLOY_USER}@${AIGRAM_DEPLOY_HOST}"
+configure_deploy_ssh() {
+  DEPLOY_SSH_OPTS=()
+  DEPLOY_REMOTE="$(deploy_ssh_target)"
+
+  if [ -n "${AIGRAM_DEPLOY_SSH_TARGET:-}" ]; then
+    DEPLOY_REMOTE_LABEL="${AIGRAM_DEPLOY_SSH_TARGET}"
+    return 0
+  fi
+
   DEPLOY_REMOTE_LABEL="${AIGRAM_DEPLOY_HOST}"
 
   if [ -n "${AIGRAM_DEPLOY_SSH_KEY:-}" ]; then
