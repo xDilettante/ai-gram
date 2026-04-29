@@ -18,5 +18,6 @@ fi
 
 cd "${REPO_ROOT}"
 echo "Starting media upload/download smoke via examples/media_upload."
-notify_user "Media smoke запускается. Проверь, что бот прислал/скачал файл."
+BOT_USERNAME="$(bot_username_for_current_token)"
+notify_media_smoke_ready "${BOT_USERNAME}"
 run_sanitized go run ./examples/media_upload

@@ -164,4 +164,6 @@ remote_tmp=""
 echo "Deploy finished. Remote env file: ${REMOTE_ENV_FILE}; webhook secret: $(mask_secret "${AIGRAM_WEBHOOK_SECRET:-}")"
 echo "Use ./scripts/remote_logs.sh for logs and ./scripts/remote_stop.sh to stop the service."
 DEPLOY_SUCCEEDED=1
-notify_user "Webhook example задеплоен на ${DEPLOY_REMOTE_LABEL}. Отправь /start webhook test bot и затем проверь логи."
+prepare_smoke_tunnel || true
+WEBHOOK_BOT_USERNAME="$(bot_username_for_current_token)"
+notify_webhook_smoke_ready "${WEBHOOK_BOT_USERNAME}"

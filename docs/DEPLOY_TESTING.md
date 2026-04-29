@@ -300,12 +300,18 @@ Token selection order:
 
 The scripts currently notify about these manual checkpoints:
 
-- `smoke_longpoll.sh`: asks you to send any message or `/start`, then sends a completion notification.
+- `smoke_longpoll.sh`: sends the selected local bot `@username`, a `https://t.me/<username>` link, asks you to send any message or `/start` within `AIGRAM_SMOKE_WAIT_SECONDS` seconds (default `120`), then sends a completion notification.
 - `smoke_local_api.sh`: reports successful local Bot API smoke.
-- `smoke_media.sh`: asks you to check media delivery/download, or reports that media smoke was skipped until `AIGRAM_MEDIA_PATH` or `AIGRAM_FILE_ID` is set.
-- `deploy_webhook_example.sh`: reports successful webhook deploy and asks you to send `/start`, or reports deploy failure.
+- `smoke_media.sh`: sends the selected main bot `@username` and a `https://t.me/<username>` link before asking you to check media delivery/download, or reports that media smoke was skipped until `AIGRAM_MEDIA_PATH` or `AIGRAM_FILE_ID` is set.
+- `deploy_webhook_example.sh`: after successful webhook deploy, sends the webhook bot `@username`, a `https://t.me/<username>?start=smoke` link, and exact button steps for `Edit message`, `Remove keyboard`, `Caption demo`, `Edit caption`, `Delete media message`, and `Delete this message`; it also reports deploy failure.
 
 Notifications are sent through `examples/notify_user`, which uses the ai-gram `SendMessage` method. Scripts do not print bot tokens or `/bot<TOKEN>/sendMessage` URLs.
+
+## Actionable Telegram notifications
+
+Manual smoke notifications are intentionally actionable: they include the bot username, a `t.me` link, the command to send, the buttons to press, and what Codex will verify in safe logs. The operator should not need to search for the bot or remember the smoke sequence from this document during a live check.
+
+If username discovery fails, scripts still send a notification with `username unknown` and continue without exposing the token. In that case, check the selected token role and `GetMe` connectivity.
 
 ## Security notes
 

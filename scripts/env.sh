@@ -422,6 +422,26 @@ print_bot_identity() {
   return 0
 }
 
+bot_username_for_current_token() {
+  local output status username tmp
+  tmp="$(mktemp)"
+  set +e
+  (
+    cd "${REPO_ROOT}"
+    go run ./examples/internal/botidentity
+  ) 2>&1 | sanitize_stream >"${tmp}"
+  status=${PIPESTATUS[0]}
+  set -e
+  output="$(cat "${tmp}")"
+  rm -f "${tmp}"
+  if [ "${status}" -ne 0 ]; then
+    printf '\n'
+    return 0
+  fi
+  username="$(printf '%s\n' "${output}" | sed -n 's/^bot username: @//p' | head -n 1)"
+  printf '%s\n' "${username}"
+}
+
 notify_user() {
   local message="$1"
   local strict="${AIGRAM_NOTIFY_STRICT:-0}"
@@ -506,4 +526,73 @@ notify_user() {
   fi
 
   return 0
+}
+
+notify_manual_action() {
+  local title="$1"
+  local body="$2"
+  notify_user "${title}
+
+${body}"
+}
+
+notify_longpoll_smoke_ready() {
+  local username="$1"
+  local wait_seconds="${2:-120}"
+  local bot_line="Бот: username unknown"
+  local open_line="Открой бота вручную."
+  if [ -n "${username}" ]; then
+    bot_line="Бот: @${username}"
+    open_line="Открой: https://t.me/${username}"
+  fi
+
+  notify_manual_action "Long polling smoke запущен." "${bot_line}
+${open_line}
+
+Сделай в течение ${wait_seconds} секунд:
+1. Отправь любое текстовое сообщение
+2. Или отправь /start
+
+Codex проверит, что update пришёл и бот ответил."
+}
+
+notify_webhook_smoke_ready() {
+  local username="$1"
+  local bot_line="Бот: username unknown"
+  local open_line="Открой webhook bot вручную."
+  if [ -n "${username}" ]; then
+    bot_line="Бот: @${username}"
+    open_line="Открой: https://t.me/${username}?start=smoke"
+  fi
+
+  notify_manual_action "Webhook smoke готов." "${bot_line}
+${open_line}
+
+Сделай:
+1. Нажми Start или отправь /start
+2. Нажми \"Edit message\"
+3. Нажми \"Remove keyboard\"
+4. Нажми \"Caption demo\"
+5. Нажми \"Edit caption\"
+6. Нажми \"Delete media message\"
+7. Отправь /start снова
+8. Нажми \"Delete this message\"
+
+Codex проверит safe action logs сам."
+}
+
+notify_media_smoke_ready() {
+  local username="$1"
+  local bot_line="Бот: username unknown"
+  local open_line="Проверь чат с media smoke bot вручную."
+  if [ -n "${username}" ]; then
+    bot_line="Бот: @${username}"
+    open_line="Открой: https://t.me/${username}"
+  fi
+
+  notify_manual_action "Media smoke запускается." "${bot_line}
+${open_line}
+
+Проверь, что бот прислал или скачал файл.
+Codex проверит output/logs без token-bearing URLs."
 }

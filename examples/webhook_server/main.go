@@ -14,6 +14,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"ai-gram"
@@ -203,18 +204,14 @@ func newDispatcher(b *aigram.Bot) (*dispatch.Dispatcher, error) {
 			return nil
 		}
 
-		sent, skipped, err := sendCaptionDemo(ctx, b, callback.Message.Chat.ID)
+		sent, source, err := sendCaptionDemo(ctx, b, callback.Message.Chat.ID)
 		if err != nil {
 			return err
-		}
-		if skipped {
-			log.Printf("webhook action=caption_demo_skipped ok=true update_id=%d chat_id=%d reason=no_media_env", update.UpdateID, callback.Message.Chat.ID)
-			return nil
 		}
 		if sent == nil {
 			return errors.New("send_media_caption_demo returned nil message")
 		}
-		log.Printf("webhook action=send_media_caption_demo ok=true update_id=%d chat_id=%d message_id=%d", update.UpdateID, sent.Chat.ID, sent.MessageID)
+		log.Printf("webhook action=send_media_caption_demo ok=true source=%s update_id=%d chat_id=%d message_id=%d", source, update.UpdateID, sent.Chat.ID, sent.MessageID)
 		return nil
 	}); err != nil {
 		return nil, err
@@ -295,50 +292,54 @@ func deleteMediaKeyboard() aigram.InlineKeyboardMarkup {
 	})
 }
 
-func sendCaptionDemo(ctx context.Context, b *aigram.Bot, chatID int64) (*telegram.Message, bool, error) {
+func sendCaptionDemo(ctx context.Context, b *aigram.Bot, chatID int64) (*telegram.Message, string, error) {
 	fileID := exampleutil.OptionalEnv("AIGRAM_FILE_ID", "")
 	mediaPath := exampleutil.OptionalEnv("AIGRAM_MEDIA_PATH", "")
-	if fileID == "" && mediaPath == "" {
-		if _, err := b.SendMessage(ctx, aigram.SendMessageParams{
-			ChatID: aigram.ChatIDInt(chatID),
-			Text:   "Caption demo requires AIGRAM_FILE_ID or AIGRAM_MEDIA_PATH",
-		}); err != nil {
-			return nil, false, err
-		}
-		return nil, true, nil
-	}
 
 	markup := captionDemoKeyboard()
 	if fileID != "" {
 		message, err := b.SendDocument(ctx, aigram.SendDocumentParams{
 			ChatID:      aigram.ChatIDInt(chatID),
 			Document:    aigram.FileID(fileID),
-			Caption:     "Caption before edit",
+			Caption:     "Original caption from ai-gram",
 			ReplyMarkup: markup,
 		})
-		return message, false, err
+		return message, "file_id", err
 	}
 
-	file, err := os.Open(mediaPath)
-	if err != nil {
-		return nil, false, fmt.Errorf("open AIGRAM_MEDIA_PATH: %w", err)
-	}
-	defer file.Close()
+	if mediaPath != "" {
+		file, err := os.Open(mediaPath)
+		if err != nil {
+			return nil, "", fmt.Errorf("open AIGRAM_MEDIA_PATH: %w", err)
+		}
+		defer file.Close()
 
-	name := filepath.Base(mediaPath)
-	if name == "." || name == string(filepath.Separator) || name == "" {
-		name = "upload.bin"
+		name := filepath.Base(mediaPath)
+		if name == "." || name == string(filepath.Separator) || name == "" {
+			name = "upload.bin"
+		}
+		message, err := b.SendDocument(ctx, aigram.SendDocumentParams{
+			ChatID: aigram.ChatIDInt(chatID),
+			Document: aigram.FileUpload(aigram.UploadFile{
+				Name:   name,
+				Reader: file,
+			}),
+			Caption:     "Original caption from ai-gram",
+			ReplyMarkup: markup,
+		})
+		return message, "media_path", err
 	}
+
 	message, err := b.SendDocument(ctx, aigram.SendDocumentParams{
 		ChatID: aigram.ChatIDInt(chatID),
 		Document: aigram.FileUpload(aigram.UploadFile{
-			Name:   name,
-			Reader: file,
+			Name:   "aigram-caption-demo.txt",
+			Reader: strings.NewReader("ai-gram caption demo\n"),
 		}),
-		Caption:     "Caption before edit",
+		Caption:     "Original caption from ai-gram",
 		ReplyMarkup: markup,
 	})
-	return message, false, err
+	return message, "generated_document", err
 }
 
 func deleteCallbackMessage(ctx context.Context, b *aigram.Bot, update telegram.Update, text string) error {

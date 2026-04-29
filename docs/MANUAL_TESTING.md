@@ -6,6 +6,8 @@ This document describes manual smoke checks for ai-gram examples against either 
 
 All examples read configuration from environment variables and never hardcode bot tokens.
 
+The deploy/smoke scripts can send actionable Telegram notifications with the selected bot `@username`, a `t.me` link, exact commands/buttons to press, and a short note about which safe logs Codex will verify.
+
 ## Environment variables
 
 | Variable | Purpose |
@@ -119,7 +121,7 @@ To check `DeleteMessage` on the `/start` message:
 - The message with the inline keyboard should disappear.
 - Inspect safe logs with `./scripts/remote_logs.sh`; successful deletion is logged as `action=delete_message ok=true update_id=... chat_id=... message_id=...`.
 
-To check `EditMessageCaption` on a media message:
+To check `EditMessageCaption` on a media message, no media env is required. If `AIGRAM_FILE_ID` or `AIGRAM_MEDIA_PATH` is set, the example uses it; otherwise it uploads a generated in-memory text document named `aigram-caption-demo.txt`.
 
 ```bash
 export AIGRAM_FILE_ID='existing_document_file_id'
@@ -132,11 +134,10 @@ Checklist:
 - Deploy or run `examples/webhook_server`.
 - Send `/start` to the webhook bot.
 - Press `Caption demo`.
-- If `AIGRAM_FILE_ID` or `AIGRAM_MEDIA_PATH` is set, the bot sends a document with caption `Caption before edit` and inline buttons.
+- The bot sends a document with caption `Original caption from ai-gram` and inline buttons.
 - Press `Edit caption`; the media caption should change to `Caption edited by ai-gram`.
 - Press `Delete media message`; the media message should disappear.
-- If neither media env variable is set, the bot sends `Caption demo requires AIGRAM_FILE_ID or AIGRAM_MEDIA_PATH`; this is not a library failure.
-- Inspect safe logs with `./scripts/remote_logs.sh`; successful actions are logged as `action=send_media_caption_demo`, `action=edit_message_caption`, and `action=delete_message`.
+- Inspect safe logs with `./scripts/remote_logs.sh`; successful actions are logged as `action=send_media_caption_demo` with `source=generated_document`, `source=file_id`, or `source=media_path`, plus `action=edit_message_caption` and `action=delete_message`.
 
 ## Media upload/download checklist
 
