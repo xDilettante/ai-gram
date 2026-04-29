@@ -74,6 +74,7 @@ type SendPhotoParams struct {
 	CaptionEntities     []telegram.MessageEntity `json:"caption_entities,omitempty"`
 	DisableNotification bool                     `json:"disable_notification,omitempty"`
 	ProtectContent      bool                     `json:"protect_content,omitempty"`
+	ReplyMarkup         telegram.ReplyMarkup     `json:"reply_markup,omitempty"`
 }
 
 // SendDocumentParams contains supported parameters for sendDocument.
@@ -86,6 +87,7 @@ type SendDocumentParams struct {
 	DisableNotification         bool                     `json:"disable_notification,omitempty"`
 	ProtectContent              bool                     `json:"protect_content,omitempty"`
 	DisableContentTypeDetection bool                     `json:"disable_content_type_detection,omitempty"`
+	ReplyMarkup                 telegram.ReplyMarkup     `json:"reply_markup,omitempty"`
 }
 
 // SendVideoParams contains supported parameters for sendVideo.
@@ -102,6 +104,7 @@ type SendVideoParams struct {
 	HasSpoiler          bool                     `json:"has_spoiler,omitempty"`
 	DisableNotification bool                     `json:"disable_notification,omitempty"`
 	ProtectContent      bool                     `json:"protect_content,omitempty"`
+	ReplyMarkup         telegram.ReplyMarkup     `json:"reply_markup,omitempty"`
 }
 
 // SendAudioParams contains supported parameters for sendAudio.
@@ -116,6 +119,7 @@ type SendAudioParams struct {
 	CaptionEntities     []telegram.MessageEntity `json:"caption_entities,omitempty"`
 	DisableNotification bool                     `json:"disable_notification,omitempty"`
 	ProtectContent      bool                     `json:"protect_content,omitempty"`
+	ReplyMarkup         telegram.ReplyMarkup     `json:"reply_markup,omitempty"`
 }
 
 // SendVoiceParams contains supported parameters for sendVoice.
@@ -128,6 +132,7 @@ type SendVoiceParams struct {
 	Duration            int                      `json:"duration,omitempty"`
 	DisableNotification bool                     `json:"disable_notification,omitempty"`
 	ProtectContent      bool                     `json:"protect_content,omitempty"`
+	ReplyMarkup         telegram.ReplyMarkup     `json:"reply_markup,omitempty"`
 }
 
 // SendPhoto sends a photo by Telegram file_id, HTTP(S) URL, or multipart upload.
@@ -265,12 +270,15 @@ func (params SendPhotoParams) validate() error {
 	if err := validateCaptionFormatting(params.ParseMode, params.CaptionEntities); err != nil {
 		return err
 	}
+	if err := telegram.ValidateReplyMarkup(params.ReplyMarkup); err != nil {
+		return err
+	}
 
 	return nil
 }
 
 func (params SendPhotoParams) multipart() (map[string]string, map[string]UploadFile, error) {
-	fields, err := baseMediaFields(params.ChatID, params.Caption, params.ParseMode, params.CaptionEntities, params.DisableNotification, params.ProtectContent)
+	fields, err := baseMediaFields(params.ChatID, params.Caption, params.ParseMode, params.CaptionEntities, params.DisableNotification, params.ProtectContent, params.ReplyMarkup)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -288,12 +296,15 @@ func (params SendDocumentParams) validate() error {
 	if err := validateCaptionFormatting(params.ParseMode, params.CaptionEntities); err != nil {
 		return err
 	}
+	if err := telegram.ValidateReplyMarkup(params.ReplyMarkup); err != nil {
+		return err
+	}
 
 	return nil
 }
 
 func (params SendDocumentParams) multipart() (map[string]string, map[string]UploadFile, error) {
-	fields, err := baseMediaFields(params.ChatID, params.Caption, params.ParseMode, params.CaptionEntities, params.DisableNotification, params.ProtectContent)
+	fields, err := baseMediaFields(params.ChatID, params.Caption, params.ParseMode, params.CaptionEntities, params.DisableNotification, params.ProtectContent, params.ReplyMarkup)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -323,12 +334,15 @@ func (params SendVideoParams) validate() error {
 	if err := validateCaptionFormatting(params.ParseMode, params.CaptionEntities); err != nil {
 		return err
 	}
+	if err := telegram.ValidateReplyMarkup(params.ReplyMarkup); err != nil {
+		return err
+	}
 
 	return nil
 }
 
 func (params SendVideoParams) multipart() (map[string]string, map[string]UploadFile, error) {
-	fields, err := baseMediaFields(params.ChatID, params.Caption, params.ParseMode, params.CaptionEntities, params.DisableNotification, params.ProtectContent)
+	fields, err := baseMediaFields(params.ChatID, params.Caption, params.ParseMode, params.CaptionEntities, params.DisableNotification, params.ProtectContent, params.ReplyMarkup)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -354,12 +368,15 @@ func (params SendAudioParams) validate() error {
 	if err := validateCaptionFormatting(params.ParseMode, params.CaptionEntities); err != nil {
 		return err
 	}
+	if err := telegram.ValidateReplyMarkup(params.ReplyMarkup); err != nil {
+		return err
+	}
 
 	return nil
 }
 
 func (params SendAudioParams) multipart() (map[string]string, map[string]UploadFile, error) {
-	fields, err := baseMediaFields(params.ChatID, params.Caption, params.ParseMode, params.CaptionEntities, params.DisableNotification, params.ProtectContent)
+	fields, err := baseMediaFields(params.ChatID, params.Caption, params.ParseMode, params.CaptionEntities, params.DisableNotification, params.ProtectContent, params.ReplyMarkup)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -383,12 +400,15 @@ func (params SendVoiceParams) validate() error {
 	if err := validateCaptionFormatting(params.ParseMode, params.CaptionEntities); err != nil {
 		return err
 	}
+	if err := telegram.ValidateReplyMarkup(params.ReplyMarkup); err != nil {
+		return err
+	}
 
 	return nil
 }
 
 func (params SendVoiceParams) multipart() (map[string]string, map[string]UploadFile, error) {
-	fields, err := baseMediaFields(params.ChatID, params.Caption, params.ParseMode, params.CaptionEntities, params.DisableNotification, params.ProtectContent)
+	fields, err := baseMediaFields(params.ChatID, params.Caption, params.ParseMode, params.CaptionEntities, params.DisableNotification, params.ProtectContent, params.ReplyMarkup)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -397,7 +417,7 @@ func (params SendVoiceParams) multipart() (map[string]string, map[string]UploadF
 	return fields, map[string]UploadFile{"voice": params.Voice.upload}, nil
 }
 
-func baseMediaFields(chatID ChatID, caption string, parseMode string, captionEntities []telegram.MessageEntity, disableNotification bool, protectContent bool) (map[string]string, error) {
+func baseMediaFields(chatID ChatID, caption string, parseMode string, captionEntities []telegram.MessageEntity, disableNotification bool, protectContent bool, replyMarkup telegram.ReplyMarkup) (map[string]string, error) {
 	chatIDValue, err := chatID.multipartValue()
 	if err != nil {
 		return nil, err
@@ -406,6 +426,9 @@ func baseMediaFields(chatID ChatID, caption string, parseMode string, captionEnt
 	stringField(fields, "caption", caption)
 	stringField(fields, "parse_mode", parseMode)
 	if err := captionEntitiesField(fields, captionEntities); err != nil {
+		return nil, err
+	}
+	if err := replyMarkupField(fields, replyMarkup); err != nil {
 		return nil, err
 	}
 	boolField(fields, "disable_notification", disableNotification)
@@ -449,6 +472,18 @@ func captionEntitiesField(fields map[string]string, captionEntities []telegram.M
 		return err
 	}
 	fields["caption_entities"] = string(body)
+	return nil
+}
+
+func replyMarkupField(fields map[string]string, replyMarkup telegram.ReplyMarkup) error {
+	if replyMarkup == nil {
+		return nil
+	}
+	body, err := json.Marshal(replyMarkup)
+	if err != nil {
+		return err
+	}
+	fields["reply_markup"] = string(body)
 	return nil
 }
 

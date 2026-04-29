@@ -9,10 +9,11 @@ import (
 
 // SendMessageParams contains supported parameters for sendMessage.
 type SendMessageParams struct {
-	ChatID              ChatID `json:"chat_id"`
-	Text                string `json:"text"`
-	ParseMode           string `json:"parse_mode,omitempty"`
-	DisableNotification bool   `json:"disable_notification,omitempty"`
+	ChatID              ChatID               `json:"chat_id"`
+	Text                string               `json:"text"`
+	ParseMode           string               `json:"parse_mode,omitempty"`
+	DisableNotification bool                 `json:"disable_notification,omitempty"`
+	ReplyMarkup         telegram.ReplyMarkup `json:"reply_markup,omitempty"`
 }
 
 // GetUpdatesParams contains supported parameters for getUpdates.
@@ -68,6 +69,9 @@ func (b *Bot) SendMessage(ctx context.Context, params SendMessageParams) (*teleg
 	}
 	if params.Text == "" {
 		return nil, stderrors.New("text is required")
+	}
+	if err := telegram.ValidateReplyMarkup(params.ReplyMarkup); err != nil {
+		return nil, err
 	}
 
 	var message telegram.Message
