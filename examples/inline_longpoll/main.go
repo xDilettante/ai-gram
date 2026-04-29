@@ -17,6 +17,43 @@ import (
 	"ai-gram/transport/longpoll"
 )
 
+func logSafeUpdate(update telegram.Update, matched string) {
+	message := update.EffectiveMessage()
+	chat := update.EffectiveChat()
+	user := update.EffectiveUser()
+	chatID := int64(0)
+	userID := int64(0)
+	if chat != nil {
+		chatID = chat.ID
+	}
+	if user != nil {
+		userID = user.ID
+	}
+
+	updateType := "unknown"
+	command := ""
+	hasText := false
+	hasMedia := false
+	if update.CallbackQuery != nil {
+		updateType = "callback_query"
+	} else if update.Message != nil {
+		updateType = "message"
+	} else if update.EditedMessage != nil {
+		updateType = "edited_message"
+	}
+	if message != nil {
+		hasText = message.Text != ""
+		hasMedia = message.HasMedia()
+		command = message.Command()
+	}
+
+	if command != "" {
+		log.Printf("longpoll update_id=%d update_type=%s matched=%s chat_id=%d from_user_id=%d command=%s has_text=%t has_media=%t", update.UpdateID, updateType, matched, chatID, userID, command, hasText, hasMedia)
+		return
+	}
+	log.Printf("longpoll update_id=%d update_type=%s matched=%s chat_id=%d from_user_id=%d has_text=%t has_media=%t", update.UpdateID, updateType, matched, chatID, userID, hasText, hasMedia)
+}
+
 func main() {
 	if err := run(); err != nil {
 		log.Fatal(err)
@@ -43,6 +80,7 @@ func run() error {
 		if message == nil {
 			return nil
 		}
+		logSafeUpdate(update, "command")
 		keyboard := aigram.NewInlineKeyboard([]aigram.InlineKeyboardButton{
 			aigram.InlineButtonCallback("Да", "demo:yes"),
 			aigram.InlineButtonCallback("Нет", "demo:no"),
@@ -52,6 +90,9 @@ func run() error {
 			Text:        "Выберите вариант",
 			ReplyMarkup: keyboard,
 		})
+		if err == nil {
+			log.Printf("longpoll action=send_message update_id=%d ok=true", update.UpdateID)
+		}
 		return err
 	}); err != nil {
 		return err
@@ -61,6 +102,7 @@ func run() error {
 		if callback == nil || callback.Message == nil {
 			return nil
 		}
+		logSafeUpdate(update, "callback_query")
 		if _, err := b.AnswerCallbackQuery(ctx, aigram.AnswerCallbackQueryParams{
 			CallbackQueryID: callback.ID,
 			Text:            "Вы выбрали Да",
@@ -71,6 +113,9 @@ func run() error {
 			ChatID: aigram.ChatIDInt(callback.Message.Chat.ID),
 			Text:   "Да подтверждено",
 		})
+		if err == nil {
+			log.Printf("longpoll action=send_message update_id=%d ok=true", update.UpdateID)
+		}
 		return err
 	}); err != nil {
 		return err
@@ -79,6 +124,7 @@ func run() error {
 		if update.CallbackQuery == nil {
 			return nil
 		}
+		logSafeUpdate(update, "callback_query")
 		_, err := b.AnswerCallbackQuery(ctx, aigram.AnswerCallbackQueryParams{
 			CallbackQueryID: update.CallbackQuery.ID,
 			Text:            "Вы выбрали Нет",

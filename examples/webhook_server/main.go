@@ -105,7 +105,7 @@ func newDispatcher(b *aigram.Bot) (*dispatch.Dispatcher, error) {
 		if message == nil {
 			return nil
 		}
-		log.Printf("webhook update_id=%d command=start", update.UpdateID)
+		logSafeUpdate(update, "command")
 		_, err := b.SendMessage(ctx, aigram.SendMessageParams{ChatID: aigram.ChatIDInt(message.Chat.ID), Text: "Webhook bot is running"})
 		return err
 	}); err != nil {
@@ -116,7 +116,7 @@ func newDispatcher(b *aigram.Bot) (*dispatch.Dispatcher, error) {
 		if message == nil || message.Text == "" {
 			return nil
 		}
-		log.Printf("webhook update_id=%d message=text", update.UpdateID)
+		logSafeUpdate(update, "message")
 		_, err := b.SendMessage(ctx, aigram.SendMessageParams{ChatID: aigram.ChatIDInt(message.Chat.ID), Text: "echo: " + message.Text})
 		return err
 	}); err != nil {
@@ -126,13 +126,50 @@ func newDispatcher(b *aigram.Bot) (*dispatch.Dispatcher, error) {
 		if update.CallbackQuery == nil {
 			return nil
 		}
-		log.Printf("webhook update_id=%d callback=demo:yes", update.UpdateID)
+		logSafeUpdate(update, "callback_query")
 		_, err := b.AnswerCallbackQuery(ctx, aigram.AnswerCallbackQueryParams{CallbackQueryID: update.CallbackQuery.ID, Text: "OK"})
 		return err
 	}); err != nil {
 		return nil, err
 	}
 	return dp, nil
+}
+
+func logSafeUpdate(update telegram.Update, matched string) {
+	message := update.EffectiveMessage()
+	chat := update.EffectiveChat()
+	user := update.EffectiveUser()
+	chatID := int64(0)
+	userID := int64(0)
+	if chat != nil {
+		chatID = chat.ID
+	}
+	if user != nil {
+		userID = user.ID
+	}
+
+	updateType := "unknown"
+	command := ""
+	hasText := false
+	hasMedia := false
+	if update.CallbackQuery != nil {
+		updateType = "callback_query"
+	} else if update.Message != nil {
+		updateType = "message"
+	} else if update.EditedMessage != nil {
+		updateType = "edited_message"
+	}
+	if message != nil {
+		hasText = message.Text != ""
+		hasMedia = message.HasMedia()
+		command = message.Command()
+	}
+
+	if command != "" {
+		log.Printf("webhook update_id=%d update_type=%s matched=%s chat_id=%d from_user_id=%d command=%s has_text=%t has_media=%t", update.UpdateID, updateType, matched, chatID, userID, command, hasText, hasMedia)
+		return
+	}
+	log.Printf("webhook update_id=%d update_type=%s matched=%s chat_id=%d from_user_id=%d has_text=%t has_media=%t", update.UpdateID, updateType, matched, chatID, userID, hasText, hasMedia)
 }
 
 func shutdownServer(server *http.Server) {
