@@ -107,6 +107,37 @@ Checklist:
 - For the deployed webhook example, inspect safe logs with `./scripts/remote_logs.sh`; logs should include `update_id`, `update_type`, `chat_id`, `from_user_id`, `command`, `has_text`, `has_media`, and only known short `demo:*` callback data.
 - Successful webhook actions are logged explicitly as safe action lines, for example `action=answer_callback_query`, `action=edit_message_text`, `action=edit_message_reply_markup`, and `action=send_message`.
 
+## Webhook DeleteMessage and EditMessageCaption checklist
+
+The deployed `examples/webhook_server` also contains a live flow for deleting messages and editing media captions.
+
+To check `DeleteMessage` on the `/start` message:
+
+- Deploy or run `examples/webhook_server`.
+- Send `/start` to the webhook bot.
+- Press `Delete this message`.
+- The message with the inline keyboard should disappear.
+- Inspect safe logs with `./scripts/remote_logs.sh`; successful deletion is logged as `action=delete_message ok=true update_id=... chat_id=... message_id=...`.
+
+To check `EditMessageCaption` on a media message:
+
+```bash
+export AIGRAM_FILE_ID='existing_document_file_id'
+# or:
+export AIGRAM_MEDIA_PATH='/path/to/file.pdf'
+```
+
+Checklist:
+
+- Deploy or run `examples/webhook_server`.
+- Send `/start` to the webhook bot.
+- Press `Caption demo`.
+- If `AIGRAM_FILE_ID` or `AIGRAM_MEDIA_PATH` is set, the bot sends a document with caption `Caption before edit` and inline buttons.
+- Press `Edit caption`; the media caption should change to `Caption edited by ai-gram`.
+- Press `Delete media message`; the media message should disappear.
+- If neither media env variable is set, the bot sends `Caption demo requires AIGRAM_FILE_ID or AIGRAM_MEDIA_PATH`; this is not a library failure.
+- Inspect safe logs with `./scripts/remote_logs.sh`; successful actions are logged as `action=send_media_caption_demo`, `action=edit_message_caption`, and `action=delete_message`.
+
 ## Media upload/download checklist
 
 Upload a local file as a document:

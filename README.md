@@ -550,7 +550,7 @@ if err != nil {
 fmt.Println(ok)
 ```
 
-Webhook management is JSON-only for now. Webhook certificate upload, media groups, thumbnails, message editing, answerInlineQuery, WebApp/LoginUrl buttons, payments, sendAnimation, sendVideoNote, FSM, scenes, storage, dependency injection, and full Bot API coverage are not implemented yet.
+Webhook management is JSON-only for now. Webhook certificate upload, media groups, thumbnails, editMessageMedia, answerInlineQuery, WebApp/LoginUrl buttons, payments, sendAnimation, sendVideoNote, FSM, scenes, storage, dependency injection, and full Bot API coverage are not implemented yet.
 
 
 ## Examples
@@ -559,7 +559,7 @@ Runnable examples are available under `examples/`:
 
 - `examples/echo_longpoll` — basic long polling echo bot.
 - `examples/inline_longpoll` — inline keyboard callbacks with `AnswerCallbackQuery`.
-- `examples/webhook_server` — inbound webhook server with `SetWebhook`.
+- `examples/webhook_server` — inbound webhook server with `SetWebhook`, safe action logs, callback edit/delete flows, and caption edit smoke.
 - `examples/media_upload` — document upload and file download smoke checks.
 - `examples/local_api_server` — connectivity check for a local Telegram Bot API server.
 

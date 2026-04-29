@@ -1,7 +1,8 @@
 // Example webhook_server runs an HTTP webhook receiver and registers it with Telegram.
 //
 // Required env: AIGRAM_BOT_TOKEN, AIGRAM_WEBHOOK_URL.
-// Optional env: AIGRAM_BASE_URL, AIGRAM_FILE_BASE_URL, AIGRAM_LISTEN_ADDR (default ":8080"), AIGRAM_WEBHOOK_SECRET.
+// Optional env: AIGRAM_BASE_URL, AIGRAM_FILE_BASE_URL, AIGRAM_LISTEN_ADDR (default ":8080"),
+// AIGRAM_WEBHOOK_SECRET, AIGRAM_FILE_ID or AIGRAM_MEDIA_PATH for the caption demo.
 // It serves /webhook and does not delete the webhook on shutdown. Stop with Ctrl+C or SIGTERM.
 package main
 
@@ -11,6 +12,8 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
+	"path/filepath"
 	"time"
 
 	"ai-gram"
@@ -186,20 +189,184 @@ func newDispatcher(b *aigram.Bot) (*dispatch.Dispatcher, error) {
 	}); err != nil {
 		return nil, err
 	}
+	if err := dp.OnCallbackDataFunc("demo:caption", func(ctx context.Context, update telegram.Update) error {
+		callback := update.CallbackQuery
+		if callback == nil {
+			return nil
+		}
+		logSafeUpdate(update, "callback_query")
+		if _, err := b.AnswerCallbackQuery(ctx, aigram.AnswerCallbackQueryParams{CallbackQueryID: callback.ID, Text: "Sending caption demo"}); err != nil {
+			return err
+		}
+		log.Printf("webhook action=answer_callback_query ok=true update_id=%d callback_data=%s", update.UpdateID, safeCallbackData(update))
+		if callback.Message == nil {
+			return nil
+		}
+
+		sent, skipped, err := sendCaptionDemo(ctx, b, callback.Message.Chat.ID)
+		if err != nil {
+			return err
+		}
+		if skipped {
+			log.Printf("webhook action=caption_demo_skipped ok=true update_id=%d chat_id=%d reason=no_media_env", update.UpdateID, callback.Message.Chat.ID)
+			return nil
+		}
+		if sent == nil {
+			return errors.New("send_media_caption_demo returned nil message")
+		}
+		log.Printf("webhook action=send_media_caption_demo ok=true update_id=%d chat_id=%d message_id=%d", update.UpdateID, sent.Chat.ID, sent.MessageID)
+		return nil
+	}); err != nil {
+		return nil, err
+	}
+	if err := dp.OnCallbackDataFunc("demo:edit_caption", func(ctx context.Context, update telegram.Update) error {
+		callback := update.CallbackQuery
+		if callback == nil {
+			return nil
+		}
+		logSafeUpdate(update, "callback_query")
+		if _, err := b.AnswerCallbackQuery(ctx, aigram.AnswerCallbackQueryParams{CallbackQueryID: callback.ID, Text: "Editing caption"}); err != nil {
+			return err
+		}
+		log.Printf("webhook action=answer_callback_query ok=true update_id=%d callback_data=%s", update.UpdateID, safeCallbackData(update))
+		if callback.Message == nil {
+			return nil
+		}
+
+		deleteKeyboard := deleteMediaKeyboard()
+		result, err := b.EditMessageCaption(ctx, aigram.EditMessageCaptionParams{
+			Target:      aigram.EditTargetChat(aigram.ChatIDInt(callback.Message.Chat.ID), callback.Message.MessageID),
+			Caption:     "Caption edited by ai-gram",
+			ReplyMarkup: &deleteKeyboard,
+		})
+		if err != nil {
+			return err
+		}
+		if !result.IsOK() {
+			return errors.New("edit_message_caption returned non-ok result")
+		}
+		log.Printf("webhook action=edit_message_caption ok=true update_id=%d chat_id=%d message_id=%d", update.UpdateID, callback.Message.Chat.ID, callback.Message.MessageID)
+		return nil
+	}); err != nil {
+		return nil, err
+	}
+	if err := dp.OnCallbackDataFunc("demo:delete_media", func(ctx context.Context, update telegram.Update) error {
+		return deleteCallbackMessage(ctx, b, update, "Deleting message")
+	}); err != nil {
+		return nil, err
+	}
+	if err := dp.OnCallbackDataFunc("demo:delete", func(ctx context.Context, update telegram.Update) error {
+		return deleteCallbackMessage(ctx, b, update, "Deleting this message")
+	}); err != nil {
+		return nil, err
+	}
 	return dp, nil
 }
 
 func demoKeyboard() aigram.InlineKeyboardMarkup {
-	return aigram.NewInlineKeyboard([]aigram.InlineKeyboardButton{
-		aigram.InlineButtonCallback("Edit message", "demo:edit"),
-		aigram.InlineButtonCallback("Remove keyboard", "demo:remove_keyboard"),
-	})
+	return aigram.NewInlineKeyboard(
+		[]aigram.InlineKeyboardButton{
+			aigram.InlineButtonCallback("Edit message", "demo:edit"),
+			aigram.InlineButtonCallback("Remove keyboard", "demo:remove_keyboard"),
+		},
+		[]aigram.InlineKeyboardButton{
+			aigram.InlineButtonCallback("Caption demo", "demo:caption"),
+			aigram.InlineButtonCallback("Delete this message", "demo:delete"),
+		},
+	)
 }
 
 func removeKeyboardMarkup() aigram.InlineKeyboardMarkup {
 	return aigram.NewInlineKeyboard([]aigram.InlineKeyboardButton{
 		aigram.InlineButtonCallback("Remove keyboard", "demo:remove_keyboard"),
 	})
+}
+
+func captionDemoKeyboard() aigram.InlineKeyboardMarkup {
+	return aigram.NewInlineKeyboard([]aigram.InlineKeyboardButton{
+		aigram.InlineButtonCallback("Edit caption", "demo:edit_caption"),
+		aigram.InlineButtonCallback("Delete media message", "demo:delete_media"),
+	})
+}
+
+func deleteMediaKeyboard() aigram.InlineKeyboardMarkup {
+	return aigram.NewInlineKeyboard([]aigram.InlineKeyboardButton{
+		aigram.InlineButtonCallback("Delete media message", "demo:delete_media"),
+	})
+}
+
+func sendCaptionDemo(ctx context.Context, b *aigram.Bot, chatID int64) (*telegram.Message, bool, error) {
+	fileID := exampleutil.OptionalEnv("AIGRAM_FILE_ID", "")
+	mediaPath := exampleutil.OptionalEnv("AIGRAM_MEDIA_PATH", "")
+	if fileID == "" && mediaPath == "" {
+		if _, err := b.SendMessage(ctx, aigram.SendMessageParams{
+			ChatID: aigram.ChatIDInt(chatID),
+			Text:   "Caption demo requires AIGRAM_FILE_ID or AIGRAM_MEDIA_PATH",
+		}); err != nil {
+			return nil, false, err
+		}
+		return nil, true, nil
+	}
+
+	markup := captionDemoKeyboard()
+	if fileID != "" {
+		message, err := b.SendDocument(ctx, aigram.SendDocumentParams{
+			ChatID:      aigram.ChatIDInt(chatID),
+			Document:    aigram.FileID(fileID),
+			Caption:     "Caption before edit",
+			ReplyMarkup: markup,
+		})
+		return message, false, err
+	}
+
+	file, err := os.Open(mediaPath)
+	if err != nil {
+		return nil, false, fmt.Errorf("open AIGRAM_MEDIA_PATH: %w", err)
+	}
+	defer file.Close()
+
+	name := filepath.Base(mediaPath)
+	if name == "." || name == string(filepath.Separator) || name == "" {
+		name = "upload.bin"
+	}
+	message, err := b.SendDocument(ctx, aigram.SendDocumentParams{
+		ChatID: aigram.ChatIDInt(chatID),
+		Document: aigram.FileUpload(aigram.UploadFile{
+			Name:   name,
+			Reader: file,
+		}),
+		Caption:     "Caption before edit",
+		ReplyMarkup: markup,
+	})
+	return message, false, err
+}
+
+func deleteCallbackMessage(ctx context.Context, b *aigram.Bot, update telegram.Update, text string) error {
+	callback := update.CallbackQuery
+	if callback == nil {
+		return nil
+	}
+	logSafeUpdate(update, "callback_query")
+	if _, err := b.AnswerCallbackQuery(ctx, aigram.AnswerCallbackQueryParams{CallbackQueryID: callback.ID, Text: text}); err != nil {
+		return err
+	}
+	log.Printf("webhook action=answer_callback_query ok=true update_id=%d callback_data=%s", update.UpdateID, safeCallbackData(update))
+	if callback.Message == nil {
+		return nil
+	}
+
+	ok, err := b.DeleteMessage(ctx, aigram.DeleteMessageParams{
+		ChatID:    aigram.ChatIDInt(callback.Message.Chat.ID),
+		MessageID: callback.Message.MessageID,
+	})
+	if err != nil {
+		return err
+	}
+	if !ok {
+		return errors.New("delete_message returned false")
+	}
+	log.Printf("webhook action=delete_message ok=true update_id=%d chat_id=%d message_id=%d", update.UpdateID, callback.Message.Chat.ID, callback.Message.MessageID)
+	return nil
 }
 
 func logSafeUpdate(update telegram.Update, matched string) {
@@ -245,7 +412,7 @@ func safeCallbackData(update telegram.Update) string {
 		return ""
 	}
 	switch update.CallbackQuery.Data {
-	case "demo:edit", "demo:remove_keyboard":
+	case "demo:edit", "demo:remove_keyboard", "demo:caption", "demo:edit_caption", "demo:delete_media", "demo:delete":
 		return update.CallbackQuery.Data
 	default:
 		return "<redacted>"
