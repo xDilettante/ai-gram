@@ -21,6 +21,15 @@ type SendPhotoParams = bot.SendPhotoParams
 // SendDocumentParams contains supported parameters for sendDocument.
 type SendDocumentParams = bot.SendDocumentParams
 
+// SendVideoParams contains supported parameters for sendVideo.
+type SendVideoParams = bot.SendVideoParams
+
+// SendAudioParams contains supported parameters for sendAudio.
+type SendAudioParams = bot.SendAudioParams
+
+// SendVoiceParams contains supported parameters for sendVoice.
+type SendVoiceParams = bot.SendVoiceParams
+
 // GetUpdatesParams contains supported parameters for getUpdates.
 type GetUpdatesParams = bot.GetUpdatesParams
 

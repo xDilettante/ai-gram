@@ -2,7 +2,7 @@
 
 `ai-gram` is a Go library project for working with the Telegram Bot API.
 
-The project is in an early architecture stage. It provides a minimal package skeleton, practical incoming update types, a foundational HTTP core, the first public Bot API methods, media sending by file_id, URL, or multipart upload, minimal file download support, webhook management methods, a managed long polling runner, an inbound webhook HTTP handler, a small update dispatcher/router, and helper middleware. It does not yet implement FSM, scenes, storage, media groups, thumbnails, sendVideo/sendAudio/sendVoice, or full Bot API coverage.
+The project is in an early architecture stage. It provides a minimal package skeleton, practical incoming update types, a foundational HTTP core, the first public Bot API methods, media sending by file_id, URL, or multipart upload, minimal file download support, webhook management methods, a managed long polling runner, an inbound webhook HTTP handler, a small update dispatcher/router, and helper middleware. It does not yet implement FSM, scenes, storage, media groups, thumbnails, sendAnimation/sendVideoNote, or full Bot API coverage.
 
 ## Статус
 
@@ -14,7 +14,7 @@ The project is in an early architecture stage. It provides a minimal package ske
 - Dispatcher/router: supports predicates, message/command/callback routes, middleware, fallback, and error handling.
 - Middleware helpers: recover, timeout, and hook-based observability are available.
 - Long polling transport: managed runner is available. Webhook transport: inbound HTTP handler is available.
-- Telegram Bot API method coverage: `GetMe`, `SendMessage`, `SendPhoto`, `SendDocument`, the manual `GetUpdates` API call, `GetFile`, `DownloadFile`, multipart upload for `SendPhoto`/`SendDocument`, and JSON-only webhook management methods (`SetWebhook`, `DeleteWebhook`, `GetWebhookInfo`) are implemented. The rest of the Bot API is not implemented yet.
+- Telegram Bot API method coverage: `GetMe`, `SendMessage`, `SendPhoto`, `SendDocument`, `SendVideo`, `SendAudio`, `SendVoice`, the manual `GetUpdates` API call, `GetFile`, `DownloadFile`, multipart upload for media send methods, and JSON-only webhook management methods (`SetWebhook`, `DeleteWebhook`, `GetWebhookInfo`) are implemented. The rest of the Bot API is not implemented yet.
 - Public API stability: not guaranteed before the first stable release.
 
 ## Планируемая архитектура
@@ -142,7 +142,66 @@ if err != nil {
 fmt.Println(uploadedDocument.MessageID)
 ```
 
-`FileID` and `FileURL` are sent as JSON requests. `FileUpload` uses multipart/form-data and ai-gram generates the internal `attach://` value for the file field. The library consumes `UploadFile.Reader` but does not close it; the caller owns reader lifecycle. Thumbnails, media groups, `sendVideo`, `sendAudio`, and `sendVoice` are not implemented yet.
+Send video, audio, and voice messages:
+
+```go
+videoMessage, err := b.SendVideo(ctx, aigram.SendVideoParams{
+    ChatID:            aigram.ChatIDInt(123456789),
+    Video:             aigram.FileID("existing-video-file-id"),
+    Caption:           "Video from file_id",
+    SupportsStreaming: true,
+})
+if err != nil {
+    return err
+}
+fmt.Println(videoMessage.MessageID)
+
+audioMessage, err := b.SendAudio(ctx, aigram.SendAudioParams{
+    ChatID:    aigram.ChatIDInt(123456789),
+    Audio:     aigram.FileURL("https://example.com/audio.mp3"),
+    Performer: "Example Artist",
+    Title:     "Example Track",
+})
+if err != nil {
+    return err
+}
+fmt.Println(audioMessage.MessageID)
+
+voiceMessage, err := b.SendVoice(ctx, aigram.SendVoiceParams{
+    ChatID: aigram.ChatIDInt(123456789),
+    Voice:  aigram.FileID("existing-voice-file-id"),
+})
+if err != nil {
+    return err
+}
+fmt.Println(voiceMessage.MessageID)
+```
+
+Upload a video from `os.File`:
+
+```go
+videoFile, err := os.Open("video.mp4")
+if err != nil {
+    return err
+}
+defer videoFile.Close()
+
+uploadedVideo, err := b.SendVideo(ctx, aigram.SendVideoParams{
+    ChatID: aigram.ChatIDInt(123456789),
+    Video: aigram.FileUpload(aigram.UploadFile{
+        Name:        "video.mp4",
+        Reader:      videoFile,
+        ContentType: "video/mp4",
+    }),
+    SupportsStreaming: true,
+})
+if err != nil {
+    return err
+}
+fmt.Println(uploadedVideo.MessageID)
+```
+
+`FileID` and `FileURL` are sent as JSON requests. `FileUpload` uses multipart/form-data and ai-gram generates the internal `attach://` value for the file field. The library consumes `UploadFile.Reader` but does not close it; the caller owns reader lifecycle. Thumbnail upload, media groups, `sendAnimation`, and `sendVideoNote` are not implemented yet.
 
 Fetch updates manually with one `getUpdates` API call:
 
@@ -278,7 +337,7 @@ if err := b.DownloadFile(ctx, file.FilePath, &buf); err != nil {
 fmt.Println("downloaded bytes:", buf.Len())
 ```
 
-For large files pass an `*os.File` or another streaming `io.Writer` instead of `bytes.Buffer`. Telegram download URLs contain the bot token; ai-gram builds them internally and does not expose them as a public API. The regular cloud Bot API has Telegram-side file download limits. Upload is currently implemented only for `SendPhoto` and `SendDocument`; download helpers never expose a full token-bearing download URL.
+For large files pass an `*os.File` or another streaming `io.Writer` instead of `bytes.Buffer`. Telegram download URLs contain the bot token; ai-gram builds them internally and does not expose them as a public API. The regular cloud Bot API has Telegram-side file download limits. Upload is currently implemented for `SendPhoto`, `SendDocument`, `SendVideo`, `SendAudio`, and `SendVoice`; download helpers never expose a full token-bearing download URL.
 
 Serve inbound webhook updates with `net/http`:
 
@@ -345,7 +404,7 @@ if err != nil {
 fmt.Println(ok)
 ```
 
-Webhook management is JSON-only for now. Webhook certificate upload, media groups, thumbnails, FSM, scenes, storage, dependency injection, and full Bot API coverage are not implemented yet.
+Webhook management is JSON-only for now. Webhook certificate upload, media groups, thumbnails, sendAnimation, sendVideoNote, FSM, scenes, storage, dependency injection, and full Bot API coverage are not implemented yet.
 
 ## Development checks
 

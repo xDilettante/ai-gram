@@ -7,6 +7,7 @@ import (
 	"io"
 	"mime"
 	"net/url"
+	"strconv"
 	"strings"
 
 	"ai-gram/telegram"
@@ -87,6 +88,48 @@ type SendDocumentParams struct {
 	DisableContentTypeDetection bool                     `json:"disable_content_type_detection,omitempty"`
 }
 
+// SendVideoParams contains supported parameters for sendVideo.
+type SendVideoParams struct {
+	ChatID              ChatID                   `json:"chat_id"`
+	Video               FileRef                  `json:"video"`
+	Duration            int                      `json:"duration,omitempty"`
+	Width               int                      `json:"width,omitempty"`
+	Height              int                      `json:"height,omitempty"`
+	Caption             string                   `json:"caption,omitempty"`
+	ParseMode           string                   `json:"parse_mode,omitempty"`
+	CaptionEntities     []telegram.MessageEntity `json:"caption_entities,omitempty"`
+	SupportsStreaming   bool                     `json:"supports_streaming,omitempty"`
+	HasSpoiler          bool                     `json:"has_spoiler,omitempty"`
+	DisableNotification bool                     `json:"disable_notification,omitempty"`
+	ProtectContent      bool                     `json:"protect_content,omitempty"`
+}
+
+// SendAudioParams contains supported parameters for sendAudio.
+type SendAudioParams struct {
+	ChatID              ChatID                   `json:"chat_id"`
+	Audio               FileRef                  `json:"audio"`
+	Duration            int                      `json:"duration,omitempty"`
+	Performer           string                   `json:"performer,omitempty"`
+	Title               string                   `json:"title,omitempty"`
+	Caption             string                   `json:"caption,omitempty"`
+	ParseMode           string                   `json:"parse_mode,omitempty"`
+	CaptionEntities     []telegram.MessageEntity `json:"caption_entities,omitempty"`
+	DisableNotification bool                     `json:"disable_notification,omitempty"`
+	ProtectContent      bool                     `json:"protect_content,omitempty"`
+}
+
+// SendVoiceParams contains supported parameters for sendVoice.
+type SendVoiceParams struct {
+	ChatID              ChatID                   `json:"chat_id"`
+	Voice               FileRef                  `json:"voice"`
+	Caption             string                   `json:"caption,omitempty"`
+	ParseMode           string                   `json:"parse_mode,omitempty"`
+	CaptionEntities     []telegram.MessageEntity `json:"caption_entities,omitempty"`
+	Duration            int                      `json:"duration,omitempty"`
+	DisableNotification bool                     `json:"disable_notification,omitempty"`
+	ProtectContent      bool                     `json:"protect_content,omitempty"`
+}
+
 // SendPhoto sends a photo by Telegram file_id, HTTP(S) URL, or multipart upload.
 func (b *Bot) SendPhoto(ctx context.Context, params SendPhotoParams) (*telegram.Message, error) {
 	if err := params.validate(); err != nil {
@@ -137,6 +180,81 @@ func (b *Bot) SendDocument(ctx context.Context, params SendDocumentParams) (*tel
 	return &message, nil
 }
 
+// SendVideo sends a video by Telegram file_id, HTTP(S) URL, or multipart upload.
+func (b *Bot) SendVideo(ctx context.Context, params SendVideoParams) (*telegram.Message, error) {
+	if err := params.validate(); err != nil {
+		return nil, err
+	}
+
+	var message telegram.Message
+	if params.Video.isUpload() {
+		fields, files, err := params.multipart()
+		if err != nil {
+			return nil, err
+		}
+		if err := b.callMultipart(ctx, "sendVideo", fields, files, &message); err != nil {
+			return nil, err
+		}
+		return &message, nil
+	}
+
+	if err := b.call(ctx, "sendVideo", params, &message); err != nil {
+		return nil, err
+	}
+
+	return &message, nil
+}
+
+// SendAudio sends an audio file by Telegram file_id, HTTP(S) URL, or multipart upload.
+func (b *Bot) SendAudio(ctx context.Context, params SendAudioParams) (*telegram.Message, error) {
+	if err := params.validate(); err != nil {
+		return nil, err
+	}
+
+	var message telegram.Message
+	if params.Audio.isUpload() {
+		fields, files, err := params.multipart()
+		if err != nil {
+			return nil, err
+		}
+		if err := b.callMultipart(ctx, "sendAudio", fields, files, &message); err != nil {
+			return nil, err
+		}
+		return &message, nil
+	}
+
+	if err := b.call(ctx, "sendAudio", params, &message); err != nil {
+		return nil, err
+	}
+
+	return &message, nil
+}
+
+// SendVoice sends a voice message by Telegram file_id, HTTP(S) URL, or multipart upload.
+func (b *Bot) SendVoice(ctx context.Context, params SendVoiceParams) (*telegram.Message, error) {
+	if err := params.validate(); err != nil {
+		return nil, err
+	}
+
+	var message telegram.Message
+	if params.Voice.isUpload() {
+		fields, files, err := params.multipart()
+		if err != nil {
+			return nil, err
+		}
+		if err := b.callMultipart(ctx, "sendVoice", fields, files, &message); err != nil {
+			return nil, err
+		}
+		return &message, nil
+	}
+
+	if err := b.call(ctx, "sendVoice", params, &message); err != nil {
+		return nil, err
+	}
+
+	return &message, nil
+}
+
 func (params SendPhotoParams) validate() error {
 	if !params.ChatID.valid() {
 		return stderrors.New("chat_id is required")
@@ -144,8 +262,8 @@ func (params SendPhotoParams) validate() error {
 	if err := params.Photo.validate("photo"); err != nil {
 		return err
 	}
-	if params.ParseMode != "" && len(params.CaptionEntities) > 0 {
-		return stderrors.New("parse_mode and caption_entities cannot be used together")
+	if err := validateCaptionFormatting(params.ParseMode, params.CaptionEntities); err != nil {
+		return err
 	}
 
 	return nil
@@ -167,8 +285,8 @@ func (params SendDocumentParams) validate() error {
 	if err := params.Document.validate("document"); err != nil {
 		return err
 	}
-	if params.ParseMode != "" && len(params.CaptionEntities) > 0 {
-		return stderrors.New("parse_mode and caption_entities cannot be used together")
+	if err := validateCaptionFormatting(params.ParseMode, params.CaptionEntities); err != nil {
+		return err
 	}
 
 	return nil
@@ -186,33 +304,152 @@ func (params SendDocumentParams) multipart() (map[string]string, map[string]Uplo
 	return fields, map[string]UploadFile{"document": params.Document.upload}, nil
 }
 
+func (params SendVideoParams) validate() error {
+	if !params.ChatID.valid() {
+		return stderrors.New("chat_id is required")
+	}
+	if err := params.Video.validate("video"); err != nil {
+		return err
+	}
+	if params.Duration < 0 {
+		return stderrors.New("duration must not be negative")
+	}
+	if params.Width < 0 {
+		return stderrors.New("width must not be negative")
+	}
+	if params.Height < 0 {
+		return stderrors.New("height must not be negative")
+	}
+	if err := validateCaptionFormatting(params.ParseMode, params.CaptionEntities); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (params SendVideoParams) multipart() (map[string]string, map[string]UploadFile, error) {
+	fields, err := baseMediaFields(params.ChatID, params.Caption, params.ParseMode, params.CaptionEntities, params.DisableNotification, params.ProtectContent)
+	if err != nil {
+		return nil, nil, err
+	}
+	fields["video"] = "attach://video"
+	intField(fields, "duration", params.Duration)
+	intField(fields, "width", params.Width)
+	intField(fields, "height", params.Height)
+	boolField(fields, "supports_streaming", params.SupportsStreaming)
+	boolField(fields, "has_spoiler", params.HasSpoiler)
+	return fields, map[string]UploadFile{"video": params.Video.upload}, nil
+}
+
+func (params SendAudioParams) validate() error {
+	if !params.ChatID.valid() {
+		return stderrors.New("chat_id is required")
+	}
+	if err := params.Audio.validate("audio"); err != nil {
+		return err
+	}
+	if params.Duration < 0 {
+		return stderrors.New("duration must not be negative")
+	}
+	if err := validateCaptionFormatting(params.ParseMode, params.CaptionEntities); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (params SendAudioParams) multipart() (map[string]string, map[string]UploadFile, error) {
+	fields, err := baseMediaFields(params.ChatID, params.Caption, params.ParseMode, params.CaptionEntities, params.DisableNotification, params.ProtectContent)
+	if err != nil {
+		return nil, nil, err
+	}
+	fields["audio"] = "attach://audio"
+	intField(fields, "duration", params.Duration)
+	stringField(fields, "performer", params.Performer)
+	stringField(fields, "title", params.Title)
+	return fields, map[string]UploadFile{"audio": params.Audio.upload}, nil
+}
+
+func (params SendVoiceParams) validate() error {
+	if !params.ChatID.valid() {
+		return stderrors.New("chat_id is required")
+	}
+	if err := params.Voice.validate("voice"); err != nil {
+		return err
+	}
+	if params.Duration < 0 {
+		return stderrors.New("duration must not be negative")
+	}
+	if err := validateCaptionFormatting(params.ParseMode, params.CaptionEntities); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (params SendVoiceParams) multipart() (map[string]string, map[string]UploadFile, error) {
+	fields, err := baseMediaFields(params.ChatID, params.Caption, params.ParseMode, params.CaptionEntities, params.DisableNotification, params.ProtectContent)
+	if err != nil {
+		return nil, nil, err
+	}
+	fields["voice"] = "attach://voice"
+	intField(fields, "duration", params.Duration)
+	return fields, map[string]UploadFile{"voice": params.Voice.upload}, nil
+}
+
 func baseMediaFields(chatID ChatID, caption string, parseMode string, captionEntities []telegram.MessageEntity, disableNotification bool, protectContent bool) (map[string]string, error) {
 	chatIDValue, err := chatID.multipartValue()
 	if err != nil {
 		return nil, err
 	}
 	fields := map[string]string{"chat_id": chatIDValue}
-	if caption != "" {
-		fields["caption"] = caption
+	stringField(fields, "caption", caption)
+	stringField(fields, "parse_mode", parseMode)
+	if err := captionEntitiesField(fields, captionEntities); err != nil {
+		return nil, err
 	}
-	if parseMode != "" {
-		fields["parse_mode"] = parseMode
-	}
-	if len(captionEntities) > 0 {
-		body, err := json.Marshal(captionEntities)
-		if err != nil {
-			return nil, err
-		}
-		fields["caption_entities"] = string(body)
-	}
-	if disableNotification {
-		fields["disable_notification"] = "true"
-	}
-	if protectContent {
-		fields["protect_content"] = "true"
-	}
+	boolField(fields, "disable_notification", disableNotification)
+	boolField(fields, "protect_content", protectContent)
 
 	return fields, nil
+}
+
+func validateCaptionFormatting(parseMode string, captionEntities []telegram.MessageEntity) error {
+	if parseMode != "" && len(captionEntities) > 0 {
+		return stderrors.New("parse_mode and caption_entities cannot be used together")
+	}
+
+	return nil
+}
+
+func boolField(fields map[string]string, name string, value bool) {
+	if value {
+		fields[name] = "true"
+	}
+}
+
+func intField(fields map[string]string, name string, value int) {
+	if value > 0 {
+		fields[name] = strconv.Itoa(value)
+	}
+}
+
+func stringField(fields map[string]string, name string, value string) {
+	if value != "" {
+		fields[name] = value
+	}
+}
+
+func captionEntitiesField(fields map[string]string, captionEntities []telegram.MessageEntity) error {
+	if len(captionEntities) == 0 {
+		return nil
+	}
+	body, err := json.Marshal(captionEntities)
+	if err != nil {
+		return err
+	}
+	fields["caption_entities"] = string(body)
+	return nil
 }
 
 func (ref FileRef) isUpload() bool {
