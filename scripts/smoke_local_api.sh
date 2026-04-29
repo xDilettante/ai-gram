@@ -18,4 +18,11 @@ prepare_smoke_tunnel
 cd "${REPO_ROOT}"
 echo "Starting local Telegram Bot API smoke via examples/local_api_server."
 echo "Base URL: ${AIGRAM_BASE_URL}"
+set +e
 run_sanitized go run ./examples/local_api_server
+status=$?
+set -e
+if [ "${status}" -eq 0 ]; then
+  notify_user "Local Bot API smoke успешен."
+fi
+exit "${status}"

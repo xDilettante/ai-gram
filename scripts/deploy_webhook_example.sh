@@ -51,13 +51,23 @@ write_env_line() {
 
 tmp_dir="$(mktemp -d)"
 remote_tmp=""
+DEPLOY_SUCCEEDED=0
 cleanup() {
   rm -rf "${tmp_dir}"
   if [ -n "${remote_tmp}" ]; then
     "${SSH_CMD[@]}" "rm -rf \"${remote_tmp}\"" >/dev/null 2>&1 || true
   fi
+  cleanup_smoke_tunnels
 }
-trap cleanup EXIT
+on_exit() {
+  local status=$?
+  cleanup
+  if [ "${status}" -ne 0 ] && [ "${DEPLOY_SUCCEEDED}" != "1" ]; then
+    notify_user "Webhook deploy упал. Проверь terminal output и remote logs." || true
+  fi
+  exit "${status}"
+}
+trap on_exit EXIT
 
 mkdir -p "${REPO_ROOT}/build"
 echo "Building linux/amd64 webhook example binary."
@@ -146,3 +156,5 @@ remote_tmp=""
 
 echo "Deploy finished. Remote env file: ${REMOTE_ENV_FILE}; webhook secret: $(mask_secret "${AIGRAM_WEBHOOK_SECRET:-}")"
 echo "Use ./scripts/remote_logs.sh for logs and ./scripts/remote_stop.sh to stop the service."
+DEPLOY_SUCCEEDED=1
+notify_user "Webhook example задеплоен на vk1. Отправь /start боту и затем проверь логи."

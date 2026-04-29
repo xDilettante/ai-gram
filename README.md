@@ -508,6 +508,8 @@ Manual smoke testing instructions are in [`docs/MANUAL_TESTING.md`](docs/MANUAL_
 
 Deployment-oriented manual integration checks are described in [`docs/DEPLOY_TESTING.md`](docs/DEPLOY_TESTING.md). The deploy harness can start from a minimal `.env.local` with bot token, chat ID, and SSH alias, then write discovered values to ignored `.deploy/generated.env`. Smoke scripts can open a temporary SSH tunnel when a discovered local Bot API server listens only on the remote loopback, and remote logs are redacted before printing.
 
+Manual smoke scripts can also send short Telegram notifications when you need to send a message, press an inline button, check media, or inspect logs. See [`docs/DEPLOY_TESTING.md`](docs/DEPLOY_TESTING.md#telegram-notifications-during-smoke-checks).
+
 ## Development checks
 
 ```bash

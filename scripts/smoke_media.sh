@@ -11,10 +11,12 @@ require_env AIGRAM_CHAT_ID >/dev/null
 prepare_smoke_tunnel
 
 if [ -z "${AIGRAM_MEDIA_PATH:-}" ] && [ -z "${AIGRAM_FILE_ID:-}" ]; then
-  echo "set at least one of AIGRAM_MEDIA_PATH or AIGRAM_FILE_ID for media smoke" >&2
-  exit 1
+  echo "Media smoke skipped: set AIGRAM_MEDIA_PATH or AIGRAM_FILE_ID." >&2
+  notify_user "Media smoke пропущен: задай AIGRAM_MEDIA_PATH или AIGRAM_FILE_ID."
+  exit 0
 fi
 
 cd "${REPO_ROOT}"
 echo "Starting media upload/download smoke via examples/media_upload."
+notify_user "Media smoke запускается. Проверь, что бот прислал/скачал файл."
 run_sanitized go run ./examples/media_upload

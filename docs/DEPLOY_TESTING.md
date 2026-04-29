@@ -174,6 +174,36 @@ The script filters output before printing it locally: configured bot token, webh
 
 This stops the systemd service only. It does not remove files, the remote env file, or webhook registration.
 
+## Telegram notifications during smoke checks
+
+Smoke/deploy scripts can send short Telegram notifications to the operator when manual action is needed. Notifications are best-effort by default: a failed notification prints a safe warning but does not fail the smoke script.
+
+Optional env:
+
+```bash
+AIGRAM_BOT_TOKEN_NOTIFY=
+AIGRAM_BOT_TOKEN_MAIN=
+AIGRAM_NOTIFY_ENABLED=1
+AIGRAM_NOTIFY_STRICT=0
+```
+
+Token selection order:
+
+1. `AIGRAM_BOT_TOKEN_NOTIFY`
+2. `AIGRAM_BOT_TOKEN_MAIN`
+3. `AIGRAM_BOT_TOKEN`
+
+`AIGRAM_CHAT_ID` is required for notifications. Set `AIGRAM_NOTIFY_ENABLED=0` to disable all script notifications. Set `AIGRAM_NOTIFY_STRICT=1` when notification delivery should fail the script.
+
+The scripts currently notify about these manual checkpoints:
+
+- `smoke_longpoll.sh`: asks you to send any message or `/start`, then sends a completion notification.
+- `smoke_local_api.sh`: reports successful local Bot API smoke.
+- `smoke_media.sh`: asks you to check media delivery/download, or reports that media smoke was skipped until `AIGRAM_MEDIA_PATH` or `AIGRAM_FILE_ID` is set.
+- `deploy_webhook_example.sh`: reports successful webhook deploy and asks you to send `/start`, or reports deploy failure.
+
+Notifications are sent through `examples/notify_user`, which uses the ai-gram `SendMessage` method. Scripts do not print bot tokens or `/bot<TOKEN>/sendMessage` URLs.
+
 ## Security notes
 
 - Never commit `.env.local`, `.deploy/generated.env`, or real tokens.

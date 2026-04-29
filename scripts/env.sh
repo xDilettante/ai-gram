@@ -271,3 +271,93 @@ run_sanitized() {
   set -e
   return "${status}"
 }
+
+notify_enabled() {
+  [ "${AIGRAM_NOTIFY_ENABLED:-1}" != "0" ]
+}
+
+notify_user() {
+  local message="$1"
+  local strict="${AIGRAM_NOTIFY_STRICT:-0}"
+  local notify_token="${AIGRAM_BOT_TOKEN_NOTIFY:-${AIGRAM_BOT_TOKEN_MAIN:-${AIGRAM_BOT_TOKEN:-}}}"
+  local status
+  local previous_bot_token_set=0
+  local previous_bot_token="${AIGRAM_BOT_TOKEN:-}"
+  local previous_notify_text_set=0
+  local previous_notify_text="${AIGRAM_NOTIFY_TEXT:-}"
+
+  if ! notify_enabled; then
+    return 0
+  fi
+
+  if [ -z "${AIGRAM_CHAT_ID:-}" ]; then
+    echo "warning: AIGRAM_CHAT_ID is not set; Telegram notification skipped" >&2
+    if [ "${strict}" = "1" ]; then
+      return 1
+    fi
+    return 0
+  fi
+
+  if [ -z "${notify_token}" ]; then
+    echo "warning: notification bot token is not set; Telegram notification skipped" >&2
+    if [ "${strict}" = "1" ]; then
+      return 1
+    fi
+    return 0
+  fi
+
+  if [ -z "${message}" ]; then
+    echo "warning: notification message is empty; Telegram notification skipped" >&2
+    if [ "${strict}" = "1" ]; then
+      return 1
+    fi
+    return 0
+  fi
+
+  if ! prepare_smoke_tunnel; then
+    echo "warning: could not prepare Telegram notification transport; notification skipped" >&2
+    if [ "${strict}" = "1" ]; then
+      return 1
+    fi
+    return 0
+  fi
+
+  if [ -n "${AIGRAM_BOT_TOKEN+x}" ]; then
+    previous_bot_token_set=1
+  fi
+  if [ -n "${AIGRAM_NOTIFY_TEXT+x}" ]; then
+    previous_notify_text_set=1
+  fi
+
+  export AIGRAM_BOT_TOKEN="${notify_token}"
+  export AIGRAM_NOTIFY_TEXT="${message}"
+
+  set +e
+  (
+    cd "${REPO_ROOT}"
+    run_sanitized go run ./examples/notify_user
+  )
+  status=$?
+  set -e
+
+  if [ "${previous_bot_token_set}" -eq 1 ]; then
+    export AIGRAM_BOT_TOKEN="${previous_bot_token}"
+  else
+    unset AIGRAM_BOT_TOKEN
+  fi
+  if [ "${previous_notify_text_set}" -eq 1 ]; then
+    export AIGRAM_NOTIFY_TEXT="${previous_notify_text}"
+  else
+    unset AIGRAM_NOTIFY_TEXT
+  fi
+
+  if [ "${status}" -ne 0 ]; then
+    echo "warning: Telegram notification failed" >&2
+    if [ "${strict}" = "1" ]; then
+      return "${status}"
+    fi
+    return 0
+  fi
+
+  return 0
+}
