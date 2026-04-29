@@ -1,5 +1,7 @@
 .env
 .env.*
+!.env.example
+deploy/*.local
 *.key
 *.pem
 *.log
