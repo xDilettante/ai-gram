@@ -15,6 +15,9 @@ type BotConfig = bot.BotConfig
 // SendMessageParams contains supported parameters for sendMessage.
 type SendMessageParams = bot.SendMessageParams
 
+// GetUpdatesParams contains supported parameters for getUpdates.
+type GetUpdatesParams = bot.GetUpdatesParams
+
 // ChatID identifies a Telegram chat by numeric ID or username string.
 type ChatID = bot.ChatID
 

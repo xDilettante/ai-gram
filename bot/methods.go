@@ -15,6 +15,14 @@ type SendMessageParams struct {
 	DisableNotification bool   `json:"disable_notification,omitempty"`
 }
 
+// GetUpdatesParams contains supported parameters for getUpdates.
+type GetUpdatesParams struct {
+	Offset         int64    `json:"offset,omitempty"`
+	Limit          int      `json:"limit,omitempty"`
+	Timeout        int      `json:"timeout,omitempty"`
+	AllowedUpdates []string `json:"allowed_updates,omitempty"`
+}
+
 // GetMe returns basic information about the bot.
 func (b *Bot) GetMe(ctx context.Context) (*telegram.User, error) {
 	var user telegram.User
@@ -23,6 +31,34 @@ func (b *Bot) GetMe(ctx context.Context) (*telegram.User, error) {
 	}
 
 	return &user, nil
+}
+
+// GetUpdates fetches updates with one getUpdates API call.
+func (b *Bot) GetUpdates(ctx context.Context, params GetUpdatesParams) ([]telegram.Update, error) {
+	if err := params.validate(); err != nil {
+		return nil, err
+	}
+
+	var updates []telegram.Update
+	if err := b.call(ctx, "getUpdates", params, &updates); err != nil {
+		return nil, err
+	}
+
+	return updates, nil
+}
+
+func (params GetUpdatesParams) validate() error {
+	if params.Limit < 0 {
+		return stderrors.New("limit must not be negative")
+	}
+	if params.Limit > 100 {
+		return stderrors.New("limit must be between 1 and 100")
+	}
+	if params.Timeout < 0 {
+		return stderrors.New("timeout must not be negative")
+	}
+
+	return nil
 }
 
 // SendMessage sends a text message.

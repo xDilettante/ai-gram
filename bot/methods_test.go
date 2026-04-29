@@ -229,3 +229,176 @@ func TestSendMessageRedactsTokenFromAPIErrorDescription(t *testing.T) {
 	}
 	assertNoToken(t, err, token)
 }
+
+func TestGetUpdatesSendsPayloadAndDecodesUpdates(t *testing.T) {
+	const token = "123:secret"
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodPost {
+			t.Fatalf("unexpected method: %s", r.Method)
+		}
+		if r.URL.Path != "/bot"+token+"/getUpdates" {
+			t.Fatalf("unexpected path: %q", r.URL.Path)
+		}
+
+		var payload map[string]any
+		if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
+			t.Fatalf("decode payload: %v", err)
+		}
+		if got := payload["offset"]; got != float64(-10) {
+			t.Fatalf("unexpected offset: %#v", got)
+		}
+		if got := payload["limit"]; got != float64(2) {
+			t.Fatalf("unexpected limit: %#v", got)
+		}
+		if got := payload["timeout"]; got != float64(30) {
+			t.Fatalf("unexpected timeout: %#v", got)
+		}
+		allowed, ok := payload["allowed_updates"].([]any)
+		if !ok {
+			t.Fatalf("unexpected allowed_updates type: %#v", payload["allowed_updates"])
+		}
+		if len(allowed) != 2 || allowed[0] != "message" || allowed[1] != "callback_query" {
+			t.Fatalf("unexpected allowed_updates: %#v", allowed)
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		_, _ = w.Write([]byte(`{"ok":true,"result":[{"update_id":100,"message":{"message_id":1,"chat":{"id":12345,"type":"private"},"date":200,"text":"hello"}}]}`))
+	}))
+	defer server.Close()
+
+	bot := newTestBot(t, token, server.URL, server.Client())
+	updates, err := bot.GetUpdates(context.Background(), GetUpdatesParams{
+		Offset:         -10,
+		Limit:          2,
+		Timeout:        30,
+		AllowedUpdates: []string{"message", "callback_query"},
+	})
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if len(updates) != 1 {
+		t.Fatalf("unexpected update count: %d", len(updates))
+	}
+	if updates[0].UpdateID != 100 {
+		t.Fatalf("unexpected update_id: %d", updates[0].UpdateID)
+	}
+	if updates[0].Message == nil || updates[0].Message.Text != "hello" {
+		t.Fatalf("unexpected update message: %+v", updates[0].Message)
+	}
+}
+
+func TestGetUpdatesReturnsEmptySlice(t *testing.T) {
+	const token = "123:secret"
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		_, _ = w.Write([]byte(`{"ok":true,"result":[]}`))
+	}))
+	defer server.Close()
+
+	bot := newTestBot(t, token, server.URL, server.Client())
+	updates, err := bot.GetUpdates(context.Background(), GetUpdatesParams{})
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if updates == nil {
+		t.Fatal("expected non-nil empty slice")
+	}
+	if len(updates) != 0 {
+		t.Fatalf("unexpected update count: %d", len(updates))
+	}
+}
+
+func TestGetUpdatesReturnsAPIError(t *testing.T) {
+	const token = "123:secret"
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		_, _ = w.Write([]byte(`{"ok":false,"error_code":409,"description":"Conflict"}`))
+	}))
+	defer server.Close()
+
+	bot := newTestBot(t, token, server.URL, server.Client())
+	updates, err := bot.GetUpdates(context.Background(), GetUpdatesParams{})
+	if err == nil {
+		t.Fatal("expected error")
+	}
+	if updates != nil {
+		t.Fatalf("expected nil updates, got %+v", updates)
+	}
+
+	var apiErr *apierrors.APIError
+	if !stderrors.As(err, &apiErr) {
+		t.Fatalf("expected APIError, got %T", err)
+	}
+	if apiErr.Code != 409 || apiErr.Description != "Conflict" {
+		t.Fatalf("unexpected APIError: %+v", apiErr)
+	}
+	assertNoToken(t, err, token)
+}
+
+func TestGetUpdatesParamsValidation(t *testing.T) {
+	tests := []struct {
+		name    string
+		params  GetUpdatesParams
+		wantErr bool
+	}{
+		{name: "limit zero", params: GetUpdatesParams{Limit: 0}},
+		{name: "limit one", params: GetUpdatesParams{Limit: 1}},
+		{name: "limit hundred", params: GetUpdatesParams{Limit: 100}},
+		{name: "limit negative", params: GetUpdatesParams{Limit: -1}, wantErr: true},
+		{name: "limit too high", params: GetUpdatesParams{Limit: 101}, wantErr: true},
+		{name: "timeout negative", params: GetUpdatesParams{Timeout: -1}, wantErr: true},
+		{name: "offset negative", params: GetUpdatesParams{Offset: -10}},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			err := tt.params.validate()
+			if tt.wantErr && err == nil {
+				t.Fatal("expected error")
+			}
+			if !tt.wantErr && err != nil {
+				t.Fatalf("unexpected error: %v", err)
+			}
+		})
+	}
+}
+
+func TestGetUpdatesReturnsContextError(t *testing.T) {
+	const token = "123:secret"
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		t.Fatal("request should not reach server with canceled context")
+	}))
+	defer server.Close()
+
+	bot := newTestBot(t, token, server.URL, server.Client())
+	ctx, cancel := context.WithCancel(context.Background())
+	cancel()
+
+	updates, err := bot.GetUpdates(ctx, GetUpdatesParams{})
+	if err == nil {
+		t.Fatal("expected error")
+	}
+	if updates != nil {
+		t.Fatalf("expected nil updates, got %+v", updates)
+	}
+	assertNoToken(t, err, token)
+}
+
+func TestGetUpdatesReturnsInvalidJSONError(t *testing.T) {
+	const token = "123:secret"
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		_, _ = w.Write([]byte(`not-json`))
+	}))
+	defer server.Close()
+
+	bot := newTestBot(t, token, server.URL, server.Client())
+	updates, err := bot.GetUpdates(context.Background(), GetUpdatesParams{})
+	if err == nil {
+		t.Fatal("expected error")
+	}
+	if updates != nil {
+		t.Fatalf("expected nil updates, got %+v", updates)
+	}
+	assertNoToken(t, err, token)
+}

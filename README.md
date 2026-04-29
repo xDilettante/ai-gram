@@ -2,7 +2,7 @@
 
 `ai-gram` is a Go library project for working with the Telegram Bot API.
 
-The project is in an early architecture stage. It provides a minimal package skeleton, a foundational HTTP core, and the first public Bot API methods, but it does not yet implement long polling, webhooks, or a production dispatcher.
+The project is in an early architecture stage. It provides a minimal package skeleton, a foundational HTTP core, and the first public Bot API methods, but it does not yet implement a long polling runner, webhooks, or a production dispatcher.
 
 ## Статус
 
@@ -13,7 +13,7 @@ The project is in an early architecture stage. It provides a minimal package ske
 - Typed Telegram API errors: scaffolded.
 - Dispatcher contracts and middleware composition: scaffolded.
 - Long polling and webhook transports: placeholders only.
-- Telegram Bot API method coverage: only `GetMe` and `SendMessage` are implemented. `GetUpdates` and the rest of the Bot API are not implemented yet.
+- Telegram Bot API method coverage: `GetMe`, `SendMessage`, and the manual `GetUpdates` API call are implemented. The rest of the Bot API is not implemented yet.
 - Public API stability: not guaranteed before the first stable release.
 
 ## Планируемая архитектура
@@ -63,7 +63,24 @@ if err != nil {
 fmt.Println(message.MessageID)
 ```
 
-Only these first methods are available for now; the library does not yet claim full Telegram Bot API coverage.
+Fetch updates manually with one `getUpdates` API call:
+
+```go
+updates, err := b.GetUpdates(ctx, aigram.GetUpdatesParams{
+    Limit:   10,
+    Timeout: 0,
+})
+if err != nil {
+    return err
+}
+for _, update := range updates {
+    if update.Message != nil {
+        fmt.Println(update.Message.Text)
+    }
+}
+```
+
+`GetUpdates` is currently only a manual API call. A long polling runner will be added separately later. The library does not yet claim full Telegram Bot API coverage.
 
 ## Development checks
 
