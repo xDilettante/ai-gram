@@ -3,6 +3,7 @@ package bot
 import (
 	"encoding/json"
 	stderrors "errors"
+	"strconv"
 	"strings"
 )
 
@@ -55,5 +56,22 @@ func (id ChatID) valid() bool {
 		return strings.TrimSpace(id.stringID) != ""
 	default:
 		return false
+	}
+}
+
+func (id ChatID) multipartValue() (string, error) {
+	switch id.kind {
+	case chatIDInt:
+		if id.intID == 0 {
+			return "", stderrors.New("chat_id is required")
+		}
+		return strconv.FormatInt(id.intID, 10), nil
+	case chatIDString:
+		if strings.TrimSpace(id.stringID) == "" {
+			return "", stderrors.New("chat_id is required")
+		}
+		return id.stringID, nil
+	default:
+		return "", stderrors.New("chat_id is required")
 	}
 }

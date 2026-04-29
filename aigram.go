@@ -36,8 +36,11 @@ type DeleteWebhookParams = bot.DeleteWebhookParams
 // ChatID identifies a Telegram chat by numeric ID or username string.
 type ChatID = bot.ChatID
 
-// FileRef identifies media by Telegram file_id or by an HTTP(S) URL.
+// FileRef identifies media by Telegram file_id, HTTP(S) URL, or multipart upload.
 type FileRef = bot.FileRef
+
+// UploadFile describes a file uploaded through multipart/form-data.
+type UploadFile = bot.UploadFile
 
 // APIError represents a Telegram Bot API response with ok=false.
 type APIError = telegramerrors.APIError
@@ -94,4 +97,9 @@ func FileID(id string) FileRef {
 // FileURL creates a file reference from an HTTP(S) URL.
 func FileURL(rawURL string) FileRef {
 	return bot.FileURL(rawURL)
+}
+
+// FileUpload creates a file reference from an UploadFile for multipart upload.
+func FileUpload(file UploadFile) FileRef {
+	return bot.FileUpload(file)
 }
