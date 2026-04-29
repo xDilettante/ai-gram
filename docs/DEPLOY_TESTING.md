@@ -34,6 +34,62 @@ Host vk1
 
 Do not paste the bot token into prompts or commit `.env.local`. Let Codex read the local env file when it needs to run the scripts.
 
+## Multiple test bot tokens
+
+The harness supports role-specific bot tokens so different smoke checks do not fight over one bot state. A single `AIGRAM_BOT_TOKEN` still works as a legacy/default fallback, but role-specific tokens are safer for repeated integration checks.
+
+Recommended roles:
+
+```bash
+# legacy fallback
+AIGRAM_BOT_TOKEN=
+
+# general manual checks, media, examples
+AIGRAM_BOT_TOKEN_MAIN=
+
+# official api.telegram.org checks
+AIGRAM_BOT_TOKEN_CLOUD=
+
+# local Telegram Bot API server and long polling checks
+AIGRAM_BOT_TOKEN_LOCAL=
+
+# webhook deploy/service checks
+AIGRAM_BOT_TOKEN_WEBHOOK=
+
+# logOut/close/migration checks that can trigger cooldowns
+AIGRAM_BOT_TOKEN_MIGRATION=
+
+# deleteWebhook/drop_pending_updates and experiments that can lose pending updates
+AIGRAM_BOT_TOKEN_DESTRUCTIVE=
+
+# stable bot for operator notifications
+AIGRAM_BOT_TOKEN_NOTIFY=
+```
+
+Fallback rules:
+
+- `main`: `AIGRAM_BOT_TOKEN_MAIN` -> `AIGRAM_BOT_TOKEN`
+- `cloud`: `AIGRAM_BOT_TOKEN_CLOUD` -> `AIGRAM_BOT_TOKEN_MAIN` -> `AIGRAM_BOT_TOKEN`
+- `local`: `AIGRAM_BOT_TOKEN_LOCAL` -> `AIGRAM_BOT_TOKEN_MAIN` -> `AIGRAM_BOT_TOKEN`
+- `webhook`: `AIGRAM_BOT_TOKEN_WEBHOOK` -> `AIGRAM_BOT_TOKEN_MAIN` -> `AIGRAM_BOT_TOKEN`
+- `notify`: `AIGRAM_BOT_TOKEN_NOTIFY` -> `AIGRAM_BOT_TOKEN_MAIN` -> `AIGRAM_BOT_TOKEN`
+
+Migration and destructive roles intentionally do not fall back to the default token unless explicitly allowed:
+
+```bash
+AIGRAM_ALLOW_DEFAULT_TOKEN_FOR_MIGRATION=1
+AIGRAM_ALLOW_DEFAULT_TOKEN_FOR_DESTRUCTIVE=1
+```
+
+Why this matters:
+
+- Long polling and webhook modes are mutually exclusive for one bot token.
+- `logOut`/`close`/migration-style checks can have cooldowns and side effects.
+- Destructive checks can delete webhooks or drop pending updates.
+- Notification delivery should stay stable even while test bots are being reconfigured.
+
+`scripts/discover_env.sh` and local Bot API smoke use the `local` role. `scripts/deploy_webhook_example.sh` writes the `webhook` role token to the remote systemd env file. `.deploy/generated.env` never stores bot tokens; tokens stay in `.env.local` or in the remote service env file created during deploy.
+
 ## Auto-discovery
 
 Run discovery first:

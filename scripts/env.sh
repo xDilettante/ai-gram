@@ -90,6 +90,74 @@ mask_secret() {
   fi
 }
 
+first_non_empty_env() {
+  local name value
+  for name in "$@"; do
+    value="${!name:-}"
+    if [ -n "${value}" ]; then
+      printf '%s\n' "${value}"
+      return 0
+    fi
+  done
+  return 1
+}
+
+bot_token_for_role() {
+  local role="${1:-}"
+  case "${role}" in
+    main)
+      first_non_empty_env AIGRAM_BOT_TOKEN_MAIN AIGRAM_BOT_TOKEN
+      ;;
+    cloud)
+      first_non_empty_env AIGRAM_BOT_TOKEN_CLOUD AIGRAM_BOT_TOKEN_MAIN AIGRAM_BOT_TOKEN
+      ;;
+    local)
+      first_non_empty_env AIGRAM_BOT_TOKEN_LOCAL AIGRAM_BOT_TOKEN_MAIN AIGRAM_BOT_TOKEN
+      ;;
+    webhook)
+      first_non_empty_env AIGRAM_BOT_TOKEN_WEBHOOK AIGRAM_BOT_TOKEN_MAIN AIGRAM_BOT_TOKEN
+      ;;
+    notify)
+      first_non_empty_env AIGRAM_BOT_TOKEN_NOTIFY AIGRAM_BOT_TOKEN_MAIN AIGRAM_BOT_TOKEN
+      ;;
+    migration)
+      if [ -n "${AIGRAM_BOT_TOKEN_MIGRATION:-}" ]; then
+        printf '%s\n' "${AIGRAM_BOT_TOKEN_MIGRATION}"
+      elif [ "${AIGRAM_ALLOW_DEFAULT_TOKEN_FOR_MIGRATION:-0}" = "1" ]; then
+        first_non_empty_env AIGRAM_BOT_TOKEN_MAIN AIGRAM_BOT_TOKEN
+      else
+        echo "bot token for role migration is not set; set AIGRAM_BOT_TOKEN_MIGRATION or AIGRAM_ALLOW_DEFAULT_TOKEN_FOR_MIGRATION=1" >&2
+        return 1
+      fi
+      ;;
+    destructive)
+      if [ -n "${AIGRAM_BOT_TOKEN_DESTRUCTIVE:-}" ]; then
+        printf '%s\n' "${AIGRAM_BOT_TOKEN_DESTRUCTIVE}"
+      elif [ "${AIGRAM_ALLOW_DEFAULT_TOKEN_FOR_DESTRUCTIVE:-0}" = "1" ]; then
+        first_non_empty_env AIGRAM_BOT_TOKEN_MAIN AIGRAM_BOT_TOKEN
+      else
+        echo "bot token for role destructive is not set; set AIGRAM_BOT_TOKEN_DESTRUCTIVE or AIGRAM_ALLOW_DEFAULT_TOKEN_FOR_DESTRUCTIVE=1" >&2
+        return 1
+      fi
+      ;;
+    *)
+      echo "unknown bot token role: ${role}" >&2
+      return 1
+      ;;
+  esac
+}
+
+export_bot_token_for_role() {
+  local role="$1"
+  local token
+  if ! token="$(bot_token_for_role "${role}")" || [ -z "${token}" ]; then
+    echo "bot token for role ${role} is not set" >&2
+    return 1
+  fi
+  export AIGRAM_BOT_TOKEN="${token}"
+  echo "Using bot token role ${role}: $(mask_secret "${token}")"
+}
+
 shell_quote() {
   printf '%s' "$1" | sed "s/'/'\\''/g; s/^/'/; s/$/'/"
 }
@@ -128,12 +196,24 @@ configure_deploy_ssh() {
 }
 
 sanitize_stream() {
-  local token="${AIGRAM_BOT_TOKEN:-}"
-  local secret="${AIGRAM_WEBHOOK_SECRET:-}"
   python3 -c '
 import os, re, sys
 text = sys.stdin.read()
-for value, repl in ((os.environ.get("AIGRAM_BOT_TOKEN", ""), "<BOT_TOKEN>"), (os.environ.get("AIGRAM_WEBHOOK_SECRET", ""), "<WEBHOOK_SECRET>")):
+token_names = (
+    "AIGRAM_BOT_TOKEN",
+    "AIGRAM_BOT_TOKEN_MAIN",
+    "AIGRAM_BOT_TOKEN_CLOUD",
+    "AIGRAM_BOT_TOKEN_LOCAL",
+    "AIGRAM_BOT_TOKEN_WEBHOOK",
+    "AIGRAM_BOT_TOKEN_MIGRATION",
+    "AIGRAM_BOT_TOKEN_DESTRUCTIVE",
+    "AIGRAM_BOT_TOKEN_NOTIFY",
+)
+for name in token_names:
+    value = os.environ.get(name, "")
+    if value:
+        text = text.replace(value, "<BOT_TOKEN>")
+for value, repl in ((os.environ.get("AIGRAM_WEBHOOK_SECRET", ""), "<WEBHOOK_SECRET>"),):
     if value:
         text = text.replace(value, repl)
 text = re.sub(r"/bot[0-9]+:[A-Za-z0-9_-]+/", "/bot<TOKEN>/", text)
@@ -276,10 +356,26 @@ notify_enabled() {
   [ "${AIGRAM_NOTIFY_ENABLED:-1}" != "0" ]
 }
 
+print_bot_identity() {
+  local status
+  set +e
+  (
+    cd "${REPO_ROOT}"
+    run_sanitized go run ./examples/internal/botidentity
+  )
+  status=$?
+  set -e
+  if [ "${status}" -ne 0 ]; then
+    echo "warning: could not read bot username for current token role" >&2
+    return 0
+  fi
+  return 0
+}
+
 notify_user() {
   local message="$1"
   local strict="${AIGRAM_NOTIFY_STRICT:-0}"
-  local notify_token="${AIGRAM_BOT_TOKEN_NOTIFY:-${AIGRAM_BOT_TOKEN_MAIN:-${AIGRAM_BOT_TOKEN:-}}}"
+  local notify_token=""
   local status
   local previous_bot_token_set=0
   local previous_bot_token="${AIGRAM_BOT_TOKEN:-}"
@@ -298,7 +394,7 @@ notify_user() {
     return 0
   fi
 
-  if [ -z "${notify_token}" ]; then
+  if ! notify_token="$(bot_token_for_role notify 2>/dev/null)"; then
     echo "warning: notification bot token is not set; Telegram notification skipped" >&2
     if [ "${strict}" = "1" ]; then
       return 1

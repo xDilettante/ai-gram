@@ -6,7 +6,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "${SCRIPT_DIR}/env.sh"
 trap cleanup_smoke_tunnels EXIT INT TERM
 
-require_env AIGRAM_BOT_TOKEN >/dev/null
+export_bot_token_for_role local
 if [ -z "${AIGRAM_BASE_URL:-}" ]; then
   "${SCRIPT_DIR}/discover_env.sh"
   load_generated_env_missing "${GENERATED_ENV_FILE}"

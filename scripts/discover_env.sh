@@ -7,9 +7,9 @@ export AIGRAM_SKIP_GENERATED_ENV=1
 source "${SCRIPT_DIR}/env.sh"
 unset AIGRAM_SKIP_GENERATED_ENV
 
-require_env AIGRAM_BOT_TOKEN >/dev/null
 require_env AIGRAM_CHAT_ID >/dev/null
 configure_deploy_ssh
+export_bot_token_for_role local
 
 SSH_CMD=(ssh "${DEPLOY_SSH_OPTS[@]}" "${DEPLOY_REMOTE}")
 

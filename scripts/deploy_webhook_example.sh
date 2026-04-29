@@ -5,12 +5,12 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck disable=SC1091
 source "${SCRIPT_DIR}/env.sh"
 
-require_env AIGRAM_BOT_TOKEN >/dev/null
 if [ ! -f "${GENERATED_ENV_FILE}" ]; then
   "${SCRIPT_DIR}/discover_env.sh"
   load_generated_env_missing "${GENERATED_ENV_FILE}"
   apply_env_defaults
 fi
+export_bot_token_for_role webhook
 require_env AIGRAM_WEBHOOK_URL >/dev/null
 
 REMOTE_ENV_DIR="${AIGRAM_REMOTE_ENV_DIR}"
@@ -157,4 +157,4 @@ remote_tmp=""
 echo "Deploy finished. Remote env file: ${REMOTE_ENV_FILE}; webhook secret: $(mask_secret "${AIGRAM_WEBHOOK_SECRET:-}")"
 echo "Use ./scripts/remote_logs.sh for logs and ./scripts/remote_stop.sh to stop the service."
 DEPLOY_SUCCEEDED=1
-notify_user "Webhook example задеплоен на vk1. Отправь /start боту и затем проверь логи."
+notify_user "Webhook example задеплоен на vk1. Отправь /start webhook test bot и затем проверь логи."
