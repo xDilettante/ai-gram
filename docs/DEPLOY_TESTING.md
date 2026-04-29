@@ -180,6 +180,40 @@ This stops the systemd service only. It does not remove files, the remote env fi
 
 ## Troubleshooting
 
+### TUN xray and local-vs-remote networking
+
+The user's local machine may route traffic through TUN xray. Because of that, local network checks can differ from checks executed through `ssh vk1`. Do not treat that difference as a library bug by itself.
+
+Important distinctions:
+
+- `127.0.0.1` and `localhost` always mean the machine where the command runs.
+- Local `127.0.0.1` is the user's workstation; `ssh vk1 'curl http://127.0.0.1:8081/...'` is the `vk1` loopback.
+- A local Telegram Bot API server can be reachable on `vk1` as `http://127.0.0.1:8081` while being unreachable directly from the user's machine.
+- `smoke_local_api.sh` runs locally, so when discovery selects a remote loopback `AIGRAM_BASE_URL`, the script may need an SSH tunnel such as `127.0.0.1:8081 -> vk1:127.0.0.1:8081`.
+- A webhook URL must be reachable by the component that sends webhook requests: official Telegram, the local Telegram Bot API server, or a synthetic local probe.
+
+Recommended checks:
+
+```bash
+ssh vk1 'ss -tulpn | grep -E ":(8080|8081|8090)\b" || true'
+ssh vk1 'systemctl status telegram-bot-api --no-pager || true'
+ssh vk1 'systemctl status aigram-webhook-test --no-pager || true'
+```
+
+Check local access separately:
+
+```bash
+curl -sS --max-time 2 http://127.0.0.1:8081/ || true
+```
+
+If `vk1` can reach the Bot API but the local workstation cannot, create an SSH tunnel before running local smoke scripts:
+
+```bash
+ssh -N -L 127.0.0.1:8081:127.0.0.1:8081 vk1
+```
+
+When a network check fails, first record where it ran: locally or through `ssh vk1`. Then check routing/TUN, tunnel state, firewall/listening ports, systemd logs, and `getWebhookInfo` before changing library code. Never print the bot token, webhook secret, token-bearing URLs, or full `/bot<TOKEN>/...` endpoints while debugging.
+
 ### Discovery cannot find local Bot API
 
 Set `AIGRAM_BASE_URL` manually, for example:
