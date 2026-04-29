@@ -1,0 +1,11 @@
+.env
+.env.*
+*.key
+*.pem
+*.log
+node_modules/
+dist/
+build/
+tmp/
+.cache/
+.omx/
