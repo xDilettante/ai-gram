@@ -14,6 +14,10 @@
 - Additional inline mode result and input message content variants.
 - Media and cached inline query result variants.
 
+### Documentation
+
+- Completed inline mode audit against official Bot API 9.6 documentation.
+
 ### Planning
 
 - Added v0.3 plan for chat management, forum topics, reactions, and inline mode basics.

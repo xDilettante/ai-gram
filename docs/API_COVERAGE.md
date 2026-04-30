@@ -98,7 +98,7 @@ This document maps the current `ai-gram` implementation to Telegram Bot API area
 | `(*bot.Bot).DeleteMessage` | `deleteMessage` | unit/httptest, live examples | Destructive; live example only deletes messages created during smoke. |
 | `(*bot.Bot).DeleteMessages` | `deleteMessages` | unit/httptest | Destructive batch delete for 1-100 message IDs; manual-only live smoke. |
 | `(*bot.Bot).StopPoll` | `stopPoll` | unit/httptest, live v0.2 smoke | Stops a poll sent by the bot and returns `telegram.Poll`. |
-| `(*bot.Bot).AnswerInlineQuery` | `answerInlineQuery` | unit/httptest | Supports all current inline result variants, input message content variants, cache/pagination fields, and inline results button. Manual-only live smoke. |
+| `(*bot.Bot).AnswerInlineQuery` | `answerInlineQuery` | unit/httptest, official Bot API 9.6 audit | Supports all current inline result variants, input message content variants, cache/pagination fields, and inline results button. Manual-only live smoke. |
 | `telegram.InlineQuery` | `inline_query` update | unit | Incoming inline query decoding and `EffectiveUser` support. |
 | `telegram.ChosenInlineResult` | `chosen_inline_result` update | unit | Incoming chosen inline result decoding and `EffectiveUser` support. |
 | `dispatch.InlineQuery`, `dispatch.ChosenInlineResult` | dispatch predicates/helpers | unit | Includes `OnInlineQuery` and `OnChosenInlineResult` handler registration helpers. |
@@ -285,8 +285,8 @@ This document maps the current `ai-gram` implementation to Telegram Bot API area
 
 ### Inline mode
 
+- Stage 75 audited inline mode against official Bot API 9.6 documentation. Incoming inline updates, `AnswerInlineQuery`, `InlineQueryResultsButton`, all current `InputMessageContent` variants, and all 20 current `InlineQueryResult` variants are represented.
 - Full payments methods remain pending; only `InputInvoiceMessageContent` and `LabeledPrice` are currently covered for inline invoice results.
-- Future audits may still refine advanced inline behavior, but all 20 current `InlineQueryResult` variants are represented.
 
 ### WebApp/LoginUrl
 

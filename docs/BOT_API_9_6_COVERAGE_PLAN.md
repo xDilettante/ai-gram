@@ -160,7 +160,7 @@ This plan is a working checklist derived from the official documentation and cha
 
 ### Inline mode
 
-Stage 72 implements the first inline foundation: incoming inline query updates, chosen inline result updates, `AnswerInlineQuery`, article results, text input content, and dispatch helpers. Stage 73 adds non-media inline results and the remaining input message content variants, including inline invoice content. Stage 74 adds media and cached inline result variants.
+Stage 72 implements the first inline foundation: incoming inline query updates, chosen inline result updates, `AnswerInlineQuery`, article results, text input content, and dispatch helpers. Stage 73 adds non-media inline results and the remaining input message content variants, including inline invoice content. Stage 74 adds media and cached inline result variants. Stage 75 audits these types against the official Bot API 9.6 inline mode documentation; no additional inline-only result or input content variants remain pending.
 
 - [x] `InlineQuery` update
 - [x] `ChosenInlineResult` update
