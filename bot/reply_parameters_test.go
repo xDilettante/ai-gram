@@ -53,6 +53,9 @@ func TestSendMessageSendsReplyParameters(t *testing.T) {
 		if got := reply["allow_sending_without_reply"]; got != true {
 			t.Fatalf("unexpected allow_sending_without_reply: %#v", got)
 		}
+		if got := reply["poll_option_id"]; got != "option-a" {
+			t.Fatalf("unexpected poll_option_id: %#v", got)
+		}
 		w.Header().Set("Content-Type", "application/json")
 		_, _ = w.Write([]byte(`{"ok":true,"result":{"message_id":2,"chat":{"id":12345,"type":"private"},"date":100,"text":"hello"}}`))
 	}))
@@ -62,7 +65,7 @@ func TestSendMessageSendsReplyParameters(t *testing.T) {
 	_, err := bot.SendMessage(context.Background(), SendMessageParams{
 		ChatID:          ChatIDInt(12345),
 		Text:            "hello",
-		ReplyParameters: &telegram.ReplyParameters{MessageID: 42, AllowSendingWithoutReply: true},
+		ReplyParameters: &telegram.ReplyParameters{MessageID: 42, AllowSendingWithoutReply: true, PollOptionID: "option-a"},
 	})
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)

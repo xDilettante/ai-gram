@@ -149,7 +149,7 @@ if err != nil {
 fmt.Println(locationMessage.MessageID)
 ```
 
-Send a poll or dice message:
+Send a poll or dice message. `SendPoll` also supports Bot API 9.6 poll fields such as `correct_option_ids`, `allows_revoting`, options controls, and poll descriptions:
 
 ```go
 pollMessage, err := b.SendPoll(ctx, aigram.SendPollParams{

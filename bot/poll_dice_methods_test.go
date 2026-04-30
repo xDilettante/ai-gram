@@ -15,7 +15,6 @@ import (
 func TestSendPollSendsPayloadAndDecodesMessage(t *testing.T) {
 	const token = "123:secret"
 	isAnonymous := false
-	correctOptionID := 1
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodPost {
 			t.Fatalf("unexpected method: %s", r.Method)
@@ -49,14 +48,36 @@ func TestSendPollSendsPayloadAndDecodesMessage(t *testing.T) {
 		if got := payload["allows_multiple_answers"]; got != true {
 			t.Fatalf("unexpected allows_multiple_answers: %#v", got)
 		}
-		if got := payload["correct_option_id"]; got != float64(1) {
-			t.Fatalf("unexpected correct_option_id: %#v", got)
+		if got := payload["allows_revoting"]; got != true {
+			t.Fatalf("unexpected allows_revoting: %#v", got)
+		}
+		if got := payload["shuffle_options"]; got != true {
+			t.Fatalf("unexpected shuffle_options: %#v", got)
+		}
+		if got := payload["allow_adding_options"]; got != true {
+			t.Fatalf("unexpected allow_adding_options: %#v", got)
+		}
+		if got := payload["hide_results_until_closes"]; got != true {
+			t.Fatalf("unexpected hide_results_until_closes: %#v", got)
+		}
+		correctOptionIDs, ok := payload["correct_option_ids"].([]any)
+		if !ok || len(correctOptionIDs) != 1 || correctOptionIDs[0] != float64(1) {
+			t.Fatalf("unexpected correct_option_ids: %#v", payload["correct_option_ids"])
+		}
+		if _, ok := payload["correct_option_id"]; ok {
+			t.Fatalf("legacy correct_option_id should be omitted when correct_option_ids is used: %#v", payload["correct_option_id"])
 		}
 		if got := payload["explanation"]; got != "Because" {
 			t.Fatalf("unexpected explanation: %#v", got)
 		}
 		if got := payload["explanation_parse_mode"]; got != "HTML" {
 			t.Fatalf("unexpected explanation_parse_mode: %#v", got)
+		}
+		if got := payload["description"]; got != "Details" {
+			t.Fatalf("unexpected description: %#v", got)
+		}
+		if got := payload["description_parse_mode"]; got != "MarkdownV2" {
+			t.Fatalf("unexpected description_parse_mode: %#v", got)
 		}
 		if got := payload["open_period"]; got != float64(60) {
 			t.Fatalf("unexpected open_period: %#v", got)
@@ -83,35 +104,44 @@ func TestSendPollSendsPayloadAndDecodesMessage(t *testing.T) {
 		}
 
 		w.Header().Set("Content-Type", "application/json")
-		_, _ = w.Write([]byte(`{"ok":true,"result":{"message_id":10,"chat":{"id":12345,"type":"private"},"date":100,"poll":{"id":"poll-id","question":"Pick one","options":[{"text":"A","voter_count":1},{"text":"B","voter_count":0}],"total_voter_count":1,"is_closed":false,"is_anonymous":false,"type":"quiz","allows_multiple_answers":true,"correct_option_id":1,"explanation":"Because","open_period":60,"close_date":1234567890}}}`))
+		_, _ = w.Write([]byte(`{"ok":true,"result":{"message_id":10,"chat":{"id":12345,"type":"private"},"date":100,"poll":{"id":"poll-id","question":"Pick one","options":[{"persistent_id":"a","text":"A","voter_count":1},{"persistent_id":"b","text":"B","voter_count":0}],"total_voter_count":1,"is_closed":false,"is_anonymous":false,"type":"quiz","allows_multiple_answers":true,"allows_revoting":true,"correct_option_ids":[1],"description":"Details","description_entities":[{"type":"bold","offset":0,"length":7}],"explanation":"Because","open_period":60,"close_date":1234567890}}}`))
 	}))
 	defer server.Close()
 
 	bot := newTestBot(t, token, server.URL, server.Client())
 	message, err := bot.SendPoll(context.Background(), SendPollParams{
-		ChatID:                ChatIDInt(12345),
-		MessageThreadID:       7,
-		Question:              "Pick one",
-		Options:               []string{"A", "B"},
-		IsAnonymous:           &isAnonymous,
-		Type:                  "quiz",
-		AllowsMultipleAnswers: true,
-		CorrectOptionID:       &correctOptionID,
-		Explanation:           "Because",
-		ExplanationParseMode:  "HTML",
-		OpenPeriod:            60,
-		CloseDate:             1234567890,
-		IsClosed:              true,
-		DisableNotification:   true,
-		ProtectContent:        true,
-		ReplyParameters:       &telegram.ReplyParameters{MessageID: 44},
-		ReplyMarkup:           telegram.NewInlineKeyboard([]telegram.InlineKeyboardButton{telegram.InlineButtonCallback("OK", "ok")}),
+		ChatID:                 ChatIDInt(12345),
+		MessageThreadID:        7,
+		Question:               "Pick one",
+		Options:                []string{"A", "B"},
+		IsAnonymous:            &isAnonymous,
+		Type:                   "quiz",
+		AllowsMultipleAnswers:  true,
+		AllowsRevoting:         true,
+		ShuffleOptions:         true,
+		AllowAddingOptions:     true,
+		HideResultsUntilCloses: true,
+		CorrectOptionIDs:       []int{1},
+		Explanation:            "Because",
+		ExplanationParseMode:   "HTML",
+		Description:            "Details",
+		DescriptionParseMode:   "MarkdownV2",
+		OpenPeriod:             60,
+		CloseDate:              1234567890,
+		IsClosed:               true,
+		DisableNotification:    true,
+		ProtectContent:         true,
+		ReplyParameters:        &telegram.ReplyParameters{MessageID: 44},
+		ReplyMarkup:            telegram.NewInlineKeyboard([]telegram.InlineKeyboardButton{telegram.InlineButtonCallback("OK", "ok")}),
 	})
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
-	if message == nil || message.Poll == nil || message.Poll.ID != "poll-id" || len(message.Poll.Options) != 2 || message.Poll.CorrectOptionID != 1 {
+	if message == nil || message.Poll == nil || message.Poll.ID != "poll-id" || len(message.Poll.Options) != 2 || len(message.Poll.CorrectOptionIDs) != 1 || message.Poll.CorrectOptionIDs[0] != 1 {
 		t.Fatalf("unexpected message: %+v", message)
+	}
+	if !message.Poll.AllowsRevoting || message.Poll.Description != "Details" || len(message.Poll.DescriptionEntities) != 1 || message.Poll.Options[0].PersistentID != "a" {
+		t.Fatalf("unexpected decoded poll 9.6 fields: %+v", message.Poll)
 	}
 }
 
@@ -131,9 +161,16 @@ func TestSendPollValidation(t *testing.T) {
 		{name: "negative close date", mutate: func(p *SendPollParams) { p.CloseDate = -1 }},
 		{name: "negative correct option", mutate: func(p *SendPollParams) { id := -1; p.CorrectOptionID = &id }},
 		{name: "out of range correct option", mutate: func(p *SendPollParams) { id := 2; p.CorrectOptionID = &id }},
+		{name: "out of range correct option ids", mutate: func(p *SendPollParams) { p.CorrectOptionIDs = []int{2} }},
+		{name: "negative correct option ids", mutate: func(p *SendPollParams) { p.CorrectOptionIDs = []int{-1} }},
+		{name: "singular and plural correct options", mutate: func(p *SendPollParams) { id := 0; p.CorrectOptionID = &id; p.CorrectOptionIDs = []int{1} }},
 		{name: "parse mode and entities", mutate: func(p *SendPollParams) {
 			p.ExplanationParseMode = "HTML"
 			p.ExplanationEntities = []telegram.MessageEntity{{Type: telegram.EntityBold, Offset: 0, Length: 1}}
+		}},
+		{name: "description parse mode and entities", mutate: func(p *SendPollParams) {
+			p.DescriptionParseMode = "HTML"
+			p.DescriptionEntities = []telegram.MessageEntity{{Type: telegram.EntityBold, Offset: 0, Length: 1}}
 		}},
 		{name: "invalid reply parameters", mutate: func(p *SendPollParams) { p.ReplyParameters = &telegram.ReplyParameters{} }},
 		{name: "invalid reply markup", mutate: func(p *SendPollParams) { p.ReplyMarkup = telegram.InlineKeyboardMarkup{} }},

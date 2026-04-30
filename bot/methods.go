@@ -105,6 +105,5 @@ func validateReplyParameters(reply *telegram.ReplyParameters) error {
 	if reply.MessageID <= 0 {
 		return stderrors.New("reply_parameters.message_id must be greater than zero")
 	}
-
 	return nil
 }

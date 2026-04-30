@@ -46,13 +46,13 @@ This document maps the current `ai-gram` implementation to Telegram Bot API area
 | `(*bot.Bot).SendContact` | `sendContact` | unit/httptest, live v0.2 smoke | Supports contact phone/name/vCard fields, reply markup, `message_thread_id`, `reply_parameters`. |
 | `(*bot.Bot).SendLocation` | `sendLocation` | unit/httptest, live v0.2 smoke | Supports latitude/longitude, live-location optional fields, reply markup, thread/reply params. |
 | `(*bot.Bot).SendVenue` | `sendVenue` | unit/httptest, live v0.2 smoke | Supports venue coordinates, title/address, Foursquare/Google place fields, reply markup, thread/reply params. |
-| `(*bot.Bot).SendPoll` | `sendPoll` | unit/httptest, live v0.2 smoke | Supports question/options, quiz fields, explanation formatting, reply markup, thread/reply params. |
+| `(*bot.Bot).SendPoll` | `sendPoll` | unit/httptest, live v0.2 smoke | Supports question/options, quiz fields, Bot API 9.6 `correct_option_ids`, revoting/options controls, poll description formatting, reply markup, thread/reply params. |
 | `(*bot.Bot).SendDice` | `sendDice` | unit/httptest, live v0.2 smoke | Supports known Telegram dice emoji, reply markup, thread/reply params. |
 | `(*bot.Bot).SendSticker` | `sendSticker` | unit/httptest, optional live v0.2 smoke | Supports `FileID`, `FileURL`, `FileUpload`, emoji, reply markup, thread/reply params. |
 | `(*bot.Bot).SendAnimation` | `sendAnimation` | unit/httptest, optional live v0.2 smoke | Supports `FileID`, `FileURL`, `FileUpload`, caption fields, thumbnail file ref/upload, spoiler, reply markup, thread/reply params. |
 | `(*bot.Bot).SendVideoNote` | `sendVideoNote` | unit/httptest, optional live v0.2 smoke | Supports `FileID`, `FileUpload`, thumbnail file ref/upload, duration/length, reply markup, thread/reply params. HTTP URL is intentionally rejected for video notes. |
 | `(*bot.Bot).SendMediaGroup` | `sendMediaGroup` | unit/httptest, live generated-upload smoke | Supports `InputMediaPhoto`, `InputMediaVideo`, `InputMediaAudio`, `InputMediaDocument`, JSON file IDs/URLs, multipart uploads, thumbnail uploads, thread/reply params. Does not support reply markup because Telegram does not accept it for media groups. |
-| `telegram.ReplyParameters` | send/copy reply payload | unit | Minimal supported fields: `message_id`, `allow_sending_without_reply`. |
+| `telegram.ReplyParameters` | send/copy reply payload | unit | Supports `message_id`, `allow_sending_without_reply`, and Bot API 9.6 `poll_option_id`. |
 | `telegram.ReplyMarkup` implementations | send/edit reply markup | unit, live examples | Inline keyboard, reply keyboard, remove keyboard, force reply. Edit methods accept inline keyboard only. |
 
 ### Media/files
@@ -337,6 +337,14 @@ This document maps the current `ai-gram` implementation to Telegram Bot API area
 ### Stars/gifts if applicable
 
 - Basic Star transaction history and refunds are implemented; Star balance, gifts, business gifts, and advanced Stars-related methods remain pending and should be reviewed against the official Bot API before implementation.
+
+### Poll 9.6 support
+
+- `telegram.Poll.correct_option_ids`, `allows_revoting`, `description`, and `description_entities`.
+- `telegram.PollOption.persistent_id`, `added_by_user`, `added_by_chat`, and `addition_date`.
+- `telegram.PollAnswer` update decoding with `option_persistent_ids` plus effective-user/effective-chat helpers and dispatch routing.
+- Poll option service messages: `PollOptionAdded`, `PollOptionDeleted`, `Message.poll_option_added`, `Message.poll_option_deleted`, and `Message.reply_to_poll_option_id`.
+- `SendPoll` Bot API 9.6 parameters: `correct_option_ids`, `allows_revoting`, `shuffle_options`, `allow_adding_options`, `hide_results_until_closes`, `description`, `description_parse_mode`, and `description_entities`.
 
 ### Codegen/openapi tooling if applicable
 

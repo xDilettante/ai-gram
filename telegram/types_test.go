@@ -464,3 +464,96 @@ func mustDecodeUpdate(t *testing.T, payload string) Update {
 	}
 	return update
 }
+
+func TestPoll96FieldsDecode(t *testing.T) {
+	message := mustDecodeMessage(t, `{
+		"message_id": 200,
+		"date": 1,
+		"chat": {"id": 123, "type": "private"},
+		"poll": {
+			"id": "poll-id",
+			"question": "Pick",
+			"options": [{
+				"persistent_id": "option-a",
+				"text": "A",
+				"text_entities": [{"type": "custom_emoji", "offset": 0, "length": 1, "custom_emoji_id": "emoji"}],
+				"voter_count": 2,
+				"added_by_user": {"id": 7, "is_bot": false, "first_name": "Alice"},
+				"added_by_chat": {"id": -100, "type": "supergroup", "title": "Poll chat"},
+				"addition_date": 1710000000
+			}],
+			"total_voter_count": 2,
+			"is_closed": false,
+			"is_anonymous": false,
+			"type": "quiz",
+			"allows_multiple_answers": true,
+			"allows_revoting": true,
+			"correct_option_ids": [0],
+			"description": "Details",
+			"description_entities": [{"type": "bold", "offset": 0, "length": 7}]
+		}
+	}`)
+	if message.Poll == nil || len(message.Poll.CorrectOptionIDs) != 1 || message.Poll.CorrectOptionIDs[0] != 0 || !message.Poll.AllowsRevoting {
+		t.Fatalf("unexpected poll 9.6 fields: %+v", message.Poll)
+	}
+	option := message.Poll.Options[0]
+	if option.PersistentID != "option-a" || option.AddedByUser == nil || option.AddedByUser.ID != 7 || option.AddedByChat == nil || option.AddedByChat.ID != -100 || option.AdditionDate != 1710000000 || len(option.TextEntities) != 1 {
+		t.Fatalf("unexpected poll option 9.6 fields: %+v", option)
+	}
+	if message.Poll.Description != "Details" || len(message.Poll.DescriptionEntities) != 1 || message.Poll.DescriptionEntities[0].Type != EntityBold {
+		t.Fatalf("unexpected poll description fields: %+v", message.Poll)
+	}
+}
+
+func TestPollAnswerUpdateDecodeAndEffectiveHelpers(t *testing.T) {
+	update := mustDecodeUpdate(t, `{
+		"update_id": 201,
+		"poll_answer": {
+			"poll_id": "poll-id",
+			"voter_chat": {"id": -100123, "type": "supergroup", "title": "Anonymous voters"},
+			"user": {"id": 42, "is_bot": false, "first_name": "Alice"},
+			"option_ids": [0, 2],
+			"option_persistent_ids": ["option-a", "option-c"]
+		}
+	}`)
+	answer := update.PollAnswer
+	if answer == nil || answer.PollID != "poll-id" || len(answer.OptionIDs) != 2 || len(answer.OptionPersistentIDs) != 2 {
+		t.Fatalf("unexpected poll answer: %+v", answer)
+	}
+	if user := update.EffectiveUser(); user == nil || user.ID != 42 {
+		t.Fatalf("unexpected poll answer effective user: %+v", user)
+	}
+	if chat := update.EffectiveChat(); chat == nil || chat.ID != -100123 {
+		t.Fatalf("unexpected poll answer effective chat: %+v", chat)
+	}
+}
+
+func TestMessageDecodesPollOptionServiceFields(t *testing.T) {
+	message := mustDecodeMessage(t, `{
+		"message_id": 202,
+		"date": 1,
+		"chat": {"id": 123, "type": "private"},
+		"reply_to_poll_option_id": "option-a",
+		"poll_option_added": {
+			"poll_message": {"message_id": 99, "chat": {"id": 123, "type": "private"}, "date": 1},
+			"option_persistent_id": "option-a",
+			"option_text": "Added",
+			"option_text_entities": [{"type": "bold", "offset": 0, "length": 5}]
+		},
+		"poll_option_deleted": {
+			"poll_message": {"message_id": 99, "chat": {"id": 123, "type": "private"}, "date": 1},
+			"option_persistent_id": "option-b",
+			"option_text": "Deleted",
+			"option_text_entities": [{"type": "italic", "offset": 0, "length": 7}]
+		}
+	}`)
+	if message.ReplyToPollOptionID != "option-a" {
+		t.Fatalf("unexpected reply_to_poll_option_id: %q", message.ReplyToPollOptionID)
+	}
+	if message.PollOptionAdded == nil || message.PollOptionAdded.OptionPersistentID != "option-a" || message.PollOptionAdded.PollMessage == nil || len(message.PollOptionAdded.OptionTextEntities) != 1 {
+		t.Fatalf("unexpected poll_option_added: %+v", message.PollOptionAdded)
+	}
+	if message.PollOptionDeleted == nil || message.PollOptionDeleted.OptionPersistentID != "option-b" || message.PollOptionDeleted.PollMessage == nil || len(message.PollOptionDeleted.OptionTextEntities) != 1 {
+		t.Fatalf("unexpected poll_option_deleted: %+v", message.PollOptionDeleted)
+	}
+}

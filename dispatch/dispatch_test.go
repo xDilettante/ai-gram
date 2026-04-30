@@ -707,3 +707,32 @@ func TestManagedBotRoute(t *testing.T) {
 		t.Fatal("managed bot predicate should not match message updates")
 	}
 }
+
+func TestPollAnswerRoute(t *testing.T) {
+	dispatcher := New()
+	var calls int
+	must(t, dispatcher.OnPollAnswerFunc(func(ctx context.Context, update telegram.Update) error {
+		calls++
+		if update.PollAnswer == nil || update.PollAnswer.PollID != "poll-id" {
+			t.Fatalf("unexpected poll answer update: %+v", update)
+		}
+		return nil
+	}))
+
+	pollAnswer := telegram.Update{UpdateID: 600, PollAnswer: &telegram.PollAnswer{PollID: "poll-id", User: &telegram.User{ID: 7, FirstName: "Alice"}, OptionIDs: []int{0}}}
+	if err := dispatcher.HandleUpdate(context.Background(), pollAnswer); err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if err := dispatcher.HandleUpdate(context.Background(), messageUpdate("hello")); err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if calls != 1 {
+		t.Fatalf("unexpected calls: %d", calls)
+	}
+	if !PollAnswer()(pollAnswer) {
+		t.Fatal("poll answer predicate should match")
+	}
+	if PollAnswer()(messageUpdate("hello")) {
+		t.Fatal("poll answer predicate should not match message updates")
+	}
+}

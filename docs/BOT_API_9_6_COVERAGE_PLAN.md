@@ -261,26 +261,26 @@ Stage 78 implements Managed Bots 9.6 support. Token-returning methods are sensit
 
 ### Poll 9.6 updates
 
-- [ ] `Poll.correct_option_ids`
-- [ ] replace old single `correct_option_id` usage where Bot API 9.6 requires plural support
-- [ ] `SendPoll.correct_option_ids`
-- [ ] quiz support with `allows_multiple_answers`, as allowed by Bot API 9.6
-- [ ] `Poll.allows_revoting`
-- [ ] `SendPoll.allows_revoting`
-- [ ] `SendPoll.shuffle_options`
-- [ ] `SendPoll.allow_adding_options`
-- [ ] `SendPoll.hide_results_until_closes`
-- [ ] `Poll.description` and `Poll.description_entities`
-- [ ] `SendPoll.description`, `description_parse_mode`, and `description_entities`
-- [ ] `PollOption.persistent_id`
-- [ ] `PollAnswer.option_persistent_ids`
-- [ ] `PollOption.added_by_user`, `added_by_chat`, and `addition_date`
-- [ ] `PollOptionAdded` and `Message.poll_option_added`
-- [ ] `PollOptionDeleted` and `Message.poll_option_deleted`
-- [ ] `ReplyParameters.poll_option_id`
-- [ ] `Message.reply_to_poll_option_id`
+- [x] `Poll.correct_option_ids`
+- [x] add plural `correct_option_ids` support while keeping old single `correct_option_id` for backward compatibility
+- [x] `SendPoll.correct_option_ids`
+- [x] quiz support with `allows_multiple_answers`, as allowed by Bot API 9.6
+- [x] `Poll.allows_revoting`
+- [x] `SendPoll.allows_revoting`
+- [x] `SendPoll.shuffle_options`
+- [x] `SendPoll.allow_adding_options`
+- [x] `SendPoll.hide_results_until_closes`
+- [x] `Poll.description` and `Poll.description_entities`
+- [x] `SendPoll.description`, `description_parse_mode`, and `description_entities`
+- [x] `PollOption.persistent_id`
+- [x] `PollAnswer.option_persistent_ids`
+- [x] `PollOption.added_by_user`, `added_by_chat`, and `addition_date`
+- [x] `PollOptionAdded` and `Message.poll_option_added`
+- [x] `PollOptionDeleted` and `Message.poll_option_deleted`
+- [x] `ReplyParameters.poll_option_id`
+- [x] `Message.reply_to_poll_option_id`
 - [ ] `date_time` entity support in poll/checklist/gift-related contexts where relevant
-- [ ] audit all poll-related fields against official Bot API 9.6 docs
+- [x] audit all poll-related fields against official Bot API 9.6 docs for this slice
 
 ### Bot profile and metadata
 

@@ -246,6 +246,16 @@ func (d *Dispatcher) OnManagedBotFunc(handler HandlerFunc) error {
 	return d.OnManagedBot(handler)
 }
 
+// OnPollAnswer registers a handler for poll answer updates.
+func (d *Dispatcher) OnPollAnswer(handler Handler) error {
+	return d.Handle(PollAnswer(), handler)
+}
+
+// OnPollAnswerFunc registers a function handler for poll answer updates.
+func (d *Dispatcher) OnPollAnswerFunc(handler HandlerFunc) error {
+	return d.OnPollAnswer(handler)
+}
+
 // OnChatJoinRequest registers a handler for chat join request updates.
 func (d *Dispatcher) OnChatJoinRequest(handler Handler) error {
 	return d.Handle(ChatJoinRequest(), handler)
@@ -333,6 +343,11 @@ func PaidMediaPurchased() Predicate {
 // ManagedBot matches updates about managed bot creation or changes.
 func ManagedBot() Predicate {
 	return func(update telegram.Update) bool { return update.ManagedBot != nil }
+}
+
+// PollAnswer matches updates with a poll answer.
+func PollAnswer() Predicate {
+	return func(update telegram.Update) bool { return update.PollAnswer != nil }
 }
 
 // ChatJoinRequest matches updates with a chat join request.

@@ -16,6 +16,7 @@ type Update struct {
 	PreCheckoutQuery     *PreCheckoutQuery            `json:"pre_checkout_query,omitempty"`
 	PurchasedPaidMedia   *PaidMediaPurchased          `json:"purchased_paid_media,omitempty"`
 	ManagedBot           *ManagedBotUpdated           `json:"managed_bot,omitempty"`
+	PollAnswer           *PollAnswer                  `json:"poll_answer,omitempty"`
 }
 
 // Message represents a Telegram message with the minimal fields needed by update handlers.
@@ -59,7 +60,10 @@ type Message struct {
 	GeneralForumTopicHidden   *GeneralForumTopicHidden   `json:"general_forum_topic_hidden,omitempty"`
 	GeneralForumTopicUnhidden *GeneralForumTopicUnhidden `json:"general_forum_topic_unhidden,omitempty"`
 
-	ManagedBotCreated *ManagedBotCreated `json:"managed_bot_created,omitempty"`
+	ManagedBotCreated   *ManagedBotCreated `json:"managed_bot_created,omitempty"`
+	PollOptionAdded     *PollOptionAdded   `json:"poll_option_added,omitempty"`
+	PollOptionDeleted   *PollOptionDeleted `json:"poll_option_deleted,omitempty"`
+	ReplyToPollOptionID string             `json:"reply_to_poll_option_id,omitempty"`
 }
 
 // ForumTopic represents a forum topic in a Telegram supergroup.
@@ -237,14 +241,20 @@ type MessageEntity struct {
 
 // ReplyParameters describes the message being replied to.
 type ReplyParameters struct {
-	MessageID                int64 `json:"message_id"`
-	AllowSendingWithoutReply bool  `json:"allow_sending_without_reply,omitempty"`
+	MessageID                int64  `json:"message_id"`
+	AllowSendingWithoutReply bool   `json:"allow_sending_without_reply,omitempty"`
+	PollOptionID             string `json:"poll_option_id,omitempty"`
 }
 
 // PollOption describes one answer option in a Telegram poll.
 type PollOption struct {
-	Text       string `json:"text"`
-	VoterCount int    `json:"voter_count"`
+	PersistentID string          `json:"persistent_id,omitempty"`
+	Text         string          `json:"text"`
+	TextEntities []MessageEntity `json:"text_entities,omitempty"`
+	VoterCount   int             `json:"voter_count"`
+	AddedByUser  *User           `json:"added_by_user,omitempty"`
+	AddedByChat  *Chat           `json:"added_by_chat,omitempty"`
+	AdditionDate int64           `json:"addition_date,omitempty"`
 }
 
 // Poll describes a native Telegram poll.
@@ -257,11 +267,47 @@ type Poll struct {
 	IsAnonymous           bool            `json:"is_anonymous"`
 	Type                  string          `json:"type"`
 	AllowsMultipleAnswers bool            `json:"allows_multiple_answers,omitempty"`
+	AllowsRevoting        bool            `json:"allows_revoting,omitempty"`
 	CorrectOptionID       int             `json:"correct_option_id,omitempty"`
+	CorrectOptionIDs      []int           `json:"correct_option_ids,omitempty"`
 	Explanation           string          `json:"explanation,omitempty"`
 	ExplanationEntities   []MessageEntity `json:"explanation_entities,omitempty"`
 	OpenPeriod            int             `json:"open_period,omitempty"`
 	CloseDate             int64           `json:"close_date,omitempty"`
+	Description           string          `json:"description,omitempty"`
+	DescriptionEntities   []MessageEntity `json:"description_entities,omitempty"`
+}
+
+// PollAnswer represents an answer of a user or anonymous voter in a non-anonymous poll.
+type PollAnswer struct {
+	PollID              string   `json:"poll_id"`
+	VoterChat           *Chat    `json:"voter_chat,omitempty"`
+	User                *User    `json:"user,omitempty"`
+	OptionIDs           []int    `json:"option_ids"`
+	OptionPersistentIDs []string `json:"option_persistent_ids,omitempty"`
+}
+
+// MaybeInaccessibleMessage describes a message that may be inaccessible to the bot.
+type MaybeInaccessibleMessage struct {
+	MessageID int64 `json:"message_id"`
+	Chat      Chat  `json:"chat"`
+	Date      int64 `json:"date"`
+}
+
+// PollOptionAdded describes a service message about an option added to a poll.
+type PollOptionAdded struct {
+	PollMessage        *MaybeInaccessibleMessage `json:"poll_message,omitempty"`
+	OptionPersistentID string                    `json:"option_persistent_id"`
+	OptionText         string                    `json:"option_text"`
+	OptionTextEntities []MessageEntity           `json:"option_text_entities,omitempty"`
+}
+
+// PollOptionDeleted describes a service message about an option deleted from a poll.
+type PollOptionDeleted struct {
+	PollMessage        *MaybeInaccessibleMessage `json:"poll_message,omitempty"`
+	OptionPersistentID string                    `json:"option_persistent_id"`
+	OptionText         string                    `json:"option_text"`
+	OptionTextEntities []MessageEntity           `json:"option_text_entities,omitempty"`
 }
 
 // Dice describes a Telegram dice message result.

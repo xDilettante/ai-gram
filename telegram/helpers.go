@@ -95,6 +95,9 @@ func (u *Update) EffectiveChat() *Chat {
 	if u != nil && u.MessageReactionCount != nil {
 		return &u.MessageReactionCount.Chat
 	}
+	if u != nil && u.PollAnswer != nil && u.PollAnswer.VoterChat != nil {
+		return u.PollAnswer.VoterChat
+	}
 
 	return nil
 }
@@ -130,6 +133,9 @@ func (u *Update) EffectiveUser() *User {
 	}
 	if u.ManagedBot != nil {
 		return &u.ManagedBot.User
+	}
+	if u.PollAnswer != nil && u.PollAnswer.User != nil {
+		return u.PollAnswer.User
 	}
 	if u.ChatJoinRequest != nil {
 		return &u.ChatJoinRequest.From
