@@ -17,7 +17,7 @@ Completed scope:
 
 ## v0.2 Bot API coverage expansion
 
-Status: current `main` contains the planned v0.2 expansion slices. Recommended next step: stabilize for v0.2.0 instead of adding more methods immediately, unless a specific missing Bot API area is required before release.
+Status: current `main` contains the planned v0.2 expansion slices. Stage 57 pre-release verification passed, and v0.2.0 release notes are prepared. The `v0.2.0` tag has not been created yet.
 
 Completed slices:
 

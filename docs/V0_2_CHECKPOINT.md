@@ -153,4 +153,4 @@ Recommendation: choose Option B only if one of those slices is required before u
 
 ## Final recommendation
 
-The current project state is **ready with caveats** for a v0.2.0 stabilization pass. The recommended next step is to stop adding Bot API methods temporarily, run a v0.2 pre-release verification pass, update release notes, and then tag v0.2.0 if the verification remains green.
+The current project state is **ready with caveats** for a v0.2.0 stabilization pass. Stage 57 pre-release verification passed, and v0.2.0 release notes are prepared in `docs/releases/v0.2.0.md`. The `v0.2.0` tag has not been created yet.

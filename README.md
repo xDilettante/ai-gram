@@ -919,7 +919,8 @@ Manual smoke testing instructions are in [`docs/MANUAL_TESTING.md`](docs/MANUAL_
 
 Coverage and planning documents:
 
-- [`CHANGELOG.md`](CHANGELOG.md) — release history and v0.1.x summaries.
+- [`CHANGELOG.md`](CHANGELOG.md) — release history and v0.2/v0.1.x summaries.
+- [`docs/releases/v0.2.0.md`](docs/releases/v0.2.0.md) — prepared GitHub-release-ready notes for the v0.2 coverage milestone.
 - [`docs/releases/v0.1.1.md`](docs/releases/v0.1.1.md) — GitHub-release-ready notes for the canonical module path patch release.
 - [`docs/releases/v0.1.0.md`](docs/releases/v0.1.0.md) — historical first milestone notes.
 - [`docs/API_COVERAGE.md`](docs/API_COVERAGE.md) — implemented methods, missing Bot API areas, risk classification, and v0.1 recommendation.
