@@ -10,6 +10,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"os"
 
 	"ai-gram"
 	"ai-gram/dispatch"
@@ -80,6 +81,22 @@ func safeCallbackData(update telegram.Update) string {
 	default:
 		return "<redacted>"
 	}
+}
+
+func smokeExitAfterUpdate() bool {
+	return os.Getenv("AIGRAM_SMOKE_EXIT_AFTER_UPDATE") == "1"
+}
+
+func smokeIDs(update telegram.Update) (int64, int64) {
+	chatID := int64(0)
+	userID := int64(0)
+	if chat := update.EffectiveChat(); chat != nil {
+		chatID = chat.ID
+	}
+	if user := update.EffectiveUser(); user != nil {
+		userID = user.ID
+	}
+	return chatID, userID
 }
 
 func registerAccessCommands(dp *dispatch.Dispatcher, b *aigram.Bot, controller *exampleutil.AccessController, logPrefix string) error {
@@ -224,6 +241,35 @@ func run() error {
 			log.Printf("longpoll action=send_message update_id=%d ok=true", update.UpdateID)
 		}
 		return err
+	}); err != nil {
+		return err
+	}
+	if err := dp.OnMessageFunc(func(ctx context.Context, update telegram.Update) error {
+		message := update.EffectiveMessage()
+		if message == nil || message.Text == "" || message.Command() != "" {
+			return nil
+		}
+		logSafeUpdate(update, "message")
+		chatID, userID := smokeIDs(update)
+		if smokeExitAfterUpdate() {
+			fmt.Printf("AIGRAM_SMOKE_UPDATE_RECEIVED update_id=%d chat_id=%d from_user_id=%d\n", update.UpdateID, chatID, userID)
+		}
+		_, err := b.SendMessage(ctx, aigram.SendMessageParams{
+			ChatID:          aigram.ChatIDInt(message.Chat.ID),
+			MessageThreadID: message.MessageThreadID,
+			Text:            "echo received",
+			ReplyParameters: &aigram.ReplyParameters{MessageID: message.MessageID},
+		})
+		if err != nil {
+			return err
+		}
+		log.Printf("longpoll action=send_message ok=true update_id=%d chat_id=%d reply_to_message_id=%d", update.UpdateID, message.Chat.ID, message.MessageID)
+		if smokeExitAfterUpdate() {
+			fmt.Printf("AIGRAM_SMOKE_REPLY_SENT update_id=%d chat_id=%d reply_to_message_id=%d\n", update.UpdateID, chatID, message.MessageID)
+			fmt.Printf("AIGRAM_SMOKE_OK update_id=%d chat_id=%d from_user_id=%d\n", update.UpdateID, chatID, userID)
+			stop()
+		}
+		return nil
 	}); err != nil {
 		return err
 	}

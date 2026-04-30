@@ -590,7 +590,7 @@ notify_longpoll_smoke_ready() {
   local username="$1"
   local wait_seconds="${2:-120}"
   local bot_line="Бот: username unknown"
-  local open_line="Открой бота вручную и отправь /start."
+  local open_line="Открой бота вручную."
   if [ -n "${username}" ]; then
     bot_line="Бот: @${username}"
     open_line="Открой: $(telegram_bot_start_link "${username}" "smoke")"
@@ -599,10 +599,13 @@ notify_longpoll_smoke_ready() {
   notify_manual_action "Long polling smoke запущен." "${bot_line}
 ${open_line}
 
-Нажми ссылку и отправь любое сообщение, если бот не открылся автоматически.
-Окно ожидания: ${wait_seconds} секунд.
+Сделай:
+1. Отправь одно обычное текстовое сообщение.
 
-Codex проверит, что update пришёл и бот ответил."
+Smoke завершится автоматически сразу после получения update и отправки reply.
+Timeout: ${wait_seconds} секунд.
+
+Codex проверит safe output сам."
 }
 
 webhook_bot_lines() {

@@ -16,17 +16,47 @@ print_bot_identity
 BOT_USERNAME="$(bot_username_for_current_token)"
 WAIT_SECONDS="${AIGRAM_SMOKE_WAIT_SECONDS:-120}"
 notify_longpoll_smoke_ready "${BOT_USERNAME}" "${WAIT_SECONDS}"
+
+print_longpoll_timeout_diagnostics() {
+  echo "AIGRAM_SMOKE_TIMEOUT timeout_seconds=${WAIT_SECONDS} username=${BOT_USERNAME:+@${BOT_USERNAME}}" >&2
+  if [ -n "${AIGRAM_BASE_URL:-}" ]; then
+    if local_http_reachable "${AIGRAM_BASE_URL}"; then
+      echo "AIGRAM_SMOKE_DIAGNOSTIC base_url_reachable=true" >&2
+    else
+      echo "AIGRAM_SMOKE_DIAGNOSTIC base_url_reachable=false" >&2
+    fi
+  fi
+  echo "AIGRAM_SMOKE_DIAGNOSTIC webhook_state=safe_probe_start" >&2
+  set +e
+  go run ./examples/internal/webhookstatus 2>&1 | sanitize_stream >&2
+  local diag_status=${PIPESTATUS[0]}
+  set -e
+  if [ "${diag_status}" -ne 0 ]; then
+    echo "AIGRAM_SMOKE_DIAGNOSTIC webhook_state=failed" >&2
+  fi
+}
+
+export AIGRAM_SMOKE_EXIT_AFTER_UPDATE=1
+echo "AIGRAM_SMOKE_WAITING username=${BOT_USERNAME:+@${BOT_USERNAME}} timeout_seconds=${WAIT_SECONDS}"
 set +e
 if command -v timeout >/dev/null 2>&1; then
   timeout --foreground "${WAIT_SECONDS}s" go run ./examples/inline_longpoll 2>&1 | sanitize_stream
   status=${PIPESTATUS[0]}
   if [ "${status}" -eq 124 ]; then
-    status=0
+    status=1
+    set -e
+    print_longpoll_timeout_diagnostics
+    notify_user "Long polling smoke timeout: update не пришёл за ${WAIT_SECONDS} секунд."
+    exit "${status}"
   fi
 else
   run_sanitized go run ./examples/inline_longpoll
   status=$?
 fi
 set -e
-notify_user "Long polling smoke завершён."
+if [ "${status}" -eq 0 ]; then
+  notify_user "Long polling smoke завершён успешно: update получен и reply отправлен."
+else
+  notify_user "Long polling smoke завершился с ошибкой. Проверь terminal output."
+fi
 exit "${status}"
