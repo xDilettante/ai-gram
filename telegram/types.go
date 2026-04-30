@@ -3,29 +3,36 @@ package telegram
 
 // Update represents an incoming Telegram update.
 type Update struct {
-	UpdateID             int64                        `json:"update_id"`
-	Message              *Message                     `json:"message,omitempty"`
-	EditedMessage        *Message                     `json:"edited_message,omitempty"`
-	CallbackQuery        *CallbackQuery               `json:"callback_query,omitempty"`
-	InlineQuery          *InlineQuery                 `json:"inline_query,omitempty"`
-	ChosenInlineResult   *ChosenInlineResult          `json:"chosen_inline_result,omitempty"`
-	ChatJoinRequest      *ChatJoinRequest             `json:"chat_join_request,omitempty"`
-	MessageReaction      *MessageReactionUpdated      `json:"message_reaction,omitempty"`
-	MessageReactionCount *MessageReactionCountUpdated `json:"message_reaction_count,omitempty"`
-	ShippingQuery        *ShippingQuery               `json:"shipping_query,omitempty"`
-	PreCheckoutQuery     *PreCheckoutQuery            `json:"pre_checkout_query,omitempty"`
-	PurchasedPaidMedia   *PaidMediaPurchased          `json:"purchased_paid_media,omitempty"`
-	ManagedBot           *ManagedBotUpdated           `json:"managed_bot,omitempty"`
-	PollAnswer           *PollAnswer                  `json:"poll_answer,omitempty"`
+	UpdateID                int64                        `json:"update_id"`
+	Message                 *Message                     `json:"message,omitempty"`
+	EditedMessage           *Message                     `json:"edited_message,omitempty"`
+	BusinessConnection      *BusinessConnection          `json:"business_connection,omitempty"`
+	BusinessMessage         *Message                     `json:"business_message,omitempty"`
+	EditedBusinessMessage   *Message                     `json:"edited_business_message,omitempty"`
+	DeletedBusinessMessages *BusinessMessagesDeleted     `json:"deleted_business_messages,omitempty"`
+	CallbackQuery           *CallbackQuery               `json:"callback_query,omitempty"`
+	InlineQuery             *InlineQuery                 `json:"inline_query,omitempty"`
+	ChosenInlineResult      *ChosenInlineResult          `json:"chosen_inline_result,omitempty"`
+	ChatJoinRequest         *ChatJoinRequest             `json:"chat_join_request,omitempty"`
+	MessageReaction         *MessageReactionUpdated      `json:"message_reaction,omitempty"`
+	MessageReactionCount    *MessageReactionCountUpdated `json:"message_reaction_count,omitempty"`
+	ShippingQuery           *ShippingQuery               `json:"shipping_query,omitempty"`
+	PreCheckoutQuery        *PreCheckoutQuery            `json:"pre_checkout_query,omitempty"`
+	PurchasedPaidMedia      *PaidMediaPurchased          `json:"purchased_paid_media,omitempty"`
+	ManagedBot              *ManagedBotUpdated           `json:"managed_bot,omitempty"`
+	PollAnswer              *PollAnswer                  `json:"poll_answer,omitempty"`
 }
 
 // Message represents a Telegram message with the minimal fields needed by update handlers.
 type Message struct {
-	MessageID       int64 `json:"message_id"`
-	MessageThreadID int64 `json:"message_thread_id,omitempty"`
-	From            *User `json:"from,omitempty"`
-	Chat            Chat  `json:"chat"`
-	Date            int64 `json:"date"`
+	MessageID            int64  `json:"message_id"`
+	MessageThreadID      int64  `json:"message_thread_id,omitempty"`
+	From                 *User  `json:"from,omitempty"`
+	SenderBusinessBot    *User  `json:"sender_business_bot,omitempty"`
+	Chat                 Chat   `json:"chat"`
+	Date                 int64  `json:"date"`
+	BusinessConnectionID string `json:"business_connection_id,omitempty"`
+	IsFromOffline        bool   `json:"is_from_offline,omitempty"`
 
 	Text     string          `json:"text,omitempty"`
 	Entities []MessageEntity `json:"entities,omitempty"`

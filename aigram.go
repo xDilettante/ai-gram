@@ -126,6 +126,12 @@ type AnswerInlineQueryParams = bot.AnswerInlineQueryParams
 // AnswerWebAppQueryParams contains supported parameters for answerWebAppQuery.
 type AnswerWebAppQueryParams = bot.AnswerWebAppQueryParams
 
+// GetBusinessConnectionParams contains supported parameters for getBusinessConnection.
+type GetBusinessConnectionParams = bot.GetBusinessConnectionParams
+
+// DeleteBusinessMessagesParams contains supported parameters for deleteBusinessMessages.
+type DeleteBusinessMessagesParams = bot.DeleteBusinessMessagesParams
+
 // SendInvoiceParams contains supported parameters for sendInvoice.
 type SendInvoiceParams = bot.SendInvoiceParams
 
@@ -503,6 +509,15 @@ type WriteAccessAllowed = telegram.WriteAccessAllowed
 
 // SentWebAppMessage describes an inline message sent by a Web App on behalf of a user.
 type SentWebAppMessage = telegram.SentWebAppMessage
+
+// BusinessBotRights represents the rights of a business bot.
+type BusinessBotRights = telegram.BusinessBotRights
+
+// BusinessConnection describes a bot connection with a business account.
+type BusinessConnection = telegram.BusinessConnection
+
+// BusinessMessagesDeleted describes deleted messages from a connected business account.
+type BusinessMessagesDeleted = telegram.BusinessMessagesDeleted
 
 // WebhookInfo describes current Telegram webhook status.
 type WebhookInfo = telegram.WebhookInfo

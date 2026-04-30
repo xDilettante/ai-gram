@@ -708,6 +708,74 @@ func TestManagedBotRoute(t *testing.T) {
 	}
 }
 
+func TestBusinessRoutes(t *testing.T) {
+	dispatcher := New()
+	var connectionCalls int
+	var messageCalls int
+	var editedCalls int
+	var deletedCalls int
+
+	must(t, dispatcher.OnBusinessConnectionFunc(func(ctx context.Context, update telegram.Update) error {
+		connectionCalls++
+		if update.BusinessConnection == nil || update.BusinessConnection.ID != "bc-1" {
+			t.Fatalf("unexpected business connection update: %+v", update)
+		}
+		return nil
+	}))
+	must(t, dispatcher.OnBusinessMessageFunc(func(ctx context.Context, update telegram.Update) error {
+		messageCalls++
+		if update.BusinessMessage == nil || update.BusinessMessage.MessageID != 11 {
+			t.Fatalf("unexpected business message update: %+v", update)
+		}
+		return nil
+	}))
+	must(t, dispatcher.OnEditedBusinessMessageFunc(func(ctx context.Context, update telegram.Update) error {
+		editedCalls++
+		if update.EditedBusinessMessage == nil || update.EditedBusinessMessage.MessageID != 12 {
+			t.Fatalf("unexpected edited business message update: %+v", update)
+		}
+		return nil
+	}))
+	must(t, dispatcher.OnDeletedBusinessMessagesFunc(func(ctx context.Context, update telegram.Update) error {
+		deletedCalls++
+		if update.DeletedBusinessMessages == nil || update.DeletedBusinessMessages.BusinessConnectionID != "bc-1" {
+			t.Fatalf("unexpected deleted business messages update: %+v", update)
+		}
+		return nil
+	}))
+
+	if err := dispatcher.HandleUpdate(context.Background(), businessConnectionUpdate()); err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if err := dispatcher.HandleUpdate(context.Background(), businessMessageUpdate()); err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if err := dispatcher.HandleUpdate(context.Background(), editedBusinessMessageUpdate()); err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if err := dispatcher.HandleUpdate(context.Background(), deletedBusinessMessagesUpdate()); err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if err := dispatcher.HandleUpdate(context.Background(), messageUpdate("hello")); err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if connectionCalls != 1 || messageCalls != 1 || editedCalls != 1 || deletedCalls != 1 {
+		t.Fatalf("unexpected calls: connection=%d message=%d edited=%d deleted=%d", connectionCalls, messageCalls, editedCalls, deletedCalls)
+	}
+	if !BusinessConnection()(businessConnectionUpdate()) || BusinessConnection()(messageUpdate("hello")) {
+		t.Fatal("business connection predicate mismatch")
+	}
+	if !BusinessMessage()(businessMessageUpdate()) || BusinessMessage()(messageUpdate("hello")) {
+		t.Fatal("business message predicate mismatch")
+	}
+	if !EditedBusinessMessage()(editedBusinessMessageUpdate()) || EditedBusinessMessage()(messageUpdate("hello")) {
+		t.Fatal("edited business message predicate mismatch")
+	}
+	if !DeletedBusinessMessages()(deletedBusinessMessagesUpdate()) || DeletedBusinessMessages()(messageUpdate("hello")) {
+		t.Fatal("deleted business messages predicate mismatch")
+	}
+}
+
 func TestPollAnswerRoute(t *testing.T) {
 	dispatcher := New()
 	var calls int
@@ -735,4 +803,20 @@ func TestPollAnswerRoute(t *testing.T) {
 	if PollAnswer()(messageUpdate("hello")) {
 		t.Fatal("poll answer predicate should not match message updates")
 	}
+}
+
+func businessConnectionUpdate() telegram.Update {
+	return telegram.Update{UpdateID: 700, BusinessConnection: &telegram.BusinessConnection{ID: "bc-1", User: telegram.User{ID: 7, FirstName: "Business"}, UserChatID: 7000, Date: 123, IsEnabled: true}}
+}
+
+func businessMessageUpdate() telegram.Update {
+	return telegram.Update{UpdateID: 701, BusinessMessage: &telegram.Message{MessageID: 11, Chat: telegram.Chat{ID: 1001, Type: "private"}, BusinessConnectionID: "bc-1"}}
+}
+
+func editedBusinessMessageUpdate() telegram.Update {
+	return telegram.Update{UpdateID: 702, EditedBusinessMessage: &telegram.Message{MessageID: 12, Chat: telegram.Chat{ID: 1002, Type: "private"}, BusinessConnectionID: "bc-1"}}
+}
+
+func deletedBusinessMessagesUpdate() telegram.Update {
+	return telegram.Update{UpdateID: 703, DeletedBusinessMessages: &telegram.BusinessMessagesDeleted{BusinessConnectionID: "bc-1", Chat: telegram.Chat{ID: 1003, Type: "private"}, MessageIDs: []int64{11, 12}}}
 }

@@ -73,6 +73,12 @@ func (u *Update) EffectiveMessage() *Message {
 	if u.EditedMessage != nil {
 		return u.EditedMessage
 	}
+	if u.BusinessMessage != nil {
+		return u.BusinessMessage
+	}
+	if u.EditedBusinessMessage != nil {
+		return u.EditedBusinessMessage
+	}
 	if u.CallbackQuery != nil && u.CallbackQuery.Message != nil {
 		return u.CallbackQuery.Message
 	}
@@ -98,6 +104,9 @@ func (u *Update) EffectiveChat() *Chat {
 	if u != nil && u.PollAnswer != nil && u.PollAnswer.VoterChat != nil {
 		return u.PollAnswer.VoterChat
 	}
+	if u != nil && u.DeletedBusinessMessages != nil {
+		return &u.DeletedBusinessMessages.Chat
+	}
 
 	return nil
 }
@@ -112,6 +121,15 @@ func (u *Update) EffectiveUser() *User {
 	}
 	if u.EditedMessage != nil && u.EditedMessage.From != nil {
 		return u.EditedMessage.From
+	}
+	if u.BusinessConnection != nil {
+		return &u.BusinessConnection.User
+	}
+	if u.BusinessMessage != nil && u.BusinessMessage.From != nil {
+		return u.BusinessMessage.From
+	}
+	if u.EditedBusinessMessage != nil && u.EditedBusinessMessage.From != nil {
+		return u.EditedBusinessMessage.From
 	}
 	if u.CallbackQuery != nil {
 		return &u.CallbackQuery.From

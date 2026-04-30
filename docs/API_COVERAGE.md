@@ -119,6 +119,17 @@ This document maps the current `ai-gram` implementation to Telegram Bot API area
 | `telegram.WriteAccessAllowed` | `Message.write_access_allowed` | unit | Decodes service messages for Web App write access grants. |
 | `telegram.WebAppInfo` | `web_app` button descriptors | unit | Audited against Bot API 9.6; used by inline keyboard buttons, reply keyboard buttons, menu buttons, and inline query results buttons. |
 
+### Business APIs
+
+| Public Go API | Telegram Bot API method / object | Tests | Notes |
+| --- | --- | --- | --- |
+| `telegram.BusinessConnection` | `business_connection` update / `BusinessConnection` | unit | Decodes business account connection updates, `BusinessBotRights`, and `EffectiveUser` without inventing an effective chat. |
+| `telegram.BusinessMessagesDeleted` | `deleted_business_messages` update / `BusinessMessagesDeleted` | unit | Decodes deleted business message notifications and supports `EffectiveChat`. |
+| `telegram.Message.BusinessConnectionID`, `SenderBusinessBot`, `IsFromOffline` | business message fields | unit | Decodes business-related message metadata for `business_message` and `edited_business_message` updates. |
+| `dispatch.BusinessConnection`, `dispatch.BusinessMessage`, `dispatch.EditedBusinessMessage`, `dispatch.DeletedBusinessMessages` | dispatch predicates/helpers | unit | Includes handler registration helpers for all foundation business update types. |
+| `(*bot.Bot).GetBusinessConnection` | `getBusinessConnection` | unit/httptest | Fetches a typed business connection by ID. Manual-only live smoke. |
+| `(*bot.Bot).DeleteBusinessMessages` | `deleteBusinessMessages` | unit/httptest | Deletes 1-100 messages on behalf of a business account. Manual-only live smoke. |
+
 ### Payments and invoices
 
 | Public Go API | Telegram Bot API method / object | Tests | Notes |
@@ -341,8 +352,8 @@ This document maps the current `ai-gram` implementation to Telegram Bot API area
 
 ### Business features
 
-- business connection/message types and methods
-- business intro/location/hours/account features
+- Business API foundation is implemented for `BusinessConnection`, `BusinessMessagesDeleted`, business update fields, dispatch helpers, `GetBusinessConnection`, and `DeleteBusinessMessages`.
+- Business send/edit/read/account-profile methods, business intro/location/hours/account metadata, and business gifts remain pending.
 
 ### Stars/gifts if applicable
 

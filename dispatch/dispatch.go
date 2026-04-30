@@ -246,6 +246,46 @@ func (d *Dispatcher) OnManagedBotFunc(handler HandlerFunc) error {
 	return d.OnManagedBot(handler)
 }
 
+// OnBusinessConnection registers a handler for business connection updates.
+func (d *Dispatcher) OnBusinessConnection(handler Handler) error {
+	return d.Handle(BusinessConnection(), handler)
+}
+
+// OnBusinessConnectionFunc registers a function handler for business connection updates.
+func (d *Dispatcher) OnBusinessConnectionFunc(handler HandlerFunc) error {
+	return d.OnBusinessConnection(handler)
+}
+
+// OnBusinessMessage registers a handler for business message updates.
+func (d *Dispatcher) OnBusinessMessage(handler Handler) error {
+	return d.Handle(BusinessMessage(), handler)
+}
+
+// OnBusinessMessageFunc registers a function handler for business message updates.
+func (d *Dispatcher) OnBusinessMessageFunc(handler HandlerFunc) error {
+	return d.OnBusinessMessage(handler)
+}
+
+// OnEditedBusinessMessage registers a handler for edited business message updates.
+func (d *Dispatcher) OnEditedBusinessMessage(handler Handler) error {
+	return d.Handle(EditedBusinessMessage(), handler)
+}
+
+// OnEditedBusinessMessageFunc registers a function handler for edited business message updates.
+func (d *Dispatcher) OnEditedBusinessMessageFunc(handler HandlerFunc) error {
+	return d.OnEditedBusinessMessage(handler)
+}
+
+// OnDeletedBusinessMessages registers a handler for deleted business messages updates.
+func (d *Dispatcher) OnDeletedBusinessMessages(handler Handler) error {
+	return d.Handle(DeletedBusinessMessages(), handler)
+}
+
+// OnDeletedBusinessMessagesFunc registers a function handler for deleted business messages updates.
+func (d *Dispatcher) OnDeletedBusinessMessagesFunc(handler HandlerFunc) error {
+	return d.OnDeletedBusinessMessages(handler)
+}
+
 // OnPollAnswer registers a handler for poll answer updates.
 func (d *Dispatcher) OnPollAnswer(handler Handler) error {
 	return d.Handle(PollAnswer(), handler)
@@ -343,6 +383,26 @@ func PaidMediaPurchased() Predicate {
 // ManagedBot matches updates about managed bot creation or changes.
 func ManagedBot() Predicate {
 	return func(update telegram.Update) bool { return update.ManagedBot != nil }
+}
+
+// BusinessConnection matches updates about business account connections.
+func BusinessConnection() Predicate {
+	return func(update telegram.Update) bool { return update.BusinessConnection != nil }
+}
+
+// BusinessMessage matches new business message updates.
+func BusinessMessage() Predicate {
+	return func(update telegram.Update) bool { return update.BusinessMessage != nil }
+}
+
+// EditedBusinessMessage matches edited business message updates.
+func EditedBusinessMessage() Predicate {
+	return func(update telegram.Update) bool { return update.EditedBusinessMessage != nil }
+}
+
+// DeletedBusinessMessages matches deleted business messages updates.
+func DeletedBusinessMessages() Predicate {
+	return func(update telegram.Update) bool { return update.DeletedBusinessMessages != nil }
 }
 
 // PollAnswer matches updates with a poll answer.

@@ -516,6 +516,20 @@ Manual checklist:
 - Log only safe markers: update ID, action, result type, inline message ID presence, and redacted query IDs.
 - Do not log bot tokens, token-bearing URLs, raw `web_app_data`, private user input, or production Mini App payloads.
 
+## Business API checklist
+
+Business API foundation checks require a configured Telegram business account connection. They are intentionally manual-only because business messages can contain private payloads and `DeleteBusinessMessages` changes real business chat state.
+
+Manual checklist:
+
+- Use a dedicated business test setup, test bot, and disposable test messages; do not use production business chats without explicit confirmation.
+- Confirm the bot has the required business bot rights before testing deletion flows.
+- Fetch only expected test `business_connection_id` metadata with `GetBusinessConnection`.
+- Delete only disposable test messages with `DeleteBusinessMessages`.
+- Verify business connection and message update decoding using safe metadata only.
+- Log only safe markers: method name, redacted business connection ID, chat ID, message count, boolean result, and update ID.
+- Do not log bot tokens, token-bearing URLs, raw business message payloads, private user text, or production business identifiers.
+
 ## Payments, paid media, and Stars checklist
 
 `SendInvoice`, `CreateInvoiceLink`, `AnswerShippingQuery`, `AnswerPreCheckoutQuery`, `SendPaidMedia`, `GetStarTransactions`, and `RefundStarPayment` require an explicit payment-capable test environment. They are intentionally not part of automatic live smoke.

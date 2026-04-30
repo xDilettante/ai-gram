@@ -302,11 +302,20 @@ Live smoke for this slice is manual-only because set/remove operations change re
 
 ### Business APIs
 
-- [ ] `BusinessConnection`
-- [ ] `BusinessMessagesDeleted`
-- [ ] business-related update fields
-- [ ] business connection helpers
-- [ ] business send/edit/delete/read methods, if present in Bot API 9.6 docs
+Stage 81 implements the Business API foundation only. Business send/edit/read/account-profile methods and business gifts remain separate local-only slices.
+
+- [x] `BusinessConnection`
+- [x] `BusinessBotRights`
+- [x] `BusinessMessagesDeleted`
+- [x] `Update.business_connection`
+- [x] `Update.business_message`
+- [x] `Update.edited_business_message`
+- [x] `Update.deleted_business_messages`
+- [x] business message metadata fields: `business_connection_id`, `sender_business_bot`, `is_from_offline`
+- [x] business dispatch helpers
+- [x] `GetBusinessConnection`
+- [x] `DeleteBusinessMessages`
+- [ ] business send/edit/read methods beyond `DeleteBusinessMessages`, if present in Bot API 9.6 docs
 - [ ] business account profile/name/username/bio methods, if present in Bot API 9.6 docs
 - [ ] business account Star balance and transfer methods, if present in Bot API 9.6 docs
 - [ ] gifts/stars/business account gifts, if present in Bot API 9.6 docs
