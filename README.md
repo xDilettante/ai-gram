@@ -4,7 +4,7 @@
 
 The project is in an early architecture stage. It provides practical incoming update types, a typed HTTP Bot API core, selected public Bot API methods, media sending by file_id, URL, or multipart upload, file download support, webhook management methods, a managed long polling runner, an inbound webhook HTTP handler, a small update dispatcher/router, helper middleware, examples, and manual smoke tooling. It does not yet implement FSM, scenes, storage, media groups, full thumbnail coverage for every media method, or full Bot API coverage.
 
-## Статус
+## Status
 
 - Minimal Go module: present.
 - Root facade package `aigram`: present.
@@ -17,7 +17,7 @@ The project is in an early architecture stage. It provides practical incoming up
 - Telegram Bot API method coverage: `GetMe`, `SendMessage`, `SendPhoto`, `SendDocument`, `SendVideo`, `SendAudio`, `SendVoice`, `SendContact`, `SendLocation`, `SendVenue`, `SendPoll`, `StopPoll`, `SendDice`, `SendSticker`, `SendAnimation`, `SendVideoNote`, `AnswerCallbackQuery`, `EditMessageText`, `EditMessageCaption`, `EditMessageReplyMarkup`, `DeleteMessage`, `ForwardMessage`, `CopyMessage`, `SendChatAction`, `PinChatMessage`, `UnpinChatMessage`, `UnpinAllChatMessages`, `GetChat`, `GetChatMember`, `GetChatAdministrators`, `GetChatMemberCount`, `BanChatMember`, `UnbanChatMember`, `RestrictChatMember`, reply markup for supported send and edit methods, the manual `GetUpdates` API call, `GetFile`, `DownloadFile`, multipart upload for media send methods, and JSON-only webhook management methods (`SetWebhook`, `DeleteWebhook`, `GetWebhookInfo`) are implemented. The rest of the Bot API is not implemented yet.
 - Public API stability: not guaranteed before the first stable release.
 
-## Планируемая архитектура
+## Planned architecture
 
 The library is split into small packages with clear responsibilities:
 
@@ -172,7 +172,7 @@ if err := d.OnCallbackDataFunc("confirm", func(ctx context.Context, update teleg
 
     ok, err := b.AnswerCallbackQuery(ctx, aigram.AnswerCallbackQueryParams{
         CallbackQueryID: update.CallbackQuery.ID,
-        Text:            "Готово",
+        Text:            "Done",
     })
     if err != nil {
         return err
@@ -190,7 +190,7 @@ if err := d.OnCallbackDataFunc("danger", func(ctx context.Context, update telegr
 
     _, err := b.AnswerCallbackQuery(ctx, aigram.AnswerCallbackQueryParams{
         CallbackQueryID: update.CallbackQuery.ID,
-        Text:            "Нужно подтверждение",
+        Text:            "Confirmation required",
         ShowAlert:       true,
     })
     return err
@@ -241,7 +241,7 @@ if err := d.OnCallbackDataFunc("confirm", func(ctx context.Context, update teleg
 
     if _, err := b.AnswerCallbackQuery(ctx, aigram.AnswerCallbackQueryParams{
         CallbackQueryID: update.CallbackQuery.ID,
-        Text:            "Готово",
+        Text:            "Done",
     }); err != nil {
         return err
     }

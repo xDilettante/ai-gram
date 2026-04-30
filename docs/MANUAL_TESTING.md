@@ -30,7 +30,7 @@ Use [`LIVE_SMOKE_MATRIX.md`](LIVE_SMOKE_MATRIX.md) to decide which flows are saf
 | `AIGRAM_ALLOWED_USER_IDS` | Comma-separated user IDs allowed in admin mode. |
 | `AIGRAM_ALLOWED_CHAT_IDS` | Comma-separated chat IDs allowed in admin mode. |
 
-## Long polling через api.telegram.org
+## Long polling through api.telegram.org
 
 ```bash
 export AIGRAM_BOT_TOKEN='123456:replace_me'
@@ -44,7 +44,7 @@ Checklist:
 - The bot replies with `echo: <your text>`.
 - Stop the process with `Ctrl+C` and confirm graceful shutdown.
 
-## Long polling через local Bot API server
+## Long polling through a local Bot API server
 
 Start your local Telegram Bot API server separately, then point ai-gram at it:
 
@@ -62,7 +62,7 @@ Checklist:
 - `echo_longpoll` starts without printing the token.
 - Messages sent to the bot are echoed.
 
-## Webhook через local Bot API server
+## Webhook through a local Bot API server
 
 For a local Bot API server running in `--local` mode, Telegram Bot API can accept local HTTP webhook URLs. ai-gram allows HTTP webhook URLs when a custom `AIGRAM_BASE_URL` is configured.
 
@@ -82,7 +82,7 @@ Checklist:
 - Sending `/start` or a text message to the bot reaches the local handler.
 - `AIGRAM_WEBHOOK_SECRET` is the same value for `SetWebhook` and `webhook.Config`.
 
-## Webhook через публичный HTTPS URL
+## Webhook through a public HTTPS URL
 
 Official `api.telegram.org` requires a public HTTPS webhook URL.
 

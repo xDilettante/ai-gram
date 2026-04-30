@@ -111,7 +111,7 @@ if [ -z "${BASE_URL}" ]; then
 fi
 
 if [ -z "${BASE_URL}" ]; then
-  echo "Укажи AIGRAM_BOTAPI_SSH_TARGET или запусти telegram-bot-api на выбранном сервере." >&2
+  echo "Set AIGRAM_BOTAPI_SSH_TARGET or start telegram-bot-api on the selected server." >&2
 fi
 
 FILE_BASE_URL="${AIGRAM_FILE_BASE_URL:-}"
@@ -127,14 +127,14 @@ if [ -z "${WEBHOOK_URL}" ]; then
       WEBHOOK_URL="http://127.0.0.1:${LISTEN_PORT}/webhook"
     else
       WEBHOOK_URL_NOTE="manual required: Bot API server and webhook service are on different SSH targets"
-      echo "warning: Bot API server и webhook service на разных серверах; AIGRAM_WEBHOOK_URL нужно задать вручную для deploy." >&2
+      echo "warning: Bot API server and webhook service are on different servers; set AIGRAM_WEBHOOK_URL manually for deploy." >&2
     fi
   elif [ -n "${BASE_URL}" ] && [ -n "${REMOTE_IP}" ]; then
     if same_ssh_target "${BOTAPI_REMOTE}" "${DEPLOY_REMOTE}"; then
       WEBHOOK_URL="http://${REMOTE_IP}:${LISTEN_PORT}/webhook"
     else
       WEBHOOK_URL_NOTE="manual required: Bot API server and webhook service are on different SSH targets"
-      echo "warning: Bot API server и webhook service на разных серверах; AIGRAM_WEBHOOK_URL нужно задать вручную для deploy." >&2
+      echo "warning: Bot API server and webhook service are on different servers; set AIGRAM_WEBHOOK_URL manually for deploy." >&2
     fi
   else
     echo "AIGRAM_WEBHOOK_URL is required when local Telegram Bot API server was not discovered; use a public https:// URL for official Telegram API" >&2

@@ -32,7 +32,7 @@ if [[ "${AIGRAM_DEPLOY_DIR}" != /* ]] || [[ "${REMOTE_ENV_DIR}" != /* ]]; then
 fi
 if ! same_ssh_target "${BOTAPI_REMOTE}" "${DEPLOY_REMOTE}"; then
   if [ -z "${AIGRAM_WEBHOOK_URL:-}" ] || is_loopback_url "${AIGRAM_WEBHOOK_URL:-}" || is_loopback_url "${AIGRAM_BASE_URL:-}" || is_loopback_url "${AIGRAM_FILE_BASE_URL:-}" ; then
-    echo "Bot API server и webhook service на разных серверах. Укажи AIGRAM_WEBHOOK_URL, доступный с Bot API server, и AIGRAM_BASE_URL/AIGRAM_FILE_BASE_URL, доступные с deploy server." >&2
+    echo "Bot API server and webhook service are on different servers. Set AIGRAM_WEBHOOK_URL reachable from the Bot API server, and AIGRAM_BASE_URL/AIGRAM_FILE_BASE_URL reachable from the deploy server." >&2
     exit 1
   fi
 fi

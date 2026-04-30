@@ -23,9 +23,9 @@
 
 ## v0.1.0
 
-Дата: 2026-04-30
+Date: 2026-04-30
 
-Первый рабочий milestone `ai-gram`: ранняя, но уже проверяемая Go-библиотека для Telegram Bot API с typed core, transports, dispatcher/middleware, examples и manual/live smoke контуром.
+First working `ai-gram` milestone: an early but verifiable Go library for the Telegram Bot API with a typed core, transports, dispatcher/middleware, examples, and manual/live smoke tooling.
 
 ### Added
 
