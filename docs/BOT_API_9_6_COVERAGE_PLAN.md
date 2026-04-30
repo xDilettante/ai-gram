@@ -24,9 +24,8 @@ This plan is a working checklist derived from the official documentation and cha
 
 Stage 88 compared the current local implementation with the official Telegram Bot API documentation and the April 3, 2026 Bot API 9.6 changelog. Full coverage is **not yet reached**. The precise missing method/type/field checklist now lives in [`docs/BOT_API_9_6_AUDIT.md`](BOT_API_9_6_AUDIT.md).
 
-Top pending method groups after Stage 89:
+Top pending method groups after Stage 90:
 
-- verification/status: `setUserEmojiStatus`, `verifyUser`, `verifyChat`, `removeUserVerification`, `removeChatVerification`;
 - chat boosts/member updates/moderation: `getUserChatBoosts`, `setChatMemberTag`, `banChatSenderChat`, `unbanChatSenderChat`;
 - subscription invite links: `createChatSubscriptionInviteLink`, `editChatSubscriptionInviteLink`;
 - checklists/drafts: `sendChecklist`, `editMessageChecklist`, `sendMessageDraft`;
@@ -44,6 +43,10 @@ Top pending type/field groups:
 ## Stage 89 result
 
 Stage 89 implemented lifecycle/profile read APIs: `logOut`, `close`, `getUserProfilePhotos`, `getUserProfileAudios`, and `getForumTopicIconStickers`. `ChatFullInfo` is still intentionally documented as a `getChat` result strategy mismatch; the current `GetChat` public signature remains `*telegram.Chat` to avoid an incidental API break in this narrow slice.
+
+## Stage 90 result
+
+Stage 90 implemented verification and user status APIs: `setUserEmojiStatus`, `verifyUser`, `verifyChat`, `removeUserVerification`, and `removeChatVerification`. These methods are state-changing and remain manual-only for live smoke.
 
 ## Current implemented baseline
 
@@ -406,14 +409,15 @@ Notes:
 - [ ] `SendMessageDraft`
 - [x] `logOut` and `close`
 - [x] `GetUserProfilePhotos`, `GetUserProfileAudios`, and `GetForumTopicIconStickers`
-- [ ] verification/status methods and chat boost/member update methods listed in `docs/BOT_API_9_6_AUDIT.md`
+- [x] verification/status methods
+- [ ] chat boost/member update methods listed in `docs/BOT_API_9_6_AUDIT.md`
 
 ## Implementation strategy
 
 Recommended local-only stages after the Stage 88 audit:
 
 1. Stage 89 completed: lifecycle/profile read APIs (`logOut`, `close`, profile photos/audios, forum topic icon stickers); `ChatFullInfo` remains pending as a documented `getChat` strategy mismatch.
-2. Stage 90: verification and user status APIs.
+2. Stage 90 completed: verification and user status APIs.
 3. Stage 91: chat boosts, chat-member updates/tags, and sender-chat moderation.
 4. Stage 92: subscription invite links.
 5. Stage 93: checklists, message drafts, and structured poll options.

@@ -129,6 +129,21 @@ type GetUserProfilePhotosParams = bot.GetUserProfilePhotosParams
 // GetUserProfileAudiosParams contains supported parameters for getUserProfileAudios.
 type GetUserProfileAudiosParams = bot.GetUserProfileAudiosParams
 
+// SetUserEmojiStatusParams contains supported parameters for setUserEmojiStatus.
+type SetUserEmojiStatusParams = bot.SetUserEmojiStatusParams
+
+// VerifyUserParams contains supported parameters for verifyUser.
+type VerifyUserParams = bot.VerifyUserParams
+
+// VerifyChatParams contains supported parameters for verifyChat.
+type VerifyChatParams = bot.VerifyChatParams
+
+// RemoveUserVerificationParams contains supported parameters for removeUserVerification.
+type RemoveUserVerificationParams = bot.RemoveUserVerificationParams
+
+// RemoveChatVerificationParams contains supported parameters for removeChatVerification.
+type RemoveChatVerificationParams = bot.RemoveChatVerificationParams
+
 // GetFileParams contains supported parameters for getFile.
 type GetFileParams = bot.GetFileParams
 

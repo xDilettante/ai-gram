@@ -18,6 +18,11 @@ This document maps the current `ai-gram` implementation to Telegram Bot API area
 | `(*bot.Bot).Close` | `close` | unit/httptest | Closes a local Bot API bot instance before moving it between local servers. Manual-only lifecycle operation. |
 | `(*bot.Bot).GetUserProfilePhotos` | `getUserProfilePhotos` | unit/httptest | Safe profile read returning `telegram.UserProfilePhotos`. |
 | `(*bot.Bot).GetUserProfileAudios` | `getUserProfileAudios` | unit/httptest | Safe profile read returning `telegram.UserProfileAudios`. |
+| `(*bot.Bot).SetUserEmojiStatus` | `setUserEmojiStatus` | unit/httptest | Changes a user emoji status after Mini App emoji-status access. Manual-only status operation. |
+| `(*bot.Bot).VerifyUser` | `verifyUser` | unit/httptest | Verifies a user on behalf of the bot organization. Manual-only verification operation. |
+| `(*bot.Bot).VerifyChat` | `verifyChat` | unit/httptest | Verifies a chat on behalf of the bot organization. Manual-only verification operation. |
+| `(*bot.Bot).RemoveUserVerification` | `removeUserVerification` | unit/httptest | Removes organization verification from a user. Manual-only verification operation. |
+| `(*bot.Bot).RemoveChatVerification` | `removeChatVerification` | unit/httptest | Removes organization verification from a chat. Manual-only verification operation. |
 | `errors.APIError`, `errors.ResponseParameters` | Bot API error envelope | unit | `ok:false` responses return typed errors; tests cover `errors.As`. |
 | `bot.ChatID`, `ChatIDInt`, `ChatIDString` | `chat_id` parameter shape | unit | Supports numeric chat IDs and string IDs such as `@channelusername`. |
 
@@ -353,7 +358,6 @@ Stage 88 performed a full official-doc comparison against the Telegram Bot API d
 
 ### Missing methods from the Stage 88 audit
 
-- Verification/status: `setUserEmojiStatus`, `verifyUser`, `verifyChat`, `removeUserVerification`, `removeChatVerification`.
 - Chat boosts/member updates/moderation: `getUserChatBoosts`, `setChatMemberTag`, `banChatSenderChat`, `unbanChatSenderChat`.
 - Subscription invite links: `createChatSubscriptionInviteLink`, `editChatSubscriptionInviteLink`.
 - Checklists and drafts: `sendChecklist`, `editMessageChecklist`, `sendMessageDraft`.

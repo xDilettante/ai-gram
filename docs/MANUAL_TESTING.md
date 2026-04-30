@@ -515,6 +515,19 @@ Manual checklist:
 - Use `GetForumTopicIconStickers` as a safe metadata check and record only result counts or redacted custom emoji IDs.
 - Do not log bot tokens, token-bearing URLs, private profile media file IDs from production users, or unrelated user metadata.
 
+## Verification and user status checklist
+
+`SetUserEmojiStatus`, `VerifyUser`, `VerifyChat`, `RemoveUserVerification`, and `RemoveChatVerification` change real user/chat status or organization verification state. They are intentionally manual-only and must not be included in automatic live smoke.
+
+Manual checklist:
+
+- Use a dedicated test user/chat where possible and obtain explicit confirmation before changing status or verification.
+- Confirm the bot organization is allowed to verify users/chats before calling `VerifyUser` or `VerifyChat`.
+- Confirm Mini App emoji-status access was granted before calling `SetUserEmojiStatus`.
+- Restore test state after verification checks by calling the corresponding remove/clear method when appropriate.
+- Do not run on production users/chats automatically.
+- Do not log bot tokens, token-bearing URLs, production custom emoji IDs, or private verification descriptions.
+
 ## WebApp / Mini App checklist
 
 `AnswerWebAppQuery`, `WebAppData`, and `WriteAccessAllowed` require a configured Telegram Mini App or Web App entry point. These flows can contain opaque user-provided payloads and are intentionally manual-only.

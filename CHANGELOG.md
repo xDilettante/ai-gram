@@ -4,6 +4,7 @@
 
 ### Added
 
+- Verification and user status methods: `SetUserEmojiStatus`, `VerifyUser`, `VerifyChat`, `RemoveUserVerification`, and `RemoveChatVerification`.
 - Lifecycle and profile read APIs: `LogOut`, `Close`, `GetUserProfilePhotos`, `GetUserProfileAudios`, and `GetForumTopicIconStickers`.
 - Sticker set management methods and `InputSticker` support.
 - Chat management methods: `SetChatTitle`, `SetChatDescription`, `SetChatPhoto`, `DeleteChatPhoto`, `LeaveChat`, `SetChatStickerSet`, and `DeleteChatStickerSet`.
