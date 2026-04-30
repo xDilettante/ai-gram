@@ -9,7 +9,7 @@ The project is in an early architecture stage. It provides practical incoming up
 - Minimal Go module: present.
 - Root facade package `aigram`: present.
 - Base Telegram data types: include practical incoming message fields for text entities, captions, media, contacts, locations, venues, and callback queries.
-- Bot client package: present with token validation, private token storage, an internal HTTP call core, JSON/multipart calls, and typed method wrappers.
+- Bot client package: present with token validation, private token storage, token-safe string output, an internal HTTP call core, JSON/multipart calls, and typed method wrappers.
 - Typed Telegram API errors: scaffolded.
 - Dispatcher/router: supports predicates, message/command/callback routes, middleware, fallback, and error handling.
 - Middleware helpers: recover, timeout, hook-based observability, and reusable access control are available.
@@ -22,7 +22,7 @@ The project is in an early architecture stage. It provides practical incoming up
 The library is split into small packages with clear responsibilities:
 
 - `telegram` contains basic Telegram Bot API data contracts such as `Update`, `Message`, `User`, `Chat`, and `CallbackQuery`.
-- `bot` contains the primary Bot API client type and configuration. It owns token handling and an unexported JSON call core that will later power public Telegram methods.
+- `bot` contains the primary Bot API client type and configuration. It owns token handling, keeps the raw token out of public accessors, and provides typed Telegram method wrappers. Use `GetMe` for bot identity and redacted string output for diagnostics.
 - `internal/httpclient` contains low-level HTTP sending helpers, response body handling, and HTTP status checks. It is internal and must not leak into the public API.
 - `errors` contains typed errors returned by Telegram Bot API responses.
 - `dispatch` defines update routing, middleware, fallback handling, and error handling without depending on HTTP details.

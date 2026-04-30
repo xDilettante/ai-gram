@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"net/url"
+	"reflect"
 	"strings"
 	"testing"
 
@@ -31,8 +32,11 @@ func TestNewCreatesBotWithToken(t *testing.T) {
 	if bot == nil {
 		t.Fatal("expected bot")
 	}
-	if got := bot.Token(); got != "123:abc" {
-		t.Fatalf("unexpected token: %q", got)
+}
+
+func TestBotDoesNotExposeRawTokenMethod(t *testing.T) {
+	if _, ok := reflect.TypeOf(&Bot{}).MethodByName("Token"); ok {
+		t.Fatal("Bot must not expose raw token through a public Token method")
 	}
 }
 

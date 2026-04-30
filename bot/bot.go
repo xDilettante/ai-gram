@@ -79,15 +79,6 @@ func New(config BotConfig) (*Bot, error) {
 	}, nil
 }
 
-// Token returns the configured Telegram bot token.
-func (b *Bot) Token() string {
-	if b == nil {
-		return ""
-	}
-
-	return b.token
-}
-
 type telegramResponse struct {
 	OK          bool                          `json:"ok"`
 	Result      json.RawMessage               `json:"result,omitempty"`

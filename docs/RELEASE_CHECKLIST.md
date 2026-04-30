@@ -7,7 +7,7 @@ This checklist is for preparing a future `v0.1.0` tag. It does not create the ta
 - Confirm `docs/API_COVERAGE.md` matches current implemented methods.
 - Confirm `docs/ROADMAP.md` reflects the next planned stage.
 - Review exported API for obvious pre-v0.1 naming issues before the tag.
-- Decision required before tag: keep, document, or change `(*bot.Bot).Token()` because it intentionally exposes the configured token to callers even though all examples/logs must avoid printing it.
+- Token exposure decision resolved before v0.1: raw bot token is intentionally not exposed through public `Bot` methods; use `GetMe` for bot identity and redacted `fmt.Stringer` output for diagnostics.
 - Confirm no new Bot API method was added without unit/httptest coverage.
 - Confirm all public exported declarations have useful GoDoc comments.
 - Confirm all blocking/network operations accept `context.Context` where applicable.
@@ -70,6 +70,7 @@ Record only safe log excerpts such as `update_id`, `action`, `matched`, `chat_id
 - No real token or secret is committed.
 - `.env.local`, `.deploy/`, generated env files, SSH keys, and private keys remain ignored.
 - No docs or examples contain token-bearing URLs or full `/bot<TOKEN>/...` endpoints.
+- Public API does not expose raw bot token accessors; diagnostics use redacted string output.
 - Telegram notifications and final reports do not include secrets or full private message text.
 - Webhook secret matches both `SetWebhook` and `webhook.Config` in examples/deploy env.
 - Destructive/admin methods are not run automatically.

@@ -8,6 +8,7 @@ This roadmap is intentionally pragmatic: keep `ai-gram` useful and stable as a G
   - Review exported names and GoDoc for consistency.
   - Keep typed params/results and avoid `map[string]any` in public API.
   - Confirm token-safe error messages across all public methods.
+  - Keep raw bot token out of public accessors; use `GetMe` for identity and redacted string output for diagnostics.
   - Preserve compatibility of `ChatID`, `FileRef`, reply markup, reply parameters, and edit targets.
 - Docs polish
   - Keep README concise and accurate.
