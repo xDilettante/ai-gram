@@ -39,6 +39,15 @@ type SendLocationParams = bot.SendLocationParams
 // SendVenueParams contains supported parameters for sendVenue.
 type SendVenueParams = bot.SendVenueParams
 
+// SendPollParams contains supported parameters for sendPoll.
+type SendPollParams = bot.SendPollParams
+
+// StopPollParams contains supported parameters for stopPoll.
+type StopPollParams = bot.StopPollParams
+
+// SendDiceParams contains supported parameters for sendDice.
+type SendDiceParams = bot.SendDiceParams
+
 // GetUpdatesParams contains supported parameters for getUpdates.
 type GetUpdatesParams = bot.GetUpdatesParams
 

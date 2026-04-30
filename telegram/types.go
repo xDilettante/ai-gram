@@ -32,7 +32,9 @@ type Message struct {
 	Voice     *Voice      `json:"voice,omitempty"`
 
 	Contact  *Contact  `json:"contact,omitempty"`
+	Dice     *Dice     `json:"dice,omitempty"`
 	Location *Location `json:"location,omitempty"`
+	Poll     *Poll     `json:"poll,omitempty"`
 	Venue    *Venue    `json:"venue,omitempty"`
 }
 
@@ -137,6 +139,35 @@ type MessageEntity struct {
 type ReplyParameters struct {
 	MessageID                int64 `json:"message_id"`
 	AllowSendingWithoutReply bool  `json:"allow_sending_without_reply,omitempty"`
+}
+
+// PollOption describes one answer option in a Telegram poll.
+type PollOption struct {
+	Text       string `json:"text"`
+	VoterCount int    `json:"voter_count"`
+}
+
+// Poll describes a native Telegram poll.
+type Poll struct {
+	ID                    string          `json:"id"`
+	Question              string          `json:"question"`
+	Options               []PollOption    `json:"options"`
+	TotalVoterCount       int             `json:"total_voter_count"`
+	IsClosed              bool            `json:"is_closed"`
+	IsAnonymous           bool            `json:"is_anonymous"`
+	Type                  string          `json:"type"`
+	AllowsMultipleAnswers bool            `json:"allows_multiple_answers,omitempty"`
+	CorrectOptionID       int             `json:"correct_option_id,omitempty"`
+	Explanation           string          `json:"explanation,omitempty"`
+	ExplanationEntities   []MessageEntity `json:"explanation_entities,omitempty"`
+	OpenPeriod            int             `json:"open_period,omitempty"`
+	CloseDate             int64           `json:"close_date,omitempty"`
+}
+
+// Dice describes a Telegram dice message result.
+type Dice struct {
+	Emoji string `json:"emoji"`
+	Value int    `json:"value"`
 }
 
 const (

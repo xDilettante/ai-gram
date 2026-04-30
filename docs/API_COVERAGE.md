@@ -44,6 +44,8 @@ This document maps the current `ai-gram` implementation to Telegram Bot API area
 | `(*bot.Bot).SendContact` | `sendContact` | unit/httptest | Supports contact phone/name/vCard fields, reply markup, `message_thread_id`, `reply_parameters`. |
 | `(*bot.Bot).SendLocation` | `sendLocation` | unit/httptest | Supports latitude/longitude, live-location optional fields, reply markup, thread/reply params. |
 | `(*bot.Bot).SendVenue` | `sendVenue` | unit/httptest | Supports venue coordinates, title/address, Foursquare/Google place fields, reply markup, thread/reply params. |
+| `(*bot.Bot).SendPoll` | `sendPoll` | unit/httptest | Supports question/options, quiz fields, explanation formatting, reply markup, thread/reply params. |
+| `(*bot.Bot).SendDice` | `sendDice` | unit/httptest | Supports known Telegram dice emoji, reply markup, thread/reply params. |
 | `telegram.ReplyParameters` | send/copy reply payload | unit | Minimal supported fields: `message_id`, `allow_sending_without_reply`. |
 | `telegram.ReplyMarkup` implementations | send/edit reply markup | unit, live examples | Inline keyboard, reply keyboard, remove keyboard, force reply. Edit methods accept inline keyboard only. |
 
@@ -66,6 +68,7 @@ This document maps the current `ai-gram` implementation to Telegram Bot API area
 | `(*bot.Bot).EditMessageReplyMarkup` | `editMessageReplyMarkup` | unit/httptest, live examples | `nil` reply markup removes inline keyboard. |
 | `bot.EditMessageTarget`, `bot.EditMessageResult` | edit helpers/result | unit | Validates chat-vs-inline target and handles `Message`/`true` return shape. |
 | `(*bot.Bot).DeleteMessage` | `deleteMessage` | unit/httptest, live examples | Destructive; live example only deletes messages created during smoke. |
+| `(*bot.Bot).StopPoll` | `stopPoll` | unit/httptest | Stops a poll sent by the bot and returns `telegram.Poll`. |
 
 ### Forward/copy
 
@@ -123,14 +126,8 @@ This document maps the current `ai-gram` implementation to Telegram Bot API area
 - `sendVideoNote`
 - `sendPaidMedia`
 - `sendMediaGroup`
-- `sendDice`
 - `sendGame`
 - `sendInvoice`
-
-### Polls
-
-- `sendPoll`
-- `stopPoll`
 
 ### Stickers
 
@@ -310,7 +307,6 @@ Unit and httptest suites do not require tokens.
 
 ### Nice-to-have before v0.1
 
-- `SendPoll` and `StopPoll`.
 - `SendSticker`, `SendAnimation`, `SendVideoNote`.
 - Bot command and menu methods.
 - A small release checklist document if not folded into existing docs.
