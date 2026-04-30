@@ -153,4 +153,4 @@ Recommendation: choose Option B only if one of those slices is required before u
 
 ## Final recommendation
 
-The current project state is **ready with caveats** for a v0.2.0 stabilization pass. Stage 57 pre-release verification passed, and v0.2.0 release notes are prepared in `docs/releases/v0.2.0.md`. The `v0.2.0` tag has not been created yet.
+The v0.2.0 release flow is complete: main, tag, public `go get`, and GitHub Release are published. Follow-up planning has moved to [`docs/V0_3_PLAN.md`](V0_3_PLAN.md).

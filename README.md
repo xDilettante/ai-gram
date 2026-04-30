@@ -920,11 +920,12 @@ Manual smoke testing instructions are in [`docs/MANUAL_TESTING.md`](docs/MANUAL_
 Coverage and planning documents:
 
 - [`CHANGELOG.md`](CHANGELOG.md) — release history and v0.2/v0.1.x summaries.
-- [`docs/releases/v0.2.0.md`](docs/releases/v0.2.0.md) — prepared GitHub-release-ready notes for the v0.2 coverage milestone.
+- [`docs/releases/v0.2.0.md`](docs/releases/v0.2.0.md) — release notes for the v0.2 coverage milestone.
 - [`docs/releases/v0.1.1.md`](docs/releases/v0.1.1.md) — GitHub-release-ready notes for the canonical module path patch release.
 - [`docs/releases/v0.1.0.md`](docs/releases/v0.1.0.md) — historical first milestone notes.
 - [`docs/API_COVERAGE.md`](docs/API_COVERAGE.md) — implemented methods, missing Bot API areas, risk classification, and v0.1 recommendation.
-- [`docs/V0_2_CHECKPOINT.md`](docs/V0_2_CHECKPOINT.md) — current v0.2 coverage checkpoint and release recommendation.
+- [`docs/V0_2_CHECKPOINT.md`](docs/V0_2_CHECKPOINT.md) — v0.2 coverage checkpoint and release recommendation.
+- [`docs/V0_3_PLAN.md`](docs/V0_3_PLAN.md) — planned v0.3 scope for chat management, forum topics, reactions, and inline mode basics.
 - [`docs/ROADMAP.md`](docs/ROADMAP.md) — stabilization and expansion roadmap.
 - [`docs/MANUAL_TESTING.md`](docs/MANUAL_TESTING.md) — local/manual smoke checklist.
 - [`docs/DEPLOY_TESTING.md`](docs/DEPLOY_TESTING.md) — deploy/manual integration harness.

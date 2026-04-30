@@ -17,7 +17,7 @@ Completed scope:
 
 ## v0.2 Bot API coverage expansion
 
-Status: current `main` contains the planned v0.2 expansion slices. Stage 57 pre-release verification passed, and v0.2.0 release notes are prepared. The `v0.2.0` tag has not been created yet.
+Status: completed and released as v0.2.0.
 
 Completed slices:
 
@@ -71,7 +71,7 @@ Verification status:
 - Safe live smoke has covered contact/location/venue/poll/stop-poll/dice and `SendMediaGroup` generated upload fallback.
 - State-changing/admin methods are intentionally documented as manual-only and not auto-smoked.
 
-Remaining candidate slices before or after v0.2.0:
+Remaining candidate slices after v0.2.0:
 
 - Chat management methods: `setChatTitle`, `setChatDescription`, `setChatPhoto`, `deleteChatPhoto`, `leaveChat`.
 - Forum topic methods.
@@ -80,31 +80,50 @@ Remaining candidate slices before or after v0.2.0:
 - Remaining sticker set methods.
 - Bot profile methods.
 
-Milestone recommendation:
+Milestone outcome:
 
-- Prefer a v0.2.0 stabilization pass now if the goal is to publish a coherent expanded API milestone.
-- Continue coverage before v0.2.0 only if chat management, forum topics, reactions, inline mode, or sticker set management is required for the release boundary.
+- v0.2.0 was released as the coherent expanded API milestone.
+- Chat management, forum topics, reactions, and inline mode are now planned for v0.3 instead of extending the v0.2 boundary.
 
-## v0.3 Advanced coverage candidates
+## v0.3 Group/chat administration and advanced interaction surfaces
 
-The v0.3 scope should be chosen after the v0.2.0 decision. Good candidates:
+Focus: extend the v0.2 group/admin foundation into practical chat administration and advanced interaction surfaces while keeping live verification safe and explicit. See [`docs/V0_3_PLAN.md`](V0_3_PLAN.md) for the detailed plan.
+
+Planned slices:
 
 - Chat management methods:
-  - title/description/photo/sticker-set/default permissions follow-ups
-  - leave chat and related lifecycle methods
+  - `SetChatTitle`
+  - `SetChatDescription`
+  - `SetChatPhoto`
+  - `DeleteChatPhoto`
+  - `LeaveChat`
 - Forum topics:
-  - create/edit/close/reopen/delete topic methods
-  - general forum topic helpers
+  - `CreateForumTopic`
+  - `EditForumTopic`
+  - `CloseForumTopic`
+  - `ReopenForumTopic`
+  - `DeleteForumTopic`
+  - `UnpinAllForumTopicMessages`
 - Reactions:
-  - message reaction methods
-  - reaction update/type coverage
-- Inline mode:
-  - inline query result types
-  - `answerInlineQuery`
-  - chosen inline result handling
-- Sticker set management:
-  - create/add/set/delete sticker set methods
-  - custom emoji/sticker metadata methods
+  - `SetMessageReaction`
+  - reaction type/update support as needed
+- Inline mode basics:
+  - `AnswerInlineQuery`
+  - minimal `InlineQuery` update/type support
+  - minimal `InlineQueryResult` variants
+
+Recommended order:
+
+1. Chat management
+2. Forum topics
+3. Reactions
+4. Inline mode basics
+
+Live smoke policy:
+
+- Safe/read-only flows may be live-smoked.
+- Admin/state-changing flows require a dedicated test chat and explicit user confirmation.
+- Destructive/admin flows must not be auto-smoked.
 
 ## Later
 

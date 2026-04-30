@@ -177,8 +177,8 @@ This document maps the current `ai-gram` implementation to Telegram Bot API area
 
 ### Reactions
 
-- `setMessageReaction`
-- reaction metadata/types beyond basic message decoding
+- `SetMessageReaction` (`setMessageReaction`)
+- `ReactionType` and reaction-related update/type support, if needed
 
 ### Invite links
 
@@ -190,8 +190,12 @@ This document maps the current `ai-gram` implementation to Telegram Bot API area
 
 ### Admin/chat management methods
 
-- chat title/photo/description/sticker set methods
-- leave chat and related chat lifecycle methods
+- `SetChatTitle` (`setChatTitle`)
+- `SetChatDescription` (`setChatDescription`)
+- `SetChatPhoto` (`setChatPhoto`)
+- `DeleteChatPhoto` (`deleteChatPhoto`)
+- `LeaveChat` (`leaveChat`)
+- remaining chat sticker-set/default-permission follow-ups not already implemented
 
 ### Payments
 
@@ -207,8 +211,9 @@ This document maps the current `ai-gram` implementation to Telegram Bot API area
 
 ### Inline mode
 
-- inline query result types
-- `answerInlineQuery`
+- `AnswerInlineQuery` (`answerInlineQuery`)
+- minimal `InlineQuery` update/type support
+- minimal inline query result types
 - chosen inline result handling
 
 ### WebApp/LoginUrl
@@ -224,9 +229,13 @@ This document maps the current `ai-gram` implementation to Telegram Bot API area
 
 ### Forum topics
 
-- create/edit/close/reopen/delete forum topic methods
-- general forum topic methods
-- topic icon sticker methods
+- `CreateForumTopic` (`createForumTopic`)
+- `EditForumTopic` (`editForumTopic`)
+- `CloseForumTopic` (`closeForumTopic`)
+- `ReopenForumTopic` (`reopenForumTopic`)
+- `DeleteForumTopic` (`deleteForumTopic`)
+- `UnpinAllForumTopicMessages` (`unpinAllForumTopicMessages`)
+- remaining general forum topic and topic icon sticker methods
 
 ### Business features
 

@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Planning
+
+- Added v0.3 plan for chat management, forum topics, reactions, and inline mode basics.
+
 ## v0.2.0 - 2026-04-30
 
 ### Added
