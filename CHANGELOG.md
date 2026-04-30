@@ -20,6 +20,7 @@
 - WebApp / Mini App remaining support: `AnswerWebAppQuery`, `SentWebAppMessage`, `WebAppData`, `WriteAccessAllowed`, and Web App buttons.
 - Business API foundation: `BusinessConnection`, `BusinessMessagesDeleted`, business update fields, `GetBusinessConnection`, and `DeleteBusinessMessages`.
 - Business API account/read/story/suggested post methods: `ReadBusinessMessage`, account profile methods, gift settings, `PostStory`, `EditStory`, `DeleteStory`, `ApproveSuggestedPost`, and `DeclineSuggestedPost`.
+- Gifts, business gifts, and remaining Stars methods: `GetAvailableGifts`, `SendGift`, `GiftPremiumSubscription`, `GetBusinessAccountStarBalance`, `TransferBusinessAccountStars`, `GetBusinessAccountGifts`, `GetUserGifts`, `GetChatGifts`, `ConvertGiftToStars`, `UpgradeGift`, `TransferGift`, `GetMyStarBalance`, and `EditUserStarSubscription`.
 
 ### Documentation
 

@@ -151,10 +151,20 @@ This document maps the current `ai-gram` implementation to Telegram Bot API area
 | `(*bot.Bot).SendPaidMedia` | `sendPaidMedia` | unit/httptest | Sends paid photo/video media by file ID, URL, or multipart upload with deterministic `attach://` names. Manual-only live smoke. |
 | `(*bot.Bot).GetStarTransactions` | `getStarTransactions` | unit/httptest | Retrieves typed Star transaction history with polymorphic transaction partner decoding. Manual-only live smoke. |
 | `(*bot.Bot).RefundStarPayment` | `refundStarPayment` | unit/httptest | Refunds successful Telegram Stars payments by user ID and Telegram payment charge ID. Manual-only live smoke. |
+| `(*bot.Bot).GetAvailableGifts` | `getAvailableGifts` | unit/httptest | Retrieves gifts available for the bot to send. Manual-only live smoke for value flows. |
+| `(*bot.Bot).SendGift` | `sendGift` | unit/httptest | Sends a gift to a user or channel chat with text entity support. Manual-only live smoke. |
+| `(*bot.Bot).GiftPremiumSubscription` | `giftPremiumSubscription` | unit/httptest | Gifts Telegram Premium subscriptions with official month/star-count validation. Manual-only live smoke. |
+| `(*bot.Bot).GetBusinessAccountStarBalance` | `getBusinessAccountStarBalance` | unit/httptest | Retrieves Stars owned by a managed business account. Manual-only live smoke. |
+| `(*bot.Bot).TransferBusinessAccountStars` | `transferBusinessAccountStars` | unit/httptest | Transfers 1-10000 Stars from a business account balance to the bot. Manual-only live smoke. |
+| `(*bot.Bot).GetBusinessAccountGifts`, `GetUserGifts`, `GetChatGifts` | gift ownership list methods | unit/httptest | Retrieves polymorphic owned gifts with official filters and pagination. Manual-only live smoke. |
+| `(*bot.Bot).ConvertGiftToStars`, `UpgradeGift`, `TransferGift` | business gift mutation methods | unit/httptest | Converts, upgrades, and transfers business gifts. Manual-only live smoke. |
+| `(*bot.Bot).GetMyStarBalance` | `getMyStarBalance` | unit/httptest | Retrieves the bot's Telegram Stars balance. Manual-only live smoke. |
+| `(*bot.Bot).EditUserStarSubscription` | `editUserStarSubscription` | unit/httptest | Cancels or re-enables Telegram Stars subscription extension. Manual-only live smoke. |
 | `telegram.PaidMediaInfo`, `telegram.PaidMediaPreview`, `telegram.PaidMediaPhoto`, `telegram.PaidMediaVideo` | paid media message objects | unit | Decodes paid media attached to messages with polymorphic paid media items. |
 | `telegram.PaidMediaPurchased` | `purchased_paid_media` update | unit | Decodes paid media purchase updates and supports `EffectiveUser` without inventing an effective chat. |
 | `dispatch.PaidMediaPurchased` | dispatch predicate/helper | unit | Includes `OnPaidMediaPurchased` handler registration helpers. |
-| `telegram.StarTransactions`, `telegram.StarTransaction`, `telegram.TransactionPartner*` | Stars transaction objects | unit | Decodes basic Star transactions, paid media purchases, affiliate details, Fragment withdrawal state, Telegram Ads/API, chat, user, and other partner variants. Gift-specific partner payloads remain pending for the gifts slice. |
+| `telegram.StarTransactions`, `telegram.StarTransaction`, `telegram.TransactionPartner*` | Stars transaction objects | unit | Decodes Star transactions, paid media purchases, affiliate details, Fragment withdrawal state, Telegram Ads/API, chat, user, other partner variants, and gift-specific partner payloads. |
+| `telegram.Gift*`, `telegram.UniqueGift*`, `telegram.OwnedGift*`, `telegram.OwnedGifts` | gift and owned gift objects | unit | Decodes regular gifts, unique gifts, gift service messages, and polymorphic owned gift lists. |
 
 
 
@@ -336,7 +346,7 @@ This document maps the current `ai-gram` implementation to Telegram Bot API area
 
 ### Payments
 
-- Paid media, basic Star transaction history, Star payment refunds, and Managed Bots 9.6 are implemented. Star balance, subscriptions, gifts, business gifts, and broader advanced Stars/payment flows remain pending.
+- Paid media, Star transaction history, Star payment refunds, gifts, business gifts, Star balance, Premium subscriptions, and Stars subscription editing are implemented. Broader advanced Stars/payment flows remain pending only where not covered by the official Bot API 9.6 gifts/stars slice.
 
 ### Passport
 
@@ -349,7 +359,7 @@ This document maps the current `ai-gram` implementation to Telegram Bot API area
 ### Inline mode
 
 - Stage 75 audited inline mode against official Bot API 9.6 documentation. Incoming inline updates, `AnswerInlineQuery`, `InlineQueryResultsButton`, all current `InputMessageContent` variants, and all 20 current `InlineQueryResult` variants are represented.
-- Payments/invoice basics, paid media, Star transaction history, and Star payment refunds are implemented separately; Star balance, subscriptions, gifts, business gifts, and broader advanced Stars/payment flows remain pending.
+- Payments/invoice basics, paid media, Star transaction history, Star refunds, gifts, business gifts, Star balances/transfers, Premium subscription gifts, and Stars subscription editing are implemented separately.
 
 ### WebApp/LoginUrl
 
@@ -359,11 +369,11 @@ This document maps the current `ai-gram` implementation to Telegram Bot API area
 ### Business features
 
 - Business API foundation plus account/read/story/suggested post methods are implemented for `BusinessConnection`, business update fields, dispatch helpers, `GetBusinessConnection`, `ReadBusinessMessage`, `DeleteBusinessMessages`, account profile methods, gift settings, stories, and suggested posts.
-- Broader business send/edit methods, business intro/location/hours/account metadata, Star balance/transfer methods, and business gifts remain pending.
+- Broader business send/edit methods and business intro/location/hours/account metadata remain pending; business Star balance/transfer and business gift methods are implemented in the gifts/stars slice.
 
 ### Stars/gifts if applicable
 
-- Basic Star transaction history and refunds are implemented; Star balance, gifts, business gifts, and advanced Stars-related methods remain pending and should be reviewed against the official Bot API before implementation.
+- Star transaction history, refunds, bot/business Star balances, business Star transfer, gifts, business gifts, Premium subscription gifts, and Stars subscription editing are implemented. Any remaining advanced Stars-related methods should be found by a final official-doc audit.
 
 ### Poll 9.6 support
 
@@ -515,7 +525,7 @@ Unit and httptest suites do not require tokens.
 
 ### Defer after v0.1
 
-- Broader Stars/gift/payment flows beyond paid media and basic Star refunds.
+- Final audit for any Stars/gift/payment flows not covered by the gifts and remaining Stars slice.
 - Passport.
 - Games.
 - Business APIs.

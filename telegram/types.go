@@ -59,6 +59,9 @@ type Message struct {
 	SuccessfulPayment *SuccessfulPayment `json:"successful_payment,omitempty"`
 	RefundedPayment   *RefundedPayment   `json:"refunded_payment,omitempty"`
 	PaidMedia         *PaidMediaInfo     `json:"paid_media,omitempty"`
+	Gift              *GiftInfo          `json:"gift,omitempty"`
+	UniqueGift        *UniqueGiftInfo    `json:"unique_gift,omitempty"`
+	GiftUpgradeSent   *GiftInfo          `json:"gift_upgrade_sent,omitempty"`
 
 	ForumTopicCreated         *ForumTopicCreated         `json:"forum_topic_created,omitempty"`
 	ForumTopicEdited          *ForumTopicEdited          `json:"forum_topic_edited,omitempty"`

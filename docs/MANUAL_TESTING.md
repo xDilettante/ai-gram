@@ -550,7 +550,10 @@ Manual checklist:
 - Send paid media only to a dedicated test chat and use test FileID/URL/upload media.
 - Query `GetStarTransactions` only for expected test windows and avoid copying raw transaction payloads into reports.
 - Use `RefundStarPayment` only for matching test Stars payments and record only redacted charge IDs.
-- Do not run paid media, Stars refunds, subscriptions, gifts, or business gift flows on production bots without explicit confirmation.
+- Do not run paid media, Stars refunds, Premium subscription gifts, Stars subscription edits, gift sending, business gift conversion/upgrade/transfer, or business Stars transfer on production bots without explicit confirmation.
+- Use `GetAvailableGifts`, `GetMyStarBalance`, `GetBusinessAccountStarBalance`, `GetBusinessAccountGifts`, `GetUserGifts`, and `GetChatGifts` only against expected test accounts/chats; record counts and redacted IDs only.
+- Use `SendGift`, `GiftPremiumSubscription`, `TransferBusinessAccountStars`, `ConvertGiftToStars`, `UpgradeGift`, `TransferGift`, and `EditUserStarSubscription` only on disposable test value flows after explicit confirmation.
+- Never log full gift ownership IDs, payment payloads, charge IDs, business connection IDs, or private gift text.
 
 
 ## Managed Bots 9.6 checklist

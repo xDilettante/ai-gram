@@ -675,6 +675,51 @@ type StarTransaction = telegram.StarTransaction
 // StarAmount describes an amount of Telegram Stars.
 type StarAmount = telegram.StarAmount
 
+// GiftBackground describes the background of a regular gift.
+type GiftBackground = telegram.GiftBackground
+
+// Gift represents a gift that can be sent by the bot.
+type Gift = telegram.Gift
+
+// Gifts contains a list of gifts available to send.
+type Gifts = telegram.Gifts
+
+// UniqueGiftModel describes the model of a unique gift.
+type UniqueGiftModel = telegram.UniqueGiftModel
+
+// UniqueGiftSymbol describes the symbol shown on a unique gift.
+type UniqueGiftSymbol = telegram.UniqueGiftSymbol
+
+// UniqueGiftBackdropColors describes backdrop colors of a unique gift.
+type UniqueGiftBackdropColors = telegram.UniqueGiftBackdropColors
+
+// UniqueGiftBackdrop describes the backdrop of a unique gift.
+type UniqueGiftBackdrop = telegram.UniqueGiftBackdrop
+
+// UniqueGiftColors contains color scheme information derived from a unique gift.
+type UniqueGiftColors = telegram.UniqueGiftColors
+
+// UniqueGift describes a unique gift upgraded from a regular gift.
+type UniqueGift = telegram.UniqueGift
+
+// GiftInfo describes a service message about a regular gift.
+type GiftInfo = telegram.GiftInfo
+
+// UniqueGiftInfo describes a service message about a unique gift.
+type UniqueGiftInfo = telegram.UniqueGiftInfo
+
+// OwnedGift marks Telegram owned gift objects.
+type OwnedGift = telegram.OwnedGift
+
+// OwnedGiftRegular describes a regular owned gift.
+type OwnedGiftRegular = telegram.OwnedGiftRegular
+
+// OwnedGiftUnique describes a unique owned gift.
+type OwnedGiftUnique = telegram.OwnedGiftUnique
+
+// OwnedGifts contains gifts owned by a user or chat.
+type OwnedGifts = telegram.OwnedGifts
+
 // InputPaidMedia marks paid media items accepted by sendPaidMedia.
 type InputPaidMedia = bot.InputPaidMedia
 
@@ -692,6 +737,45 @@ type GetStarTransactionsParams = bot.GetStarTransactionsParams
 
 // RefundStarPaymentParams contains supported parameters for refundStarPayment.
 type RefundStarPaymentParams = bot.RefundStarPaymentParams
+
+// GetAvailableGiftsParams contains supported parameters for getAvailableGifts.
+type GetAvailableGiftsParams = bot.GetAvailableGiftsParams
+
+// SendGiftParams contains supported parameters for sendGift.
+type SendGiftParams = bot.SendGiftParams
+
+// GiftPremiumSubscriptionParams contains supported parameters for giftPremiumSubscription.
+type GiftPremiumSubscriptionParams = bot.GiftPremiumSubscriptionParams
+
+// GetBusinessAccountStarBalanceParams contains supported parameters for getBusinessAccountStarBalance.
+type GetBusinessAccountStarBalanceParams = bot.GetBusinessAccountStarBalanceParams
+
+// TransferBusinessAccountStarsParams contains supported parameters for transferBusinessAccountStars.
+type TransferBusinessAccountStarsParams = bot.TransferBusinessAccountStarsParams
+
+// GetBusinessAccountGiftsParams contains supported parameters for getBusinessAccountGifts.
+type GetBusinessAccountGiftsParams = bot.GetBusinessAccountGiftsParams
+
+// GetUserGiftsParams contains supported parameters for getUserGifts.
+type GetUserGiftsParams = bot.GetUserGiftsParams
+
+// GetChatGiftsParams contains supported parameters for getChatGifts.
+type GetChatGiftsParams = bot.GetChatGiftsParams
+
+// ConvertGiftToStarsParams contains supported parameters for convertGiftToStars.
+type ConvertGiftToStarsParams = bot.ConvertGiftToStarsParams
+
+// UpgradeGiftParams contains supported parameters for upgradeGift.
+type UpgradeGiftParams = bot.UpgradeGiftParams
+
+// TransferGiftParams contains supported parameters for transferGift.
+type TransferGiftParams = bot.TransferGiftParams
+
+// GetMyStarBalanceParams contains supported parameters for getMyStarBalance.
+type GetMyStarBalanceParams = bot.GetMyStarBalanceParams
+
+// EditUserStarSubscriptionParams contains supported parameters for editUserStarSubscription.
+type EditUserStarSubscriptionParams = bot.EditUserStarSubscriptionParams
 
 // SavePreparedKeyboardButtonParams contains supported parameters for savePreparedKeyboardButton.
 type SavePreparedKeyboardButtonParams = bot.SavePreparedKeyboardButtonParams

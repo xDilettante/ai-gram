@@ -57,6 +57,7 @@ type TransactionPartnerUser struct {
 	SubscriptionPeriod          int            `json:"subscription_period,omitempty"`
 	PaidMedia                   []PaidMedia    `json:"paid_media,omitempty"`
 	PaidMediaPayload            string         `json:"paid_media_payload,omitempty"`
+	Gift                        *Gift          `json:"gift,omitempty"`
 	PremiumSubscriptionDuration int            `json:"premium_subscription_duration,omitempty"`
 }
 
@@ -64,6 +65,7 @@ type TransactionPartnerUser struct {
 type TransactionPartnerChat struct {
 	Type string `json:"type"`
 	Chat Chat   `json:"chat"`
+	Gift *Gift  `json:"gift,omitempty"`
 }
 
 // TransactionPartnerAffiliateProgram describes an affiliate program transaction.
@@ -276,6 +278,7 @@ func (partner *TransactionPartnerUser) UnmarshalJSON(data []byte) error {
 		SubscriptionPeriod          int               `json:"subscription_period,omitempty"`
 		PaidMedia                   []json.RawMessage `json:"paid_media,omitempty"`
 		PaidMediaPayload            string            `json:"paid_media_payload,omitempty"`
+		Gift                        *Gift             `json:"gift,omitempty"`
 		PremiumSubscriptionDuration int               `json:"premium_subscription_duration,omitempty"`
 	}
 	if err := json.Unmarshal(data, &payload); err != nil {
@@ -294,6 +297,7 @@ func (partner *TransactionPartnerUser) UnmarshalJSON(data []byte) error {
 	partner.SubscriptionPeriod = payload.SubscriptionPeriod
 	partner.PaidMedia = paidMedia
 	partner.PaidMediaPayload = payload.PaidMediaPayload
+	partner.Gift = payload.Gift
 	partner.PremiumSubscriptionDuration = payload.PremiumSubscriptionDuration
 	return nil
 }

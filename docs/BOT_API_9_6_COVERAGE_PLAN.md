@@ -193,9 +193,9 @@ Stage 72 implements the first inline foundation: incoming inline query updates, 
 - [x] `AnswerPreCheckoutQuery`
 - [x] `RefundStarPayment`
 - [x] `SendPaidMedia`
-- [ ] `GetMyStarBalance`, if present in Bot API 9.6 docs
-- [ ] gift methods such as `SendGift` and `GiftPremiumSubscription`, if present in Bot API 9.6 docs
-- [ ] available gift and owned gift methods/types, if present in Bot API 9.6 docs
+- [x] `GetMyStarBalance`
+- [x] gift methods: `GetAvailableGifts`, `SendGift`, and `GiftPremiumSubscription`
+- [x] available gift and owned gift methods/types
 - [x] `Invoice`
 - [x] `SuccessfulPayment`
 - [x] `ShippingQuery`
@@ -205,8 +205,7 @@ Stage 72 implements the first inline foundation: incoming inline query updates, 
 - [x] `RefundedPayment` message type
 - [x] `PaidMediaInfo`
 - [x] paid media input/result types
-- [x] `StarTransaction` and basic revenue-related transaction partner types
-- [ ] Advanced gift-specific transaction partner payloads remain pending for the gifts/business gifts slice
+- [x] `StarTransaction` and revenue-related transaction partner types, including gift-specific partner payloads
 
 ### Stickers
 
@@ -302,7 +301,7 @@ Live smoke for this slice is manual-only because set/remove operations change re
 
 ### Business APIs
 
-Stage 81 implements the Business API foundation. Stage 82 adds business read, account profile, gift settings, story, and suggested post methods. Broader business send/edit, Star balance/transfer, account metadata, and business gift flows remain separate local-only slices.
+Stage 81 implements the Business API foundation. Stage 82 adds business read, account profile, gift settings, story, and suggested post methods. Stage 83 adds gifts, business gifts, bot/business Star balances and transfers, Premium subscription gifts, and Stars subscription editing. Broader business send/edit and account metadata remain separate local-only slices.
 
 - [x] `BusinessConnection`
 - [x] `BusinessBotRights`
@@ -325,8 +324,20 @@ Stage 81 implements the Business API foundation. Stage 82 adds business read, ac
 - [x] `Story`, `InputStoryContent`, `StoryArea`, `PostStory`, `EditStory`, and `DeleteStory`
 - [x] `ApproveSuggestedPost`, `DeclineSuggestedPost`, and suggested post service message types
 - [ ] business send/edit methods beyond the current business message/account/story slice, if present in Bot API 9.6 docs
-- [ ] business account Star balance and transfer methods, if present in Bot API 9.6 docs
-- [ ] gifts/stars/business account gifts, if present in Bot API 9.6 docs
+- [x] `GetBusinessAccountStarBalance`
+- [x] `TransferBusinessAccountStars`
+- [x] `Gift`, `Gifts`, `GiftInfo`, `UniqueGift`, `UniqueGiftInfo`, `OwnedGift`, and `OwnedGifts` types
+- [x] `GetAvailableGifts`
+- [x] `SendGift`
+- [x] `GiftPremiumSubscription`
+- [x] `GetBusinessAccountGifts`
+- [x] `GetUserGifts`
+- [x] `GetChatGifts`
+- [x] `ConvertGiftToStars`
+- [x] `UpgradeGift`
+- [x] `TransferGift`
+- [x] `GetMyStarBalance`
+- [x] `EditUserStarSubscription`
 - [ ] business intro/location/hours/account metadata, if present in Bot API 9.6 docs
 
 ### Games
