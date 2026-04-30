@@ -21,6 +21,12 @@ const (
 	revenueWithdrawalStateFailedType    = "failed"
 )
 
+// StarAmount describes an amount of Telegram Stars.
+type StarAmount struct {
+	Amount         int `json:"amount"`
+	NanostarAmount int `json:"nanostar_amount,omitempty"`
+}
+
 // StarTransactions contains a list of Telegram Star transactions.
 type StarTransactions struct {
 	Transactions []StarTransaction `json:"transactions"`

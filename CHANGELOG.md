@@ -19,6 +19,7 @@
 - Poll 9.6 fields and update support: plural correct options, revoting/options controls, poll option service messages, `PollAnswer`, and poll-option replies.
 - WebApp / Mini App remaining support: `AnswerWebAppQuery`, `SentWebAppMessage`, `WebAppData`, `WriteAccessAllowed`, and Web App buttons.
 - Business API foundation: `BusinessConnection`, `BusinessMessagesDeleted`, business update fields, `GetBusinessConnection`, and `DeleteBusinessMessages`.
+- Business API account/read/story/suggested post methods: `ReadBusinessMessage`, account profile methods, gift settings, `PostStory`, `EditStory`, `DeleteStory`, `ApproveSuggestedPost`, and `DeclineSuggestedPost`.
 
 ### Documentation
 

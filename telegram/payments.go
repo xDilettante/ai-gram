@@ -93,3 +93,36 @@ type SuggestedPostParameters struct {
 	Price    *SuggestedPostPrice `json:"price,omitempty"`
 	SendDate int64               `json:"send_date,omitempty"`
 }
+
+// SuggestedPostApprovalFailed describes a service message about a failed suggested post approval.
+type SuggestedPostApprovalFailed struct {
+	SuggestedPostMessage *Message           `json:"suggested_post_message,omitempty"`
+	Price                SuggestedPostPrice `json:"price"`
+}
+
+// SuggestedPostApproved describes a service message about a suggested post approval.
+type SuggestedPostApproved struct {
+	SuggestedPostMessage *Message            `json:"suggested_post_message,omitempty"`
+	Price                *SuggestedPostPrice `json:"price,omitempty"`
+	SendDate             int64               `json:"send_date"`
+}
+
+// SuggestedPostDeclined describes a service message about a suggested post decline.
+type SuggestedPostDeclined struct {
+	SuggestedPostMessage *Message `json:"suggested_post_message,omitempty"`
+	Comment              string   `json:"comment,omitempty"`
+}
+
+// SuggestedPostPaid describes a service message about a suggested post payment.
+type SuggestedPostPaid struct {
+	SuggestedPostMessage *Message    `json:"suggested_post_message,omitempty"`
+	Currency             string      `json:"currency"`
+	Amount               int64       `json:"amount,omitempty"`
+	StarAmount           *StarAmount `json:"star_amount,omitempty"`
+}
+
+// SuggestedPostRefunded describes a service message about a suggested post refund.
+type SuggestedPostRefunded struct {
+	SuggestedPostMessage *Message `json:"suggested_post_message,omitempty"`
+	Reason               string   `json:"reason"`
+}

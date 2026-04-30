@@ -194,11 +194,15 @@ func (params SetMyProfilePhotoParams) multipart() (map[string]string, map[string
 }
 
 func (params SetMyProfilePhotoParams) profilePhotoPayloadAndUpload() (map[string]any, map[string]UploadFile, error) {
-	if params.Photo == nil {
+	return profilePhotoPayloadAndUpload(params.Photo)
+}
+
+func profilePhotoPayloadAndUpload(photo InputProfilePhoto) (map[string]any, map[string]UploadFile, error) {
+	if photo == nil {
 		return nil, nil, stderrors.New("photo is required")
 	}
 
-	switch photo := params.Photo.(type) {
+	switch photo := photo.(type) {
 	case InputProfilePhotoStatic:
 		return staticProfilePhotoPayload(photo)
 	case *InputProfilePhotoStatic:

@@ -661,7 +661,7 @@ fmt.Println("inline message:", sent.InlineMessageID)
 ```
 
 
-Business API foundation includes business connection updates, business message updates, deleted business message updates, `GetBusinessConnection`, and `DeleteBusinessMessages`. Business flows require explicit business connection setup; deleting business messages is state-changing and manual-only. Do not log business message payloads:
+Business API support includes business connection/message updates, `GetBusinessConnection`, `ReadBusinessMessage`, `DeleteBusinessMessages`, business account profile methods, gift settings, stories, and suggested post approval methods. Business flows require explicit business connection setup; these methods can read or mutate real business account state and are manual-only. Do not log business message payloads or business account payloads:
 
 ```go
 connection, err := b.GetBusinessConnection(ctx, aigram.GetBusinessConnectionParams{
@@ -672,9 +672,10 @@ if err != nil {
 }
 fmt.Println("business connection enabled:", connection.IsEnabled)
 
-_, err = b.DeleteBusinessMessages(ctx, aigram.DeleteBusinessMessagesParams{
+_, err = b.ReadBusinessMessage(ctx, aigram.ReadBusinessMessageParams{
     BusinessConnectionID: businessConnectionID,
-    MessageIDs:           []int64{messageID},
+    ChatID:               aigram.ChatIDInt(chatID),
+    MessageID:            messageID,
 })
 ```
 

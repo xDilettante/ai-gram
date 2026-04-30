@@ -302,7 +302,7 @@ Live smoke for this slice is manual-only because set/remove operations change re
 
 ### Business APIs
 
-Stage 81 implements the Business API foundation only. Business send/edit/read/account-profile methods and business gifts remain separate local-only slices.
+Stage 81 implements the Business API foundation. Stage 82 adds business read, account profile, gift settings, story, and suggested post methods. Broader business send/edit, Star balance/transfer, account metadata, and business gift flows remain separate local-only slices.
 
 - [x] `BusinessConnection`
 - [x] `BusinessBotRights`
@@ -315,8 +315,16 @@ Stage 81 implements the Business API foundation only. Business send/edit/read/ac
 - [x] business dispatch helpers
 - [x] `GetBusinessConnection`
 - [x] `DeleteBusinessMessages`
-- [ ] business send/edit/read methods beyond `DeleteBusinessMessages`, if present in Bot API 9.6 docs
-- [ ] business account profile/name/username/bio methods, if present in Bot API 9.6 docs
+- [x] `ReadBusinessMessage`
+- [x] `SetBusinessAccountName`
+- [x] `SetBusinessAccountUsername`
+- [x] `SetBusinessAccountBio`
+- [x] `SetBusinessAccountProfilePhoto`
+- [x] `RemoveBusinessAccountProfilePhoto`
+- [x] `AcceptedGiftTypes` and `SetBusinessAccountGiftSettings`
+- [x] `Story`, `InputStoryContent`, `StoryArea`, `PostStory`, `EditStory`, and `DeleteStory`
+- [x] `ApproveSuggestedPost`, `DeclineSuggestedPost`, and suggested post service message types
+- [ ] business send/edit methods beyond the current business message/account/story slice, if present in Bot API 9.6 docs
 - [ ] business account Star balance and transfer methods, if present in Bot API 9.6 docs
 - [ ] gifts/stars/business account gifts, if present in Bot API 9.6 docs
 - [ ] business intro/location/hours/account metadata, if present in Bot API 9.6 docs

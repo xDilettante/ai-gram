@@ -129,6 +129,12 @@ This document maps the current `ai-gram` implementation to Telegram Bot API area
 | `dispatch.BusinessConnection`, `dispatch.BusinessMessage`, `dispatch.EditedBusinessMessage`, `dispatch.DeletedBusinessMessages` | dispatch predicates/helpers | unit | Includes handler registration helpers for all foundation business update types. |
 | `(*bot.Bot).GetBusinessConnection` | `getBusinessConnection` | unit/httptest | Fetches a typed business connection by ID. Manual-only live smoke. |
 | `(*bot.Bot).DeleteBusinessMessages` | `deleteBusinessMessages` | unit/httptest | Deletes 1-100 messages on behalf of a business account. Manual-only live smoke. |
+| `(*bot.Bot).ReadBusinessMessage` | `readBusinessMessage` | unit/httptest | Marks a business message as read. Manual-only live smoke. |
+| `(*bot.Bot).SetBusinessAccountName`, `SetBusinessAccountUsername`, `SetBusinessAccountBio` | business account profile methods | unit/httptest | Changes business account name, username, and bio. Manual-only live smoke. |
+| `(*bot.Bot).SetBusinessAccountProfilePhoto`, `RemoveBusinessAccountProfilePhoto` | business account profile photo methods | unit/httptest, multipart | Uses `InputProfilePhoto` upload payloads for profile photo changes. Manual-only live smoke. |
+| `telegram.AcceptedGiftTypes`, `(*bot.Bot).SetBusinessAccountGiftSettings` | `setBusinessAccountGiftSettings` | unit/httptest | Changes business account gift privacy settings. Manual-only live smoke. |
+| `bot.InputStoryContent*`, `telegram.Story`, `telegram.StoryArea*`, `PostStory`, `EditStory`, `DeleteStory` | business story methods/types | unit/httptest, multipart | Supports photo/video story content uploads and story area payloads. Manual-only live smoke. |
+| `ApproveSuggestedPost`, `DeclineSuggestedPost`, `telegram.SuggestedPost*` | suggested post methods/types | unit/httptest | Approves/declines suggested posts and decodes suggested post service messages. Manual-only live smoke. |
 
 ### Payments and invoices
 
@@ -352,8 +358,8 @@ This document maps the current `ai-gram` implementation to Telegram Bot API area
 
 ### Business features
 
-- Business API foundation is implemented for `BusinessConnection`, `BusinessMessagesDeleted`, business update fields, dispatch helpers, `GetBusinessConnection`, and `DeleteBusinessMessages`.
-- Business send/edit/read/account-profile methods, business intro/location/hours/account metadata, and business gifts remain pending.
+- Business API foundation plus account/read/story/suggested post methods are implemented for `BusinessConnection`, business update fields, dispatch helpers, `GetBusinessConnection`, `ReadBusinessMessage`, `DeleteBusinessMessages`, account profile methods, gift settings, stories, and suggested posts.
+- Broader business send/edit methods, business intro/location/hours/account metadata, Star balance/transfer methods, and business gifts remain pending.
 
 ### Stars/gifts if applicable
 

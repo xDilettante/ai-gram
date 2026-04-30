@@ -518,16 +518,19 @@ Manual checklist:
 
 ## Business API checklist
 
-Business API foundation checks require a configured Telegram business account connection. They are intentionally manual-only because business messages can contain private payloads and `DeleteBusinessMessages` changes real business chat state.
+Business API checks require a configured Telegram business account connection. They are intentionally manual-only because business messages can contain private payloads and account/profile/story/suggested-post/delete methods change real business account state.
 
 Manual checklist:
 
 - Use a dedicated business test setup, test bot, and disposable test messages; do not use production business chats without explicit confirmation.
-- Confirm the bot has the required business bot rights before testing deletion flows.
+- Confirm the bot has the required business bot rights before testing read, delete, profile, gift settings, story, and suggested post flows.
 - Fetch only expected test `business_connection_id` metadata with `GetBusinessConnection`.
-- Delete only disposable test messages with `DeleteBusinessMessages`.
-- Verify business connection and message update decoding using safe metadata only.
-- Log only safe markers: method name, redacted business connection ID, chat ID, message count, boolean result, and update ID.
+- Mark only disposable test messages as read with `ReadBusinessMessage`; delete only disposable test messages with `DeleteBusinessMessages`.
+- Change only dedicated test business account name/bio/username/photo/gift settings and restore previous values after testing.
+- Post/edit/delete only disposable test stories; use only test story assets.
+- Approve or decline only disposable suggested posts in dedicated direct messages chats.
+- Verify business connection/message/suggested-post update decoding using safe metadata only.
+- Log only safe markers: method name, redacted business connection ID, chat ID, message/story count, boolean result, and update ID.
 - Do not log bot tokens, token-bearing URLs, raw business message payloads, private user text, or production business identifiers.
 
 ## Payments, paid media, and Stars checklist

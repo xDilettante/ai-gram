@@ -132,6 +132,51 @@ type GetBusinessConnectionParams = bot.GetBusinessConnectionParams
 // DeleteBusinessMessagesParams contains supported parameters for deleteBusinessMessages.
 type DeleteBusinessMessagesParams = bot.DeleteBusinessMessagesParams
 
+// ReadBusinessMessageParams contains supported parameters for readBusinessMessage.
+type ReadBusinessMessageParams = bot.ReadBusinessMessageParams
+
+// SetBusinessAccountNameParams contains supported parameters for setBusinessAccountName.
+type SetBusinessAccountNameParams = bot.SetBusinessAccountNameParams
+
+// SetBusinessAccountUsernameParams contains supported parameters for setBusinessAccountUsername.
+type SetBusinessAccountUsernameParams = bot.SetBusinessAccountUsernameParams
+
+// SetBusinessAccountBioParams contains supported parameters for setBusinessAccountBio.
+type SetBusinessAccountBioParams = bot.SetBusinessAccountBioParams
+
+// SetBusinessAccountProfilePhotoParams contains supported parameters for setBusinessAccountProfilePhoto.
+type SetBusinessAccountProfilePhotoParams = bot.SetBusinessAccountProfilePhotoParams
+
+// RemoveBusinessAccountProfilePhotoParams contains supported parameters for removeBusinessAccountProfilePhoto.
+type RemoveBusinessAccountProfilePhotoParams = bot.RemoveBusinessAccountProfilePhotoParams
+
+// SetBusinessAccountGiftSettingsParams contains supported parameters for setBusinessAccountGiftSettings.
+type SetBusinessAccountGiftSettingsParams = bot.SetBusinessAccountGiftSettingsParams
+
+// InputStoryContent marks story content accepted by postStory and editStory.
+type InputStoryContent = bot.InputStoryContent
+
+// InputStoryContentPhoto describes a photo story content item.
+type InputStoryContentPhoto = bot.InputStoryContentPhoto
+
+// InputStoryContentVideo describes a video story content item.
+type InputStoryContentVideo = bot.InputStoryContentVideo
+
+// PostStoryParams contains supported parameters for postStory.
+type PostStoryParams = bot.PostStoryParams
+
+// EditStoryParams contains supported parameters for editStory.
+type EditStoryParams = bot.EditStoryParams
+
+// DeleteStoryParams contains supported parameters for deleteStory.
+type DeleteStoryParams = bot.DeleteStoryParams
+
+// ApproveSuggestedPostParams contains supported parameters for approveSuggestedPost.
+type ApproveSuggestedPostParams = bot.ApproveSuggestedPostParams
+
+// DeclineSuggestedPostParams contains supported parameters for declineSuggestedPost.
+type DeclineSuggestedPostParams = bot.DeclineSuggestedPostParams
+
 // SendInvoiceParams contains supported parameters for sendInvoice.
 type SendInvoiceParams = bot.SendInvoiceParams
 
@@ -260,6 +305,18 @@ type UnpinAllChatMessagesParams = bot.UnpinAllChatMessagesParams
 
 // SetMessageReactionParams contains supported parameters for setMessageReaction.
 type SetMessageReactionParams = bot.SetMessageReactionParams
+
+// ReactionType marks Telegram message reaction type objects.
+type ReactionType = telegram.ReactionType
+
+// ReactionTypeEmoji describes an emoji-based reaction.
+type ReactionTypeEmoji = telegram.ReactionTypeEmoji
+
+// ReactionTypeCustomEmoji describes a custom emoji reaction.
+type ReactionTypeCustomEmoji = telegram.ReactionTypeCustomEmoji
+
+// ReactionTypePaid describes a paid reaction.
+type ReactionTypePaid = telegram.ReactionTypePaid
 
 // BanChatMemberParams contains supported parameters for banChatMember.
 type BanChatMemberParams = bot.BanChatMemberParams
@@ -519,6 +576,54 @@ type BusinessConnection = telegram.BusinessConnection
 // BusinessMessagesDeleted describes deleted messages from a connected business account.
 type BusinessMessagesDeleted = telegram.BusinessMessagesDeleted
 
+// AcceptedGiftTypes describes gift types accepted by a business account, user, or chat.
+type AcceptedGiftTypes = telegram.AcceptedGiftTypes
+
+// Story represents a Telegram story.
+type Story = telegram.Story
+
+// StoryArea describes a clickable area on a story media.
+type StoryArea = telegram.StoryArea
+
+// StoryAreaPosition describes the position of a clickable story area.
+type StoryAreaPosition = telegram.StoryAreaPosition
+
+// StoryAreaType marks Telegram story area type objects.
+type StoryAreaType = telegram.StoryAreaType
+
+// LocationAddress describes the physical address of a location.
+type LocationAddress = telegram.LocationAddress
+
+// StoryAreaTypeLocation describes a story area pointing to a location.
+type StoryAreaTypeLocation = telegram.StoryAreaTypeLocation
+
+// StoryAreaTypeSuggestedReaction describes a story area pointing to a suggested reaction.
+type StoryAreaTypeSuggestedReaction = telegram.StoryAreaTypeSuggestedReaction
+
+// StoryAreaTypeLink describes a story area pointing to a link.
+type StoryAreaTypeLink = telegram.StoryAreaTypeLink
+
+// StoryAreaTypeWeather describes a story area containing weather information.
+type StoryAreaTypeWeather = telegram.StoryAreaTypeWeather
+
+// StoryAreaTypeUniqueGift describes a story area pointing to a unique gift.
+type StoryAreaTypeUniqueGift = telegram.StoryAreaTypeUniqueGift
+
+// SuggestedPostApprovalFailed describes a failed suggested post approval service message.
+type SuggestedPostApprovalFailed = telegram.SuggestedPostApprovalFailed
+
+// SuggestedPostApproved describes a suggested post approval service message.
+type SuggestedPostApproved = telegram.SuggestedPostApproved
+
+// SuggestedPostDeclined describes a suggested post decline service message.
+type SuggestedPostDeclined = telegram.SuggestedPostDeclined
+
+// SuggestedPostPaid describes a suggested post payment service message.
+type SuggestedPostPaid = telegram.SuggestedPostPaid
+
+// SuggestedPostRefunded describes a suggested post refund service message.
+type SuggestedPostRefunded = telegram.SuggestedPostRefunded
+
 // WebhookInfo describes current Telegram webhook status.
 type WebhookInfo = telegram.WebhookInfo
 
@@ -566,6 +671,9 @@ type StarTransactions = telegram.StarTransactions
 
 // StarTransaction describes a Telegram Star transaction.
 type StarTransaction = telegram.StarTransaction
+
+// StarAmount describes an amount of Telegram Stars.
+type StarAmount = telegram.StarAmount
 
 // InputPaidMedia marks paid media items accepted by sendPaidMedia.
 type InputPaidMedia = bot.InputPaidMedia
@@ -750,6 +858,41 @@ func ProfilePhotoStatic(photo FileRef) InputProfilePhotoStatic {
 // ProfilePhotoAnimated creates an animated MPEG4 input profile photo.
 func ProfilePhotoAnimated(animation FileRef) InputProfilePhotoAnimated {
 	return bot.ProfilePhotoAnimated(animation)
+}
+
+// StoryPhoto creates photo content for a business story.
+func StoryPhoto(photo FileRef) InputStoryContentPhoto {
+	return bot.StoryPhoto(photo)
+}
+
+// StoryVideo creates video content for a business story.
+func StoryVideo(video FileRef) InputStoryContentVideo {
+	return bot.StoryVideo(video)
+}
+
+// NewStoryAreaTypeLocation creates a location story area type.
+func NewStoryAreaTypeLocation(latitude float64, longitude float64) StoryAreaTypeLocation {
+	return telegram.NewStoryAreaTypeLocation(latitude, longitude)
+}
+
+// NewStoryAreaTypeSuggestedReaction creates a suggested reaction story area type.
+func NewStoryAreaTypeSuggestedReaction(reaction ReactionType) StoryAreaTypeSuggestedReaction {
+	return telegram.NewStoryAreaTypeSuggestedReaction(reaction)
+}
+
+// NewStoryAreaTypeLink creates a link story area type.
+func NewStoryAreaTypeLink(url string) StoryAreaTypeLink {
+	return telegram.NewStoryAreaTypeLink(url)
+}
+
+// NewStoryAreaTypeWeather creates a weather story area type.
+func NewStoryAreaTypeWeather(temperature float64, emoji string, backgroundColor int) StoryAreaTypeWeather {
+	return telegram.NewStoryAreaTypeWeather(temperature, emoji, backgroundColor)
+}
+
+// NewStoryAreaTypeUniqueGift creates a unique gift story area type.
+func NewStoryAreaTypeUniqueGift(name string) StoryAreaTypeUniqueGift {
+	return telegram.NewStoryAreaTypeUniqueGift(name)
 }
 
 // InputText creates text content for an inline query result.
