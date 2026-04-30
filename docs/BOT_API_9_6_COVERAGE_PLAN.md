@@ -206,25 +206,25 @@ This plan is a working checklist derived from the official documentation and cha
 
 ### Stickers
 
-- [ ] `GetStickerSet`
-- [ ] `GetCustomEmojiStickers`
-- [ ] `UploadStickerFile`
-- [ ] `CreateNewStickerSet`
-- [ ] `AddStickerToSet`
-- [ ] `SetStickerPositionInSet`
-- [ ] `DeleteStickerFromSet`
-- [ ] `ReplaceStickerInSet`
-- [ ] `SetStickerEmojiList`
-- [ ] `SetStickerKeywords`
-- [ ] `SetStickerMaskPosition`
-- [ ] `SetStickerSetTitle`
-- [ ] `SetStickerSetThumbnail`
-- [ ] `SetCustomEmojiStickerSetThumbnail`
-- [ ] `DeleteStickerSet`
-- [ ] `StickerSet`
-- [ ] `InputSticker`
-- [ ] `MaskPosition`
-- [ ] remaining sticker/custom emoji fields from Bot API 9.6
+- [x] `GetStickerSet`
+- [x] `GetCustomEmojiStickers`
+- [x] `UploadStickerFile`
+- [x] `CreateNewStickerSet`
+- [x] `AddStickerToSet`
+- [x] `SetStickerPositionInSet`
+- [x] `DeleteStickerFromSet`
+- [x] `ReplaceStickerInSet`
+- [x] `SetStickerEmojiList`
+- [x] `SetStickerKeywords`
+- [x] `SetStickerMaskPosition`
+- [x] `SetStickerSetTitle`
+- [x] `SetStickerSetThumbnail`
+- [x] `SetCustomEmojiStickerSetThumbnail`
+- [x] `DeleteStickerSet`
+- [x] `StickerSet`
+- [x] `InputSticker`
+- [x] `MaskPosition`
+- [x] minimal sticker, custom emoji, sticker set, mask position, and input sticker fields needed for Bot API 9.6 sticker set management
 
 ### WebApp, prepared buttons, and Mini App related coverage
 

@@ -60,6 +60,54 @@ type StopPollParams = bot.StopPollParams
 // SendDiceParams contains supported parameters for sendDice.
 type SendDiceParams = bot.SendDiceParams
 
+// InputSticker describes a sticker accepted by sticker set management methods.
+type InputSticker = bot.InputSticker
+
+// GetStickerSetParams contains supported parameters for getStickerSet.
+type GetStickerSetParams = bot.GetStickerSetParams
+
+// GetCustomEmojiStickersParams contains supported parameters for getCustomEmojiStickers.
+type GetCustomEmojiStickersParams = bot.GetCustomEmojiStickersParams
+
+// UploadStickerFileParams contains supported parameters for uploadStickerFile.
+type UploadStickerFileParams = bot.UploadStickerFileParams
+
+// CreateNewStickerSetParams contains supported parameters for createNewStickerSet.
+type CreateNewStickerSetParams = bot.CreateNewStickerSetParams
+
+// AddStickerToSetParams contains supported parameters for addStickerToSet.
+type AddStickerToSetParams = bot.AddStickerToSetParams
+
+// ReplaceStickerInSetParams contains supported parameters for replaceStickerInSet.
+type ReplaceStickerInSetParams = bot.ReplaceStickerInSetParams
+
+// SetStickerPositionInSetParams contains supported parameters for setStickerPositionInSet.
+type SetStickerPositionInSetParams = bot.SetStickerPositionInSetParams
+
+// DeleteStickerFromSetParams contains supported parameters for deleteStickerFromSet.
+type DeleteStickerFromSetParams = bot.DeleteStickerFromSetParams
+
+// SetStickerEmojiListParams contains supported parameters for setStickerEmojiList.
+type SetStickerEmojiListParams = bot.SetStickerEmojiListParams
+
+// SetStickerKeywordsParams contains supported parameters for setStickerKeywords.
+type SetStickerKeywordsParams = bot.SetStickerKeywordsParams
+
+// SetStickerMaskPositionParams contains supported parameters for setStickerMaskPosition.
+type SetStickerMaskPositionParams = bot.SetStickerMaskPositionParams
+
+// SetStickerSetTitleParams contains supported parameters for setStickerSetTitle.
+type SetStickerSetTitleParams = bot.SetStickerSetTitleParams
+
+// SetStickerSetThumbnailParams contains supported parameters for setStickerSetThumbnail.
+type SetStickerSetThumbnailParams = bot.SetStickerSetThumbnailParams
+
+// SetCustomEmojiStickerSetThumbnailParams contains supported parameters for setCustomEmojiStickerSetThumbnail.
+type SetCustomEmojiStickerSetThumbnailParams = bot.SetCustomEmojiStickerSetThumbnailParams
+
+// DeleteStickerSetParams contains supported parameters for deleteStickerSet.
+type DeleteStickerSetParams = bot.DeleteStickerSetParams
+
 // GetUpdatesParams contains supported parameters for getUpdates.
 type GetUpdatesParams = bot.GetUpdatesParams
 
@@ -336,6 +384,15 @@ type CallbackQuery = telegram.CallbackQuery
 // WebhookInfo describes current Telegram webhook status.
 type WebhookInfo = telegram.WebhookInfo
 
+// Sticker represents a Telegram sticker.
+type Sticker = telegram.Sticker
+
+// StickerSet represents a Telegram sticker set.
+type StickerSet = telegram.StickerSet
+
+// MaskPosition describes where a mask sticker should be placed on faces.
+type MaskPosition = telegram.MaskPosition
+
 // File represents a Telegram file metadata object.
 type File = telegram.File
 
@@ -456,6 +513,11 @@ func FileURL(rawURL string) FileRef {
 // FileUpload creates a file reference from an UploadFile for multipart upload.
 func FileUpload(file UploadFile) FileRef {
 	return bot.FileUpload(file)
+}
+
+// NewInputSticker creates an InputSticker with required fields.
+func NewInputSticker(sticker FileRef, format string, emojiList ...string) InputSticker {
+	return bot.NewInputSticker(sticker, format, emojiList...)
 }
 
 // MediaPhoto creates a photo input media item.

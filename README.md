@@ -14,7 +14,7 @@ The latest public release is `v0.2.0`. Local development is now focused on reach
 - Dispatcher/router: supports predicates, message/command/callback routes, middleware, fallback, and error handling.
 - Middleware helpers: recover, timeout, hook-based observability, and reusable access control are available.
 - Long polling transport: managed runner is available. Webhook transport: inbound HTTP handler is available.
-- Telegram Bot API method coverage: `GetMe`, `SendMessage`, `SendPhoto`, `SendDocument`, `SendVideo`, `SendAudio`, `SendVoice`, `SendContact`, `SendLocation`, `SendVenue`, `SendPoll`, `StopPoll`, `SendDice`, `SendSticker`, `SendAnimation`, `SendVideoNote`, `SendMediaGroup`, `SetMyCommands`, `DeleteMyCommands`, `GetMyCommands`, `SetChatMenuButton`, `GetChatMenuButton`, `SetMyDefaultAdministratorRights`, `SetMyName`, `GetMyName`, `SetMyDescription`, `GetMyDescription`, `SetMyShortDescription`, `GetMyShortDescription`, `GetMyDefaultAdministratorRights`, `SetMyProfilePhoto`, `RemoveMyProfilePhoto`, `AnswerCallbackQuery`, `EditMessageText`, `EditMessageCaption`, `EditMessageReplyMarkup`, `DeleteMessage`, `DeleteMessages`, `ForwardMessage`, `ForwardMessages`, `CopyMessage`, `CopyMessages`, `SendChatAction`, `PinChatMessage`, `UnpinChatMessage`, `UnpinAllChatMessages`, `GetChat`, `GetChatMember`, `GetChatAdministrators`, `GetChatMemberCount`, `SetChatTitle`, `SetChatDescription`, `SetChatPhoto`, `DeleteChatPhoto`, `LeaveChat`, `SetChatStickerSet`, `DeleteChatStickerSet`, `CreateForumTopic`, `EditForumTopic`, `CloseForumTopic`, `ReopenForumTopic`, `DeleteForumTopic`, `UnpinAllForumTopicMessages`, `EditGeneralForumTopic`, `CloseGeneralForumTopic`, `ReopenGeneralForumTopic`, `HideGeneralForumTopic`, `UnhideGeneralForumTopic`, `UnpinAllGeneralForumTopicMessages`, `SetMessageReaction`, `ExportChatInviteLink`, `CreateChatInviteLink`, `EditChatInviteLink`, `RevokeChatInviteLink`, `ApproveChatJoinRequest`, `DeclineChatJoinRequest`, `PromoteChatMember`, `SetChatAdministratorCustomTitle`, `SetChatPermissions`, `BanChatMember`, `UnbanChatMember`, `RestrictChatMember`, reply markup for supported send and edit methods, the manual `GetUpdates` API call, `GetFile`, `DownloadFile`, multipart upload for media send methods, and JSON-only webhook management methods (`SetWebhook`, `DeleteWebhook`, `GetWebhookInfo`) are implemented. The rest of the Bot API is not implemented yet.
+- Telegram Bot API method coverage: `GetMe`, `SendMessage`, `SendPhoto`, `SendDocument`, `SendVideo`, `SendAudio`, `SendVoice`, `SendContact`, `SendLocation`, `SendVenue`, `SendPoll`, `StopPoll`, `SendDice`, `SendSticker`, `SendAnimation`, `SendVideoNote`, `SendMediaGroup`, `GetStickerSet`, `GetCustomEmojiStickers`, `UploadStickerFile`, `CreateNewStickerSet`, `AddStickerToSet`, `SetStickerPositionInSet`, `DeleteStickerFromSet`, `ReplaceStickerInSet`, `SetStickerEmojiList`, `SetStickerKeywords`, `SetStickerMaskPosition`, `SetStickerSetTitle`, `SetStickerSetThumbnail`, `SetCustomEmojiStickerSetThumbnail`, `DeleteStickerSet`, `SetMyCommands`, `DeleteMyCommands`, `GetMyCommands`, `SetChatMenuButton`, `GetChatMenuButton`, `SetMyDefaultAdministratorRights`, `SetMyName`, `GetMyName`, `SetMyDescription`, `GetMyDescription`, `SetMyShortDescription`, `GetMyShortDescription`, `GetMyDefaultAdministratorRights`, `SetMyProfilePhoto`, `RemoveMyProfilePhoto`, `AnswerCallbackQuery`, `EditMessageText`, `EditMessageCaption`, `EditMessageReplyMarkup`, `DeleteMessage`, `DeleteMessages`, `ForwardMessage`, `ForwardMessages`, `CopyMessage`, `CopyMessages`, `SendChatAction`, `PinChatMessage`, `UnpinChatMessage`, `UnpinAllChatMessages`, `GetChat`, `GetChatMember`, `GetChatAdministrators`, `GetChatMemberCount`, `SetChatTitle`, `SetChatDescription`, `SetChatPhoto`, `DeleteChatPhoto`, `LeaveChat`, `SetChatStickerSet`, `DeleteChatStickerSet`, `CreateForumTopic`, `EditForumTopic`, `CloseForumTopic`, `ReopenForumTopic`, `DeleteForumTopic`, `UnpinAllForumTopicMessages`, `EditGeneralForumTopic`, `CloseGeneralForumTopic`, `ReopenGeneralForumTopic`, `HideGeneralForumTopic`, `UnhideGeneralForumTopic`, `UnpinAllGeneralForumTopicMessages`, `SetMessageReaction`, `ExportChatInviteLink`, `CreateChatInviteLink`, `EditChatInviteLink`, `RevokeChatInviteLink`, `ApproveChatJoinRequest`, `DeclineChatJoinRequest`, `PromoteChatMember`, `SetChatAdministratorCustomTitle`, `SetChatPermissions`, `BanChatMember`, `UnbanChatMember`, `RestrictChatMember`, reply markup for supported send and edit methods, the manual `GetUpdates` API call, `GetFile`, `DownloadFile`, multipart upload for media send methods, and JSON-only webhook management methods (`SetWebhook`, `DeleteWebhook`, `GetWebhookInfo`) are implemented. The rest of the Bot API is not implemented yet.
 - Public API stability: not guaranteed before the first stable release.
 - Latest public release: `v0.2.0`.
 - Current local strategy: full Telegram Bot API 9.6 coverage before the next push/tag/release.
@@ -772,6 +772,35 @@ if err != nil {
     return err
 }
 fmt.Println(videoNoteMessage.MessageID)
+```
+
+Sticker set management methods mutate real sticker sets and are manual-only for live testing. Use a dedicated test user/bot and disposable sticker set names:
+
+```go
+set, err := b.GetStickerSet(ctx, aigram.GetStickerSetParams{Name: "animals_by_bot"})
+if err != nil {
+    return err
+}
+fmt.Println(set.Title)
+
+created, err := b.CreateNewStickerSet(ctx, aigram.CreateNewStickerSetParams{
+    UserID: 123456789,
+    Name:   "animals_by_bot",
+    Title:  "Animals",
+    Stickers: []aigram.InputSticker{
+        aigram.NewInputSticker(aigram.FileID("existing-sticker-file-id"), "static", "🐱"),
+    },
+})
+if err != nil {
+    return err
+}
+fmt.Println("created:", created)
+
+removed, err := b.DeleteStickerSet(ctx, aigram.DeleteStickerSetParams{Name: "animals_by_bot"})
+if err != nil {
+    return err
+}
+fmt.Println("deleted:", removed)
 ```
 
 Send a media group:

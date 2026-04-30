@@ -64,6 +64,28 @@ This document maps the current `ai-gram` implementation to Telegram Bot API area
 | `(*bot.Bot).DownloadFile` | file download endpoint | unit/httptest, live media script | Streams to caller-provided writer and does not expose token-bearing download URLs. |
 | multipart helpers | n/a | unit/httptest | Covers media uploads and JSON string fields such as reply parameters. |
 
+
+### Sticker set management
+
+| Public Go API | Telegram Bot API method / object | Tests | Notes |
+| --- | --- | --- | --- |
+| `(*bot.Bot).GetStickerSet` | `getStickerSet` | unit/httptest | Decodes `telegram.StickerSet` with minimal sticker metadata. |
+| `(*bot.Bot).GetCustomEmojiStickers` | `getCustomEmojiStickers` | unit/httptest | Returns custom emoji `[]telegram.Sticker` by ID list. |
+| `(*bot.Bot).UploadStickerFile` | `uploadStickerFile` | unit/httptest | Multipart-only upload for sticker set creation workflows; callers own reader lifecycle. |
+| `(*bot.Bot).CreateNewStickerSet` | `createNewStickerSet` | unit/httptest | Supports `InputSticker` JSON mode and multipart upload mode with deterministic `attach://` names. Manual-only live smoke. |
+| `(*bot.Bot).AddStickerToSet` | `addStickerToSet` | unit/httptest | Supports `InputSticker` JSON/multipart payloads. Manual-only live smoke. |
+| `(*bot.Bot).ReplaceStickerInSet` | `replaceStickerInSet` | unit/httptest | Supports replacing a sticker with an `InputSticker` JSON/multipart payload. Manual-only live smoke. |
+| `(*bot.Bot).SetStickerPositionInSet` | `setStickerPositionInSet` | unit/httptest | Moves a sticker within its set. Manual-only live smoke. |
+| `(*bot.Bot).DeleteStickerFromSet` | `deleteStickerFromSet` | unit/httptest | Deletes a real sticker from a set. Manual-only live smoke. |
+| `(*bot.Bot).SetStickerEmojiList` | `setStickerEmojiList` | unit/httptest | Sets the emoji list for a sticker. Manual-only live smoke. |
+| `(*bot.Bot).SetStickerKeywords` | `setStickerKeywords` | unit/httptest | Sets or clears sticker search keywords. Manual-only live smoke. |
+| `(*bot.Bot).SetStickerMaskPosition` | `setStickerMaskPosition` | unit/httptest | Sets or clears mask sticker position. Manual-only live smoke. |
+| `(*bot.Bot).SetStickerSetTitle` | `setStickerSetTitle` | unit/httptest | Changes a real sticker set title. Manual-only live smoke. |
+| `(*bot.Bot).SetStickerSetThumbnail` | `setStickerSetThumbnail` | unit/httptest | Supports optional thumbnail removal, file IDs, and multipart upload; animated/video thumbnail URLs are rejected. Manual-only live smoke. |
+| `(*bot.Bot).SetCustomEmojiStickerSetThumbnail` | `setCustomEmojiStickerSetThumbnail` | unit/httptest | Sets or clears a custom emoji sticker set thumbnail. Manual-only live smoke. |
+| `(*bot.Bot).DeleteStickerSet` | `deleteStickerSet` | unit/httptest | Deletes a real sticker set created by the bot. Manual-only live smoke. |
+| `bot.InputSticker`, `telegram.StickerSet`, `telegram.MaskPosition` | related Bot API objects | unit through method payload/result tests | Minimal typed coverage for sticker set management and custom emoji sticker workflows. |
+
 ### Callback/edit/delete
 
 | Public Go API | Telegram Bot API method | Tests | Notes |
@@ -231,11 +253,6 @@ This document maps the current `ai-gram` implementation to Telegram Bot API area
 - `sendPaidMedia`
 - `sendGame`
 - `sendInvoice`
-
-### Stickers
-
-- sticker set management methods
-- custom emoji/sticker metadata methods
 
 ### Invite links
 

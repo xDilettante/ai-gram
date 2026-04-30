@@ -4,6 +4,7 @@
 
 ### Added
 
+- Sticker set management methods and `InputSticker` support.
 - Chat management methods: `SetChatTitle`, `SetChatDescription`, `SetChatPhoto`, `DeleteChatPhoto`, `LeaveChat`, `SetChatStickerSet`, and `DeleteChatStickerSet`.
 - Forum topic methods and forum topic service message types.
 - Reaction types, reaction update decoding and dispatch helpers, and `SetMessageReaction`.

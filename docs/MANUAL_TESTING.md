@@ -365,6 +365,21 @@ Manual checklist for a dedicated test environment only:
 
 Treat Telegram permission errors in chats where the bot is not an admin or lacks change-info rights as expected Bot API behavior, not as a library bug.
 
+
+## Sticker set management checklist
+
+`GetStickerSet`, `GetCustomEmojiStickers`, `UploadStickerFile`, `CreateNewStickerSet`, `AddStickerToSet`, `ReplaceStickerInSet`, `SetStickerPositionInSet`, `DeleteStickerFromSet`, `SetStickerEmojiList`, `SetStickerKeywords`, `SetStickerMaskPosition`, `SetStickerSetTitle`, `SetStickerSetThumbnail`, `SetCustomEmojiStickerSetThumbnail`, and `DeleteStickerSet` are manual-only because they can mutate real sticker sets and uploaded sticker assets.
+
+Manual checklist for a dedicated test environment only:
+
+- Use a dedicated test bot/user account and a disposable test sticker set name owned by that user.
+- Do not test on production sticker sets.
+- Use explicit confirmation before creating, adding, replacing, moving, editing, or deleting stickers.
+- Use small disposable upload files for `UploadStickerFile` and `InputSticker` upload paths.
+- Redact full file IDs, token-bearing URLs, private paths, and sticker file metadata in logs and reports.
+- Clean up by deleting the test sticker set or restoring the previous title, thumbnail, emoji list, keywords, and mask position.
+- Treat Telegram ownership, format, and permission errors as expected Bot API behavior unless unit tests or payload checks show a library issue.
+
 ## Admin management methods checklist
 
 `PromoteChatMember`, `SetChatAdministratorCustomTitle`, and `SetChatPermissions` require bot admin rights and change real chat or admin state. They are intentionally not part of automatic live smoke.
