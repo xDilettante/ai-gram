@@ -1,10 +1,11 @@
 # Changelog
 
-## v0.1.1 - Unreleased
+## v0.1.1 - 2026-04-30
 
 ### Fixed
 
-- Changed Go module path to `github.com/xDilettante/ai-gram` for canonical public Go module usage.
+- Corrected Go module path to `github.com/xDilettante/ai-gram`.
+- Verified canonical public install via `go get github.com/xDilettante/ai-gram@v0.1.1`.
 
 ## v0.1.0
 

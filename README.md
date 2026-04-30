@@ -41,7 +41,7 @@ For public GitHub module usage, install from the canonical module path:
 go get github.com/xDilettante/ai-gram@latest
 ```
 
-`v0.1.0` was the first milestone tag. The canonical public module path fix is prepared for the next patch release, so after `v0.1.1` is tagged the version-pinned command will be:
+`v0.1.0` was the first milestone tag. Use `v0.1.1` or newer for the canonical public module path:
 
 ```bash
 go get github.com/xDilettante/ai-gram@v0.1.1
@@ -734,8 +734,9 @@ Manual smoke testing instructions are in [`docs/MANUAL_TESTING.md`](docs/MANUAL_
 
 Coverage and planning documents:
 
-- [`CHANGELOG.md`](CHANGELOG.md) — release history and v0.1.0 summary.
-- [`docs/releases/v0.1.0.md`](docs/releases/v0.1.0.md) — GitHub-release-ready notes for the published tag.
+- [`CHANGELOG.md`](CHANGELOG.md) — release history and v0.1.x summaries.
+- [`docs/releases/v0.1.1.md`](docs/releases/v0.1.1.md) — GitHub-release-ready notes for the canonical module path patch release.
+- [`docs/releases/v0.1.0.md`](docs/releases/v0.1.0.md) — historical first milestone notes.
 - [`docs/API_COVERAGE.md`](docs/API_COVERAGE.md) — implemented methods, missing Bot API areas, risk classification, and v0.1 recommendation.
 - [`docs/ROADMAP.md`](docs/ROADMAP.md) — stabilization and expansion roadmap.
 - [`docs/MANUAL_TESTING.md`](docs/MANUAL_TESTING.md) — local/manual smoke checklist.
