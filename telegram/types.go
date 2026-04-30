@@ -29,6 +29,7 @@ type Message struct {
 	Photo     []PhotoSize `json:"photo,omitempty"`
 	Sticker   *Sticker    `json:"sticker,omitempty"`
 	Video     *Video      `json:"video,omitempty"`
+	VideoNote *VideoNote  `json:"video_note,omitempty"`
 	Voice     *Voice      `json:"voice,omitempty"`
 
 	Contact  *Contact  `json:"contact,omitempty"`
@@ -270,6 +271,16 @@ type Voice struct {
 	Duration     int    `json:"duration"`
 	MimeType     string `json:"mime_type,omitempty"`
 	FileSize     int64  `json:"file_size,omitempty"`
+}
+
+// VideoNote represents an incoming video note message.
+type VideoNote struct {
+	FileID       string     `json:"file_id"`
+	FileUniqueID string     `json:"file_unique_id,omitempty"`
+	Length       int        `json:"length"`
+	Duration     int        `json:"duration"`
+	Thumbnail    *PhotoSize `json:"thumbnail,omitempty"`
+	FileSize     int64      `json:"file_size,omitempty"`
 }
 
 // Sticker represents an incoming sticker.

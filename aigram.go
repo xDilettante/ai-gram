@@ -30,6 +30,15 @@ type SendAudioParams = bot.SendAudioParams
 // SendVoiceParams contains supported parameters for sendVoice.
 type SendVoiceParams = bot.SendVoiceParams
 
+// SendStickerParams contains supported parameters for sendSticker.
+type SendStickerParams = bot.SendStickerParams
+
+// SendAnimationParams contains supported parameters for sendAnimation.
+type SendAnimationParams = bot.SendAnimationParams
+
+// SendVideoNoteParams contains supported parameters for sendVideoNote.
+type SendVideoNoteParams = bot.SendVideoNoteParams
+
 // SendContactParams contains supported parameters for sendContact.
 type SendContactParams = bot.SendContactParams
 

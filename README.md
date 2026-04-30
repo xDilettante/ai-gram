@@ -2,7 +2,7 @@
 
 `ai-gram` is a Go library project for working with the Telegram Bot API.
 
-The project is in an early architecture stage. It provides practical incoming update types, a typed HTTP Bot API core, selected public Bot API methods, media sending by file_id, URL, or multipart upload, file download support, webhook management methods, a managed long polling runner, an inbound webhook HTTP handler, a small update dispatcher/router, helper middleware, examples, and manual smoke tooling. It does not yet implement FSM, scenes, storage, media groups, thumbnails, sendAnimation/sendVideoNote, or full Bot API coverage.
+The project is in an early architecture stage. It provides practical incoming update types, a typed HTTP Bot API core, selected public Bot API methods, media sending by file_id, URL, or multipart upload, file download support, webhook management methods, a managed long polling runner, an inbound webhook HTTP handler, a small update dispatcher/router, helper middleware, examples, and manual smoke tooling. It does not yet implement FSM, scenes, storage, media groups, full thumbnail coverage for every media method, or full Bot API coverage.
 
 ## Статус
 
@@ -14,7 +14,7 @@ The project is in an early architecture stage. It provides practical incoming up
 - Dispatcher/router: supports predicates, message/command/callback routes, middleware, fallback, and error handling.
 - Middleware helpers: recover, timeout, hook-based observability, and reusable access control are available.
 - Long polling transport: managed runner is available. Webhook transport: inbound HTTP handler is available.
-- Telegram Bot API method coverage: `GetMe`, `SendMessage`, `SendPhoto`, `SendDocument`, `SendVideo`, `SendAudio`, `SendVoice`, `SendContact`, `SendLocation`, `SendVenue`, `SendPoll`, `StopPoll`, `SendDice`, `AnswerCallbackQuery`, `EditMessageText`, `EditMessageCaption`, `EditMessageReplyMarkup`, `DeleteMessage`, `ForwardMessage`, `CopyMessage`, `SendChatAction`, `PinChatMessage`, `UnpinChatMessage`, `UnpinAllChatMessages`, `GetChat`, `GetChatMember`, `GetChatAdministrators`, `GetChatMemberCount`, `BanChatMember`, `UnbanChatMember`, `RestrictChatMember`, reply markup for supported send and edit methods, the manual `GetUpdates` API call, `GetFile`, `DownloadFile`, multipart upload for media send methods, and JSON-only webhook management methods (`SetWebhook`, `DeleteWebhook`, `GetWebhookInfo`) are implemented. The rest of the Bot API is not implemented yet.
+- Telegram Bot API method coverage: `GetMe`, `SendMessage`, `SendPhoto`, `SendDocument`, `SendVideo`, `SendAudio`, `SendVoice`, `SendContact`, `SendLocation`, `SendVenue`, `SendPoll`, `StopPoll`, `SendDice`, `SendSticker`, `SendAnimation`, `SendVideoNote`, `AnswerCallbackQuery`, `EditMessageText`, `EditMessageCaption`, `EditMessageReplyMarkup`, `DeleteMessage`, `ForwardMessage`, `CopyMessage`, `SendChatAction`, `PinChatMessage`, `UnpinChatMessage`, `UnpinAllChatMessages`, `GetChat`, `GetChatMember`, `GetChatAdministrators`, `GetChatMemberCount`, `BanChatMember`, `UnbanChatMember`, `RestrictChatMember`, reply markup for supported send and edit methods, the manual `GetUpdates` API call, `GetFile`, `DownloadFile`, multipart upload for media send methods, and JSON-only webhook management methods (`SetWebhook`, `DeleteWebhook`, `GetWebhookInfo`) are implemented. The rest of the Bot API is not implemented yet.
 - Public API stability: not guaranteed before the first stable release.
 
 ## Планируемая архитектура
@@ -535,6 +535,38 @@ if err != nil {
 fmt.Println(voiceMessage.MessageID)
 ```
 
+Send sticker, animation, or video note messages:
+
+```go
+stickerMessage, err := b.SendSticker(ctx, aigram.SendStickerParams{
+    ChatID:  aigram.ChatIDInt(123456789),
+    Sticker: aigram.FileID("existing-sticker-file-id"),
+})
+if err != nil {
+    return err
+}
+fmt.Println(stickerMessage.MessageID)
+
+animationMessage, err := b.SendAnimation(ctx, aigram.SendAnimationParams{
+    ChatID:    aigram.ChatIDInt(123456789),
+    Animation: aigram.FileURL("https://example.com/animation.gif"),
+    Caption:   "Animation from URL",
+})
+if err != nil {
+    return err
+}
+fmt.Println(animationMessage.MessageID)
+
+videoNoteMessage, err := b.SendVideoNote(ctx, aigram.SendVideoNoteParams{
+    ChatID:    aigram.ChatIDInt(123456789),
+    VideoNote: aigram.FileID("existing-video-note-file-id"),
+})
+if err != nil {
+    return err
+}
+fmt.Println(videoNoteMessage.MessageID)
+```
+
 Upload a video from `os.File`:
 
 ```go
@@ -559,7 +591,7 @@ if err != nil {
 fmt.Println(uploadedVideo.MessageID)
 ```
 
-`FileID` and `FileURL` are sent as JSON requests. `FileUpload` uses multipart/form-data and ai-gram generates the internal `attach://` value for the file field. The library consumes `UploadFile.Reader` but does not close it; the caller owns reader lifecycle. Thumbnail upload, media groups, `sendAnimation`, and `sendVideoNote` are not implemented yet.
+`FileID` and `FileURL` are sent as JSON requests. `FileUpload` uses multipart/form-data and ai-gram generates the internal `attach://` value for the file field. The library consumes `UploadFile.Reader` but does not close it; the caller owns reader lifecycle. Thumbnail upload is supported for `SendAnimation` and `SendVideoNote`; other media thumbnail parameters are still deferred. Media groups are not implemented yet. `SendVideoNote` accepts file IDs and uploads, not HTTP URLs.
 
 Fetch updates manually with one `getUpdates` API call:
 
@@ -695,7 +727,7 @@ if err := b.DownloadFile(ctx, file.FilePath, &buf); err != nil {
 fmt.Println("downloaded bytes:", buf.Len())
 ```
 
-For large files pass an `*os.File` or another streaming `io.Writer` instead of `bytes.Buffer`. Telegram download URLs contain the bot token; ai-gram builds them internally and does not expose them as a public API. The regular cloud Bot API has Telegram-side file download limits. Upload is currently implemented for `SendPhoto`, `SendDocument`, `SendVideo`, `SendAudio`, and `SendVoice`; download helpers never expose a full token-bearing download URL.
+For large files pass an `*os.File` or another streaming `io.Writer` instead of `bytes.Buffer`. Telegram download URLs contain the bot token; ai-gram builds them internally and does not expose them as a public API. The regular cloud Bot API has Telegram-side file download limits. Upload is currently implemented for `SendPhoto`, `SendDocument`, `SendVideo`, `SendAudio`, `SendVoice`, `SendSticker`, `SendAnimation`, and `SendVideoNote`; download helpers never expose a full token-bearing download URL.
 
 Serve inbound webhook updates with `net/http`:
 
@@ -762,7 +794,7 @@ if err != nil {
 fmt.Println(ok)
 ```
 
-Webhook management is JSON-only for now. Webhook certificate upload, media groups, thumbnails, editMessageMedia, answerInlineQuery, WebApp/LoginUrl buttons, payments, sendAnimation, sendVideoNote, FSM, scenes, storage, dependency injection, and full Bot API coverage are not implemented yet.
+Webhook management is JSON-only for now. Webhook certificate upload, media groups, thumbnails, editMessageMedia, answerInlineQuery, WebApp/LoginUrl buttons, payments, FSM, scenes, storage, dependency injection, and full Bot API coverage are not implemented yet.
 
 
 ## Examples

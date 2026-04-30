@@ -10,6 +10,9 @@
 - `SendPoll`.
 - `StopPoll`.
 - `SendDice`.
+- `SendSticker`.
+- `SendAnimation`.
+- `SendVideoNote`.
 
 ## v0.1.1 - 2026-04-30
 
@@ -145,7 +148,7 @@ Safe live flows verified before the tag:
 
 `v0.1.0` is not full Telegram Bot API coverage. Notable deferred areas include:
 
-- Remaining send methods: contact, location, venue, poll, dice, sticker, animation, video note, paid media, and media group.
+- Remaining send methods: paid media and media group.
 - Invite links and join requests.
 - Promote/admin management and chat metadata setters.
 - Inline mode and `answerInlineQuery`.

@@ -46,6 +46,9 @@ This document maps the current `ai-gram` implementation to Telegram Bot API area
 | `(*bot.Bot).SendVenue` | `sendVenue` | unit/httptest | Supports venue coordinates, title/address, Foursquare/Google place fields, reply markup, thread/reply params. |
 | `(*bot.Bot).SendPoll` | `sendPoll` | unit/httptest | Supports question/options, quiz fields, explanation formatting, reply markup, thread/reply params. |
 | `(*bot.Bot).SendDice` | `sendDice` | unit/httptest | Supports known Telegram dice emoji, reply markup, thread/reply params. |
+| `(*bot.Bot).SendSticker` | `sendSticker` | unit/httptest | Supports `FileID`, `FileURL`, `FileUpload`, emoji, reply markup, thread/reply params. |
+| `(*bot.Bot).SendAnimation` | `sendAnimation` | unit/httptest | Supports `FileID`, `FileURL`, `FileUpload`, caption fields, thumbnail file ref/upload, spoiler, reply markup, thread/reply params. |
+| `(*bot.Bot).SendVideoNote` | `sendVideoNote` | unit/httptest | Supports `FileID`, `FileUpload`, thumbnail file ref/upload, duration/length, reply markup, thread/reply params. HTTP URL is intentionally rejected for video notes. |
 | `telegram.ReplyParameters` | send/copy reply payload | unit | Minimal supported fields: `message_id`, `allow_sending_without_reply`. |
 | `telegram.ReplyMarkup` implementations | send/edit reply markup | unit, live examples | Inline keyboard, reply keyboard, remove keyboard, force reply. Edit methods accept inline keyboard only. |
 
@@ -122,8 +125,6 @@ This document maps the current `ai-gram` implementation to Telegram Bot API area
 
 ### Remaining send methods
 
-- `sendAnimation`
-- `sendVideoNote`
 - `sendPaidMedia`
 - `sendMediaGroup`
 - `sendGame`
@@ -131,7 +132,6 @@ This document maps the current `ai-gram` implementation to Telegram Bot API area
 
 ### Stickers
 
-- `sendSticker`
 - sticker set management methods
 - custom emoji/sticker metadata methods
 
@@ -267,7 +267,8 @@ These still require real credentials and may notify users, but they are not dest
 - `SendVideo` with `FileUpload`
 - `SendAudio` with `FileUpload`
 - `SendVoice` with `FileUpload`
-- future upload methods such as animation, sticker, media group, thumbnails, certificates
+- `SendSticker`, `SendAnimation`, and `SendVideoNote` with `FileUpload`
+- future upload methods such as media group, remaining thumbnails, certificates
 
 ### Requires live credentials
 
@@ -307,7 +308,7 @@ Unit and httptest suites do not require tokens.
 
 ### Nice-to-have before v0.1
 
-- `SendSticker`, `SendAnimation`, `SendVideoNote`.
+- Remaining high-risk/advanced Bot API coverage such as media groups, inline mode, payments, and business APIs.
 - Bot command and menu methods.
 - A small release checklist document if not folded into existing docs.
 - README tightening to avoid overpromising unimplemented Bot API areas.
