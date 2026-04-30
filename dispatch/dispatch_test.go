@@ -190,6 +190,51 @@ func TestCallbackRoutes(t *testing.T) {
 	}
 }
 
+func TestInlineQueryRoutes(t *testing.T) {
+	dispatcher := New()
+	var inlineCalls int
+	var chosenCalls int
+	must(t, dispatcher.OnInlineQueryFunc(func(ctx context.Context, update telegram.Update) error {
+		inlineCalls++
+		if update.InlineQuery == nil || update.InlineQuery.From.ID != 777 {
+			t.Fatalf("unexpected inline query update: %+v", update)
+		}
+		return nil
+	}))
+	must(t, dispatcher.OnChosenInlineResultFunc(func(ctx context.Context, update telegram.Update) error {
+		chosenCalls++
+		if update.ChosenInlineResult == nil || update.ChosenInlineResult.ResultID != "result-1" {
+			t.Fatalf("unexpected chosen inline result update: %+v", update)
+		}
+		return nil
+	}))
+
+	if err := dispatcher.HandleUpdate(context.Background(), inlineQueryUpdate()); err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if err := dispatcher.HandleUpdate(context.Background(), chosenInlineResultUpdate()); err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if err := dispatcher.HandleUpdate(context.Background(), messageUpdate("hello")); err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if inlineCalls != 1 || chosenCalls != 1 {
+		t.Fatalf("unexpected calls: inline=%d chosen=%d", inlineCalls, chosenCalls)
+	}
+	if !InlineQuery()(inlineQueryUpdate()) {
+		t.Fatal("inline query predicate should match")
+	}
+	if InlineQuery()(messageUpdate("hello")) {
+		t.Fatal("inline query predicate should not match message updates")
+	}
+	if !ChosenInlineResult()(chosenInlineResultUpdate()) {
+		t.Fatal("chosen inline result predicate should match")
+	}
+	if ChosenInlineResult()(messageUpdate("hello")) {
+		t.Fatal("chosen inline result predicate should not match message updates")
+	}
+}
+
 func TestChatJoinRequestRoute(t *testing.T) {
 	dispatcher := New()
 	var calls int
@@ -527,6 +572,29 @@ func messageReactionCountUpdate() telegram.Update {
 			Chat:      telegram.Chat{ID: -100123, Type: "supergroup"},
 			MessageID: 456,
 			Date:      1234567891,
+		},
+	}
+}
+
+func inlineQueryUpdate() telegram.Update {
+	return telegram.Update{
+		UpdateID: 6,
+		InlineQuery: &telegram.InlineQuery{
+			ID:     "inline-query",
+			From:   telegram.User{ID: 777, FirstName: "Alice"},
+			Query:  "hello",
+			Offset: "",
+		},
+	}
+}
+
+func chosenInlineResultUpdate() telegram.Update {
+	return telegram.Update{
+		UpdateID: 7,
+		ChosenInlineResult: &telegram.ChosenInlineResult{
+			ResultID: "result-1",
+			From:     telegram.User{ID: 778, FirstName: "Bob"},
+			Query:    "hello",
 		},
 	}
 }

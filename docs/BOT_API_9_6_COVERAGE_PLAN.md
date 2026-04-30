@@ -160,10 +160,12 @@ This plan is a working checklist derived from the official documentation and cha
 
 ### Inline mode
 
-- [ ] `InlineQuery` update
-- [ ] `ChosenInlineResult` update
-- [ ] `AnswerInlineQuery`
-- [ ] `InlineQueryResultArticle`
+Stage 72 implements the first inline foundation: incoming inline query updates, chosen inline result updates, `AnswerInlineQuery`, article results, text input content, and dispatch helpers. Remaining result/content variants stay pending.
+
+- [x] `InlineQuery` update
+- [x] `ChosenInlineResult` update
+- [x] `AnswerInlineQuery`
+- [x] `InlineQueryResultArticle`
 - [ ] `InlineQueryResultPhoto`
 - [ ] `InlineQueryResultGif`
 - [ ] `InlineQueryResultMpeg4Gif`
@@ -176,12 +178,12 @@ This plan is a working checklist derived from the official documentation and cha
 - [ ] `InlineQueryResultContact`
 - [ ] `InlineQueryResultGame`
 - [ ] cached inline result variants
-- [ ] `InputTextMessageContent`
+- [x] `InputTextMessageContent`
 - [ ] `InputLocationMessageContent`
 - [ ] `InputVenueMessageContent`
 - [ ] `InputContactMessageContent`
 - [ ] `InputInvoiceMessageContent`
-- [ ] inline mode dispatcher predicates/helpers
+- [x] inline mode dispatcher predicates/helpers
 
 ### Payments, invoices, stars, and paid media
 

@@ -615,6 +615,33 @@ if err != nil {
 fmt.Println("declined:", declined)
 ```
 
+Inline mode basics support `inline_query`/`chosen_inline_result` updates and `AnswerInlineQuery` with article results and text message content. Enable inline mode in BotFather before live testing; inline live smoke is manual-only:
+
+```go
+if err := d.OnInlineQueryFunc(func(ctx context.Context, update telegram.Update) error {
+    query := update.InlineQuery
+    if query == nil {
+        return nil
+    }
+
+    _, err := b.AnswerInlineQuery(ctx, aigram.AnswerInlineQueryParams{
+        InlineQueryID: query.ID,
+        Results: []aigram.InlineQueryResult{
+            aigram.InlineArticle(
+                "echo",
+                "Echo",
+                aigram.InputText("Inline response"),
+            ),
+        },
+        CacheTime:  0,
+        IsPersonal: true,
+    })
+    return err
+}); err != nil {
+    return err
+}
+```
+
 Reply markup currently supports inline keyboards, reply keyboards, keyboard removal, and force reply for send methods. Edit methods intentionally accept only inline keyboard markup. `AnswerCallbackQuery` can acknowledge callback taps with a toast or alert. `editMessageMedia`, WebApp/LoginUrl buttons, payments, and a keyboard builder DSL will be added separately later.
 
 Protect handlers with access control middleware:
@@ -1046,7 +1073,7 @@ if err != nil {
 fmt.Println(ok)
 ```
 
-Webhook management is JSON-only for now. Webhook certificate upload, full thumbnail coverage, editMessageMedia, answerInlineQuery, WebApp/LoginUrl buttons, payments, FSM, scenes, storage, dependency injection, and full Bot API coverage are not implemented yet.
+Webhook management is JSON-only for now. Webhook certificate upload, full thumbnail coverage, editMessageMedia, remaining inline result variants, WebApp/LoginUrl buttons, payments, FSM, scenes, storage, dependency injection, and full Bot API coverage are not implemented yet.
 
 
 ## Examples
@@ -1074,7 +1101,7 @@ Coverage and planning documents:
 - [`docs/API_COVERAGE.md`](docs/API_COVERAGE.md) — implemented methods, missing Bot API areas, risk classification, and v0.1 recommendation.
 - [`docs/BOT_API_9_6_COVERAGE_PLAN.md`](docs/BOT_API_9_6_COVERAGE_PLAN.md) — local-only full Telegram Bot API 9.6 coverage plan and freeze policy.
 - [`docs/V0_2_CHECKPOINT.md`](docs/V0_2_CHECKPOINT.md) — v0.2 coverage checkpoint and release recommendation.
-- [`docs/V0_3_PLAN.md`](docs/V0_3_PLAN.md) — planned v0.3 scope for chat management, forum topics, reactions, and inline mode basics.
+- [`docs/V0_3_PLAN.md`](docs/V0_3_PLAN.md) — superseded v0.3 planning notes; full Bot API 9.6 coverage is tracked in the coverage plan.
 - [`docs/ROADMAP.md`](docs/ROADMAP.md) — stabilization and expansion roadmap.
 - [`docs/MANUAL_TESTING.md`](docs/MANUAL_TESTING.md) — local/manual smoke checklist.
 - [`docs/DEPLOY_TESTING.md`](docs/DEPLOY_TESTING.md) — deploy/manual integration harness.

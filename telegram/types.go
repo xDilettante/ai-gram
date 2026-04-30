@@ -7,6 +7,8 @@ type Update struct {
 	Message              *Message                     `json:"message,omitempty"`
 	EditedMessage        *Message                     `json:"edited_message,omitempty"`
 	CallbackQuery        *CallbackQuery               `json:"callback_query,omitempty"`
+	InlineQuery          *InlineQuery                 `json:"inline_query,omitempty"`
+	ChosenInlineResult   *ChosenInlineResult          `json:"chosen_inline_result,omitempty"`
 	ChatJoinRequest      *ChatJoinRequest             `json:"chat_join_request,omitempty"`
 	MessageReaction      *MessageReactionUpdated      `json:"message_reaction,omitempty"`
 	MessageReactionCount *MessageReactionCountUpdated `json:"message_reaction_count,omitempty"`
@@ -130,6 +132,25 @@ type ChatJoinRequest struct {
 	Date       int64           `json:"date"`
 	Bio        string          `json:"bio,omitempty"`
 	InviteLink *ChatInviteLink `json:"invite_link,omitempty"`
+}
+
+// InlineQuery represents an incoming inline query.
+type InlineQuery struct {
+	ID       string    `json:"id"`
+	From     User      `json:"from"`
+	Query    string    `json:"query"`
+	Offset   string    `json:"offset"`
+	ChatType string    `json:"chat_type,omitempty"`
+	Location *Location `json:"location,omitempty"`
+}
+
+// ChosenInlineResult represents a result chosen by a user from an inline query.
+type ChosenInlineResult struct {
+	ResultID        string    `json:"result_id"`
+	From            User      `json:"from"`
+	Location        *Location `json:"location,omitempty"`
+	InlineMessageID string    `json:"inline_message_id,omitempty"`
+	Query           string    `json:"query"`
 }
 
 // ChatMemberStatus identifies a user's membership state in a chat.

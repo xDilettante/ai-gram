@@ -113,6 +113,12 @@ func (u *Update) EffectiveUser() *User {
 	if u.CallbackQuery != nil {
 		return &u.CallbackQuery.From
 	}
+	if u.InlineQuery != nil {
+		return &u.InlineQuery.From
+	}
+	if u.ChosenInlineResult != nil {
+		return &u.ChosenInlineResult.From
+	}
 	if u.ChatJoinRequest != nil {
 		return &u.ChatJoinRequest.From
 	}

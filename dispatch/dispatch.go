@@ -186,6 +186,26 @@ func (d *Dispatcher) OnCallbackDataFunc(data string, handler HandlerFunc) error 
 	return d.OnCallbackData(data, handler)
 }
 
+// OnInlineQuery registers a handler for inline query updates.
+func (d *Dispatcher) OnInlineQuery(handler Handler) error {
+	return d.Handle(InlineQuery(), handler)
+}
+
+// OnInlineQueryFunc registers a function handler for inline query updates.
+func (d *Dispatcher) OnInlineQueryFunc(handler HandlerFunc) error {
+	return d.OnInlineQuery(handler)
+}
+
+// OnChosenInlineResult registers a handler for chosen inline result updates.
+func (d *Dispatcher) OnChosenInlineResult(handler Handler) error {
+	return d.Handle(ChosenInlineResult(), handler)
+}
+
+// OnChosenInlineResultFunc registers a function handler for chosen inline result updates.
+func (d *Dispatcher) OnChosenInlineResultFunc(handler HandlerFunc) error {
+	return d.OnChosenInlineResult(handler)
+}
+
 // OnChatJoinRequest registers a handler for chat join request updates.
 func (d *Dispatcher) OnChatJoinRequest(handler Handler) error {
 	return d.Handle(ChatJoinRequest(), handler)
@@ -243,6 +263,16 @@ func CallbackData(data string) Predicate {
 	return func(update telegram.Update) bool {
 		return data != "" && update.CallbackQuery != nil && update.CallbackQuery.Data == data
 	}
+}
+
+// InlineQuery matches updates with an inline query.
+func InlineQuery() Predicate {
+	return func(update telegram.Update) bool { return update.InlineQuery != nil }
+}
+
+// ChosenInlineResult matches updates with a chosen inline result.
+func ChosenInlineResult() Predicate {
+	return func(update telegram.Update) bool { return update.ChosenInlineResult != nil }
 }
 
 // ChatJoinRequest matches updates with a chat join request.

@@ -497,3 +497,17 @@ Checklist:
 - Call `DeleteWebhook` before starting long polling.
 - Official Telegram webhooks require a public HTTPS URL.
 - A local Telegram Bot API server in `--local` mode can accept HTTP/local webhook URLs when `AIGRAM_BASE_URL` points to that local server.
+
+## Inline mode checklist
+
+`AnswerInlineQuery`, `InlineQuery`, and `ChosenInlineResult` require inline mode to be enabled for the bot in BotFather. Inline mode sends selectable results into real chats, so it is intentionally not part of automatic live smoke.
+
+Manual checklist:
+
+- Use a dedicated test bot and test chat.
+- Enable inline mode in BotFather for that test bot before the check.
+- Send an `@bot query` from a test account.
+- Answer only with test `InlineQueryResultArticle` results and `InputTextMessageContent`.
+- If testing `chosen_inline_result`, enable inline feedback in BotFather where required.
+- Log only safe markers: update IDs, redacted inline query IDs, result counts, chosen result IDs, and boolean method results.
+- Do not paste bot tokens, token-bearing URLs, private message text, or production chat content into logs or reports.

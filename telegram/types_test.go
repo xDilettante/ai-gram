@@ -124,6 +124,63 @@ func TestUpdateDecodesChatJoinRequest(t *testing.T) {
 	}
 }
 
+func TestUpdateDecodesInlineQuery(t *testing.T) {
+	payload := []byte(`{
+		"update_id": 102,
+		"inline_query": {
+			"id": "inline-query-id",
+			"from": {"id": 777, "is_bot": false, "first_name": "Inline"},
+			"query": "hello",
+			"offset": "next",
+			"chat_type": "sender",
+			"location": {"longitude": 4.9041, "latitude": 52.3676}
+		}
+	}`)
+
+	var update Update
+	if err := json.Unmarshal(payload, &update); err != nil {
+		t.Fatalf("decode update: %v", err)
+	}
+	query := update.InlineQuery
+	if update.UpdateID != 102 || query == nil {
+		t.Fatalf("unexpected update: %+v", update)
+	}
+	if query.ID != "inline-query-id" || query.From.ID != 777 || query.Query != "hello" || query.Offset != "next" || query.ChatType != "sender" {
+		t.Fatalf("unexpected inline query: %+v", query)
+	}
+	if query.Location == nil || query.Location.Latitude != 52.3676 || query.Location.Longitude != 4.9041 {
+		t.Fatalf("unexpected inline query location: %+v", query.Location)
+	}
+}
+
+func TestUpdateDecodesChosenInlineResult(t *testing.T) {
+	payload := []byte(`{
+		"update_id": 103,
+		"chosen_inline_result": {
+			"result_id": "article-1",
+			"from": {"id": 778, "is_bot": false, "first_name": "Chooser"},
+			"location": {"longitude": 4.9041, "latitude": 52.3676},
+			"inline_message_id": "inline-message",
+			"query": "hello"
+		}
+	}`)
+
+	var update Update
+	if err := json.Unmarshal(payload, &update); err != nil {
+		t.Fatalf("decode update: %v", err)
+	}
+	chosen := update.ChosenInlineResult
+	if update.UpdateID != 103 || chosen == nil {
+		t.Fatalf("unexpected update: %+v", update)
+	}
+	if chosen.ResultID != "article-1" || chosen.From.ID != 778 || chosen.InlineMessageID != "inline-message" || chosen.Query != "hello" {
+		t.Fatalf("unexpected chosen inline result: %+v", chosen)
+	}
+	if chosen.Location == nil || chosen.Location.Latitude != 52.3676 || chosen.Location.Longitude != 4.9041 {
+		t.Fatalf("unexpected chosen inline result location: %+v", chosen.Location)
+	}
+}
+
 func TestMessageDecodesForumTopicServiceFields(t *testing.T) {
 	payload := []byte(`{
 		"message_id": 10,
@@ -285,5 +342,27 @@ func TestUpdateHelpers(t *testing.T) {
 	}
 	if user := update.EffectiveUser(); user == nil || user.ID != 4 {
 		t.Fatalf("unexpected join request effective user: %+v", user)
+	}
+
+	update = &Update{InlineQuery: &InlineQuery{From: User{ID: 5, FirstName: "Eve"}}}
+	if update.EffectiveMessage() != nil {
+		t.Fatal("inline query should not have an effective message")
+	}
+	if chat := update.EffectiveChat(); chat != nil {
+		t.Fatalf("inline query should not invent an effective chat: %+v", chat)
+	}
+	if user := update.EffectiveUser(); user == nil || user.ID != 5 {
+		t.Fatalf("unexpected inline query effective user: %+v", user)
+	}
+
+	update = &Update{ChosenInlineResult: &ChosenInlineResult{From: User{ID: 6, FirstName: "Frank"}}}
+	if update.EffectiveMessage() != nil {
+		t.Fatal("chosen inline result should not have an effective message")
+	}
+	if chat := update.EffectiveChat(); chat != nil {
+		t.Fatalf("chosen inline result should not invent an effective chat: %+v", chat)
+	}
+	if user := update.EffectiveUser(); user == nil || user.ID != 6 {
+		t.Fatalf("unexpected chosen inline result effective user: %+v", user)
 	}
 }

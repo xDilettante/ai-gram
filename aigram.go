@@ -120,6 +120,21 @@ type SetWebhookParams = bot.SetWebhookParams
 // DeleteWebhookParams contains supported parameters for deleteWebhook.
 type DeleteWebhookParams = bot.DeleteWebhookParams
 
+// AnswerInlineQueryParams contains supported parameters for answerInlineQuery.
+type AnswerInlineQueryParams = bot.AnswerInlineQueryParams
+
+// InputMessageContent marks Telegram input message content objects used by inline results.
+type InputMessageContent = bot.InputMessageContent
+
+// InputTextMessageContent describes text content for an inline query result.
+type InputTextMessageContent = bot.InputTextMessageContent
+
+// InlineQueryResult marks Telegram inline query result objects.
+type InlineQueryResult = bot.InlineQueryResult
+
+// InlineQueryResultArticle represents an article inline query result.
+type InlineQueryResultArticle = bot.InlineQueryResultArticle
+
 // AnswerCallbackQueryParams contains supported parameters for answerCallbackQuery.
 type AnswerCallbackQueryParams = bot.AnswerCallbackQueryParams
 
@@ -381,6 +396,18 @@ type ChatMember = telegram.ChatMember
 // CallbackQuery represents an incoming callback query.
 type CallbackQuery = telegram.CallbackQuery
 
+// InlineQuery represents an incoming inline query.
+type InlineQuery = telegram.InlineQuery
+
+// ChosenInlineResult represents a chosen inline query result.
+type ChosenInlineResult = telegram.ChosenInlineResult
+
+// LinkPreviewOptions describes link preview generation options.
+type LinkPreviewOptions = telegram.LinkPreviewOptions
+
+// InlineQueryResultsButton represents a button shown above inline query results.
+type InlineQueryResultsButton = telegram.InlineQueryResultsButton
+
 // WebhookInfo describes current Telegram webhook status.
 type WebhookInfo = telegram.WebhookInfo
 
@@ -548,6 +575,16 @@ func ProfilePhotoStatic(photo FileRef) InputProfilePhotoStatic {
 // ProfilePhotoAnimated creates an animated MPEG4 input profile photo.
 func ProfilePhotoAnimated(animation FileRef) InputProfilePhotoAnimated {
 	return bot.ProfilePhotoAnimated(animation)
+}
+
+// InputText creates text content for an inline query result.
+func InputText(message string) InputTextMessageContent {
+	return bot.InputText(message)
+}
+
+// InlineArticle creates an article inline query result.
+func InlineArticle(id string, title string, content InputMessageContent) InlineQueryResultArticle {
+	return bot.InlineArticle(id, title, content)
 }
 
 // NewInlineKeyboard creates an InlineKeyboardMarkup from rows of buttons.

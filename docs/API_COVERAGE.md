@@ -98,6 +98,11 @@ This document maps the current `ai-gram` implementation to Telegram Bot API area
 | `(*bot.Bot).DeleteMessage` | `deleteMessage` | unit/httptest, live examples | Destructive; live example only deletes messages created during smoke. |
 | `(*bot.Bot).DeleteMessages` | `deleteMessages` | unit/httptest | Destructive batch delete for 1-100 message IDs; manual-only live smoke. |
 | `(*bot.Bot).StopPoll` | `stopPoll` | unit/httptest, live v0.2 smoke | Stops a poll sent by the bot and returns `telegram.Poll`. |
+| `(*bot.Bot).AnswerInlineQuery` | `answerInlineQuery` | unit/httptest | Supports article results, text input message content, cache/pagination fields, and inline results button. Manual-only live smoke. |
+| `telegram.InlineQuery` | `inline_query` update | unit | Incoming inline query decoding and `EffectiveUser` support. |
+| `telegram.ChosenInlineResult` | `chosen_inline_result` update | unit | Incoming chosen inline result decoding and `EffectiveUser` support. |
+| `dispatch.InlineQuery`, `dispatch.ChosenInlineResult` | dispatch predicates/helpers | unit | Includes `OnInlineQuery` and `OnChosenInlineResult` handler registration helpers. |
+| `bot.InlineQueryResultArticle`, `bot.InputTextMessageContent` | inline payload objects | unit | Minimal inline result/content foundation; remaining result variants are pending. |
 
 ### Forward/copy
 
@@ -262,10 +267,6 @@ This document maps the current `ai-gram` implementation to Telegram Bot API area
 
 - subscription-specific join request flows beyond basic approval/decline
 
-### Remaining advanced chat surfaces
-
-- inline mode basics
-
 ### Payments
 
 - invoice, shipping query, pre-checkout query, refund and paid media/star payment flows
@@ -280,10 +281,9 @@ This document maps the current `ai-gram` implementation to Telegram Bot API area
 
 ### Inline mode
 
-- `AnswerInlineQuery` (`answerInlineQuery`)
-- minimal `InlineQuery` update/type support
-- minimal inline query result types
-- chosen inline result handling
+- Remaining `InlineQueryResult` variants beyond `InlineQueryResultArticle`.
+- Remaining `InputMessageContent` variants beyond `InputTextMessageContent`.
+- Inline result media/file variants and cached variants.
 
 ### WebApp/LoginUrl
 
@@ -435,7 +435,7 @@ Unit and httptest suites do not require tokens.
 
 ### Nice-to-have before v0.1
 
-- Remaining high-risk/advanced Bot API coverage such as inline mode, payments, and business APIs.
+- Remaining high-risk/advanced Bot API coverage such as payments, business APIs, and advanced inline variants.
 - Bot command and menu methods.
 - A small release checklist document if not folded into existing docs.
 - README tightening to avoid overpromising unimplemented Bot API areas.
