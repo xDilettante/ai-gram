@@ -319,6 +319,22 @@ Manual checklist for a dedicated test environment only:
 
 Treat Telegram permission errors in chats where the bot is not an admin as expected Bot API behavior, not as a library bug.
 
+## Admin management methods checklist
+
+`PromoteChatMember`, `SetChatAdministratorCustomTitle`, and `SetChatPermissions` require bot admin rights and change real chat or admin state. They are intentionally not part of automatic live smoke.
+
+Manual checklist for a dedicated test environment only:
+
+- Create a dedicated test group or supergroup.
+- Use only a dedicated test user account as the admin/permission target.
+- Add the bot as an admin with the needed rights, and verify the bot can change those rights before testing.
+- Do not test these methods on production groups/channels.
+- Check permissions before and after each method call.
+- Revert any promoted rights, custom titles, and default chat permission changes after testing.
+- Do not paste bot tokens, token-bearing URLs, private group content, or admin lists into logs or reports.
+
+Treat Telegram permission errors in chats where the bot is not an admin or lacks ownership-level rights as expected Bot API behavior, not as a library bug.
+
 ## Invite link methods checklist
 
 `ExportChatInviteLink`, `CreateChatInviteLink`, `EditChatInviteLink`, and `RevokeChatInviteLink` require bot admin rights and create or revoke real chat invite links. They are intentionally not part of automatic live smoke.

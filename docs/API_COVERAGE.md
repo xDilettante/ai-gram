@@ -106,7 +106,15 @@ This document maps the current `ai-gram` implementation to Telegram Bot API area
 | `(*bot.Bot).BanChatMember` | `banChatMember` | unit/httptest | Destructive/admin method; no automatic live smoke. |
 | `(*bot.Bot).UnbanChatMember` | `unbanChatMember` | unit/httptest | Admin method; `OnlyIfBanned` supported. |
 | `(*bot.Bot).RestrictChatMember` | `restrictChatMember` | unit/httptest | Destructive/admin method; zero `telegram.ChatPermissions` is valid and restricts all supported actions. |
-| `telegram.ChatPermissions` | moderation permissions object | unit through method payload tests | Minimal supported permission fields for restriction payloads. |
+| `telegram.ChatPermissions` | moderation permissions object | unit through method payload tests | Minimal supported permission fields for restriction and default chat permission payloads. |
+
+### Admin management
+
+| Public Go API | Telegram Bot API method | Tests | Notes |
+| --- | --- | --- | --- |
+| `(*bot.Bot).PromoteChatMember` | `promoteChatMember` | unit/httptest | Admin/state-changing method for promoting or demoting users. Not auto-smoked. |
+| `(*bot.Bot).SetChatAdministratorCustomTitle` | `setChatAdministratorCustomTitle` | unit/httptest | Admin/state-changing method for custom administrator titles. Not auto-smoked. |
+| `(*bot.Bot).SetChatPermissions` | `setChatPermissions` | unit/httptest | Admin/state-changing method for default chat permissions; zero `telegram.ChatPermissions` is valid. Not auto-smoked. |
 
 ### Bot commands/menu
 
@@ -180,12 +188,9 @@ This document maps the current `ai-gram` implementation to Telegram Bot API area
 
 - subscription-specific join request flows beyond basic approval/decline
 
-### Admin/promote methods
+### Admin/chat management methods
 
-- `promoteChatMember`
-- `setChatAdministratorCustomTitle`
-- `setChatPermissions`
-- chat title/photo/description/permissions/sticker set methods
+- chat title/photo/description/sticker set methods
 - leave chat and related chat lifecycle methods
 
 ### Payments
@@ -275,6 +280,9 @@ These still require real credentials and may notify users, but they are not dest
 - `BanChatMember`
 - `UnbanChatMember`
 - `RestrictChatMember`
+- `PromoteChatMember`
+- `SetChatAdministratorCustomTitle`
+- `SetChatPermissions`
 - some chat/member info methods depending on chat type and bot permissions
 - chat invite link methods (`ExportChatInviteLink`, `CreateChatInviteLink`, `EditChatInviteLink`, `RevokeChatInviteLink`)
 - chat join request methods (`ApproveChatJoinRequest`, `DeclineChatJoinRequest`)
@@ -287,6 +295,7 @@ These still require real credentials and may notify users, but they are not dest
 - `BanChatMember`
 - `UnbanChatMember`
 - `RestrictChatMember`
+- admin management methods (`PromoteChatMember`, `SetChatAdministratorCustomTitle`, `SetChatPermissions`) when used outside isolated test chats, because they change real chat/admin state
 - invite link methods when used outside isolated test chats, because they create or revoke real access links
 - chat join request methods, because they approve or decline real users waiting to join
 - future moderation/admin methods
@@ -316,6 +325,7 @@ Unit and httptest suites do not require tokens.
 - `BanChatMember`
 - `UnbanChatMember`
 - `RestrictChatMember`
+- `PromoteChatMember`, `SetChatAdministratorCustomTitle`, and `SetChatPermissions`
 - `PinChatMessage`, `UnpinChatMessage`, `UnpinAllChatMessages` outside a dedicated test group
 - `DeleteWebhook` with `drop_pending_updates=true`
 - future migration methods such as `logOut`/`close`

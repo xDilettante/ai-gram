@@ -14,7 +14,7 @@ The project is in an early architecture stage. It provides practical incoming up
 - Dispatcher/router: supports predicates, message/command/callback routes, middleware, fallback, and error handling.
 - Middleware helpers: recover, timeout, hook-based observability, and reusable access control are available.
 - Long polling transport: managed runner is available. Webhook transport: inbound HTTP handler is available.
-- Telegram Bot API method coverage: `GetMe`, `SendMessage`, `SendPhoto`, `SendDocument`, `SendVideo`, `SendAudio`, `SendVoice`, `SendContact`, `SendLocation`, `SendVenue`, `SendPoll`, `StopPoll`, `SendDice`, `SendSticker`, `SendAnimation`, `SendVideoNote`, `SendMediaGroup`, `SetMyCommands`, `DeleteMyCommands`, `GetMyCommands`, `SetChatMenuButton`, `GetChatMenuButton`, `SetMyDefaultAdministratorRights`, `AnswerCallbackQuery`, `EditMessageText`, `EditMessageCaption`, `EditMessageReplyMarkup`, `DeleteMessage`, `ForwardMessage`, `CopyMessage`, `SendChatAction`, `PinChatMessage`, `UnpinChatMessage`, `UnpinAllChatMessages`, `GetChat`, `GetChatMember`, `GetChatAdministrators`, `GetChatMemberCount`, `ExportChatInviteLink`, `CreateChatInviteLink`, `EditChatInviteLink`, `RevokeChatInviteLink`, `ApproveChatJoinRequest`, `DeclineChatJoinRequest`, `BanChatMember`, `UnbanChatMember`, `RestrictChatMember`, reply markup for supported send and edit methods, the manual `GetUpdates` API call, `GetFile`, `DownloadFile`, multipart upload for media send methods, and JSON-only webhook management methods (`SetWebhook`, `DeleteWebhook`, `GetWebhookInfo`) are implemented. The rest of the Bot API is not implemented yet.
+- Telegram Bot API method coverage: `GetMe`, `SendMessage`, `SendPhoto`, `SendDocument`, `SendVideo`, `SendAudio`, `SendVoice`, `SendContact`, `SendLocation`, `SendVenue`, `SendPoll`, `StopPoll`, `SendDice`, `SendSticker`, `SendAnimation`, `SendVideoNote`, `SendMediaGroup`, `SetMyCommands`, `DeleteMyCommands`, `GetMyCommands`, `SetChatMenuButton`, `GetChatMenuButton`, `SetMyDefaultAdministratorRights`, `AnswerCallbackQuery`, `EditMessageText`, `EditMessageCaption`, `EditMessageReplyMarkup`, `DeleteMessage`, `ForwardMessage`, `CopyMessage`, `SendChatAction`, `PinChatMessage`, `UnpinChatMessage`, `UnpinAllChatMessages`, `GetChat`, `GetChatMember`, `GetChatAdministrators`, `GetChatMemberCount`, `ExportChatInviteLink`, `CreateChatInviteLink`, `EditChatInviteLink`, `RevokeChatInviteLink`, `ApproveChatJoinRequest`, `DeclineChatJoinRequest`, `PromoteChatMember`, `SetChatAdministratorCustomTitle`, `SetChatPermissions`, `BanChatMember`, `UnbanChatMember`, `RestrictChatMember`, reply markup for supported send and edit methods, the manual `GetUpdates` API call, `GetFile`, `DownloadFile`, multipart upload for media send methods, and JSON-only webhook management methods (`SetWebhook`, `DeleteWebhook`, `GetWebhookInfo`) are implemented. The rest of the Bot API is not implemented yet.
 - Public API stability: not guaranteed before the first stable release.
 
 ## Planned architecture
@@ -421,6 +421,34 @@ if err != nil {
     return err
 }
 fmt.Println("unbanned:", unbanned)
+```
+
+Admin management methods also require suitable bot admin rights and change real chat/admin state. Keep live checks limited to dedicated test groups and revert permission changes after testing:
+
+```go
+promoted, err := b.PromoteChatMember(ctx, aigram.PromoteChatMemberParams{
+    ChatID:            aigram.ChatIDInt(-1001234567890),
+    UserID:            987654321,
+    CanManageChat:     true,
+    CanInviteUsers:    true,
+    CanDeleteMessages: true,
+})
+if err != nil {
+    return err
+}
+fmt.Println("promoted:", promoted)
+
+permissionsSet, err := b.SetChatPermissions(ctx, aigram.SetChatPermissionsParams{
+    ChatID: aigram.ChatIDInt(-1001234567890),
+    Permissions: aigram.ChatPermissions{
+        CanSendMessages: true,
+        CanSendPhotos:   true,
+    },
+})
+if err != nil {
+    return err
+}
+fmt.Println("permissions set:", permissionsSet)
 ```
 
 Invite link methods require suitable bot admin rights in the chat. They create, edit, export, or revoke real invite links, so keep live checks limited to dedicated test groups:

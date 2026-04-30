@@ -105,6 +105,15 @@ type UnbanChatMemberParams = bot.UnbanChatMemberParams
 // RestrictChatMemberParams contains supported parameters for restrictChatMember.
 type RestrictChatMemberParams = bot.RestrictChatMemberParams
 
+// PromoteChatMemberParams contains supported parameters for promoteChatMember.
+type PromoteChatMemberParams = bot.PromoteChatMemberParams
+
+// SetChatAdministratorCustomTitleParams contains supported parameters for setChatAdministratorCustomTitle.
+type SetChatAdministratorCustomTitleParams = bot.SetChatAdministratorCustomTitleParams
+
+// SetChatPermissionsParams contains supported parameters for setChatPermissions.
+type SetChatPermissionsParams = bot.SetChatPermissionsParams
+
 // GetChatParams contains supported parameters for getChat.
 type GetChatParams = bot.GetChatParams
 
