@@ -36,6 +36,11 @@ type Message struct {
 	Venue    *Venue    `json:"venue,omitempty"`
 }
 
+// MessageID contains the identifier of a Telegram message returned by methods that create a copy.
+type MessageID struct {
+	MessageID int64 `json:"message_id"`
+}
+
 // User represents a Telegram user or bot account.
 type User struct {
 	ID        int64  `json:"id"`

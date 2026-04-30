@@ -48,6 +48,12 @@ type AnswerCallbackQueryParams = bot.AnswerCallbackQueryParams
 // DeleteMessageParams contains supported parameters for deleteMessage.
 type DeleteMessageParams = bot.DeleteMessageParams
 
+// ForwardMessageParams contains supported parameters for forwardMessage.
+type ForwardMessageParams = bot.ForwardMessageParams
+
+// CopyMessageParams contains supported parameters for copyMessage.
+type CopyMessageParams = bot.CopyMessageParams
+
 // EditMessageResult contains the result returned by edit message methods.
 type EditMessageResult = bot.EditMessageResult
 

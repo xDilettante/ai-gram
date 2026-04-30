@@ -155,6 +155,19 @@ Checklist:
 - Press `Delete media message`; the media message should disappear.
 - Inspect safe logs with `./scripts/remote_logs.sh`; successful actions are logged as `action=send_media_caption_demo` with `source=generated_document`, `source=file_id`, or `source=media_path`, plus `action=edit_message_caption` and `action=delete_message`.
 
+## Webhook ForwardMessage and CopyMessage checklist
+
+The deployed `examples/webhook_server` contains a targeted flow for checking single-message forwarding and copying.
+
+Checklist:
+
+- Deploy or run `examples/webhook_server`.
+- Send `/start` to the webhook bot.
+- Press `Copy this message`; Telegram should create a copy of the current message in the same chat.
+- Press `Forward this message`; Telegram should create a forwarded message in the same chat.
+- Inspect safe logs with `./scripts/remote_logs.sh`; successful actions are logged as `action=copy_message ok=true update_id=... chat_id=... message_id=... copied_message_id=...` and `action=forward_message ok=true update_id=... chat_id=... message_id=... forwarded_message_id=...`.
+- Do not log or paste full message text; safe logs are enough for verification.
+
 ## Media upload/download checklist
 
 Upload a local file as a document:

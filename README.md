@@ -14,7 +14,7 @@ The project is in an early architecture stage. It provides a minimal package ske
 - Dispatcher/router: supports predicates, message/command/callback routes, middleware, fallback, and error handling.
 - Middleware helpers: recover, timeout, and hook-based observability are available.
 - Long polling transport: managed runner is available. Webhook transport: inbound HTTP handler is available.
-- Telegram Bot API method coverage: `GetMe`, `SendMessage`, `SendPhoto`, `SendDocument`, `SendVideo`, `SendAudio`, `SendVoice`, `AnswerCallbackQuery`, `EditMessageText`, `EditMessageCaption`, `EditMessageReplyMarkup`, `DeleteMessage`, reply markup for supported send and edit methods, the manual `GetUpdates` API call, `GetFile`, `DownloadFile`, multipart upload for media send methods, and JSON-only webhook management methods (`SetWebhook`, `DeleteWebhook`, `GetWebhookInfo`) are implemented. The rest of the Bot API is not implemented yet.
+- Telegram Bot API method coverage: `GetMe`, `SendMessage`, `SendPhoto`, `SendDocument`, `SendVideo`, `SendAudio`, `SendVoice`, `AnswerCallbackQuery`, `EditMessageText`, `EditMessageCaption`, `EditMessageReplyMarkup`, `DeleteMessage`, `ForwardMessage`, `CopyMessage`, reply markup for supported send and edit methods, the manual `GetUpdates` API call, `GetFile`, `DownloadFile`, multipart upload for media send methods, and JSON-only webhook management methods (`SetWebhook`, `DeleteWebhook`, `GetWebhookInfo`) are implemented. The rest of the Bot API is not implemented yet.
 - Public API stability: not guaranteed before the first stable release.
 
 ## Планируемая архитектура
@@ -227,6 +227,31 @@ if err != nil {
     return err
 }
 fmt.Println("deleted:", deleted)
+```
+
+Forward or copy a message:
+
+```go
+forwarded, err := b.ForwardMessage(ctx, aigram.ForwardMessageParams{
+    ChatID:     aigram.ChatIDInt(123456789),
+    FromChatID: aigram.ChatIDInt(987654321),
+    MessageID:  42,
+})
+if err != nil {
+    return err
+}
+fmt.Println("forwarded:", forwarded.MessageID)
+
+copied, err := b.CopyMessage(ctx, aigram.CopyMessageParams{
+    ChatID:     aigram.ChatIDInt(123456789),
+    FromChatID: aigram.ChatIDInt(987654321),
+    MessageID:  42,
+    Caption:    "Copied with a new caption",
+})
+if err != nil {
+    return err
+}
+fmt.Println("copied:", copied.MessageID)
 ```
 
 Reply markup currently supports inline keyboards, reply keyboards, keyboard removal, and force reply for send methods. Edit methods intentionally accept only inline keyboard markup. `AnswerCallbackQuery` can acknowledge callback taps with a toast or alert. `editMessageMedia`, WebApp/LoginUrl buttons, payments, and a keyboard builder DSL will be added separately later.

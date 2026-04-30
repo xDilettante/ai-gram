@@ -252,6 +252,60 @@ func newDispatcher(b *aigram.Bot) (*dispatch.Dispatcher, error) {
 	}); err != nil {
 		return nil, err
 	}
+	if err := dp.OnCallbackDataFunc("demo:copy", func(ctx context.Context, update telegram.Update) error {
+		callback := update.CallbackQuery
+		if callback == nil {
+			return nil
+		}
+		logSafeUpdate(update, "callback_query")
+		if _, err := b.AnswerCallbackQuery(ctx, aigram.AnswerCallbackQueryParams{CallbackQueryID: callback.ID, Text: "Copying message"}); err != nil {
+			return err
+		}
+		log.Printf("webhook action=answer_callback_query ok=true update_id=%d callback_data=%s", update.UpdateID, safeCallbackData(update))
+		if callback.Message == nil {
+			return nil
+		}
+
+		copied, err := b.CopyMessage(ctx, aigram.CopyMessageParams{
+			ChatID:     aigram.ChatIDInt(callback.Message.Chat.ID),
+			FromChatID: aigram.ChatIDInt(callback.Message.Chat.ID),
+			MessageID:  callback.Message.MessageID,
+		})
+		if err != nil {
+			return err
+		}
+		log.Printf("webhook action=copy_message ok=true update_id=%d chat_id=%d message_id=%d copied_message_id=%d", update.UpdateID, callback.Message.Chat.ID, callback.Message.MessageID, copied.MessageID)
+		return nil
+	}); err != nil {
+		return nil, err
+	}
+	if err := dp.OnCallbackDataFunc("demo:forward", func(ctx context.Context, update telegram.Update) error {
+		callback := update.CallbackQuery
+		if callback == nil {
+			return nil
+		}
+		logSafeUpdate(update, "callback_query")
+		if _, err := b.AnswerCallbackQuery(ctx, aigram.AnswerCallbackQueryParams{CallbackQueryID: callback.ID, Text: "Forwarding message"}); err != nil {
+			return err
+		}
+		log.Printf("webhook action=answer_callback_query ok=true update_id=%d callback_data=%s", update.UpdateID, safeCallbackData(update))
+		if callback.Message == nil {
+			return nil
+		}
+
+		forwarded, err := b.ForwardMessage(ctx, aigram.ForwardMessageParams{
+			ChatID:     aigram.ChatIDInt(callback.Message.Chat.ID),
+			FromChatID: aigram.ChatIDInt(callback.Message.Chat.ID),
+			MessageID:  callback.Message.MessageID,
+		})
+		if err != nil {
+			return err
+		}
+		log.Printf("webhook action=forward_message ok=true update_id=%d chat_id=%d message_id=%d forwarded_message_id=%d", update.UpdateID, callback.Message.Chat.ID, callback.Message.MessageID, forwarded.MessageID)
+		return nil
+	}); err != nil {
+		return nil, err
+	}
 	if err := dp.OnCallbackDataFunc("demo:delete_media", func(ctx context.Context, update telegram.Update) error {
 		return deleteCallbackMessage(ctx, b, update, "Deleting message")
 	}); err != nil {
@@ -274,6 +328,10 @@ func demoKeyboard() aigram.InlineKeyboardMarkup {
 		[]aigram.InlineKeyboardButton{
 			aigram.InlineButtonCallback("Caption demo", "demo:caption"),
 			aigram.InlineButtonCallback("Delete this message", "demo:delete"),
+		},
+		[]aigram.InlineKeyboardButton{
+			aigram.InlineButtonCallback("Copy this message", "demo:copy"),
+			aigram.InlineButtonCallback("Forward this message", "demo:forward"),
 		},
 	)
 }
@@ -418,7 +476,7 @@ func safeCallbackData(update telegram.Update) string {
 		return ""
 	}
 	switch update.CallbackQuery.Data {
-	case "demo:edit", "demo:remove_keyboard", "demo:caption", "demo:edit_caption", "demo:delete_media", "demo:delete":
+	case "demo:edit", "demo:remove_keyboard", "demo:caption", "demo:edit_caption", "demo:delete_media", "demo:delete", "demo:copy", "demo:forward":
 		return update.CallbackQuery.Data
 	default:
 		return "<redacted>"
