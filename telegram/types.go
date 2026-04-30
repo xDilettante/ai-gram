@@ -3,11 +3,13 @@ package telegram
 
 // Update represents an incoming Telegram update.
 type Update struct {
-	UpdateID        int64            `json:"update_id"`
-	Message         *Message         `json:"message,omitempty"`
-	EditedMessage   *Message         `json:"edited_message,omitempty"`
-	CallbackQuery   *CallbackQuery   `json:"callback_query,omitempty"`
-	ChatJoinRequest *ChatJoinRequest `json:"chat_join_request,omitempty"`
+	UpdateID             int64                        `json:"update_id"`
+	Message              *Message                     `json:"message,omitempty"`
+	EditedMessage        *Message                     `json:"edited_message,omitempty"`
+	CallbackQuery        *CallbackQuery               `json:"callback_query,omitempty"`
+	ChatJoinRequest      *ChatJoinRequest             `json:"chat_join_request,omitempty"`
+	MessageReaction      *MessageReactionUpdated      `json:"message_reaction,omitempty"`
+	MessageReactionCount *MessageReactionCountUpdated `json:"message_reaction_count,omitempty"`
 }
 
 // Message represents a Telegram message with the minimal fields needed by update handlers.

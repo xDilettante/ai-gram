@@ -366,6 +366,20 @@ Manual checklist:
 - If testing General topic methods, record the initial state first and restore it after testing.
 - Do not paste bot tokens, token-bearing URLs, private group content, or full production identifiers into logs or reports.
 
+## Reaction methods checklist
+
+`SetMessageReaction` changes real message reaction state. `message_reaction` and `message_reaction_count` updates require allowed update configuration and, for many chats, bot administrator visibility. They are intentionally not part of automatic live smoke.
+
+Manual checklist:
+
+- Use a dedicated test chat and a clearly identified test message.
+- Run only after explicit confirmation for the target chat and message.
+- Set and clear only test reactions on test messages.
+- Do not run on production chats without explicit confirmation.
+- If testing updates, include `message_reaction` and `message_reaction_count` in allowed updates where needed.
+- Log only method names, chat ID, message ID, reaction type labels, boolean result, and update IDs.
+- Do not paste bot tokens, token-bearing URLs, private message text, or full private chat content into logs or reports.
+
 ## Invite link methods checklist
 
 `ExportChatInviteLink`, `CreateChatInviteLink`, `EditChatInviteLink`, and `RevokeChatInviteLink` require bot admin rights and create or revoke real chat invite links. They are intentionally not part of automatic live smoke.

@@ -140,6 +140,18 @@ This document maps the current `ai-gram` implementation to Telegram Bot API area
 | `(*bot.Bot).UnpinAllGeneralForumTopicMessages` | `unpinAllGeneralForumTopicMessages` | unit/httptest | Clears pinned messages in the General forum topic. Not auto-smoked. |
 | `telegram.ForumTopic` and forum topic service message types | related Bot API objects | unit | Minimal topic result and service message decoding for created, edited, closed, reopened, hidden, and unhidden topic events. |
 
+### Reactions
+
+| Public Go API | Telegram Bot API method / object | Tests | Notes |
+| --- | --- | --- | --- |
+| `(*bot.Bot).SetMessageReaction` | `setMessageReaction` | unit/httptest | Changes real message reaction state. Manual-only live smoke. |
+| `telegram.ReactionTypeEmoji` | `ReactionTypeEmoji` | unit | Polymorphic reaction marshal/unmarshal with required `type: "emoji"`. |
+| `telegram.ReactionTypeCustomEmoji` | `ReactionTypeCustomEmoji` | unit | Polymorphic reaction marshal/unmarshal with required `type: "custom_emoji"`. |
+| `telegram.ReactionTypePaid` | `ReactionTypePaid` | unit | Polymorphic paid reaction support from Bot API 9.6. |
+| `telegram.MessageReactionUpdated`, `telegram.Update.MessageReaction` | `message_reaction` update | unit | Decodes old/new reaction lists and supports `EffectiveChat`/`EffectiveUser`. |
+| `telegram.MessageReactionCountUpdated`, `telegram.Update.MessageReactionCount` | `message_reaction_count` update | unit | Decodes anonymous reaction count updates and supports `EffectiveChat`. |
+| `dispatch.MessageReaction`, `dispatch.MessageReactionCount` | n/a | unit | Predicate and route helpers for reaction updates. |
+
 ### Admin management
 
 | Public Go API | Telegram Bot API method | Tests | Notes |
@@ -207,11 +219,6 @@ This document maps the current `ai-gram` implementation to Telegram Bot API area
 - sticker set management methods
 - custom emoji/sticker metadata methods
 
-### Reactions
-
-- `SetMessageReaction` (`setMessageReaction`)
-- `ReactionType` and reaction-related update/type support, if needed
-
 ### Invite links
 
 - subscription invite link methods
@@ -222,7 +229,6 @@ This document maps the current `ai-gram` implementation to Telegram Bot API area
 
 ### Remaining advanced chat surfaces
 
-- reaction methods and types
 - inline mode basics
 
 ### Payments
@@ -324,6 +330,7 @@ These still require real credentials and may notify users, but they are not dest
 - forum topic methods and service message types
 - chat invite link methods (`ExportChatInviteLink`, `CreateChatInviteLink`, `EditChatInviteLink`, `RevokeChatInviteLink`)
 - chat join request methods (`ApproveChatJoinRequest`, `DeclineChatJoinRequest`)
+- reaction methods (`SetMessageReaction`) when used outside isolated test messages, because they change real message reaction state
 
 ### Destructive
 
@@ -338,6 +345,7 @@ These still require real credentials and may notify users, but they are not dest
 - admin management methods (`PromoteChatMember`, `SetChatAdministratorCustomTitle`, `SetChatPermissions`) when used outside isolated test chats, because they change real chat/admin state
 - invite link methods when used outside isolated test chats, because they create or revoke real access links
 - chat join request methods, because they approve or decline real users waiting to join
+- reaction methods when used outside isolated test messages, because they change real message reaction state
 - future moderation/admin methods
 
 ### Requires upload/multipart

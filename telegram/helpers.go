@@ -89,6 +89,12 @@ func (u *Update) EffectiveChat() *Chat {
 	if u != nil && u.ChatJoinRequest != nil {
 		return &u.ChatJoinRequest.Chat
 	}
+	if u != nil && u.MessageReaction != nil {
+		return &u.MessageReaction.Chat
+	}
+	if u != nil && u.MessageReactionCount != nil {
+		return &u.MessageReactionCount.Chat
+	}
 
 	return nil
 }
@@ -109,6 +115,9 @@ func (u *Update) EffectiveUser() *User {
 	}
 	if u.ChatJoinRequest != nil {
 		return &u.ChatJoinRequest.From
+	}
+	if u.MessageReaction != nil && u.MessageReaction.User != nil {
+		return u.MessageReaction.User
 	}
 
 	return nil

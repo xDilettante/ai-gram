@@ -101,7 +101,7 @@ Recommended local-only implementation order:
 
 1. Chat management - implemented locally in Stage 66; manual-only live smoke.
 2. Forum topics - implemented locally in Stage 67; manual-only live smoke.
-3. Reactions
+3. Reactions - implemented locally in Stage 68; manual-only live smoke.
 4. Inline mode basics
 5. Sticker set management
 6. Payments, Stars, and paid media

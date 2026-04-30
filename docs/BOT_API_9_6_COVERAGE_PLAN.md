@@ -149,13 +149,13 @@ This plan is a working checklist derived from the official documentation and cha
 
 ### Reactions
 
-- [ ] `SetMessageReaction`
-- [ ] `ReactionTypeEmoji`
-- [ ] `ReactionTypeCustomEmoji`
-- [ ] `ReactionTypePaid`, if present in Bot API 9.6 docs
-- [ ] `MessageReactionUpdated`
-- [ ] `MessageReactionCountUpdated`
-- [ ] update fields for reaction updates
+- [x] `SetMessageReaction`
+- [x] `ReactionTypeEmoji`
+- [x] `ReactionTypeCustomEmoji`
+- [x] `ReactionTypePaid`
+- [x] `MessageReactionUpdated`
+- [x] `MessageReactionCountUpdated`
+- [x] update fields for reaction updates
 - [ ] reaction count/list fields on messages, if missing
 
 ### Inline mode
@@ -339,7 +339,7 @@ Recommended local-only stages:
 
 1. Chat management - implemented locally in Stage 66; manual-only live smoke.
 2. Forum topics - implemented locally in Stage 67; manual-only live smoke.
-3. Reactions
+3. Reactions - implemented locally in Stage 68; manual-only live smoke.
 4. Inline mode basics
 5. Sticker set management
 6. Payments, stars, and paid media

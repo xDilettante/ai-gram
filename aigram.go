@@ -96,6 +96,9 @@ type UnpinChatMessageParams = bot.UnpinChatMessageParams
 // UnpinAllChatMessagesParams contains supported parameters for unpinAllChatMessages.
 type UnpinAllChatMessagesParams = bot.UnpinAllChatMessagesParams
 
+// SetMessageReactionParams contains supported parameters for setMessageReaction.
+type SetMessageReactionParams = bot.SetMessageReactionParams
+
 // BanChatMemberParams contains supported parameters for banChatMember.
 type BanChatMemberParams = bot.BanChatMemberParams
 

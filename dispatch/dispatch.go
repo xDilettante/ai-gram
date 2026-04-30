@@ -196,6 +196,26 @@ func (d *Dispatcher) OnChatJoinRequestFunc(handler HandlerFunc) error {
 	return d.OnChatJoinRequest(handler)
 }
 
+// OnMessageReaction registers a handler for message reaction updates.
+func (d *Dispatcher) OnMessageReaction(handler Handler) error {
+	return d.Handle(MessageReaction(), handler)
+}
+
+// OnMessageReactionFunc registers a function handler for message reaction updates.
+func (d *Dispatcher) OnMessageReactionFunc(handler HandlerFunc) error {
+	return d.OnMessageReaction(handler)
+}
+
+// OnMessageReactionCount registers a handler for anonymous message reaction count updates.
+func (d *Dispatcher) OnMessageReactionCount(handler Handler) error {
+	return d.Handle(MessageReactionCount(), handler)
+}
+
+// OnMessageReactionCountFunc registers a function handler for anonymous message reaction count updates.
+func (d *Dispatcher) OnMessageReactionCountFunc(handler HandlerFunc) error {
+	return d.OnMessageReactionCount(handler)
+}
+
 // Any matches every update.
 func Any() Predicate {
 	return func(telegram.Update) bool { return true }
@@ -228,6 +248,16 @@ func CallbackData(data string) Predicate {
 // ChatJoinRequest matches updates with a chat join request.
 func ChatJoinRequest() Predicate {
 	return func(update telegram.Update) bool { return update.ChatJoinRequest != nil }
+}
+
+// MessageReaction matches updates with a message reaction change.
+func MessageReaction() Predicate {
+	return func(update telegram.Update) bool { return update.MessageReaction != nil }
+}
+
+// MessageReactionCount matches updates with anonymous message reaction count changes.
+func MessageReactionCount() Predicate {
+	return func(update telegram.Update) bool { return update.MessageReactionCount != nil }
 }
 
 // Chain wraps handler with middleware in the order it is provided.

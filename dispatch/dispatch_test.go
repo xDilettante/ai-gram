@@ -218,6 +218,51 @@ func TestChatJoinRequestRoute(t *testing.T) {
 	}
 }
 
+func TestMessageReactionRoutes(t *testing.T) {
+	dispatcher := New()
+	var reactionCalls int
+	var countCalls int
+	must(t, dispatcher.OnMessageReactionFunc(func(ctx context.Context, update telegram.Update) error {
+		reactionCalls++
+		if update.MessageReaction == nil || update.MessageReaction.User == nil || update.MessageReaction.User.ID != 777 {
+			t.Fatalf("unexpected message reaction update: %+v", update)
+		}
+		return nil
+	}))
+	must(t, dispatcher.OnMessageReactionCountFunc(func(ctx context.Context, update telegram.Update) error {
+		countCalls++
+		if update.MessageReactionCount == nil || update.MessageReactionCount.MessageID != 456 {
+			t.Fatalf("unexpected message reaction count update: %+v", update)
+		}
+		return nil
+	}))
+
+	if err := dispatcher.HandleUpdate(context.Background(), messageReactionUpdate()); err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if err := dispatcher.HandleUpdate(context.Background(), messageReactionCountUpdate()); err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if err := dispatcher.HandleUpdate(context.Background(), messageUpdate("hello")); err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if reactionCalls != 1 || countCalls != 1 {
+		t.Fatalf("unexpected calls: reaction=%d count=%d", reactionCalls, countCalls)
+	}
+	if !MessageReaction()(messageReactionUpdate()) {
+		t.Fatal("message reaction predicate should match")
+	}
+	if MessageReaction()(messageUpdate("hello")) {
+		t.Fatal("message reaction predicate should not match message updates")
+	}
+	if !MessageReactionCount()(messageReactionCountUpdate()) {
+		t.Fatal("message reaction count predicate should match")
+	}
+	if MessageReactionCount()(messageUpdate("hello")) {
+		t.Fatal("message reaction count predicate should not match message updates")
+	}
+}
+
 func TestMiddlewareAppliesToRouteInOrder(t *testing.T) {
 	dispatcher := New()
 	var calls []string
@@ -459,6 +504,29 @@ func joinRequestUpdate() telegram.Update {
 			From:       telegram.User{ID: 777, FirstName: "Joiner"},
 			UserChatID: 888,
 			Date:       1234567890,
+		},
+	}
+}
+
+func messageReactionUpdate() telegram.Update {
+	return telegram.Update{
+		UpdateID: 4,
+		MessageReaction: &telegram.MessageReactionUpdated{
+			Chat:      telegram.Chat{ID: -100123, Type: "supergroup"},
+			MessageID: 123,
+			User:      &telegram.User{ID: 777, FirstName: "Alice"},
+			Date:      1234567890,
+		},
+	}
+}
+
+func messageReactionCountUpdate() telegram.Update {
+	return telegram.Update{
+		UpdateID: 5,
+		MessageReactionCount: &telegram.MessageReactionCountUpdated{
+			Chat:      telegram.Chat{ID: -100123, Type: "supergroup"},
+			MessageID: 456,
+			Date:      1234567891,
 		},
 	}
 }
