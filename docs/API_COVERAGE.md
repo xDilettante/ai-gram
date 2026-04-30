@@ -105,6 +105,8 @@ This document maps the current `ai-gram` implementation to Telegram Bot API area
 | `(*bot.Bot).SetGameScore` | `setGameScore` | unit/httptest | Supports chat and inline targets and decodes Telegram `Message`/`true` result shape through `EditMessageResult`. Manual-only live smoke. |
 | `(*bot.Bot).GetGameHighScores` | `getGameHighScores` | unit/httptest | Supports chat and inline targets and decodes `[]telegram.GameHighScore`. Manual-only live smoke. |
 | `telegram.Game`, `telegram.CallbackGame`, `telegram.GameHighScore` | game objects | unit | Includes `Message.game` decoding and `InlineKeyboardButton.callback_game` validation. |
+| `(*bot.Bot).SetPassportDataErrors` | `setPassportDataErrors` | unit/httptest | Sends typed polymorphic Passport element errors without logging encrypted payload values. Manual-only live smoke. |
+| `telegram.PassportData`, `telegram.PassportFile`, `telegram.EncryptedPassportElement`, `telegram.EncryptedCredentials`, `telegram.PassportElementError*` | passport objects | unit | Includes `Message.passport_data` decoding, all official Passport error variants, and validation for source-specific required fields. Decryption helpers are intentionally out of scope. |
 | `(*bot.Bot).AnswerInlineQuery` | `answerInlineQuery` | unit/httptest, official Bot API 9.6 audit | Supports all current inline result variants, input message content variants, cache/pagination fields, and inline results button. Manual-only live smoke. |
 | `telegram.InlineQuery` | `inline_query` update | unit | Incoming inline query decoding and `EffectiveUser` support. |
 | `telegram.ChosenInlineResult` | `chosen_inline_result` update | unit | Incoming chosen inline result decoding and `EffectiveUser` support. |
@@ -352,10 +354,6 @@ This document maps the current `ai-gram` implementation to Telegram Bot API area
 
 - Paid media, Star transaction history, Star payment refunds, gifts, business gifts, Star balance, Premium subscriptions, and Stars subscription editing are implemented. Broader advanced Stars/payment flows remain pending only where not covered by the official Bot API 9.6 gifts/stars slice.
 
-### Passport
-
-- Telegram Passport data types and error methods
-
 ### Inline mode
 
 - Stage 75 audited inline mode against official Bot API 9.6 documentation. Incoming inline updates, `AnswerInlineQuery`, `InlineQueryResultsButton`, all current `InputMessageContent` variants, and all 20 current `InlineQueryResult` variants are represented.
@@ -497,7 +495,7 @@ Unit and httptest suites do not require tokens.
 - bot commands/menu setters because they change bot-level command/menu state
 - invite link and chat join request methods
 - future migration methods such as `logOut`/`close`
-- future payment/passport/gift methods
+- payments, Passport, gifts, Stars, games, and other sensitive/value/state-changing methods outside dedicated manual test flows
 
 ## v0.1 recommendation
 
@@ -518,7 +516,7 @@ Unit and httptest suites do not require tokens.
 
 ### Nice-to-have before v0.1
 
-- Remaining high-risk/advanced Bot API coverage such as broader Stars/gift flows, business APIs, Passport, and games.
+- Remaining high-risk/advanced Bot API coverage such as broader Stars/gift flows and business APIs.
 - Bot command and menu methods.
 - A small release checklist document if not folded into existing docs.
 - README tightening to avoid overpromising unimplemented Bot API areas.
@@ -526,7 +524,6 @@ Unit and httptest suites do not require tokens.
 ### Defer after v0.1
 
 - Final audit for any Stars/gift/payment flows not covered by the gifts and remaining Stars slice.
-- Passport.
 - Business APIs.
 - Stars/gifts.
 - Full Bot API codegen or openapi tooling.

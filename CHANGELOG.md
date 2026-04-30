@@ -24,6 +24,7 @@
 - `business_connection_id` support for supported send, edit, chat action, pin/unpin, media group, and poll-stop methods.
 - Edit media and live location edit methods: `EditMessageMedia`, `EditMessageLiveLocation`, `StopMessageLiveLocation`, and `InputMediaAnimation`.
 - Game methods and types: `SendGame`, `SetGameScore`, `GetGameHighScores`, `Game`, `CallbackGame`, and `GameHighScore`.
+- Telegram Passport types and `SetPassportDataErrors`.
 
 ### Documentation
 

@@ -109,7 +109,7 @@ Recommended local-only implementation order:
 8. Managed Bots 9.6
 9. Poll 9.6 updates
 10. Business APIs
-11. Games and Passport
+11. Games - implemented locally in Stage 86; Passport - implemented locally in Stage 87
 12. Batch methods
 13. Remaining message/edit methods
 14. Final full coverage audit against official Bot API 9.6
@@ -125,10 +125,8 @@ Live smoke policy:
 
 - Payments
   - Invoice, shipping query, pre-checkout query, refunds, paid media.
-- Passport
-  - Passport data and error reporting methods.
-- Games
-  - Game methods and scores.
+- Passport decryption helpers
+  - Intentionally out of scope for the typed Bot API wrapper unless a future product decision adds them.
 - Business APIs
   - Business connection/message features and related account metadata.
 - Stars/gifts

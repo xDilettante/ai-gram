@@ -545,6 +545,19 @@ Manual checklist:
 - Log only safe markers: method name, chat ID, message ID or inline-target flag, test game short name, score, result shape, and high-score count.
 - Do not log bot tokens, token-bearing URLs, or private user data.
 
+## Passport checklist
+
+Telegram Passport checks are sensitive and intentionally not part of automatic live smoke. Decryption helpers are not implemented in the library.
+
+Manual checklist:
+
+- Use only dedicated Telegram Passport test data and explicit confirmation.
+- Decode only structural `Message.passport_data` fields needed to confirm type coverage.
+- Use `SetPassportDataErrors` only with disposable/synthetic test submissions.
+- Never log encrypted Passport element data, credential secrets, file hashes, user documents, or full private payloads.
+- Log only safe markers: method name, user ID, error source/type counts, and boolean result.
+- Do not add automatic live smoke for Passport flows.
+
 ## Business API checklist
 
 Business API checks require a configured Telegram business account connection. They are intentionally manual-only because business messages can contain private payloads and account/profile/story/suggested-post/delete methods change real business account state.

@@ -69,6 +69,9 @@ type SetGameScoreParams = bot.SetGameScoreParams
 // GetGameHighScoresParams contains supported parameters for getGameHighScores.
 type GetGameHighScoresParams = bot.GetGameHighScoresParams
 
+// SetPassportDataErrorsParams contains supported parameters for setPassportDataErrors.
+type SetPassportDataErrorsParams = bot.SetPassportDataErrorsParams
+
 // InputSticker describes a sticker accepted by sticker set management methods.
 type InputSticker = bot.InputSticker
 

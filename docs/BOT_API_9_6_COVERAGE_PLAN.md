@@ -354,10 +354,15 @@ Stage 81 implements the Business API foundation. Stage 82 adds business read, ac
 
 ### Passport
 
-- [ ] `PassportData`
-- [ ] encrypted passport element types
-- [ ] passport credentials/files/errors
-- [ ] `SetPassportDataErrors`
+- [x] `PassportData`
+- [x] encrypted passport element types
+- [x] passport credentials/files/errors
+- [x] `SetPassportDataErrors`
+
+Notes:
+
+- Passport decryption helpers are intentionally out of scope for the typed Bot API wrapper unless a future product decision adds them.
+- Passport live checks are manual-only and must never log encrypted payloads or user documents.
 
 ### Batch methods
 
@@ -389,7 +394,7 @@ Recommended local-only stages:
 8. Managed Bots 9.6 - implemented locally in Stage 78; token-returning methods manual-only.
 9. Poll 9.6 updates
 10. Business APIs
-11. Games - implemented locally in Stage 86; BotFather/game setup live checks manual-only. Passport remains pending
+11. Games - implemented locally in Stage 86; BotFather/game setup live checks manual-only. Passport implemented locally in Stage 87; sensitive-data live checks manual-only
 12. Batch methods - implemented locally in Stage 69; `DeleteMessages` manual-only live smoke.
 13. Remaining message/edit methods
 14. Final full coverage audit against official Bot API 9.6

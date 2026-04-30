@@ -60,6 +60,7 @@ type Message struct {
 	SuccessfulPayment *SuccessfulPayment `json:"successful_payment,omitempty"`
 	RefundedPayment   *RefundedPayment   `json:"refunded_payment,omitempty"`
 	PaidMedia         *PaidMediaInfo     `json:"paid_media,omitempty"`
+	PassportData      *PassportData      `json:"passport_data,omitempty"`
 	Gift              *GiftInfo          `json:"gift,omitempty"`
 	UniqueGift        *UniqueGiftInfo    `json:"unique_gift,omitempty"`
 	GiftUpgradeSent   *GiftInfo          `json:"gift_upgrade_sent,omitempty"`
