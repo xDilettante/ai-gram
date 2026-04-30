@@ -160,24 +160,24 @@ This plan is a working checklist derived from the official documentation and cha
 
 ### Inline mode
 
-Stage 72 implements the first inline foundation: incoming inline query updates, chosen inline result updates, `AnswerInlineQuery`, article results, text input content, and dispatch helpers. Stage 73 adds non-media inline results and the remaining input message content variants, including inline invoice content. Media and cached result variants stay pending.
+Stage 72 implements the first inline foundation: incoming inline query updates, chosen inline result updates, `AnswerInlineQuery`, article results, text input content, and dispatch helpers. Stage 73 adds non-media inline results and the remaining input message content variants, including inline invoice content. Stage 74 adds media and cached inline result variants.
 
 - [x] `InlineQuery` update
 - [x] `ChosenInlineResult` update
 - [x] `AnswerInlineQuery`
 - [x] `InlineQueryResultArticle`
-- [ ] `InlineQueryResultPhoto`
-- [ ] `InlineQueryResultGif`
-- [ ] `InlineQueryResultMpeg4Gif`
-- [ ] `InlineQueryResultVideo`
-- [ ] `InlineQueryResultAudio`
-- [ ] `InlineQueryResultVoice`
-- [ ] `InlineQueryResultDocument`
+- [x] `InlineQueryResultPhoto`
+- [x] `InlineQueryResultGif`
+- [x] `InlineQueryResultMpeg4Gif`
+- [x] `InlineQueryResultVideo`
+- [x] `InlineQueryResultAudio`
+- [x] `InlineQueryResultVoice`
+- [x] `InlineQueryResultDocument`
 - [x] `InlineQueryResultLocation`
 - [x] `InlineQueryResultVenue`
 - [x] `InlineQueryResultContact`
 - [x] `InlineQueryResultGame`
-- [ ] cached inline result variants
+- [x] cached inline result variants
 - [x] `InputTextMessageContent`
 - [x] `InputLocationMessageContent`
 - [x] `InputVenueMessageContent`

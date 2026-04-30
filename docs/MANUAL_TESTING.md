@@ -507,7 +507,7 @@ Manual checklist:
 - Use a dedicated test bot and test chat.
 - Enable inline mode in BotFather for that test bot before the check.
 - Send an `@bot query` from a test account.
-- Answer only with test results: `InlineQueryResultArticle`, `InlineQueryResultLocation`, `InlineQueryResultVenue`, `InlineQueryResultContact`, or `InlineQueryResultGame`.
+- Answer only with test results: article, location, venue, contact, game, media, or cached media inline result variants.
 - If testing custom input message content, use only test `InputTextMessageContent`, `InputLocationMessageContent`, `InputVenueMessageContent`, or `InputContactMessageContent` payloads.
 - Test `InputInvoiceMessageContent` only with explicit confirmation and a safe payments setup such as Telegram Stars/test-provider configuration.
 - If testing `chosen_inline_result`, enable inline feedback in BotFather where required.

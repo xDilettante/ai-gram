@@ -346,6 +346,66 @@ func validateInlineQueryResult(result InlineQueryResult) error {
 		return validateInlineQueryResultGame(value)
 	case *InlineQueryResultGame:
 		return validateInlineQueryResultGame(*value)
+	case InlineQueryResultPhoto:
+		return validateInlineQueryResultPhoto(value)
+	case *InlineQueryResultPhoto:
+		return validateInlineQueryResultPhoto(*value)
+	case InlineQueryResultGif:
+		return validateInlineQueryResultGif(value)
+	case *InlineQueryResultGif:
+		return validateInlineQueryResultGif(*value)
+	case InlineQueryResultMpeg4Gif:
+		return validateInlineQueryResultMpeg4Gif(value)
+	case *InlineQueryResultMpeg4Gif:
+		return validateInlineQueryResultMpeg4Gif(*value)
+	case InlineQueryResultVideo:
+		return validateInlineQueryResultVideo(value)
+	case *InlineQueryResultVideo:
+		return validateInlineQueryResultVideo(*value)
+	case InlineQueryResultAudio:
+		return validateInlineQueryResultAudio(value)
+	case *InlineQueryResultAudio:
+		return validateInlineQueryResultAudio(*value)
+	case InlineQueryResultVoice:
+		return validateInlineQueryResultVoice(value)
+	case *InlineQueryResultVoice:
+		return validateInlineQueryResultVoice(*value)
+	case InlineQueryResultDocument:
+		return validateInlineQueryResultDocument(value)
+	case *InlineQueryResultDocument:
+		return validateInlineQueryResultDocument(*value)
+	case InlineQueryResultCachedPhoto:
+		return validateInlineQueryResultCachedPhoto(value)
+	case *InlineQueryResultCachedPhoto:
+		return validateInlineQueryResultCachedPhoto(*value)
+	case InlineQueryResultCachedGif:
+		return validateInlineQueryResultCachedGif(value)
+	case *InlineQueryResultCachedGif:
+		return validateInlineQueryResultCachedGif(*value)
+	case InlineQueryResultCachedMpeg4Gif:
+		return validateInlineQueryResultCachedMpeg4Gif(value)
+	case *InlineQueryResultCachedMpeg4Gif:
+		return validateInlineQueryResultCachedMpeg4Gif(*value)
+	case InlineQueryResultCachedSticker:
+		return validateInlineQueryResultCachedSticker(value)
+	case *InlineQueryResultCachedSticker:
+		return validateInlineQueryResultCachedSticker(*value)
+	case InlineQueryResultCachedDocument:
+		return validateInlineQueryResultCachedDocument(value)
+	case *InlineQueryResultCachedDocument:
+		return validateInlineQueryResultCachedDocument(*value)
+	case InlineQueryResultCachedVideo:
+		return validateInlineQueryResultCachedVideo(value)
+	case *InlineQueryResultCachedVideo:
+		return validateInlineQueryResultCachedVideo(*value)
+	case InlineQueryResultCachedVoice:
+		return validateInlineQueryResultCachedVoice(value)
+	case *InlineQueryResultCachedVoice:
+		return validateInlineQueryResultCachedVoice(*value)
+	case InlineQueryResultCachedAudio:
+		return validateInlineQueryResultCachedAudio(value)
+	case *InlineQueryResultCachedAudio:
+		return validateInlineQueryResultCachedAudio(*value)
 	default:
 		return stderrors.New("unsupported inline query result")
 	}

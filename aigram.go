@@ -159,6 +159,51 @@ type InlineQueryResultContact = bot.InlineQueryResultContact
 // InlineQueryResultGame represents a game inline query result.
 type InlineQueryResultGame = bot.InlineQueryResultGame
 
+// InlineQueryResultPhoto represents a photo inline query result.
+type InlineQueryResultPhoto = bot.InlineQueryResultPhoto
+
+// InlineQueryResultGif represents a GIF inline query result.
+type InlineQueryResultGif = bot.InlineQueryResultGif
+
+// InlineQueryResultMpeg4Gif represents an MPEG-4 GIF inline query result.
+type InlineQueryResultMpeg4Gif = bot.InlineQueryResultMpeg4Gif
+
+// InlineQueryResultVideo represents a video inline query result.
+type InlineQueryResultVideo = bot.InlineQueryResultVideo
+
+// InlineQueryResultAudio represents an audio inline query result.
+type InlineQueryResultAudio = bot.InlineQueryResultAudio
+
+// InlineQueryResultVoice represents a voice inline query result.
+type InlineQueryResultVoice = bot.InlineQueryResultVoice
+
+// InlineQueryResultDocument represents a document inline query result.
+type InlineQueryResultDocument = bot.InlineQueryResultDocument
+
+// InlineQueryResultCachedPhoto represents a cached photo inline query result.
+type InlineQueryResultCachedPhoto = bot.InlineQueryResultCachedPhoto
+
+// InlineQueryResultCachedGif represents a cached GIF inline query result.
+type InlineQueryResultCachedGif = bot.InlineQueryResultCachedGif
+
+// InlineQueryResultCachedMpeg4Gif represents a cached MPEG-4 GIF inline query result.
+type InlineQueryResultCachedMpeg4Gif = bot.InlineQueryResultCachedMpeg4Gif
+
+// InlineQueryResultCachedSticker represents a cached sticker inline query result.
+type InlineQueryResultCachedSticker = bot.InlineQueryResultCachedSticker
+
+// InlineQueryResultCachedDocument represents a cached document inline query result.
+type InlineQueryResultCachedDocument = bot.InlineQueryResultCachedDocument
+
+// InlineQueryResultCachedVideo represents a cached video inline query result.
+type InlineQueryResultCachedVideo = bot.InlineQueryResultCachedVideo
+
+// InlineQueryResultCachedVoice represents a cached voice inline query result.
+type InlineQueryResultCachedVoice = bot.InlineQueryResultCachedVoice
+
+// InlineQueryResultCachedAudio represents a cached audio inline query result.
+type InlineQueryResultCachedAudio = bot.InlineQueryResultCachedAudio
+
 // AnswerCallbackQueryParams contains supported parameters for answerCallbackQuery.
 type AnswerCallbackQueryParams = bot.AnswerCallbackQueryParams
 
@@ -647,6 +692,81 @@ func InlineContact(id string, phoneNumber string, firstName string) InlineQueryR
 // InlineGame creates a game inline query result.
 func InlineGame(id string, gameShortName string) InlineQueryResultGame {
 	return bot.InlineGame(id, gameShortName)
+}
+
+// InlinePhoto creates a photo inline query result.
+func InlinePhoto(id string, photoURL string, thumbnailURL string) InlineQueryResultPhoto {
+	return bot.InlinePhoto(id, photoURL, thumbnailURL)
+}
+
+// InlineGif creates a GIF inline query result.
+func InlineGif(id string, gifURL string, thumbnailURL string) InlineQueryResultGif {
+	return bot.InlineGif(id, gifURL, thumbnailURL)
+}
+
+// InlineMpeg4Gif creates an MPEG-4 GIF inline query result.
+func InlineMpeg4Gif(id string, mpeg4URL string, thumbnailURL string) InlineQueryResultMpeg4Gif {
+	return bot.InlineMpeg4Gif(id, mpeg4URL, thumbnailURL)
+}
+
+// InlineVideo creates a video inline query result.
+func InlineVideo(id string, videoURL string, mimeType string, thumbnailURL string, title string) InlineQueryResultVideo {
+	return bot.InlineVideo(id, videoURL, mimeType, thumbnailURL, title)
+}
+
+// InlineAudio creates an audio inline query result.
+func InlineAudio(id string, audioURL string, title string) InlineQueryResultAudio {
+	return bot.InlineAudio(id, audioURL, title)
+}
+
+// InlineVoice creates a voice inline query result.
+func InlineVoice(id string, voiceURL string, title string) InlineQueryResultVoice {
+	return bot.InlineVoice(id, voiceURL, title)
+}
+
+// InlineDocument creates a document inline query result.
+func InlineDocument(id string, title string, documentURL string, mimeType string) InlineQueryResultDocument {
+	return bot.InlineDocument(id, title, documentURL, mimeType)
+}
+
+// InlineCachedPhoto creates a cached photo inline query result.
+func InlineCachedPhoto(id string, fileID string) InlineQueryResultCachedPhoto {
+	return bot.InlineCachedPhoto(id, fileID)
+}
+
+// InlineCachedGif creates a cached GIF inline query result.
+func InlineCachedGif(id string, fileID string) InlineQueryResultCachedGif {
+	return bot.InlineCachedGif(id, fileID)
+}
+
+// InlineCachedMpeg4Gif creates a cached MPEG-4 GIF inline query result.
+func InlineCachedMpeg4Gif(id string, fileID string) InlineQueryResultCachedMpeg4Gif {
+	return bot.InlineCachedMpeg4Gif(id, fileID)
+}
+
+// InlineCachedSticker creates a cached sticker inline query result.
+func InlineCachedSticker(id string, fileID string) InlineQueryResultCachedSticker {
+	return bot.InlineCachedSticker(id, fileID)
+}
+
+// InlineCachedDocument creates a cached document inline query result.
+func InlineCachedDocument(id string, fileID string, title string) InlineQueryResultCachedDocument {
+	return bot.InlineCachedDocument(id, fileID, title)
+}
+
+// InlineCachedVideo creates a cached video inline query result.
+func InlineCachedVideo(id string, fileID string, title string) InlineQueryResultCachedVideo {
+	return bot.InlineCachedVideo(id, fileID, title)
+}
+
+// InlineCachedVoice creates a cached voice inline query result.
+func InlineCachedVoice(id string, fileID string, title string) InlineQueryResultCachedVoice {
+	return bot.InlineCachedVoice(id, fileID, title)
+}
+
+// InlineCachedAudio creates a cached audio inline query result.
+func InlineCachedAudio(id string, fileID string) InlineQueryResultCachedAudio {
+	return bot.InlineCachedAudio(id, fileID)
 }
 
 // NewInlineKeyboard creates an InlineKeyboardMarkup from rows of buttons.

@@ -615,7 +615,7 @@ if err != nil {
 fmt.Println("declined:", declined)
 ```
 
-Inline mode basics support `inline_query`/`chosen_inline_result` updates and `AnswerInlineQuery` with article, location, venue, contact, and game results. Text, location, venue, contact, and invoice input message content variants are available. Enable inline mode in BotFather before live testing; inline live smoke is manual-only:
+Inline mode basics support `inline_query`/`chosen_inline_result` updates and `AnswerInlineQuery` with article, location, venue, contact, game, media, and cached media results. Text, location, venue, contact, and invoice input message content variants are available. Enable inline mode in BotFather before live testing; inline live smoke is manual-only:
 
 ```go
 if err := d.OnInlineQueryFunc(func(ctx context.Context, update telegram.Update) error {
@@ -1073,7 +1073,7 @@ if err != nil {
 fmt.Println(ok)
 ```
 
-Webhook management is JSON-only for now. Webhook certificate upload, full thumbnail coverage, editMessageMedia, remaining inline result variants, WebApp/LoginUrl buttons, payments, FSM, scenes, storage, dependency injection, and full Bot API coverage are not implemented yet.
+Webhook management is JSON-only for now. Webhook certificate upload, full thumbnail coverage, editMessageMedia, WebApp/LoginUrl buttons, payments, FSM, scenes, storage, dependency injection, and full Bot API coverage are not implemented yet.
 
 
 ## Examples

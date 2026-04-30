@@ -98,13 +98,15 @@ This document maps the current `ai-gram` implementation to Telegram Bot API area
 | `(*bot.Bot).DeleteMessage` | `deleteMessage` | unit/httptest, live examples | Destructive; live example only deletes messages created during smoke. |
 | `(*bot.Bot).DeleteMessages` | `deleteMessages` | unit/httptest | Destructive batch delete for 1-100 message IDs; manual-only live smoke. |
 | `(*bot.Bot).StopPoll` | `stopPoll` | unit/httptest, live v0.2 smoke | Stops a poll sent by the bot and returns `telegram.Poll`. |
-| `(*bot.Bot).AnswerInlineQuery` | `answerInlineQuery` | unit/httptest | Supports article results, text input message content, cache/pagination fields, and inline results button. Manual-only live smoke. |
+| `(*bot.Bot).AnswerInlineQuery` | `answerInlineQuery` | unit/httptest | Supports all current inline result variants, input message content variants, cache/pagination fields, and inline results button. Manual-only live smoke. |
 | `telegram.InlineQuery` | `inline_query` update | unit | Incoming inline query decoding and `EffectiveUser` support. |
 | `telegram.ChosenInlineResult` | `chosen_inline_result` update | unit | Incoming chosen inline result decoding and `EffectiveUser` support. |
 | `dispatch.InlineQuery`, `dispatch.ChosenInlineResult` | dispatch predicates/helpers | unit | Includes `OnInlineQuery` and `OnChosenInlineResult` handler registration helpers. |
 | `bot.InlineQueryResultArticle`, `bot.InputTextMessageContent` | inline payload objects | unit | Article result and text input message content foundation. |
 | `bot.InlineQueryResultLocation`, `bot.InlineQueryResultVenue`, `bot.InlineQueryResultContact`, `bot.InlineQueryResultGame` | inline payload objects | unit | Non-media inline result variants. Manual-only live smoke. |
 | `bot.InputLocationMessageContent`, `bot.InputVenueMessageContent`, `bot.InputContactMessageContent`, `bot.InputInvoiceMessageContent` | inline payload objects | unit | Additional input message content variants; invoice content includes minimal `telegram.LabeledPrice` support. |
+| `bot.InlineQueryResultPhoto`, `bot.InlineQueryResultGif`, `bot.InlineQueryResultMpeg4Gif`, `bot.InlineQueryResultVideo`, `bot.InlineQueryResultAudio`, `bot.InlineQueryResultVoice`, `bot.InlineQueryResultDocument` | inline payload objects | unit | URL-backed media inline result variants. Manual-only live smoke. |
+| `bot.InlineQueryResultCachedPhoto`, `bot.InlineQueryResultCachedGif`, `bot.InlineQueryResultCachedMpeg4Gif`, `bot.InlineQueryResultCachedSticker`, `bot.InlineQueryResultCachedDocument`, `bot.InlineQueryResultCachedVideo`, `bot.InlineQueryResultCachedVoice`, `bot.InlineQueryResultCachedAudio` | inline payload objects | unit | Cached file-id-backed inline result variants. Manual-only live smoke. |
 
 ### Forward/copy
 
@@ -283,9 +285,8 @@ This document maps the current `ai-gram` implementation to Telegram Bot API area
 
 ### Inline mode
 
-- Media `InlineQueryResult` variants: photo, GIF, MPEG-4 GIF, video, audio, voice, and document.
-- Cached inline result variants.
-- Full payments methods remain pending; only `InputInvoiceMessageContent` and `LabeledPrice` are currently covered for inline results.
+- Full payments methods remain pending; only `InputInvoiceMessageContent` and `LabeledPrice` are currently covered for inline invoice results.
+- Future audits may still refine advanced inline behavior, but all 20 current `InlineQueryResult` variants are represented.
 
 ### WebApp/LoginUrl
 

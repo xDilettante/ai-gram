@@ -12,6 +12,7 @@
 - Bot profile and metadata methods: `SetMyName`, `GetMyName`, `SetMyDescription`, `GetMyDescription`, `SetMyShortDescription`, `GetMyShortDescription`, `GetMyDefaultAdministratorRights`, `SetMyProfilePhoto`, and `RemoveMyProfilePhoto`.
 - Inline mode basics: `InlineQuery`, `ChosenInlineResult`, `AnswerInlineQuery`, `InlineQueryResultArticle`, and `InputTextMessageContent`.
 - Additional inline mode result and input message content variants.
+- Media and cached inline query result variants.
 
 ### Planning
 
