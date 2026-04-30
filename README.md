@@ -298,6 +298,8 @@ d.Use(middleware.Access(middleware.AccessConfig{
 
 The examples default to admin-only mode through `AIGRAM_ACCESS_MODE=admin`. Use `AIGRAM_ADMIN_USER_IDS` for admins, `AIGRAM_ALLOWED_USER_IDS` / `AIGRAM_ALLOWED_CHAT_IDS` for temporary allow lists, or the runtime `/access_open` and `/access_close` commands in the examples.
 
+Webhook examples also support Telegram deep-link smoke panels: open `https://t.me/<bot_username>?start=smoke` for the main smoke keyboard or `https://t.me/<bot_username>?start=access_panel` for the access-control panel.
+
 Send media by `file_id`, URL, or multipart upload:
 
 ```go
@@ -657,7 +659,7 @@ Deployment-oriented manual integration checks are described in [`docs/DEPLOY_TES
 
 The integration harness supports role-specific test bot tokens (`MAIN`, `LOCAL`, `WEBHOOK`, `NOTIFY`, and others) while preserving the legacy single-token `AIGRAM_BOT_TOKEN` mode. Set `AIGRAM_BOTAPI_SSH_TARGET` when the local Telegram Bot API server runs on a different SSH host than the webhook example.
 
-Manual smoke scripts can also send Telegram notifications with the target `@username`, `t.me` link, exact commands/buttons, and what Codex will verify in safe logs. Webhook deploy notifications use `AIGRAM_SMOKE_MODE=targeted` by default, so deploys do not ask for a full checklist unless `AIGRAM_SMOKE_MODE=full` is explicitly set. See [`docs/DEPLOY_TESTING.md`](docs/DEPLOY_TESTING.md#telegram-notifications-during-smoke-checks).
+Manual smoke scripts can also send Telegram notifications with the target `@username`, `t.me` deep link, exact panel/button guidance, and what Codex will verify in safe logs. Webhook deploy notifications use `AIGRAM_SMOKE_MODE=targeted` by default, so deploys do not ask for a full checklist unless `AIGRAM_SMOKE_MODE=full` is explicitly set. See [`docs/DEPLOY_TESTING.md`](docs/DEPLOY_TESTING.md#telegram-notifications-during-smoke-checks).
 
 ## Development checks
 

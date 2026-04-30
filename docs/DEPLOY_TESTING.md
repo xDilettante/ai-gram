@@ -327,7 +327,21 @@ Notifications are sent through `examples/notify_user`, which uses the ai-gram `S
 
 Manual smoke notifications are intentionally actionable: they include the bot username, a `t.me` link, the command to send, the buttons to press, and what Codex will verify in safe logs. The operator should not need to search for the bot or remember the smoke sequence from this document during a live check.
 
+Notifications now prefer deep links:
+
+- `https://t.me/<bot>?start=smoke` opens the normal smoke keyboard.
+- `https://t.me/<bot>?start=access_panel` opens the access-control panel.
+- Telegram deep links only pass a `/start` payload; the notify bot does not and cannot send commands to another bot.
+- If a deep link does not work in the Telegram client, send the fallback command manually, for example `/start access_panel` or `/start smoke`.
+
 By default, deploy notifications are not full checklists. `AIGRAM_SMOKE_MODE=targeted` means the deploy script only says that the service was deployed; a separate targeted notification tells you exactly which current-stage action to perform. Set `AIGRAM_SMOKE_MODE=full` only for full manual regression, or `AIGRAM_SMOKE_MODE=none` to suppress deploy manual-action prompts.
+
+`AIGRAM_TARGETED_SMOKE` can make deploy send a stage-specific deep-link notification:
+
+- `access` — open `access_panel`.
+- `reply`, `edit`, `caption`, `forward_copy` — open the smoke keyboard and describe only the current-stage buttons.
+- `full` — open the smoke keyboard for a full manual regression.
+- `none` — default deploy-done FYI without asking for manual actions.
 
 If username discovery fails, scripts still send a notification with `username unknown` and continue without exposing the token. In that case, check the selected token role and `GetMe` connectivity.
 
@@ -351,6 +365,7 @@ Rules:
 - `AIGRAM_ALLOWED_USER_IDS` and `AIGRAM_ALLOWED_CHAT_IDS` are temporary allow lists for admin mode.
 - Do not use `public` or `off` for long-running public test bots. If access must be opened temporarily, use `/access_open` and then `/access_close`.
 - `/access_status`, `/access_open`, and `/access_close` are admin-only commands even while runtime mode is public.
+- Prefer the deep-link access panel in live smoke: `https://t.me/<bot>?start=access_panel`.
 - Safe logs can include `action=access_status`, `action=access_mode_changed`, and `action=access_denied`, but they must not include tokens, webhook secrets, full message text, or admin lists.
 
 ## Security notes

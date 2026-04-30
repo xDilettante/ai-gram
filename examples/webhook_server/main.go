@@ -116,22 +116,30 @@ func newDispatcher(b *aigram.Bot) (*dispatch.Dispatcher, error) {
 	if err := registerAccessCommands(dp, b, accessController, "webhook"); err != nil {
 		return nil, err
 	}
+	if err := registerAccessCallbacks(dp, b, accessController, "webhook"); err != nil {
+		return nil, err
+	}
 	if err := dp.OnCommandFunc("start", func(ctx context.Context, update telegram.Update) error {
 		message := update.EffectiveMessage()
 		if message == nil {
 			return nil
 		}
 		logSafeUpdate(update, "command")
-		_, err := b.SendMessage(ctx, aigram.SendMessageParams{
-			ChatID:      aigram.ChatIDInt(message.Chat.ID),
-			Text:        "Webhook bot is running. Choose an action:",
-			ReplyMarkup: demoKeyboard(),
-		})
-		if err != nil {
-			return err
+		payload := startPayload(message)
+		if payload != "" {
+			log.Printf("webhook action=start_payload payload=%s update_id=%d chat_id=%d from_user_id=%d", safeStartPayload(payload), update.UpdateID, message.Chat.ID, effectiveUserID(update))
 		}
-		log.Printf("webhook action=send_message ok=true update_id=%d chat_id=%d", update.UpdateID, message.Chat.ID)
-		return nil
+
+		switch payload {
+		case "access_panel":
+			return sendAccessPanel(ctx, b, accessController, update, "webhook")
+		case "access_status":
+			return sendAccessStatus(ctx, b, accessController, update, "webhook")
+		case "", "smoke":
+			return sendSmokeKeyboard(ctx, b, update, "webhook")
+		default:
+			return sendSmokeKeyboard(ctx, b, update, "webhook")
+		}
 	}); err != nil {
 		return nil, err
 	}
@@ -349,27 +357,7 @@ func registerAccessCommands(dp *dispatch.Dispatcher, b *aigram.Bot, controller *
 		if !controller.IsAdmin(update) {
 			return accessDenyHandler(b, logPrefix)(ctx, update)
 		}
-		message := update.EffectiveMessage()
-		if message == nil {
-			return nil
-		}
-		mode := controller.Mode()
-		logSafeUpdate(update, "command")
-		_, err := b.SendMessage(ctx, aigram.SendMessageParams{
-			ChatID:          aigram.ChatIDInt(message.Chat.ID),
-			MessageThreadID: message.MessageThreadID,
-			Text:            fmt.Sprintf("Access mode: %s", mode),
-			ReplyParameters: &aigram.ReplyParameters{MessageID: message.MessageID},
-		})
-		if err != nil {
-			return err
-		}
-		userID := int64(0)
-		if user := update.EffectiveUser(); user != nil {
-			userID = user.ID
-		}
-		log.Printf("%s action=access_status mode=%s update_id=%d by_user_id=%d", logPrefix, mode, update.UpdateID, userID)
-		return nil
+		return sendAccessStatus(ctx, b, controller, update, logPrefix)
 	}); err != nil {
 		return err
 	}
@@ -384,6 +372,70 @@ func registerAccessCommands(dp *dispatch.Dispatcher, b *aigram.Bot, controller *
 		return err
 	}
 	return nil
+}
+
+func registerAccessCallbacks(dp *dispatch.Dispatcher, b *aigram.Bot, controller *exampleutil.AccessController, logPrefix string) error {
+	if err := dp.OnCallbackDataFunc("access:status", func(ctx context.Context, update telegram.Update) error {
+		return handleAccessCallback(ctx, b, controller, logPrefix, update, "status")
+	}); err != nil {
+		return err
+	}
+	if err := dp.OnCallbackDataFunc("access:open", func(ctx context.Context, update telegram.Update) error {
+		return handleAccessCallback(ctx, b, controller, logPrefix, update, "open")
+	}); err != nil {
+		return err
+	}
+	if err := dp.OnCallbackDataFunc("access:close", func(ctx context.Context, update telegram.Update) error {
+		return handleAccessCallback(ctx, b, controller, logPrefix, update, "close")
+	}); err != nil {
+		return err
+	}
+	if err := dp.OnCallbackDataFunc("access:smoke", func(ctx context.Context, update telegram.Update) error {
+		return handleAccessCallback(ctx, b, controller, logPrefix, update, "smoke")
+	}); err != nil {
+		return err
+	}
+	return nil
+}
+
+func handleAccessCallback(ctx context.Context, b *aigram.Bot, controller *exampleutil.AccessController, logPrefix string, update telegram.Update, action string) error {
+	callback := update.CallbackQuery
+	if callback == nil {
+		return nil
+	}
+	logSafeUpdate(update, "callback_query")
+	if !controller.IsAdmin(update) {
+		if _, err := b.AnswerCallbackQuery(ctx, aigram.AnswerCallbackQueryParams{CallbackQueryID: callback.ID, Text: "Access denied", ShowAlert: true}); err != nil {
+			return err
+		}
+		log.Printf("%s action=access_denied update_id=%d chat_id=%d from_user_id=%d", logPrefix, update.UpdateID, effectiveChatID(update), effectiveUserID(update))
+		return nil
+	}
+
+	switch action {
+	case "status":
+		if _, err := b.AnswerCallbackQuery(ctx, aigram.AnswerCallbackQueryParams{CallbackQueryID: callback.ID, Text: fmt.Sprintf("Mode: %s", controller.Mode())}); err != nil {
+			return err
+		}
+		return sendAccessStatus(ctx, b, controller, update, logPrefix)
+	case "open":
+		if _, err := b.AnswerCallbackQuery(ctx, aigram.AnswerCallbackQueryParams{CallbackQueryID: callback.ID, Text: "Access opened"}); err != nil {
+			return err
+		}
+		return setAccessModeFromCallback(ctx, b, controller, logPrefix, update, middleware.AccessModePublic)
+	case "close":
+		if _, err := b.AnswerCallbackQuery(ctx, aigram.AnswerCallbackQueryParams{CallbackQueryID: callback.ID, Text: "Access closed"}); err != nil {
+			return err
+		}
+		return setAccessModeFromCallback(ctx, b, controller, logPrefix, update, middleware.AccessModeAdmin)
+	case "smoke":
+		if _, err := b.AnswerCallbackQuery(ctx, aigram.AnswerCallbackQueryParams{CallbackQueryID: callback.ID, Text: "Opening smoke keyboard"}); err != nil {
+			return err
+		}
+		return showSmokeKeyboardFromCallback(ctx, b, logPrefix, update)
+	default:
+		return nil
+	}
 }
 
 func setAccessMode(ctx context.Context, b *aigram.Bot, controller *exampleutil.AccessController, logPrefix string, update telegram.Update, mode middleware.AccessMode) error {
@@ -405,11 +457,106 @@ func setAccessMode(ctx context.Context, b *aigram.Bot, controller *exampleutil.A
 	if err != nil {
 		return err
 	}
-	userID := int64(0)
-	if user := update.EffectiveUser(); user != nil {
-		userID = user.ID
+	log.Printf("%s action=access_mode_changed ok=true mode=%s update_id=%d by_user_id=%d", logPrefix, mode, update.UpdateID, effectiveUserID(update))
+	return nil
+}
+
+func setAccessModeFromCallback(ctx context.Context, b *aigram.Bot, controller *exampleutil.AccessController, logPrefix string, update telegram.Update, mode middleware.AccessMode) error {
+	callback := update.CallbackQuery
+	if callback == nil || callback.Message == nil {
+		return nil
 	}
-	log.Printf("%s action=access_mode_changed mode=%s update_id=%d by_user_id=%d", logPrefix, mode, update.UpdateID, userID)
+	controller.SetMode(mode)
+	panel := accessPanelKeyboard()
+	_, err := b.EditMessageText(ctx, aigram.EditMessageTextParams{
+		Target:      aigram.EditTargetChat(aigram.ChatIDInt(callback.Message.Chat.ID), callback.Message.MessageID),
+		Text:        fmt.Sprintf("Access control panel\nMode: %s", mode),
+		ReplyMarkup: &panel,
+	})
+	if err != nil {
+		return err
+	}
+	log.Printf("%s action=access_mode_changed ok=true mode=%s update_id=%d by_user_id=%d", logPrefix, mode, update.UpdateID, effectiveUserID(update))
+	return nil
+}
+
+func sendAccessStatus(ctx context.Context, b *aigram.Bot, controller *exampleutil.AccessController, update telegram.Update, logPrefix string) error {
+	message := update.EffectiveMessage()
+	if message == nil {
+		return nil
+	}
+	mode := controller.Mode()
+	matched := "command"
+	if update.CallbackQuery != nil {
+		matched = "callback_query"
+	}
+	logSafeUpdate(update, matched)
+	_, err := b.SendMessage(ctx, aigram.SendMessageParams{
+		ChatID:          aigram.ChatIDInt(message.Chat.ID),
+		MessageThreadID: message.MessageThreadID,
+		Text:            fmt.Sprintf("Access mode: %s", mode),
+		ReplyParameters: &aigram.ReplyParameters{MessageID: message.MessageID},
+	})
+	if err != nil {
+		return err
+	}
+	log.Printf("%s action=access_status ok=true mode=%s update_id=%d by_user_id=%d", logPrefix, mode, update.UpdateID, effectiveUserID(update))
+	return nil
+}
+
+func sendAccessPanel(ctx context.Context, b *aigram.Bot, controller *exampleutil.AccessController, update telegram.Update, logPrefix string) error {
+	message := update.EffectiveMessage()
+	if message == nil {
+		return nil
+	}
+	panel := accessPanelKeyboard()
+	_, err := b.SendMessage(ctx, aigram.SendMessageParams{
+		ChatID:          aigram.ChatIDInt(message.Chat.ID),
+		MessageThreadID: message.MessageThreadID,
+		Text:            fmt.Sprintf("Access control panel\nMode: %s", controller.Mode()),
+		ReplyMarkup:     panel,
+		ReplyParameters: &aigram.ReplyParameters{MessageID: message.MessageID},
+	})
+	if err != nil {
+		return err
+	}
+	log.Printf("%s action=access_panel_shown ok=true update_id=%d chat_id=%d", logPrefix, update.UpdateID, message.Chat.ID)
+	return nil
+}
+
+func sendSmokeKeyboard(ctx context.Context, b *aigram.Bot, update telegram.Update, logPrefix string) error {
+	message := update.EffectiveMessage()
+	if message == nil {
+		return nil
+	}
+	_, err := b.SendMessage(ctx, aigram.SendMessageParams{
+		ChatID:      aigram.ChatIDInt(message.Chat.ID),
+		Text:        "Webhook bot is running. Choose an action:",
+		ReplyMarkup: demoKeyboard(),
+	})
+	if err != nil {
+		return err
+	}
+	log.Printf("%s action=smoke_keyboard_shown ok=true update_id=%d chat_id=%d", logPrefix, update.UpdateID, message.Chat.ID)
+	log.Printf("%s action=send_message ok=true update_id=%d chat_id=%d", logPrefix, update.UpdateID, message.Chat.ID)
+	return nil
+}
+
+func showSmokeKeyboardFromCallback(ctx context.Context, b *aigram.Bot, logPrefix string, update telegram.Update) error {
+	callback := update.CallbackQuery
+	if callback == nil || callback.Message == nil {
+		return nil
+	}
+	keyboard := demoKeyboard()
+	_, err := b.EditMessageText(ctx, aigram.EditMessageTextParams{
+		Target:      aigram.EditTargetChat(aigram.ChatIDInt(callback.Message.Chat.ID), callback.Message.MessageID),
+		Text:        "Webhook bot is running. Choose an action:",
+		ReplyMarkup: &keyboard,
+	})
+	if err != nil {
+		return err
+	}
+	log.Printf("%s action=smoke_keyboard_shown ok=true update_id=%d chat_id=%d", logPrefix, update.UpdateID, callback.Message.Chat.ID)
 	return nil
 }
 
@@ -428,6 +575,10 @@ func accessDenyHandler(b *aigram.Bot, logPrefix string) func(context.Context, te
 			messageThreadID = message.MessageThreadID
 		}
 		log.Printf("%s action=access_denied update_id=%d chat_id=%d from_user_id=%d", logPrefix, update.UpdateID, chatID, userID)
+		if callback := update.CallbackQuery; callback != nil {
+			_, err := b.AnswerCallbackQuery(ctx, aigram.AnswerCallbackQueryParams{CallbackQueryID: callback.ID, Text: "Access denied", ShowAlert: true})
+			return err
+		}
 		if chatID == 0 {
 			return nil
 		}
@@ -438,6 +589,36 @@ func accessDenyHandler(b *aigram.Bot, logPrefix string) func(context.Context, te
 		})
 		return err
 	}
+}
+
+func startPayload(message *telegram.Message) string {
+	if message == nil {
+		return ""
+	}
+	return strings.TrimSpace(message.CommandArguments())
+}
+
+func safeStartPayload(payload string) string {
+	switch payload {
+	case "smoke", "access_panel", "access_status":
+		return payload
+	default:
+		return "<redacted>"
+	}
+}
+
+func effectiveChatID(update telegram.Update) int64 {
+	if chat := update.EffectiveChat(); chat != nil {
+		return chat.ID
+	}
+	return 0
+}
+
+func effectiveUserID(update telegram.Update) int64 {
+	if user := update.EffectiveUser(); user != nil {
+		return user.ID
+	}
+	return 0
 }
 
 func demoKeyboard() aigram.InlineKeyboardMarkup {
@@ -453,6 +634,19 @@ func demoKeyboard() aigram.InlineKeyboardMarkup {
 		[]aigram.InlineKeyboardButton{
 			aigram.InlineButtonCallback("Copy this message", "demo:copy"),
 			aigram.InlineButtonCallback("Forward this message", "demo:forward"),
+		},
+	)
+}
+
+func accessPanelKeyboard() aigram.InlineKeyboardMarkup {
+	return aigram.NewInlineKeyboard(
+		[]aigram.InlineKeyboardButton{
+			aigram.InlineButtonCallback("Access status", "access:status"),
+			aigram.InlineButtonCallback("Start smoke", "access:smoke"),
+		},
+		[]aigram.InlineKeyboardButton{
+			aigram.InlineButtonCallback("Open access", "access:open"),
+			aigram.InlineButtonCallback("Close access", "access:close"),
 		},
 	)
 }
@@ -597,7 +791,7 @@ func safeCallbackData(update telegram.Update) string {
 		return ""
 	}
 	switch update.CallbackQuery.Data {
-	case "demo:edit", "demo:remove_keyboard", "demo:caption", "demo:edit_caption", "demo:delete_media", "demo:delete", "demo:copy", "demo:forward":
+	case "demo:edit", "demo:remove_keyboard", "demo:caption", "demo:edit_caption", "demo:delete_media", "demo:delete", "demo:copy", "demo:forward", "access:status", "access:open", "access:close", "access:smoke":
 		return update.CallbackQuery.Data
 	default:
 		return "<redacted>"

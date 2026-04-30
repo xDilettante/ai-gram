@@ -8,6 +8,8 @@ All examples read configuration from environment variables and never hardcode bo
 
 The deploy/smoke scripts can send actionable Telegram notifications with the selected bot `@username`, a `t.me` link, exact commands/buttons to press, and a short note about which safe logs Codex will verify.
 
+Smoke notifications prefer Telegram deep links such as `https://t.me/<bot>?start=access_panel` or `?start=smoke`. Telegram deep links can only pass a `/start` payload, so the target bot opens a control panel or smoke keyboard instead of receiving arbitrary commands from the notification bot.
+
 ## Environment variables
 
 | Variable | Purpose |
@@ -139,12 +141,20 @@ Runtime commands:
 - `/access_open` — switch runtime mode to `public`.
 - `/access_close` — switch runtime mode back to `admin`.
 
+Deep-link panel:
+
+- Open `https://t.me/<bot_username>?start=access_panel`.
+- The bot shows an inline control panel with `Access status`, `Open access`, `Close access`, and `Start smoke`.
+- If the deep link does not work in your Telegram client, send `/start access_panel` manually.
+- Safe logs include `action=start_payload payload=access_panel`, `action=access_panel_shown ok=true`, `action=access_status ok=true`, and optional `action=access_mode_changed ok=true mode=...`.
+
 Only admin users can run `/access_*` commands. Even when access is open, a non-admin user cannot change the mode. In admin mode, unknown users receive `Access denied.` or are ignored depending on the update shape, and safe logs include `action=access_denied update_id=... chat_id=... from_user_id=...`.
 
 Manual check:
 
 - Start the bot as an admin and send `/access_status`; expect `Access mode: admin`.
 - Send `/start`; expect the normal demo keyboard.
+- Prefer the access panel deep link when it is available.
 - Optional: send `/access_open`, test from another account, then send `/access_close`.
 - Inspect logs with `./scripts/remote_logs.sh`; safe logs should include `action=access_status`, optional `action=access_mode_changed`, and no token, secret, or full message text.
 
@@ -158,6 +168,7 @@ go run ./examples/inline_longpoll
 Checklist:
 
 - Send `/start` to the bot.
+- Or open `https://t.me/<bot_username>?start=smoke` for examples that support deep-link smoke payloads.
 - The bot sends an inline keyboard with `Edit message` and `Remove keyboard`.
 - Press `Edit message`: the client shows a toast from `AnswerCallbackQuery`, and the original message text changes to `Message edited by ai-gram`.
 - Press `Remove keyboard`: the client shows a toast from `AnswerCallbackQuery`, and the inline keyboard disappears.
