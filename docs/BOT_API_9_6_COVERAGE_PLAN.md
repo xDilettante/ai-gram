@@ -319,9 +319,9 @@ This plan is a working checklist derived from the official documentation and cha
 
 ### Batch methods
 
-- [ ] `ForwardMessages`
-- [ ] `CopyMessages`
-- [ ] `DeleteMessages`
+- [x] `ForwardMessages`
+- [x] `CopyMessages`
+- [x] `DeleteMessages`
 
 ### Remaining message and edit methods
 
@@ -348,7 +348,7 @@ Recommended local-only stages:
 9. Poll 9.6 updates
 10. Business APIs
 11. Games and Passport
-12. Batch methods
+12. Batch methods - implemented locally in Stage 69; `DeleteMessages` manual-only live smoke.
 13. Remaining message/edit methods
 14. Final full coverage audit against official Bot API 9.6
 

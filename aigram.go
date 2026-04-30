@@ -78,11 +78,20 @@ type AnswerCallbackQueryParams = bot.AnswerCallbackQueryParams
 // DeleteMessageParams contains supported parameters for deleteMessage.
 type DeleteMessageParams = bot.DeleteMessageParams
 
+// DeleteMessagesParams contains supported parameters for deleteMessages.
+type DeleteMessagesParams = bot.DeleteMessagesParams
+
 // ForwardMessageParams contains supported parameters for forwardMessage.
 type ForwardMessageParams = bot.ForwardMessageParams
 
 // CopyMessageParams contains supported parameters for copyMessage.
 type CopyMessageParams = bot.CopyMessageParams
+
+// ForwardMessagesParams contains supported parameters for forwardMessages.
+type ForwardMessagesParams = bot.ForwardMessagesParams
+
+// CopyMessagesParams contains supported parameters for copyMessages.
+type CopyMessagesParams = bot.CopyMessagesParams
 
 // SendChatActionParams contains supported parameters for sendChatAction.
 type SendChatActionParams = bot.SendChatActionParams

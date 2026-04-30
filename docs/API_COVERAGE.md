@@ -74,6 +74,7 @@ This document maps the current `ai-gram` implementation to Telegram Bot API area
 | `(*bot.Bot).EditMessageReplyMarkup` | `editMessageReplyMarkup` | unit/httptest, live examples | `nil` reply markup removes inline keyboard. |
 | `bot.EditMessageTarget`, `bot.EditMessageResult` | edit helpers/result | unit | Validates chat-vs-inline target and handles `Message`/`true` return shape. |
 | `(*bot.Bot).DeleteMessage` | `deleteMessage` | unit/httptest, live examples | Destructive; live example only deletes messages created during smoke. |
+| `(*bot.Bot).DeleteMessages` | `deleteMessages` | unit/httptest | Destructive batch delete for 1-100 message IDs; manual-only live smoke. |
 | `(*bot.Bot).StopPoll` | `stopPoll` | unit/httptest, live v0.2 smoke | Stops a poll sent by the bot and returns `telegram.Poll`. |
 
 ### Forward/copy
@@ -81,7 +82,9 @@ This document maps the current `ai-gram` implementation to Telegram Bot API area
 | Public Go API | Telegram Bot API method | Tests | Notes |
 | --- | --- | --- | --- |
 | `(*bot.Bot).ForwardMessage` | `forwardMessage` | unit/httptest, live examples | Supports thread ID, disable notification, protect content. |
+| `(*bot.Bot).ForwardMessages` | `forwardMessages` | unit/httptest | Batch forwards 1-100 message IDs and returns `[]telegram.MessageID`. Not auto-smoked. |
 | `(*bot.Bot).CopyMessage` | `copyMessage` | unit/httptest, live examples | Returns `telegram.MessageID`; supports caption, reply parameters, reply markup, notification/protect flags. |
+| `(*bot.Bot).CopyMessages` | `copyMessages` | unit/httptest | Batch copies 1-100 message IDs and returns `[]telegram.MessageID`; supports remove caption and notification/protect flags. Not auto-smoked. |
 
 ### Chat actions
 
@@ -310,7 +313,9 @@ This document maps the current `ai-gram` implementation to Telegram Bot API area
 - `EditMessageCaption`
 - `EditMessageReplyMarkup`
 - `ForwardMessage`
+- `ForwardMessages`
 - `CopyMessage`
+- `CopyMessages`
 - `SendChatAction`
 
 These still require real credentials and may notify users, but they are not destructive when used in dedicated test chats.
@@ -335,6 +340,7 @@ These still require real credentials and may notify users, but they are not dest
 ### Destructive
 
 - `DeleteMessage`
+- `DeleteMessages`
 - `DeleteWebhook` when `drop_pending_updates=true`
 - `UnpinAllChatMessages`
 - `BanChatMember`
@@ -346,6 +352,7 @@ These still require real credentials and may notify users, but they are not dest
 - invite link methods when used outside isolated test chats, because they create or revoke real access links
 - chat join request methods, because they approve or decline real users waiting to join
 - reaction methods when used outside isolated test messages, because they change real message reaction state
+- batch delete methods when used outside disposable test messages
 - future moderation/admin methods
 
 ### Requires upload/multipart

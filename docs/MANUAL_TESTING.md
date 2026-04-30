@@ -272,6 +272,20 @@ Checklist:
 - Inspect safe logs with `./scripts/remote_logs.sh`; successful actions are logged as `action=copy_message ok=true update_id=... chat_id=... message_id=... copied_message_id=...` and `action=forward_message ok=true update_id=... chat_id=... message_id=... forwarded_message_id=...`.
 - Do not log or paste full message text; safe logs are enough for verification.
 
+## Batch message methods checklist
+
+`ForwardMessages`, `CopyMessages`, and `DeleteMessages` operate on up to 100 message IDs per call. `DeleteMessages` is destructive and is intentionally not part of automatic live smoke.
+
+Manual checklist:
+
+- Use a dedicated test chat.
+- Create disposable test messages for the batch operation.
+- Run only after explicit confirmation for the target chat.
+- Use `ForwardMessages` and `CopyMessages` only with messages intended for testing.
+- Use `DeleteMessages` only on disposable test messages created for the check.
+- Log only method names, chat ID, message ID count, first returned message ID for copy/forward, and boolean result for delete.
+- Do not paste bot tokens, token-bearing URLs, private message text, or full private chat content into logs or reports.
+
 ## Webhook SendChatAction and pin/unpin checklist
 
 The default webhook smoke checks `SendChatAction` in the echo handler without requiring extra chat permissions. Pin and unpin methods are not enabled in the default webhook example because they require suitable admin rights in groups/channels and can be noisy.
