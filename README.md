@@ -837,6 +837,7 @@ Runnable examples are available under `examples/`:
 - `examples/webhook_server` — admin-only inbound webhook server with `SetWebhook`, safe action logs, callback edit/delete flows, and caption edit smoke.
 - `examples/media_upload` — document upload and file download smoke checks.
 - `examples/v02_send_methods` — safe v0.2 send-method live smoke helper for contact, location, venue, poll, dice, and optional media sends.
+- `examples/media_group_smoke` — targeted `SendMediaGroup` live smoke helper with generated upload fallback.
 - `examples/local_api_server` — connectivity check for a local Telegram Bot API server.
 
 ## Manual testing
@@ -862,6 +863,8 @@ The integration harness supports role-specific test bot tokens (`MAIN`, `LOCAL`,
 Manual smoke scripts can also send Telegram notifications with the target `@username`, `t.me` deep link, exact panel/button guidance, and what Codex will verify in safe logs. Webhook deploy notifications use `AIGRAM_SMOKE_MODE=targeted` by default, so deploys do not ask for a full checklist unless `AIGRAM_SMOKE_MODE=full` is explicitly set. See [`docs/DEPLOY_TESTING.md`](docs/DEPLOY_TESTING.md#telegram-notifications-during-smoke-checks).
 
 Use `./scripts/smoke_v02_send_methods.sh` for the targeted v0.2 send-method live smoke. It sends contact/location/venue/poll/dice test messages to the configured smoke chat; sticker, animation, and video note checks run only when the matching optional media environment variables are set.
+
+Use `./scripts/smoke_media_group.sh` for the targeted `SendMediaGroup` live smoke. By default it sends two generated small text documents as a media group, and optional file ID/path env variables can switch it to FileID or upload mode.
 
 ## Development checks
 

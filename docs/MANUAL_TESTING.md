@@ -186,6 +186,32 @@ Optional media checks are skipped without failing when media env is absent:
 
 Expected safe markers include `AIGRAM_V02_SMOKE_SEND_CONTACT_OK`, `AIGRAM_V02_SMOKE_STOP_POLL_OK`, optional `AIGRAM_V02_SMOKE_SEND_*_SKIPPED`, and final `AIGRAM_V02_SMOKE_OK`. The script must not print bot tokens, token-bearing endpoints, full file IDs, or private message text.
 
+## SendMediaGroup smoke
+
+Use this script to verify a real `SendMediaGroup` flow without requiring external media fixtures:
+
+```bash
+export AIGRAM_BOT_TOKEN_MAIN='123456:replace_me'
+export AIGRAM_CHAT_ID='123456789'
+./scripts/smoke_media_group.sh
+```
+
+Default behavior is self-contained: when no media-group file IDs or paths are configured, the smoke sends two generated small text documents as a media group through multipart upload.
+
+Optional inputs:
+
+- `AIGRAM_MEDIA_GROUP_CHAT_ID` overrides `AIGRAM_CHAT_ID`.
+- `AIGRAM_MEDIA_GROUP_FILE_ID_1` and `AIGRAM_MEDIA_GROUP_FILE_ID_2` enable FileID mode. These should be file IDs suitable for document media groups; the script must not print them fully.
+- `AIGRAM_MEDIA_GROUP_PATH_1` and `AIGRAM_MEDIA_GROUP_PATH_2` enable upload mode from local files. Output should use only safe basenames, not sensitive full paths.
+
+Expected safe markers:
+
+- `AIGRAM_MEDIA_GROUP_SMOKE_WAITING chat_id=... mode=...`
+- one of `AIGRAM_MEDIA_GROUP_FILE_ID_OK`, `AIGRAM_MEDIA_GROUP_UPLOAD_OK`, or `AIGRAM_MEDIA_GROUP_GENERATED_UPLOAD_OK`
+- final `AIGRAM_MEDIA_GROUP_OK`
+
+The smoke sends real test documents/messages to the configured chat, but it requires no user action and does not run destructive/admin checks.
+
 ## Inline keyboard callback checklist
 
 ```bash
