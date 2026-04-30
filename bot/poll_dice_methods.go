@@ -9,6 +9,7 @@ import (
 
 // SendPollParams contains supported parameters for sendPoll.
 type SendPollParams struct {
+	BusinessConnectionID   string                    `json:"business_connection_id,omitempty"`
 	ChatID                 ChatID                    `json:"chat_id"`
 	MessageThreadID        int64                     `json:"message_thread_id,omitempty"`
 	Question               string                    `json:"question"`
@@ -39,20 +40,22 @@ type SendPollParams struct {
 
 // StopPollParams contains supported parameters for stopPoll.
 type StopPollParams struct {
-	ChatID      ChatID                         `json:"chat_id"`
-	MessageID   int64                          `json:"message_id"`
-	ReplyMarkup *telegram.InlineKeyboardMarkup `json:"reply_markup,omitempty"`
+	BusinessConnectionID string                         `json:"business_connection_id,omitempty"`
+	ChatID               ChatID                         `json:"chat_id"`
+	MessageID            int64                          `json:"message_id"`
+	ReplyMarkup          *telegram.InlineKeyboardMarkup `json:"reply_markup,omitempty"`
 }
 
 // SendDiceParams contains supported parameters for sendDice.
 type SendDiceParams struct {
-	ChatID              ChatID                    `json:"chat_id"`
-	MessageThreadID     int64                     `json:"message_thread_id,omitempty"`
-	Emoji               string                    `json:"emoji,omitempty"`
-	DisableNotification bool                      `json:"disable_notification,omitempty"`
-	ProtectContent      bool                      `json:"protect_content,omitempty"`
-	ReplyParameters     *telegram.ReplyParameters `json:"reply_parameters,omitempty"`
-	ReplyMarkup         telegram.ReplyMarkup      `json:"reply_markup,omitempty"`
+	BusinessConnectionID string                    `json:"business_connection_id,omitempty"`
+	ChatID               ChatID                    `json:"chat_id"`
+	MessageThreadID      int64                     `json:"message_thread_id,omitempty"`
+	Emoji                string                    `json:"emoji,omitempty"`
+	DisableNotification  bool                      `json:"disable_notification,omitempty"`
+	ProtectContent       bool                      `json:"protect_content,omitempty"`
+	ReplyParameters      *telegram.ReplyParameters `json:"reply_parameters,omitempty"`
+	ReplyMarkup          telegram.ReplyMarkup      `json:"reply_markup,omitempty"`
 }
 
 // SendPoll sends a native poll.

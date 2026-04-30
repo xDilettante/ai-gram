@@ -74,27 +74,30 @@ func EditTargetInline(inlineMessageID string) EditMessageTarget {
 
 // EditMessageTextParams contains supported parameters for editMessageText.
 type EditMessageTextParams struct {
-	Target              EditMessageTarget              `json:"-"`
-	Text                string                         `json:"text"`
-	ParseMode           string                         `json:"parse_mode,omitempty"`
-	Entities            []telegram.MessageEntity       `json:"entities,omitempty"`
-	LinkPreviewDisabled bool                           `json:"disable_web_page_preview,omitempty"`
-	ReplyMarkup         *telegram.InlineKeyboardMarkup `json:"reply_markup,omitempty"`
+	BusinessConnectionID string                         `json:"business_connection_id,omitempty"`
+	Target               EditMessageTarget              `json:"-"`
+	Text                 string                         `json:"text"`
+	ParseMode            string                         `json:"parse_mode,omitempty"`
+	Entities             []telegram.MessageEntity       `json:"entities,omitempty"`
+	LinkPreviewDisabled  bool                           `json:"disable_web_page_preview,omitempty"`
+	ReplyMarkup          *telegram.InlineKeyboardMarkup `json:"reply_markup,omitempty"`
 }
 
 // EditMessageReplyMarkupParams contains supported parameters for editMessageReplyMarkup.
 type EditMessageReplyMarkupParams struct {
-	Target      EditMessageTarget              `json:"-"`
-	ReplyMarkup *telegram.InlineKeyboardMarkup `json:"reply_markup,omitempty"`
+	BusinessConnectionID string                         `json:"business_connection_id,omitempty"`
+	Target               EditMessageTarget              `json:"-"`
+	ReplyMarkup          *telegram.InlineKeyboardMarkup `json:"reply_markup,omitempty"`
 }
 
 // EditMessageCaptionParams contains supported parameters for editMessageCaption.
 type EditMessageCaptionParams struct {
-	Target          EditMessageTarget              `json:"-"`
-	Caption         string                         `json:"caption,omitempty"`
-	ParseMode       string                         `json:"parse_mode,omitempty"`
-	CaptionEntities []telegram.MessageEntity       `json:"caption_entities,omitempty"`
-	ReplyMarkup     *telegram.InlineKeyboardMarkup `json:"reply_markup,omitempty"`
+	BusinessConnectionID string                         `json:"business_connection_id,omitempty"`
+	Target               EditMessageTarget              `json:"-"`
+	Caption              string                         `json:"caption,omitempty"`
+	ParseMode            string                         `json:"parse_mode,omitempty"`
+	CaptionEntities      []telegram.MessageEntity       `json:"caption_entities,omitempty"`
+	ReplyMarkup          *telegram.InlineKeyboardMarkup `json:"reply_markup,omitempty"`
 }
 
 // EditMessageText edits text and inline keyboard markup for an existing chat or inline message.
@@ -213,44 +216,48 @@ func (params EditMessageCaptionParams) validate() error {
 }
 
 type editMessageTextPayload struct {
-	ChatID              *ChatID                        `json:"chat_id,omitempty"`
-	MessageID           int64                          `json:"message_id,omitempty"`
-	InlineMessageID     string                         `json:"inline_message_id,omitempty"`
-	Text                string                         `json:"text"`
-	ParseMode           string                         `json:"parse_mode,omitempty"`
-	Entities            []telegram.MessageEntity       `json:"entities,omitempty"`
-	LinkPreviewDisabled bool                           `json:"disable_web_page_preview,omitempty"`
-	ReplyMarkup         *telegram.InlineKeyboardMarkup `json:"reply_markup,omitempty"`
+	BusinessConnectionID string                         `json:"business_connection_id,omitempty"`
+	ChatID               *ChatID                        `json:"chat_id,omitempty"`
+	MessageID            int64                          `json:"message_id,omitempty"`
+	InlineMessageID      string                         `json:"inline_message_id,omitempty"`
+	Text                 string                         `json:"text"`
+	ParseMode            string                         `json:"parse_mode,omitempty"`
+	Entities             []telegram.MessageEntity       `json:"entities,omitempty"`
+	LinkPreviewDisabled  bool                           `json:"disable_web_page_preview,omitempty"`
+	ReplyMarkup          *telegram.InlineKeyboardMarkup `json:"reply_markup,omitempty"`
 }
 
 type editMessageReplyMarkupPayload struct {
-	ChatID          *ChatID                        `json:"chat_id,omitempty"`
-	MessageID       int64                          `json:"message_id,omitempty"`
-	InlineMessageID string                         `json:"inline_message_id,omitempty"`
-	ReplyMarkup     *telegram.InlineKeyboardMarkup `json:"reply_markup,omitempty"`
+	BusinessConnectionID string                         `json:"business_connection_id,omitempty"`
+	ChatID               *ChatID                        `json:"chat_id,omitempty"`
+	MessageID            int64                          `json:"message_id,omitempty"`
+	InlineMessageID      string                         `json:"inline_message_id,omitempty"`
+	ReplyMarkup          *telegram.InlineKeyboardMarkup `json:"reply_markup,omitempty"`
 }
 
 type editMessageCaptionPayload struct {
-	ChatID          *ChatID                        `json:"chat_id,omitempty"`
-	MessageID       int64                          `json:"message_id,omitempty"`
-	InlineMessageID string                         `json:"inline_message_id,omitempty"`
-	Caption         string                         `json:"caption"`
-	ParseMode       string                         `json:"parse_mode,omitempty"`
-	CaptionEntities []telegram.MessageEntity       `json:"caption_entities,omitempty"`
-	ReplyMarkup     *telegram.InlineKeyboardMarkup `json:"reply_markup,omitempty"`
+	BusinessConnectionID string                         `json:"business_connection_id,omitempty"`
+	ChatID               *ChatID                        `json:"chat_id,omitempty"`
+	MessageID            int64                          `json:"message_id,omitempty"`
+	InlineMessageID      string                         `json:"inline_message_id,omitempty"`
+	Caption              string                         `json:"caption"`
+	ParseMode            string                         `json:"parse_mode,omitempty"`
+	CaptionEntities      []telegram.MessageEntity       `json:"caption_entities,omitempty"`
+	ReplyMarkup          *telegram.InlineKeyboardMarkup `json:"reply_markup,omitempty"`
 }
 
 func (params EditMessageTextParams) payload() editMessageTextPayload {
 	chatID, messageID, inlineMessageID := params.Target.payloadValues()
 	payload := editMessageTextPayload{
-		ChatID:              chatID,
-		MessageID:           messageID,
-		InlineMessageID:     inlineMessageID,
-		Text:                params.Text,
-		ParseMode:           params.ParseMode,
-		Entities:            params.Entities,
-		LinkPreviewDisabled: params.LinkPreviewDisabled,
-		ReplyMarkup:         params.ReplyMarkup,
+		BusinessConnectionID: params.BusinessConnectionID,
+		ChatID:               chatID,
+		MessageID:            messageID,
+		InlineMessageID:      inlineMessageID,
+		Text:                 params.Text,
+		ParseMode:            params.ParseMode,
+		Entities:             params.Entities,
+		LinkPreviewDisabled:  params.LinkPreviewDisabled,
+		ReplyMarkup:          params.ReplyMarkup,
 	}
 
 	return payload
@@ -259,10 +266,11 @@ func (params EditMessageTextParams) payload() editMessageTextPayload {
 func (params EditMessageReplyMarkupParams) payload() editMessageReplyMarkupPayload {
 	chatID, messageID, inlineMessageID := params.Target.payloadValues()
 	payload := editMessageReplyMarkupPayload{
-		ChatID:          chatID,
-		MessageID:       messageID,
-		InlineMessageID: inlineMessageID,
-		ReplyMarkup:     params.ReplyMarkup,
+		BusinessConnectionID: params.BusinessConnectionID,
+		ChatID:               chatID,
+		MessageID:            messageID,
+		InlineMessageID:      inlineMessageID,
+		ReplyMarkup:          params.ReplyMarkup,
 	}
 
 	return payload
@@ -271,13 +279,14 @@ func (params EditMessageReplyMarkupParams) payload() editMessageReplyMarkupPaylo
 func (params EditMessageCaptionParams) payload() editMessageCaptionPayload {
 	chatID, messageID, inlineMessageID := params.Target.payloadValues()
 	return editMessageCaptionPayload{
-		ChatID:          chatID,
-		MessageID:       messageID,
-		InlineMessageID: inlineMessageID,
-		Caption:         params.Caption,
-		ParseMode:       params.ParseMode,
-		CaptionEntities: params.CaptionEntities,
-		ReplyMarkup:     params.ReplyMarkup,
+		BusinessConnectionID: params.BusinessConnectionID,
+		ChatID:               chatID,
+		MessageID:            messageID,
+		InlineMessageID:      inlineMessageID,
+		Caption:              params.Caption,
+		ParseMode:            params.ParseMode,
+		CaptionEntities:      params.CaptionEntities,
+		ReplyMarkup:          params.ReplyMarkup,
 	}
 }
 

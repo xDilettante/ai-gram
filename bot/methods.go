@@ -9,13 +9,14 @@ import (
 
 // SendMessageParams contains supported parameters for sendMessage.
 type SendMessageParams struct {
-	ChatID              ChatID                    `json:"chat_id"`
-	MessageThreadID     int64                     `json:"message_thread_id,omitempty"`
-	Text                string                    `json:"text"`
-	ParseMode           string                    `json:"parse_mode,omitempty"`
-	DisableNotification bool                      `json:"disable_notification,omitempty"`
-	ReplyParameters     *telegram.ReplyParameters `json:"reply_parameters,omitempty"`
-	ReplyMarkup         telegram.ReplyMarkup      `json:"reply_markup,omitempty"`
+	BusinessConnectionID string                    `json:"business_connection_id,omitempty"`
+	ChatID               ChatID                    `json:"chat_id"`
+	MessageThreadID      int64                     `json:"message_thread_id,omitempty"`
+	Text                 string                    `json:"text"`
+	ParseMode            string                    `json:"parse_mode,omitempty"`
+	DisableNotification  bool                      `json:"disable_notification,omitempty"`
+	ReplyParameters      *telegram.ReplyParameters `json:"reply_parameters,omitempty"`
+	ReplyMarkup          telegram.ReplyMarkup      `json:"reply_markup,omitempty"`
 }
 
 // GetUpdatesParams contains supported parameters for getUpdates.

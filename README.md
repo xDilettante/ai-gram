@@ -661,7 +661,7 @@ fmt.Println("inline message:", sent.InlineMessageID)
 ```
 
 
-Business API support includes business connection/message updates, `GetBusinessConnection`, `ReadBusinessMessage`, `DeleteBusinessMessages`, business account profile methods, gift settings, stories, and suggested post approval methods. Business flows require explicit business connection setup; these methods can read or mutate real business account state and are manual-only. Do not log business message payloads or business account payloads:
+Business API support includes business connection/message updates, `GetBusinessConnection`, `ReadBusinessMessage`, `DeleteBusinessMessages`, business account profile methods, gift settings, stories, suggested post approval methods, and optional `BusinessConnectionID` fields on supported send/edit params. Business flows require explicit business connection setup; these methods can read, send, edit, or mutate real business account state and are manual-only. Do not log business message payloads or business account payloads:
 
 ```go
 connection, err := b.GetBusinessConnection(ctx, aigram.GetBusinessConnectionParams{
@@ -677,6 +677,18 @@ _, err = b.ReadBusinessMessage(ctx, aigram.ReadBusinessMessageParams{
     ChatID:               aigram.ChatIDInt(chatID),
     MessageID:            messageID,
 })
+if err != nil {
+    return err
+}
+
+_, err = b.SendMessage(ctx, aigram.SendMessageParams{
+    BusinessConnectionID: businessConnectionID,
+    ChatID:               aigram.ChatIDInt(chatID),
+    Text:                 "Business test message",
+})
+if err != nil {
+    return err
+}
 ```
 
 Payments, gifts, business gifts, and Stars support `SendInvoice`, `CreateInvoiceLink`, `AnswerShippingQuery`, `AnswerPreCheckoutQuery`, `SendPaidMedia`, `GetAvailableGifts`, `SendGift`, `GiftPremiumSubscription`, `GetBusinessAccountStarBalance`, `TransferBusinessAccountStars`, `GetBusinessAccountGifts`, `GetUserGifts`, `GetChatGifts`, `ConvertGiftToStars`, `UpgradeGift`, `TransferGift`, `GetMyStarBalance`, `GetStarTransactions`, `RefundStarPayment`, and `EditUserStarSubscription`. Payment, gifts, business gifts, and Stars live testing requires an explicit payment-capable test environment and is manual-only:

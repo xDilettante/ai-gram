@@ -10,20 +10,22 @@ import (
 
 // SendContactParams contains supported parameters for sendContact.
 type SendContactParams struct {
-	ChatID              ChatID                    `json:"chat_id"`
-	MessageThreadID     int64                     `json:"message_thread_id,omitempty"`
-	PhoneNumber         string                    `json:"phone_number"`
-	FirstName           string                    `json:"first_name"`
-	LastName            string                    `json:"last_name,omitempty"`
-	VCard               string                    `json:"vcard,omitempty"`
-	DisableNotification bool                      `json:"disable_notification,omitempty"`
-	ProtectContent      bool                      `json:"protect_content,omitempty"`
-	ReplyParameters     *telegram.ReplyParameters `json:"reply_parameters,omitempty"`
-	ReplyMarkup         telegram.ReplyMarkup      `json:"reply_markup,omitempty"`
+	BusinessConnectionID string                    `json:"business_connection_id,omitempty"`
+	ChatID               ChatID                    `json:"chat_id"`
+	MessageThreadID      int64                     `json:"message_thread_id,omitempty"`
+	PhoneNumber          string                    `json:"phone_number"`
+	FirstName            string                    `json:"first_name"`
+	LastName             string                    `json:"last_name,omitempty"`
+	VCard                string                    `json:"vcard,omitempty"`
+	DisableNotification  bool                      `json:"disable_notification,omitempty"`
+	ProtectContent       bool                      `json:"protect_content,omitempty"`
+	ReplyParameters      *telegram.ReplyParameters `json:"reply_parameters,omitempty"`
+	ReplyMarkup          telegram.ReplyMarkup      `json:"reply_markup,omitempty"`
 }
 
 // SendLocationParams contains supported parameters for sendLocation.
 type SendLocationParams struct {
+	BusinessConnectionID string                    `json:"business_connection_id,omitempty"`
 	ChatID               ChatID                    `json:"chat_id"`
 	MessageThreadID      int64                     `json:"message_thread_id,omitempty"`
 	Latitude             float64                   `json:"latitude"`
@@ -40,20 +42,21 @@ type SendLocationParams struct {
 
 // SendVenueParams contains supported parameters for sendVenue.
 type SendVenueParams struct {
-	ChatID              ChatID                    `json:"chat_id"`
-	MessageThreadID     int64                     `json:"message_thread_id,omitempty"`
-	Latitude            float64                   `json:"latitude"`
-	Longitude           float64                   `json:"longitude"`
-	Title               string                    `json:"title"`
-	Address             string                    `json:"address"`
-	FoursquareID        string                    `json:"foursquare_id,omitempty"`
-	FoursquareType      string                    `json:"foursquare_type,omitempty"`
-	GooglePlaceID       string                    `json:"google_place_id,omitempty"`
-	GooglePlaceType     string                    `json:"google_place_type,omitempty"`
-	DisableNotification bool                      `json:"disable_notification,omitempty"`
-	ProtectContent      bool                      `json:"protect_content,omitempty"`
-	ReplyParameters     *telegram.ReplyParameters `json:"reply_parameters,omitempty"`
-	ReplyMarkup         telegram.ReplyMarkup      `json:"reply_markup,omitempty"`
+	BusinessConnectionID string                    `json:"business_connection_id,omitempty"`
+	ChatID               ChatID                    `json:"chat_id"`
+	MessageThreadID      int64                     `json:"message_thread_id,omitempty"`
+	Latitude             float64                   `json:"latitude"`
+	Longitude            float64                   `json:"longitude"`
+	Title                string                    `json:"title"`
+	Address              string                    `json:"address"`
+	FoursquareID         string                    `json:"foursquare_id,omitempty"`
+	FoursquareType       string                    `json:"foursquare_type,omitempty"`
+	GooglePlaceID        string                    `json:"google_place_id,omitempty"`
+	GooglePlaceType      string                    `json:"google_place_type,omitempty"`
+	DisableNotification  bool                      `json:"disable_notification,omitempty"`
+	ProtectContent       bool                      `json:"protect_content,omitempty"`
+	ReplyParameters      *telegram.ReplyParameters `json:"reply_parameters,omitempty"`
+	ReplyMarkup          telegram.ReplyMarkup      `json:"reply_markup,omitempty"`
 }
 
 // SendContact sends a phone contact.

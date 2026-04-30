@@ -526,12 +526,13 @@ Manual checklist:
 - Confirm the bot has the required business bot rights before testing read, delete, profile, gift settings, story, and suggested post flows.
 - Fetch only expected test `business_connection_id` metadata with `GetBusinessConnection`.
 - Mark only disposable test messages as read with `ReadBusinessMessage`; delete only disposable test messages with `DeleteBusinessMessages`.
+- Send or edit only disposable test business messages by setting `BusinessConnectionID` on supported send/edit params; restore or delete visible test messages after the check.
 - Change only dedicated test business account name/bio/username/photo/gift settings and restore previous values after testing.
 - Post/edit/delete only disposable test stories; use only test story assets.
 - Approve or decline only disposable suggested posts in dedicated direct messages chats.
 - Verify business connection/message/suggested-post update decoding using safe metadata only.
 - Log only safe markers: method name, redacted business connection ID, chat ID, message/story count, boolean result, and update ID.
-- Do not log bot tokens, token-bearing URLs, raw business message payloads, private user text, or production business identifiers.
+- Do not log bot tokens, token-bearing URLs, raw business message/edit payloads, private user text, or production business identifiers.
 
 ## Payments, paid media, and Stars checklist
 

@@ -67,20 +67,22 @@ func (ref FileRef) MarshalJSON() ([]byte, error) {
 
 // SendPhotoParams contains supported parameters for sendPhoto.
 type SendPhotoParams struct {
-	ChatID              ChatID                    `json:"chat_id"`
-	MessageThreadID     int64                     `json:"message_thread_id,omitempty"`
-	Photo               FileRef                   `json:"photo"`
-	Caption             string                    `json:"caption,omitempty"`
-	ParseMode           string                    `json:"parse_mode,omitempty"`
-	CaptionEntities     []telegram.MessageEntity  `json:"caption_entities,omitempty"`
-	DisableNotification bool                      `json:"disable_notification,omitempty"`
-	ProtectContent      bool                      `json:"protect_content,omitempty"`
-	ReplyParameters     *telegram.ReplyParameters `json:"reply_parameters,omitempty"`
-	ReplyMarkup         telegram.ReplyMarkup      `json:"reply_markup,omitempty"`
+	BusinessConnectionID string                    `json:"business_connection_id,omitempty"`
+	ChatID               ChatID                    `json:"chat_id"`
+	MessageThreadID      int64                     `json:"message_thread_id,omitempty"`
+	Photo                FileRef                   `json:"photo"`
+	Caption              string                    `json:"caption,omitempty"`
+	ParseMode            string                    `json:"parse_mode,omitempty"`
+	CaptionEntities      []telegram.MessageEntity  `json:"caption_entities,omitempty"`
+	DisableNotification  bool                      `json:"disable_notification,omitempty"`
+	ProtectContent       bool                      `json:"protect_content,omitempty"`
+	ReplyParameters      *telegram.ReplyParameters `json:"reply_parameters,omitempty"`
+	ReplyMarkup          telegram.ReplyMarkup      `json:"reply_markup,omitempty"`
 }
 
 // SendDocumentParams contains supported parameters for sendDocument.
 type SendDocumentParams struct {
+	BusinessConnectionID        string                    `json:"business_connection_id,omitempty"`
 	ChatID                      ChatID                    `json:"chat_id"`
 	MessageThreadID             int64                     `json:"message_thread_id,omitempty"`
 	Document                    FileRef                   `json:"document"`
@@ -96,53 +98,56 @@ type SendDocumentParams struct {
 
 // SendVideoParams contains supported parameters for sendVideo.
 type SendVideoParams struct {
-	ChatID              ChatID                    `json:"chat_id"`
-	MessageThreadID     int64                     `json:"message_thread_id,omitempty"`
-	Video               FileRef                   `json:"video"`
-	Duration            int                       `json:"duration,omitempty"`
-	Width               int                       `json:"width,omitempty"`
-	Height              int                       `json:"height,omitempty"`
-	Caption             string                    `json:"caption,omitempty"`
-	ParseMode           string                    `json:"parse_mode,omitempty"`
-	CaptionEntities     []telegram.MessageEntity  `json:"caption_entities,omitempty"`
-	SupportsStreaming   bool                      `json:"supports_streaming,omitempty"`
-	HasSpoiler          bool                      `json:"has_spoiler,omitempty"`
-	DisableNotification bool                      `json:"disable_notification,omitempty"`
-	ProtectContent      bool                      `json:"protect_content,omitempty"`
-	ReplyParameters     *telegram.ReplyParameters `json:"reply_parameters,omitempty"`
-	ReplyMarkup         telegram.ReplyMarkup      `json:"reply_markup,omitempty"`
+	BusinessConnectionID string                    `json:"business_connection_id,omitempty"`
+	ChatID               ChatID                    `json:"chat_id"`
+	MessageThreadID      int64                     `json:"message_thread_id,omitempty"`
+	Video                FileRef                   `json:"video"`
+	Duration             int                       `json:"duration,omitempty"`
+	Width                int                       `json:"width,omitempty"`
+	Height               int                       `json:"height,omitempty"`
+	Caption              string                    `json:"caption,omitempty"`
+	ParseMode            string                    `json:"parse_mode,omitempty"`
+	CaptionEntities      []telegram.MessageEntity  `json:"caption_entities,omitempty"`
+	SupportsStreaming    bool                      `json:"supports_streaming,omitempty"`
+	HasSpoiler           bool                      `json:"has_spoiler,omitempty"`
+	DisableNotification  bool                      `json:"disable_notification,omitempty"`
+	ProtectContent       bool                      `json:"protect_content,omitempty"`
+	ReplyParameters      *telegram.ReplyParameters `json:"reply_parameters,omitempty"`
+	ReplyMarkup          telegram.ReplyMarkup      `json:"reply_markup,omitempty"`
 }
 
 // SendAudioParams contains supported parameters for sendAudio.
 type SendAudioParams struct {
-	ChatID              ChatID                    `json:"chat_id"`
-	MessageThreadID     int64                     `json:"message_thread_id,omitempty"`
-	Audio               FileRef                   `json:"audio"`
-	Duration            int                       `json:"duration,omitempty"`
-	Performer           string                    `json:"performer,omitempty"`
-	Title               string                    `json:"title,omitempty"`
-	Caption             string                    `json:"caption,omitempty"`
-	ParseMode           string                    `json:"parse_mode,omitempty"`
-	CaptionEntities     []telegram.MessageEntity  `json:"caption_entities,omitempty"`
-	DisableNotification bool                      `json:"disable_notification,omitempty"`
-	ProtectContent      bool                      `json:"protect_content,omitempty"`
-	ReplyParameters     *telegram.ReplyParameters `json:"reply_parameters,omitempty"`
-	ReplyMarkup         telegram.ReplyMarkup      `json:"reply_markup,omitempty"`
+	BusinessConnectionID string                    `json:"business_connection_id,omitempty"`
+	ChatID               ChatID                    `json:"chat_id"`
+	MessageThreadID      int64                     `json:"message_thread_id,omitempty"`
+	Audio                FileRef                   `json:"audio"`
+	Duration             int                       `json:"duration,omitempty"`
+	Performer            string                    `json:"performer,omitempty"`
+	Title                string                    `json:"title,omitempty"`
+	Caption              string                    `json:"caption,omitempty"`
+	ParseMode            string                    `json:"parse_mode,omitempty"`
+	CaptionEntities      []telegram.MessageEntity  `json:"caption_entities,omitempty"`
+	DisableNotification  bool                      `json:"disable_notification,omitempty"`
+	ProtectContent       bool                      `json:"protect_content,omitempty"`
+	ReplyParameters      *telegram.ReplyParameters `json:"reply_parameters,omitempty"`
+	ReplyMarkup          telegram.ReplyMarkup      `json:"reply_markup,omitempty"`
 }
 
 // SendVoiceParams contains supported parameters for sendVoice.
 type SendVoiceParams struct {
-	ChatID              ChatID                    `json:"chat_id"`
-	MessageThreadID     int64                     `json:"message_thread_id,omitempty"`
-	Voice               FileRef                   `json:"voice"`
-	Caption             string                    `json:"caption,omitempty"`
-	ParseMode           string                    `json:"parse_mode,omitempty"`
-	CaptionEntities     []telegram.MessageEntity  `json:"caption_entities,omitempty"`
-	Duration            int                       `json:"duration,omitempty"`
-	DisableNotification bool                      `json:"disable_notification,omitempty"`
-	ProtectContent      bool                      `json:"protect_content,omitempty"`
-	ReplyParameters     *telegram.ReplyParameters `json:"reply_parameters,omitempty"`
-	ReplyMarkup         telegram.ReplyMarkup      `json:"reply_markup,omitempty"`
+	BusinessConnectionID string                    `json:"business_connection_id,omitempty"`
+	ChatID               ChatID                    `json:"chat_id"`
+	MessageThreadID      int64                     `json:"message_thread_id,omitempty"`
+	Voice                FileRef                   `json:"voice"`
+	Caption              string                    `json:"caption,omitempty"`
+	ParseMode            string                    `json:"parse_mode,omitempty"`
+	CaptionEntities      []telegram.MessageEntity  `json:"caption_entities,omitempty"`
+	Duration             int                       `json:"duration,omitempty"`
+	DisableNotification  bool                      `json:"disable_notification,omitempty"`
+	ProtectContent       bool                      `json:"protect_content,omitempty"`
+	ReplyParameters      *telegram.ReplyParameters `json:"reply_parameters,omitempty"`
+	ReplyMarkup          telegram.ReplyMarkup      `json:"reply_markup,omitempty"`
 }
 
 // SendPhoto sends a photo by Telegram file_id, HTTP(S) URL, or multipart upload.
@@ -298,6 +303,7 @@ func (params SendPhotoParams) multipart() (map[string]string, map[string]UploadF
 	if err != nil {
 		return nil, nil, err
 	}
+	stringField(fields, "business_connection_id", params.BusinessConnectionID)
 	fields["photo"] = "attach://photo"
 	return fields, map[string]UploadFile{"photo": params.Photo.upload}, nil
 }
@@ -330,6 +336,7 @@ func (params SendDocumentParams) multipart() (map[string]string, map[string]Uplo
 	if err != nil {
 		return nil, nil, err
 	}
+	stringField(fields, "business_connection_id", params.BusinessConnectionID)
 	fields["document"] = "attach://document"
 	if params.DisableContentTypeDetection {
 		fields["disable_content_type_detection"] = "true"
@@ -374,6 +381,7 @@ func (params SendVideoParams) multipart() (map[string]string, map[string]UploadF
 	if err != nil {
 		return nil, nil, err
 	}
+	stringField(fields, "business_connection_id", params.BusinessConnectionID)
 	fields["video"] = "attach://video"
 	intField(fields, "duration", params.Duration)
 	intField(fields, "width", params.Width)
@@ -414,6 +422,7 @@ func (params SendAudioParams) multipart() (map[string]string, map[string]UploadF
 	if err != nil {
 		return nil, nil, err
 	}
+	stringField(fields, "business_connection_id", params.BusinessConnectionID)
 	fields["audio"] = "attach://audio"
 	intField(fields, "duration", params.Duration)
 	stringField(fields, "performer", params.Performer)
@@ -452,6 +461,7 @@ func (params SendVoiceParams) multipart() (map[string]string, map[string]UploadF
 	if err != nil {
 		return nil, nil, err
 	}
+	stringField(fields, "business_connection_id", params.BusinessConnectionID)
 	fields["voice"] = "attach://voice"
 	intField(fields, "duration", params.Duration)
 	return fields, map[string]UploadFile{"voice": params.Voice.upload}, nil

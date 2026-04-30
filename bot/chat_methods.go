@@ -32,22 +32,25 @@ const (
 
 // SendChatActionParams contains supported parameters for sendChatAction.
 type SendChatActionParams struct {
-	ChatID          ChatID `json:"chat_id"`
-	MessageThreadID int64  `json:"message_thread_id,omitempty"`
-	Action          string `json:"action"`
+	BusinessConnectionID string `json:"business_connection_id,omitempty"`
+	ChatID               ChatID `json:"chat_id"`
+	MessageThreadID      int64  `json:"message_thread_id,omitempty"`
+	Action               string `json:"action"`
 }
 
 // PinChatMessageParams contains supported parameters for pinChatMessage.
 type PinChatMessageParams struct {
-	ChatID              ChatID `json:"chat_id"`
-	MessageID           int64  `json:"message_id"`
-	DisableNotification bool   `json:"disable_notification,omitempty"`
+	BusinessConnectionID string `json:"business_connection_id,omitempty"`
+	ChatID               ChatID `json:"chat_id"`
+	MessageID            int64  `json:"message_id"`
+	DisableNotification  bool   `json:"disable_notification,omitempty"`
 }
 
 // UnpinChatMessageParams contains supported parameters for unpinChatMessage.
 type UnpinChatMessageParams struct {
-	ChatID    ChatID `json:"chat_id"`
-	MessageID int64  `json:"message_id,omitempty"`
+	BusinessConnectionID string `json:"business_connection_id,omitempty"`
+	ChatID               ChatID `json:"chat_id"`
+	MessageID            int64  `json:"message_id,omitempty"`
 }
 
 // UnpinAllChatMessagesParams contains supported parameters for unpinAllChatMessages.

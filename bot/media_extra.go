@@ -10,18 +10,20 @@ import (
 
 // SendStickerParams contains supported parameters for sendSticker.
 type SendStickerParams struct {
-	ChatID              ChatID                    `json:"chat_id"`
-	MessageThreadID     int64                     `json:"message_thread_id,omitempty"`
-	Sticker             FileRef                   `json:"sticker"`
-	Emoji               string                    `json:"emoji,omitempty"`
-	DisableNotification bool                      `json:"disable_notification,omitempty"`
-	ProtectContent      bool                      `json:"protect_content,omitempty"`
-	ReplyParameters     *telegram.ReplyParameters `json:"reply_parameters,omitempty"`
-	ReplyMarkup         telegram.ReplyMarkup      `json:"reply_markup,omitempty"`
+	BusinessConnectionID string                    `json:"business_connection_id,omitempty"`
+	ChatID               ChatID                    `json:"chat_id"`
+	MessageThreadID      int64                     `json:"message_thread_id,omitempty"`
+	Sticker              FileRef                   `json:"sticker"`
+	Emoji                string                    `json:"emoji,omitempty"`
+	DisableNotification  bool                      `json:"disable_notification,omitempty"`
+	ProtectContent       bool                      `json:"protect_content,omitempty"`
+	ReplyParameters      *telegram.ReplyParameters `json:"reply_parameters,omitempty"`
+	ReplyMarkup          telegram.ReplyMarkup      `json:"reply_markup,omitempty"`
 }
 
 // SendAnimationParams contains supported parameters for sendAnimation.
 type SendAnimationParams struct {
+	BusinessConnectionID  string                    `json:"business_connection_id,omitempty"`
 	ChatID                ChatID                    `json:"chat_id"`
 	MessageThreadID       int64                     `json:"message_thread_id,omitempty"`
 	Animation             FileRef                   `json:"animation"`
@@ -42,16 +44,17 @@ type SendAnimationParams struct {
 
 // SendVideoNoteParams contains supported parameters for sendVideoNote.
 type SendVideoNoteParams struct {
-	ChatID              ChatID                    `json:"chat_id"`
-	MessageThreadID     int64                     `json:"message_thread_id,omitempty"`
-	VideoNote           FileRef                   `json:"video_note"`
-	Duration            int                       `json:"duration,omitempty"`
-	Length              int                       `json:"length,omitempty"`
-	Thumbnail           FileRef                   `json:"-"`
-	DisableNotification bool                      `json:"disable_notification,omitempty"`
-	ProtectContent      bool                      `json:"protect_content,omitempty"`
-	ReplyParameters     *telegram.ReplyParameters `json:"reply_parameters,omitempty"`
-	ReplyMarkup         telegram.ReplyMarkup      `json:"reply_markup,omitempty"`
+	BusinessConnectionID string                    `json:"business_connection_id,omitempty"`
+	ChatID               ChatID                    `json:"chat_id"`
+	MessageThreadID      int64                     `json:"message_thread_id,omitempty"`
+	VideoNote            FileRef                   `json:"video_note"`
+	Duration             int                       `json:"duration,omitempty"`
+	Length               int                       `json:"length,omitempty"`
+	Thumbnail            FileRef                   `json:"-"`
+	DisableNotification  bool                      `json:"disable_notification,omitempty"`
+	ProtectContent       bool                      `json:"protect_content,omitempty"`
+	ReplyParameters      *telegram.ReplyParameters `json:"reply_parameters,omitempty"`
+	ReplyMarkup          telegram.ReplyMarkup      `json:"reply_markup,omitempty"`
 }
 
 // SendSticker sends a sticker by Telegram file_id, HTTP(S) URL, or multipart upload.
@@ -222,11 +225,13 @@ func (params SendStickerParams) multipart() (map[string]string, map[string]Uploa
 		return nil, nil, err
 	}
 	stringField(fields, "emoji", params.Emoji)
+	stringField(fields, "business_connection_id", params.BusinessConnectionID)
 	fields["sticker"] = "attach://sticker"
 	return fields, map[string]UploadFile{"sticker": params.Sticker.upload}, nil
 }
 
 type sendAnimationPayload struct {
+	BusinessConnectionID  string                    `json:"business_connection_id,omitempty"`
 	ChatID                ChatID                    `json:"chat_id"`
 	MessageThreadID       int64                     `json:"message_thread_id,omitempty"`
 	Animation             FileRef                   `json:"animation"`
@@ -247,6 +252,7 @@ type sendAnimationPayload struct {
 
 func (params SendAnimationParams) payload() sendAnimationPayload {
 	payload := sendAnimationPayload{
+		BusinessConnectionID:  params.BusinessConnectionID,
 		ChatID:                params.ChatID,
 		MessageThreadID:       params.MessageThreadID,
 		Animation:             params.Animation,
@@ -279,6 +285,7 @@ func (params SendAnimationParams) multipart() (map[string]string, map[string]Upl
 	if err != nil {
 		return nil, nil, err
 	}
+	stringField(fields, "business_connection_id", params.BusinessConnectionID)
 	intField(fields, "duration", params.Duration)
 	intField(fields, "width", params.Width)
 	intField(fields, "height", params.Height)
@@ -298,29 +305,31 @@ func (params SendAnimationParams) multipart() (map[string]string, map[string]Upl
 }
 
 type sendVideoNotePayload struct {
-	ChatID              ChatID                    `json:"chat_id"`
-	MessageThreadID     int64                     `json:"message_thread_id,omitempty"`
-	VideoNote           FileRef                   `json:"video_note"`
-	Duration            int                       `json:"duration,omitempty"`
-	Length              int                       `json:"length,omitempty"`
-	Thumbnail           *FileRef                  `json:"thumbnail,omitempty"`
-	DisableNotification bool                      `json:"disable_notification,omitempty"`
-	ProtectContent      bool                      `json:"protect_content,omitempty"`
-	ReplyParameters     *telegram.ReplyParameters `json:"reply_parameters,omitempty"`
-	ReplyMarkup         telegram.ReplyMarkup      `json:"reply_markup,omitempty"`
+	BusinessConnectionID string                    `json:"business_connection_id,omitempty"`
+	ChatID               ChatID                    `json:"chat_id"`
+	MessageThreadID      int64                     `json:"message_thread_id,omitempty"`
+	VideoNote            FileRef                   `json:"video_note"`
+	Duration             int                       `json:"duration,omitempty"`
+	Length               int                       `json:"length,omitempty"`
+	Thumbnail            *FileRef                  `json:"thumbnail,omitempty"`
+	DisableNotification  bool                      `json:"disable_notification,omitempty"`
+	ProtectContent       bool                      `json:"protect_content,omitempty"`
+	ReplyParameters      *telegram.ReplyParameters `json:"reply_parameters,omitempty"`
+	ReplyMarkup          telegram.ReplyMarkup      `json:"reply_markup,omitempty"`
 }
 
 func (params SendVideoNoteParams) payload() sendVideoNotePayload {
 	payload := sendVideoNotePayload{
-		ChatID:              params.ChatID,
-		MessageThreadID:     params.MessageThreadID,
-		VideoNote:           params.VideoNote,
-		Duration:            params.Duration,
-		Length:              params.Length,
-		DisableNotification: params.DisableNotification,
-		ProtectContent:      params.ProtectContent,
-		ReplyParameters:     params.ReplyParameters,
-		ReplyMarkup:         params.ReplyMarkup,
+		BusinessConnectionID: params.BusinessConnectionID,
+		ChatID:               params.ChatID,
+		MessageThreadID:      params.MessageThreadID,
+		VideoNote:            params.VideoNote,
+		Duration:             params.Duration,
+		Length:               params.Length,
+		DisableNotification:  params.DisableNotification,
+		ProtectContent:       params.ProtectContent,
+		ReplyParameters:      params.ReplyParameters,
+		ReplyMarkup:          params.ReplyMarkup,
 	}
 	if params.Thumbnail.isSet() {
 		payload.Thumbnail = &params.Thumbnail
@@ -338,6 +347,7 @@ func (params SendVideoNoteParams) multipart() (map[string]string, map[string]Upl
 	if err != nil {
 		return nil, nil, err
 	}
+	stringField(fields, "business_connection_id", params.BusinessConnectionID)
 	intField(fields, "duration", params.Duration)
 	intField(fields, "length", params.Length)
 	files := make(map[string]UploadFile)

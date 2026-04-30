@@ -91,12 +91,13 @@ func MediaDocument(media FileRef) InputMediaDocument {
 
 // SendMediaGroupParams contains supported parameters for sendMediaGroup.
 type SendMediaGroupParams struct {
-	ChatID              ChatID                    `json:"chat_id"`
-	MessageThreadID     int64                     `json:"message_thread_id,omitempty"`
-	Media               []InputMedia              `json:"media"`
-	DisableNotification bool                      `json:"disable_notification,omitempty"`
-	ProtectContent      bool                      `json:"protect_content,omitempty"`
-	ReplyParameters     *telegram.ReplyParameters `json:"reply_parameters,omitempty"`
+	BusinessConnectionID string                    `json:"business_connection_id,omitempty"`
+	ChatID               ChatID                    `json:"chat_id"`
+	MessageThreadID      int64                     `json:"message_thread_id,omitempty"`
+	Media                []InputMedia              `json:"media"`
+	DisableNotification  bool                      `json:"disable_notification,omitempty"`
+	ProtectContent       bool                      `json:"protect_content,omitempty"`
+	ReplyParameters      *telegram.ReplyParameters `json:"reply_parameters,omitempty"`
 }
 
 // SendMediaGroup sends an album of photos, videos, documents, or audio files.
@@ -123,12 +124,13 @@ func (b *Bot) SendMediaGroup(ctx context.Context, params SendMediaGroupParams) (
 	}
 
 	payload := sendMediaGroupPayload{
-		ChatID:              params.ChatID,
-		MessageThreadID:     params.MessageThreadID,
-		Media:               media,
-		DisableNotification: params.DisableNotification,
-		ProtectContent:      params.ProtectContent,
-		ReplyParameters:     params.ReplyParameters,
+		BusinessConnectionID: params.BusinessConnectionID,
+		ChatID:               params.ChatID,
+		MessageThreadID:      params.MessageThreadID,
+		Media:                media,
+		DisableNotification:  params.DisableNotification,
+		ProtectContent:       params.ProtectContent,
+		ReplyParameters:      params.ReplyParameters,
 	}
 	if err := b.call(ctx, "sendMediaGroup", payload, &messages); err != nil {
 		return nil, err
@@ -138,12 +140,13 @@ func (b *Bot) SendMediaGroup(ctx context.Context, params SendMediaGroupParams) (
 }
 
 type sendMediaGroupPayload struct {
-	ChatID              ChatID                    `json:"chat_id"`
-	MessageThreadID     int64                     `json:"message_thread_id,omitempty"`
-	Media               []inputMediaPayload       `json:"media"`
-	DisableNotification bool                      `json:"disable_notification,omitempty"`
-	ProtectContent      bool                      `json:"protect_content,omitempty"`
-	ReplyParameters     *telegram.ReplyParameters `json:"reply_parameters,omitempty"`
+	BusinessConnectionID string                    `json:"business_connection_id,omitempty"`
+	ChatID               ChatID                    `json:"chat_id"`
+	MessageThreadID      int64                     `json:"message_thread_id,omitempty"`
+	Media                []inputMediaPayload       `json:"media"`
+	DisableNotification  bool                      `json:"disable_notification,omitempty"`
+	ProtectContent       bool                      `json:"protect_content,omitempty"`
+	ReplyParameters      *telegram.ReplyParameters `json:"reply_parameters,omitempty"`
 }
 
 type inputMediaPayload struct {
@@ -461,6 +464,7 @@ func (params SendMediaGroupParams) multipartFields(media []inputMediaPayload) (m
 		return nil, err
 	}
 	fields := map[string]string{"chat_id": chatIDValue}
+	stringField(fields, "business_connection_id", params.BusinessConnectionID)
 	int64Field(fields, "message_thread_id", params.MessageThreadID)
 	boolField(fields, "disable_notification", params.DisableNotification)
 	boolField(fields, "protect_content", params.ProtectContent)

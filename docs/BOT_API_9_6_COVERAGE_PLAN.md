@@ -301,7 +301,7 @@ Live smoke for this slice is manual-only because set/remove operations change re
 
 ### Business APIs
 
-Stage 81 implements the Business API foundation. Stage 82 adds business read, account profile, gift settings, story, and suggested post methods. Stage 83 adds gifts, business gifts, bot/business Star balances and transfers, Premium subscription gifts, and Stars subscription editing. Broader business send/edit and account metadata remain separate local-only slices.
+Stage 81 implements the Business API foundation. Stage 82 adds business read, account profile, gift settings, story, and suggested post methods. Stage 83 adds gifts, business gifts, bot/business Star balances and transfers, Premium subscription gifts, and Stars subscription editing. Stage 84 adds `business_connection_id` support to currently implemented send/edit-style methods that expose it in official Bot API docs. Broader account metadata and not-yet-implemented send/edit methods remain separate local-only slices.
 
 - [x] `BusinessConnection`
 - [x] `BusinessBotRights`
@@ -323,7 +323,10 @@ Stage 81 implements the Business API foundation. Stage 82 adds business read, ac
 - [x] `AcceptedGiftTypes` and `SetBusinessAccountGiftSettings`
 - [x] `Story`, `InputStoryContent`, `StoryArea`, `PostStory`, `EditStory`, and `DeleteStory`
 - [x] `ApproveSuggestedPost`, `DeclineSuggestedPost`, and suggested post service message types
-- [ ] business send/edit methods beyond the current business message/account/story slice, if present in Bot API 9.6 docs
+- [x] `business_connection_id` on current send methods: `SendMessage`, `SendPhoto`, `SendDocument`, `SendVideo`, `SendAudio`, `SendVoice`, `SendAnimation`, `SendVideoNote`, `SendSticker`, `SendPaidMedia`, `SendMediaGroup`, `SendContact`, `SendLocation`, `SendVenue`, `SendPoll`, and `SendDice`
+- [x] `business_connection_id` on current chat action/pin methods: `SendChatAction`, `PinChatMessage`, and `UnpinChatMessage`
+- [x] `business_connection_id` on current edit/stop methods: `EditMessageText`, `EditMessageCaption`, `EditMessageReplyMarkup`, and `StopPoll`
+- [ ] `EditMessageMedia`, `EditMessageLiveLocation`, `StopMessageLiveLocation`, `SendChecklist`, `EditMessageChecklist`, `SendGame`, and other business-enabled methods not yet implemented locally
 - [x] `GetBusinessAccountStarBalance`
 - [x] `TransferBusinessAccountStars`
 - [x] `Gift`, `Gifts`, `GiftInfo`, `UniqueGift`, `UniqueGiftInfo`, `OwnedGift`, and `OwnedGifts` types
