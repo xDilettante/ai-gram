@@ -516,6 +516,20 @@ Manual checklist:
 - Log only safe markers: update ID, action, result type, inline message ID presence, and redacted query IDs.
 - Do not log bot tokens, token-bearing URLs, raw `web_app_data`, private user input, or production Mini App payloads.
 
+## Edit media and live location checklist
+
+`EditMessageMedia`, `EditMessageLiveLocation`, and `StopMessageLiveLocation` mutate visible messages or live locations. They are intentionally not part of automatic live smoke.
+
+Manual checklist:
+
+- Use a dedicated test chat and disposable messages only; do not edit production messages.
+- Create a fresh test media message before `EditMessageMedia`; if testing uploads, use small disposable files.
+- For inline targets, use only file IDs or URLs; do not attempt multipart uploads for inline message edits.
+- Create a disposable live location before `EditMessageLiveLocation` and `StopMessageLiveLocation`; stop it after testing.
+- If testing business messages, use a dedicated business test connection and set `BusinessConnectionID`; do not log business payloads.
+- Log only safe markers: method name, chat ID, message ID or inline-target flag, media type or live-location action, and boolean/message result shape.
+- Do not log bot tokens, token-bearing URLs, raw business message payloads, or private message text.
+
 ## Business API checklist
 
 Business API checks require a configured Telegram business account connection. They are intentionally manual-only because business messages can contain private payloads and account/profile/story/suggested-post/delete methods change real business account state.

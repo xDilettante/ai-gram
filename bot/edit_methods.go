@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	stderrors "errors"
+	"strconv"
 	"strings"
 
 	"github.com/xDilettante/ai-gram/telegram"
@@ -100,6 +101,34 @@ type EditMessageCaptionParams struct {
 	ReplyMarkup          *telegram.InlineKeyboardMarkup `json:"reply_markup,omitempty"`
 }
 
+// EditMessageMediaParams contains supported parameters for editMessageMedia.
+type EditMessageMediaParams struct {
+	BusinessConnectionID string                         `json:"business_connection_id,omitempty"`
+	Target               EditMessageTarget              `json:"-"`
+	Media                InputMedia                     `json:"media"`
+	ReplyMarkup          *telegram.InlineKeyboardMarkup `json:"reply_markup,omitempty"`
+}
+
+// EditMessageLiveLocationParams contains supported parameters for editMessageLiveLocation.
+type EditMessageLiveLocationParams struct {
+	BusinessConnectionID string                         `json:"business_connection_id,omitempty"`
+	Target               EditMessageTarget              `json:"-"`
+	Latitude             float64                        `json:"latitude"`
+	Longitude            float64                        `json:"longitude"`
+	LivePeriod           int                            `json:"live_period,omitempty"`
+	HorizontalAccuracy   float64                        `json:"horizontal_accuracy,omitempty"`
+	Heading              int                            `json:"heading,omitempty"`
+	ProximityAlertRadius int                            `json:"proximity_alert_radius,omitempty"`
+	ReplyMarkup          *telegram.InlineKeyboardMarkup `json:"reply_markup,omitempty"`
+}
+
+// StopMessageLiveLocationParams contains supported parameters for stopMessageLiveLocation.
+type StopMessageLiveLocationParams struct {
+	BusinessConnectionID string                         `json:"business_connection_id,omitempty"`
+	Target               EditMessageTarget              `json:"-"`
+	ReplyMarkup          *telegram.InlineKeyboardMarkup `json:"reply_markup,omitempty"`
+}
+
 // EditMessageText edits text and inline keyboard markup for an existing chat or inline message.
 func (b *Bot) EditMessageText(ctx context.Context, params EditMessageTextParams) (*EditMessageResult, error) {
 	if err := params.validate(); err != nil {
@@ -136,6 +165,67 @@ func (b *Bot) EditMessageCaption(ctx context.Context, params EditMessageCaptionP
 
 	var result EditMessageResult
 	if err := b.call(ctx, "editMessageCaption", params.payload(), &result); err != nil {
+		return nil, err
+	}
+
+	return &result, nil
+}
+
+// EditMessageMedia edits animation, audio, document, photo, or video media for an existing chat or inline message.
+func (b *Bot) EditMessageMedia(ctx context.Context, params EditMessageMediaParams) (*EditMessageResult, error) {
+	if err := params.validate(); err != nil {
+		return nil, err
+	}
+
+	media, files, err := params.mediaPayload()
+	if err != nil {
+		return nil, err
+	}
+	if params.Target.isInline() && len(files) > 0 {
+		return nil, stderrors.New("inline message media cannot use FileUpload")
+	}
+
+	var result EditMessageResult
+	if len(files) > 0 {
+		fields, err := params.multipartFields(media)
+		if err != nil {
+			return nil, err
+		}
+		if err := b.callMultipart(ctx, "editMessageMedia", fields, files, &result); err != nil {
+			return nil, err
+		}
+		return &result, nil
+	}
+
+	if err := b.call(ctx, "editMessageMedia", params.payload(media), &result); err != nil {
+		return nil, err
+	}
+
+	return &result, nil
+}
+
+// EditMessageLiveLocation edits a live location for an existing chat or inline message.
+func (b *Bot) EditMessageLiveLocation(ctx context.Context, params EditMessageLiveLocationParams) (*EditMessageResult, error) {
+	if err := params.validate(); err != nil {
+		return nil, err
+	}
+
+	var result EditMessageResult
+	if err := b.call(ctx, "editMessageLiveLocation", params.payload(), &result); err != nil {
+		return nil, err
+	}
+
+	return &result, nil
+}
+
+// StopMessageLiveLocation stops updating a live location for an existing chat or inline message.
+func (b *Bot) StopMessageLiveLocation(ctx context.Context, params StopMessageLiveLocationParams) (*EditMessageResult, error) {
+	if err := params.validate(); err != nil {
+		return nil, err
+	}
+
+	var result EditMessageResult
+	if err := b.call(ctx, "stopMessageLiveLocation", params.payload(), &result); err != nil {
 		return nil, err
 	}
 
@@ -215,6 +305,66 @@ func (params EditMessageCaptionParams) validate() error {
 	return nil
 }
 
+func (params EditMessageMediaParams) validate() error {
+	if err := params.Target.validate(); err != nil {
+		return err
+	}
+	if err := validateInputMediaForEdit(params.Media); err != nil {
+		return err
+	}
+	if params.ReplyMarkup != nil {
+		if err := telegram.ValidateReplyMarkup(*params.ReplyMarkup); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (params EditMessageLiveLocationParams) validate() error {
+	if err := params.Target.validate(); err != nil {
+		return err
+	}
+	if err := validateLatitude(params.Latitude); err != nil {
+		return err
+	}
+	if err := validateLongitude(params.Longitude); err != nil {
+		return err
+	}
+	if params.LivePeriod < 0 {
+		return stderrors.New("live_period must not be negative")
+	}
+	if params.HorizontalAccuracy < 0 {
+		return stderrors.New("horizontal_accuracy must not be negative")
+	}
+	if params.Heading < 0 {
+		return stderrors.New("heading must not be negative")
+	}
+	if params.ProximityAlertRadius < 0 {
+		return stderrors.New("proximity_alert_radius must not be negative")
+	}
+	if params.ReplyMarkup != nil {
+		if err := telegram.ValidateReplyMarkup(*params.ReplyMarkup); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (params StopMessageLiveLocationParams) validate() error {
+	if err := params.Target.validate(); err != nil {
+		return err
+	}
+	if params.ReplyMarkup != nil {
+		if err := telegram.ValidateReplyMarkup(*params.ReplyMarkup); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
 type editMessageTextPayload struct {
 	BusinessConnectionID string                         `json:"business_connection_id,omitempty"`
 	ChatID               *ChatID                        `json:"chat_id,omitempty"`
@@ -243,6 +393,37 @@ type editMessageCaptionPayload struct {
 	Caption              string                         `json:"caption"`
 	ParseMode            string                         `json:"parse_mode,omitempty"`
 	CaptionEntities      []telegram.MessageEntity       `json:"caption_entities,omitempty"`
+	ReplyMarkup          *telegram.InlineKeyboardMarkup `json:"reply_markup,omitempty"`
+}
+
+type editMessageMediaPayload struct {
+	BusinessConnectionID string                         `json:"business_connection_id,omitempty"`
+	ChatID               *ChatID                        `json:"chat_id,omitempty"`
+	MessageID            int64                          `json:"message_id,omitempty"`
+	InlineMessageID      string                         `json:"inline_message_id,omitempty"`
+	Media                inputMediaPayload              `json:"media"`
+	ReplyMarkup          *telegram.InlineKeyboardMarkup `json:"reply_markup,omitempty"`
+}
+
+type editMessageLiveLocationPayload struct {
+	BusinessConnectionID string                         `json:"business_connection_id,omitempty"`
+	ChatID               *ChatID                        `json:"chat_id,omitempty"`
+	MessageID            int64                          `json:"message_id,omitempty"`
+	InlineMessageID      string                         `json:"inline_message_id,omitempty"`
+	Latitude             float64                        `json:"latitude"`
+	Longitude            float64                        `json:"longitude"`
+	LivePeriod           int                            `json:"live_period,omitempty"`
+	HorizontalAccuracy   float64                        `json:"horizontal_accuracy,omitempty"`
+	Heading              int                            `json:"heading,omitempty"`
+	ProximityAlertRadius int                            `json:"proximity_alert_radius,omitempty"`
+	ReplyMarkup          *telegram.InlineKeyboardMarkup `json:"reply_markup,omitempty"`
+}
+
+type stopMessageLiveLocationPayload struct {
+	BusinessConnectionID string                         `json:"business_connection_id,omitempty"`
+	ChatID               *ChatID                        `json:"chat_id,omitempty"`
+	MessageID            int64                          `json:"message_id,omitempty"`
+	InlineMessageID      string                         `json:"inline_message_id,omitempty"`
 	ReplyMarkup          *telegram.InlineKeyboardMarkup `json:"reply_markup,omitempty"`
 }
 
@@ -290,6 +471,72 @@ func (params EditMessageCaptionParams) payload() editMessageCaptionPayload {
 	}
 }
 
+func (params EditMessageMediaParams) mediaPayload() (inputMediaPayload, map[string]UploadFile, error) {
+	files := make(map[string]UploadFile)
+	media, err := buildInputMediaPayload(params.Media, 0, files)
+	if err != nil {
+		return inputMediaPayload{}, nil, err
+	}
+	return media, files, nil
+}
+
+func (params EditMessageMediaParams) payload(media inputMediaPayload) editMessageMediaPayload {
+	chatID, messageID, inlineMessageID := params.Target.payloadValues()
+	return editMessageMediaPayload{
+		BusinessConnectionID: params.BusinessConnectionID,
+		ChatID:               chatID,
+		MessageID:            messageID,
+		InlineMessageID:      inlineMessageID,
+		Media:                media,
+		ReplyMarkup:          params.ReplyMarkup,
+	}
+}
+
+func (params EditMessageMediaParams) multipartFields(media inputMediaPayload) (map[string]string, error) {
+	fields, err := params.Target.multipartFields()
+	if err != nil {
+		return nil, err
+	}
+	stringField(fields, "business_connection_id", params.BusinessConnectionID)
+	if err := inlineReplyMarkupField(fields, params.ReplyMarkup); err != nil {
+		return nil, err
+	}
+	body, err := json.Marshal(media)
+	if err != nil {
+		return nil, err
+	}
+	fields["media"] = string(body)
+	return fields, nil
+}
+
+func (params EditMessageLiveLocationParams) payload() editMessageLiveLocationPayload {
+	chatID, messageID, inlineMessageID := params.Target.payloadValues()
+	return editMessageLiveLocationPayload{
+		BusinessConnectionID: params.BusinessConnectionID,
+		ChatID:               chatID,
+		MessageID:            messageID,
+		InlineMessageID:      inlineMessageID,
+		Latitude:             params.Latitude,
+		Longitude:            params.Longitude,
+		LivePeriod:           params.LivePeriod,
+		HorizontalAccuracy:   params.HorizontalAccuracy,
+		Heading:              params.Heading,
+		ProximityAlertRadius: params.ProximityAlertRadius,
+		ReplyMarkup:          params.ReplyMarkup,
+	}
+}
+
+func (params StopMessageLiveLocationParams) payload() stopMessageLiveLocationPayload {
+	chatID, messageID, inlineMessageID := params.Target.payloadValues()
+	return stopMessageLiveLocationPayload{
+		BusinessConnectionID: params.BusinessConnectionID,
+		ChatID:               chatID,
+		MessageID:            messageID,
+		InlineMessageID:      inlineMessageID,
+		ReplyMarkup:          params.ReplyMarkup,
+	}
+}
+
 func (target EditMessageTarget) payloadValues() (*ChatID, int64, string) {
 	if target.ChatID.valid() {
 		chatID := target.ChatID
@@ -297,6 +544,37 @@ func (target EditMessageTarget) payloadValues() (*ChatID, int64, string) {
 	}
 
 	return nil, 0, target.InlineMessageID
+}
+
+func (target EditMessageTarget) isInline() bool {
+	return strings.TrimSpace(target.InlineMessageID) != ""
+}
+
+func (target EditMessageTarget) multipartFields() (map[string]string, error) {
+	fields := make(map[string]string)
+	if target.ChatID.valid() {
+		chatIDValue, err := target.ChatID.multipartValue()
+		if err != nil {
+			return nil, err
+		}
+		fields["chat_id"] = chatIDValue
+		fields["message_id"] = strconv.FormatInt(target.MessageID, 10)
+		return fields, nil
+	}
+	fields["inline_message_id"] = target.InlineMessageID
+	return fields, nil
+}
+
+func inlineReplyMarkupField(fields map[string]string, replyMarkup *telegram.InlineKeyboardMarkup) error {
+	if replyMarkup == nil {
+		return nil
+	}
+	body, err := json.Marshal(replyMarkup)
+	if err != nil {
+		return err
+	}
+	fields["reply_markup"] = string(body)
+	return nil
 }
 
 func validateEntityFormatting(parseMode string, entities []telegram.MessageEntity) error {

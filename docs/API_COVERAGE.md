@@ -51,7 +51,7 @@ This document maps the current `ai-gram` implementation to Telegram Bot API area
 | `(*bot.Bot).SendSticker` | `sendSticker` | unit/httptest, optional live v0.2 smoke | Supports `FileID`, `FileURL`, `FileUpload`, emoji, reply markup, thread/reply params, and optional `business_connection_id`. |
 | `(*bot.Bot).SendAnimation` | `sendAnimation` | unit/httptest, optional live v0.2 smoke | Supports `FileID`, `FileURL`, `FileUpload`, caption fields, thumbnail file ref/upload, spoiler, reply markup, thread/reply params, and optional `business_connection_id`. |
 | `(*bot.Bot).SendVideoNote` | `sendVideoNote` | unit/httptest, optional live v0.2 smoke | Supports `FileID`, `FileUpload`, thumbnail file ref/upload, duration/length, reply markup, thread/reply params, and optional `business_connection_id`. HTTP URL is intentionally rejected for video notes. |
-| `(*bot.Bot).SendMediaGroup` | `sendMediaGroup` | unit/httptest, live generated-upload smoke | Supports `InputMediaPhoto`, `InputMediaVideo`, `InputMediaAudio`, `InputMediaDocument`, JSON file IDs/URLs, multipart uploads, thumbnail uploads, thread/reply params, and optional `business_connection_id`. Does not support reply markup because Telegram does not accept it for media groups. |
+| `(*bot.Bot).SendMediaGroup` | `sendMediaGroup` | unit/httptest, live generated-upload smoke | Supports `InputMediaPhoto`, `InputMediaVideo`, `InputMediaAudio`, `InputMediaDocument`, JSON file IDs/URLs, multipart uploads, thumbnail/cover uploads where supported, thread/reply params, and optional `business_connection_id`. Does not support reply markup because Telegram does not accept it for media groups; `InputMediaAnimation` remains rejected for media groups. |
 | `telegram.ReplyParameters` | send/copy reply payload | unit | Supports `message_id`, `allow_sending_without_reply`, and Bot API 9.6 `poll_option_id`. |
 | `telegram.ReplyMarkup` implementations | send/edit reply markup | unit, live examples | Inline keyboard, reply keyboard, remove keyboard, force reply. Edit methods accept inline keyboard only. |
 
@@ -94,6 +94,9 @@ This document maps the current `ai-gram` implementation to Telegram Bot API area
 | `(*bot.Bot).EditMessageText` | `editMessageText` | unit/httptest, live examples | Supports chat and inline targets, optional `business_connection_id`, and result decoding as `Message` or `true`. |
 | `(*bot.Bot).EditMessageCaption` | `editMessageCaption` | unit/httptest, live examples | Supports empty caption removal, inline keyboard, and optional `business_connection_id`. |
 | `(*bot.Bot).EditMessageReplyMarkup` | `editMessageReplyMarkup` | unit/httptest, live examples | `nil` reply markup removes inline keyboard; optional `business_connection_id` is supported. |
+| `(*bot.Bot).EditMessageMedia` | `editMessageMedia` | unit/httptest, multipart | Supports chat and inline targets, `InputMediaPhoto`, `InputMediaVideo`, `InputMediaAnimation`, `InputMediaAudio`, `InputMediaDocument`, inline keyboard, optional `business_connection_id`, JSON mode, and multipart uploads for non-inline targets. Manual-only live smoke. |
+| `(*bot.Bot).EditMessageLiveLocation` | `editMessageLiveLocation` | unit/httptest | Supports chat and inline targets, live-location update fields, inline keyboard, optional `business_connection_id`, and `Message`/`true` result decoding. Manual-only live smoke. |
+| `(*bot.Bot).StopMessageLiveLocation` | `stopMessageLiveLocation` | unit/httptest | Supports chat and inline targets, inline keyboard, optional `business_connection_id`, and `Message`/`true` result decoding. Manual-only live smoke. |
 | `bot.EditMessageTarget`, `bot.EditMessageResult` | edit helpers/result | unit | Validates chat-vs-inline target and handles `Message`/`true` return shape. |
 | `(*bot.Bot).DeleteMessage` | `deleteMessage` | unit/httptest, live examples | Destructive; live example only deletes messages created during smoke. |
 | `(*bot.Bot).DeleteMessages` | `deleteMessages` | unit/httptest | Destructive batch delete for 1-100 message IDs; manual-only live smoke. |
@@ -129,7 +132,7 @@ This document maps the current `ai-gram` implementation to Telegram Bot API area
 | `dispatch.BusinessConnection`, `dispatch.BusinessMessage`, `dispatch.EditedBusinessMessage`, `dispatch.DeletedBusinessMessages` | dispatch predicates/helpers | unit | Includes handler registration helpers for all foundation business update types. |
 | `(*bot.Bot).GetBusinessConnection` | `getBusinessConnection` | unit/httptest | Fetches a typed business connection by ID. Manual-only live smoke. |
 | `(*bot.Bot).DeleteBusinessMessages` | `deleteBusinessMessages` | unit/httptest | Deletes 1-100 messages on behalf of a business account. Manual-only live smoke. |
-| `BusinessConnectionID` on supported send/edit methods | `business_connection_id` request fields | unit/httptest | Implemented for current `sendMessage`, media send, contact/location/venue, poll/dice, paid media, media group, chat action, pin/unpin, edit text/caption/reply markup, and `stopPoll` params. Manual-only live smoke. |
+| `BusinessConnectionID` on supported send/edit methods | `business_connection_id` request fields | unit/httptest | Implemented for current `sendMessage`, media send, contact/location/venue, poll/dice, paid media, media group, chat action, pin/unpin, edit text/caption/reply markup/media/live-location, `stopMessageLiveLocation`, and `stopPoll` params. Manual-only live smoke. |
 | `(*bot.Bot).ReadBusinessMessage` | `readBusinessMessage` | unit/httptest | Marks a business message as read. Manual-only live smoke. |
 | `(*bot.Bot).SetBusinessAccountName`, `SetBusinessAccountUsername`, `SetBusinessAccountBio` | business account profile methods | unit/httptest | Changes business account name, username, and bio. Manual-only live smoke. |
 | `(*bot.Bot).SetBusinessAccountProfilePhoto`, `RemoveBusinessAccountProfilePhoto` | business account profile photo methods | unit/httptest, multipart | Uses `InputProfilePhoto` upload payloads for profile photo changes. Manual-only live smoke. |
@@ -370,7 +373,7 @@ This document maps the current `ai-gram` implementation to Telegram Bot API area
 ### Business features
 
 - Business API foundation plus account/read/story/suggested post methods are implemented for `BusinessConnection`, business update fields, dispatch helpers, `GetBusinessConnection`, `ReadBusinessMessage`, `DeleteBusinessMessages`, account profile methods, gift settings, stories, and suggested posts.
-- Supported send/edit params now accept optional `business_connection_id` for business messages where the official Bot API exposes the field. Business intro/location/hours/account metadata and not-yet-implemented send/edit methods such as `EditMessageMedia`, live-location edits, checklist methods, and games remain pending.
+- Supported send/edit params now accept optional `business_connection_id` for business messages where the official Bot API exposes the field, including `EditMessageMedia`, `EditMessageLiveLocation`, and `StopMessageLiveLocation`. Business intro/location/hours/account metadata and not-yet-implemented checklist methods and games remain pending.
 
 ### Stars/gifts if applicable
 

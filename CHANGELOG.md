@@ -22,6 +22,7 @@
 - Business API account/read/story/suggested post methods: `ReadBusinessMessage`, account profile methods, gift settings, `PostStory`, `EditStory`, `DeleteStory`, `ApproveSuggestedPost`, and `DeclineSuggestedPost`.
 - Gifts, business gifts, and remaining Stars methods: `GetAvailableGifts`, `SendGift`, `GiftPremiumSubscription`, `GetBusinessAccountStarBalance`, `TransferBusinessAccountStars`, `GetBusinessAccountGifts`, `GetUserGifts`, `GetChatGifts`, `ConvertGiftToStars`, `UpgradeGift`, `TransferGift`, `GetMyStarBalance`, and `EditUserStarSubscription`.
 - `business_connection_id` support for supported send, edit, chat action, pin/unpin, media group, and poll-stop methods.
+- Edit media and live location edit methods: `EditMessageMedia`, `EditMessageLiveLocation`, `StopMessageLiveLocation`, and `InputMediaAnimation`.
 
 ### Documentation
 

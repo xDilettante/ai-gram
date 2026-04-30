@@ -10,37 +10,59 @@ import (
 	"github.com/xDilettante/ai-gram/telegram"
 )
 
-// InputMedia describes one media item accepted by sendMediaGroup.
+// InputMedia describes one media item accepted by supported media methods.
 type InputMedia interface {
 	inputMedia()
 }
 
-// InputMediaPhoto describes a photo item for sendMediaGroup.
+// InputMediaPhoto describes a photo input media item.
 type InputMediaPhoto struct {
-	Type            string                   `json:"type"`
-	Media           FileRef                  `json:"media"`
-	Caption         string                   `json:"caption,omitempty"`
-	ParseMode       string                   `json:"parse_mode,omitempty"`
-	CaptionEntities []telegram.MessageEntity `json:"caption_entities,omitempty"`
-	HasSpoiler      bool                     `json:"has_spoiler,omitempty"`
+	Type                  string                   `json:"type"`
+	Media                 FileRef                  `json:"media"`
+	Caption               string                   `json:"caption,omitempty"`
+	ParseMode             string                   `json:"parse_mode,omitempty"`
+	CaptionEntities       []telegram.MessageEntity `json:"caption_entities,omitempty"`
+	ShowCaptionAboveMedia bool                     `json:"show_caption_above_media,omitempty"`
+	HasSpoiler            bool                     `json:"has_spoiler,omitempty"`
 }
 
-// InputMediaVideo describes a video item for sendMediaGroup.
+// InputMediaVideo describes a video input media item.
 type InputMediaVideo struct {
-	Type              string                   `json:"type"`
-	Media             FileRef                  `json:"media"`
-	Thumbnail         FileRef                  `json:"-"`
-	Caption           string                   `json:"caption,omitempty"`
-	ParseMode         string                   `json:"parse_mode,omitempty"`
-	CaptionEntities   []telegram.MessageEntity `json:"caption_entities,omitempty"`
-	Width             int                      `json:"width,omitempty"`
-	Height            int                      `json:"height,omitempty"`
-	Duration          int                      `json:"duration,omitempty"`
-	SupportsStreaming bool                     `json:"supports_streaming,omitempty"`
-	HasSpoiler        bool                     `json:"has_spoiler,omitempty"`
+	Type                  string                   `json:"type"`
+	Media                 FileRef                  `json:"media"`
+	Thumbnail             FileRef                  `json:"-"`
+	Cover                 FileRef                  `json:"-"`
+	StartTimestamp        int                      `json:"start_timestamp,omitempty"`
+	Caption               string                   `json:"caption,omitempty"`
+	ParseMode             string                   `json:"parse_mode,omitempty"`
+	CaptionEntities       []telegram.MessageEntity `json:"caption_entities,omitempty"`
+	ShowCaptionAboveMedia bool                     `json:"show_caption_above_media,omitempty"`
+	Width                 int                      `json:"width,omitempty"`
+	Height                int                      `json:"height,omitempty"`
+	Duration              int                      `json:"duration,omitempty"`
+	SupportsStreaming     bool                     `json:"supports_streaming,omitempty"`
+	HasSpoiler            bool                     `json:"has_spoiler,omitempty"`
 }
 
-// InputMediaAudio describes an audio item for sendMediaGroup.
+// InputMediaAnimation describes an animation item for editMessageMedia.
+//
+// Telegram allows animations for editMessageMedia. sendMediaGroup validation
+// still rejects animations because media groups do not support them.
+type InputMediaAnimation struct {
+	Type                  string                   `json:"type"`
+	Media                 FileRef                  `json:"media"`
+	Thumbnail             FileRef                  `json:"-"`
+	Caption               string                   `json:"caption,omitempty"`
+	ParseMode             string                   `json:"parse_mode,omitempty"`
+	CaptionEntities       []telegram.MessageEntity `json:"caption_entities,omitempty"`
+	ShowCaptionAboveMedia bool                     `json:"show_caption_above_media,omitempty"`
+	Width                 int                      `json:"width,omitempty"`
+	Height                int                      `json:"height,omitempty"`
+	Duration              int                      `json:"duration,omitempty"`
+	HasSpoiler            bool                     `json:"has_spoiler,omitempty"`
+}
+
+// InputMediaAudio describes an audio input media item.
 type InputMediaAudio struct {
 	Type            string                   `json:"type"`
 	Media           FileRef                  `json:"media"`
@@ -53,7 +75,7 @@ type InputMediaAudio struct {
 	Title           string                   `json:"title,omitempty"`
 }
 
-// InputMediaDocument describes a document item for sendMediaGroup.
+// InputMediaDocument describes a document input media item.
 type InputMediaDocument struct {
 	Type                        string                   `json:"type"`
 	Media                       FileRef                  `json:"media"`
@@ -64,10 +86,11 @@ type InputMediaDocument struct {
 	DisableContentTypeDetection bool                     `json:"disable_content_type_detection,omitempty"`
 }
 
-func (InputMediaPhoto) inputMedia()    {}
-func (InputMediaVideo) inputMedia()    {}
-func (InputMediaAudio) inputMedia()    {}
-func (InputMediaDocument) inputMedia() {}
+func (InputMediaPhoto) inputMedia()     {}
+func (InputMediaVideo) inputMedia()     {}
+func (InputMediaAnimation) inputMedia() {}
+func (InputMediaAudio) inputMedia()     {}
+func (InputMediaDocument) inputMedia()  {}
 
 // MediaPhoto creates a photo input media item.
 func MediaPhoto(media FileRef) InputMediaPhoto {
@@ -77,6 +100,11 @@ func MediaPhoto(media FileRef) InputMediaPhoto {
 // MediaVideo creates a video input media item.
 func MediaVideo(media FileRef) InputMediaVideo {
 	return InputMediaVideo{Type: "video", Media: media}
+}
+
+// MediaAnimation creates an animation input media item for editMessageMedia.
+func MediaAnimation(media FileRef) InputMediaAnimation {
+	return InputMediaAnimation{Type: "animation", Media: media}
 }
 
 // MediaAudio creates an audio input media item.
@@ -153,9 +181,12 @@ type inputMediaPayload struct {
 	Type                        string                   `json:"type"`
 	Media                       string                   `json:"media"`
 	Thumbnail                   string                   `json:"thumbnail,omitempty"`
+	Cover                       string                   `json:"cover,omitempty"`
+	StartTimestamp              int                      `json:"start_timestamp,omitempty"`
 	Caption                     string                   `json:"caption,omitempty"`
 	ParseMode                   string                   `json:"parse_mode,omitempty"`
 	CaptionEntities             []telegram.MessageEntity `json:"caption_entities,omitempty"`
+	ShowCaptionAboveMedia       bool                     `json:"show_caption_above_media,omitempty"`
 	HasSpoiler                  bool                     `json:"has_spoiler,omitempty"`
 	Width                       int                      `json:"width,omitempty"`
 	Height                      int                      `json:"height,omitempty"`
@@ -180,7 +211,7 @@ func (params SendMediaGroupParams) validate() error {
 		return stderrors.New("media must contain at most ten items")
 	}
 	for i, media := range params.Media {
-		if err := validateInputMedia(media); err != nil {
+		if err := validateInputMediaForMediaGroup(media); err != nil {
 			return fmt.Errorf("media[%d]: %w", i, err)
 		}
 	}
@@ -191,7 +222,7 @@ func (params SendMediaGroupParams) validate() error {
 	return nil
 }
 
-func validateInputMedia(media InputMedia) error {
+func validateInputMediaForMediaGroup(media InputMedia) error {
 	switch item := media.(type) {
 	case nil:
 		return stderrors.New("media item is required")
@@ -223,6 +254,52 @@ func validateInputMedia(media InputMedia) error {
 			return stderrors.New("media item is required")
 		}
 		return validateInputMediaDocument(*item)
+	case InputMediaAnimation, *InputMediaAnimation:
+		return stderrors.New("animation media is not supported in media groups")
+	default:
+		return stderrors.New("unsupported input media type")
+	}
+}
+
+func validateInputMediaForEdit(media InputMedia) error {
+	switch item := media.(type) {
+	case nil:
+		return stderrors.New("media is required")
+	case InputMediaPhoto:
+		return validateInputMediaPhoto(item)
+	case *InputMediaPhoto:
+		if item == nil {
+			return stderrors.New("media is required")
+		}
+		return validateInputMediaPhoto(*item)
+	case InputMediaVideo:
+		return validateInputMediaVideo(item)
+	case *InputMediaVideo:
+		if item == nil {
+			return stderrors.New("media is required")
+		}
+		return validateInputMediaVideo(*item)
+	case InputMediaAnimation:
+		return validateInputMediaAnimation(item)
+	case *InputMediaAnimation:
+		if item == nil {
+			return stderrors.New("media is required")
+		}
+		return validateInputMediaAnimation(*item)
+	case InputMediaAudio:
+		return validateInputMediaAudio(item)
+	case *InputMediaAudio:
+		if item == nil {
+			return stderrors.New("media is required")
+		}
+		return validateInputMediaAudio(*item)
+	case InputMediaDocument:
+		return validateInputMediaDocument(item)
+	case *InputMediaDocument:
+		if item == nil {
+			return stderrors.New("media is required")
+		}
+		return validateInputMediaDocument(*item)
 	default:
 		return stderrors.New("unsupported input media type")
 	}
@@ -240,6 +317,34 @@ func validateInputMediaPhoto(media InputMediaPhoto) error {
 
 func validateInputMediaVideo(media InputMediaVideo) error {
 	if err := validateInputMediaType(media.Type, "video"); err != nil {
+		return err
+	}
+	if err := media.Media.validate("media"); err != nil {
+		return err
+	}
+	if err := validateOptionalFileRef(media.Thumbnail, "thumbnail"); err != nil {
+		return err
+	}
+	if err := validateOptionalFileRef(media.Cover, "cover"); err != nil {
+		return err
+	}
+	if media.StartTimestamp < 0 {
+		return stderrors.New("start_timestamp must not be negative")
+	}
+	if media.Width < 0 {
+		return stderrors.New("width must not be negative")
+	}
+	if media.Height < 0 {
+		return stderrors.New("height must not be negative")
+	}
+	if media.Duration < 0 {
+		return stderrors.New("duration must not be negative")
+	}
+	return validateCaptionFormatting(media.ParseMode, media.CaptionEntities)
+}
+
+func validateInputMediaAnimation(media InputMediaAnimation) error {
+	if err := validateInputMediaType(media.Type, "animation"); err != nil {
 		return err
 	}
 	if err := media.Media.validate("media"); err != nil {
@@ -326,6 +431,13 @@ func buildInputMediaPayload(media InputMedia, index int, files map[string]Upload
 			return inputMediaPayload{}, stderrors.New("media item is required")
 		}
 		return buildInputMediaVideoPayload(*item, index, files)
+	case InputMediaAnimation:
+		return buildInputMediaAnimationPayload(item, index, files)
+	case *InputMediaAnimation:
+		if item == nil {
+			return inputMediaPayload{}, stderrors.New("media item is required")
+		}
+		return buildInputMediaAnimationPayload(*item, index, files)
 	case InputMediaAudio:
 		return buildInputMediaAudioPayload(item, index, files)
 	case *InputMediaAudio:
@@ -351,12 +463,13 @@ func buildInputMediaPhotoPayload(media InputMediaPhoto, index int, files map[str
 		return inputMediaPayload{}, err
 	}
 	return inputMediaPayload{
-		Type:            mediaType(media.Type, "photo"),
-		Media:           mediaValue,
-		Caption:         media.Caption,
-		ParseMode:       media.ParseMode,
-		CaptionEntities: media.CaptionEntities,
-		HasSpoiler:      media.HasSpoiler,
+		Type:                  mediaType(media.Type, "photo"),
+		Media:                 mediaValue,
+		Caption:               media.Caption,
+		ParseMode:             media.ParseMode,
+		CaptionEntities:       media.CaptionEntities,
+		ShowCaptionAboveMedia: media.ShowCaptionAboveMedia,
+		HasSpoiler:            media.HasSpoiler,
 	}, nil
 }
 
@@ -369,18 +482,49 @@ func buildInputMediaVideoPayload(media InputMediaVideo, index int, files map[str
 	if err != nil {
 		return inputMediaPayload{}, err
 	}
+	cover, err := optionalMediaFileValueForField(media.Cover, "cover", fmt.Sprintf("cover%d", index), files)
+	if err != nil {
+		return inputMediaPayload{}, err
+	}
 	return inputMediaPayload{
-		Type:              mediaType(media.Type, "video"),
-		Media:             mediaValue,
-		Thumbnail:         thumbnail,
-		Caption:           media.Caption,
-		ParseMode:         media.ParseMode,
-		CaptionEntities:   media.CaptionEntities,
-		Width:             media.Width,
-		Height:            media.Height,
-		Duration:          media.Duration,
-		SupportsStreaming: media.SupportsStreaming,
-		HasSpoiler:        media.HasSpoiler,
+		Type:                  mediaType(media.Type, "video"),
+		Media:                 mediaValue,
+		Thumbnail:             thumbnail,
+		Cover:                 cover,
+		StartTimestamp:        media.StartTimestamp,
+		Caption:               media.Caption,
+		ParseMode:             media.ParseMode,
+		CaptionEntities:       media.CaptionEntities,
+		ShowCaptionAboveMedia: media.ShowCaptionAboveMedia,
+		Width:                 media.Width,
+		Height:                media.Height,
+		Duration:              media.Duration,
+		SupportsStreaming:     media.SupportsStreaming,
+		HasSpoiler:            media.HasSpoiler,
+	}, nil
+}
+
+func buildInputMediaAnimationPayload(media InputMediaAnimation, index int, files map[string]UploadFile) (inputMediaPayload, error) {
+	mediaValue, err := mediaFileValue(media.Media, fmt.Sprintf("media%d", index), files)
+	if err != nil {
+		return inputMediaPayload{}, err
+	}
+	thumbnail, err := optionalMediaFileValue(media.Thumbnail, fmt.Sprintf("thumb%d", index), files)
+	if err != nil {
+		return inputMediaPayload{}, err
+	}
+	return inputMediaPayload{
+		Type:                  mediaType(media.Type, "animation"),
+		Media:                 mediaValue,
+		Thumbnail:             thumbnail,
+		Caption:               media.Caption,
+		ParseMode:             media.ParseMode,
+		CaptionEntities:       media.CaptionEntities,
+		ShowCaptionAboveMedia: media.ShowCaptionAboveMedia,
+		Width:                 media.Width,
+		Height:                media.Height,
+		Duration:              media.Duration,
+		HasSpoiler:            media.HasSpoiler,
 	}, nil
 }
 
@@ -445,10 +589,14 @@ func mediaFileValue(ref FileRef, name string, files map[string]UploadFile) (stri
 }
 
 func optionalMediaFileValue(ref FileRef, name string, files map[string]UploadFile) (string, error) {
+	return optionalMediaFileValueForField(ref, "thumbnail", name, files)
+}
+
+func optionalMediaFileValueForField(ref FileRef, field string, name string, files map[string]UploadFile) (string, error) {
 	if !ref.isSet() {
 		return "", nil
 	}
-	if err := ref.validate("thumbnail"); err != nil {
+	if err := ref.validate(field); err != nil {
 		return "", err
 	}
 	if ref.isUpload() {

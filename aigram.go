@@ -492,6 +492,15 @@ type EditMessageReplyMarkupParams = bot.EditMessageReplyMarkupParams
 // EditMessageCaptionParams contains supported parameters for editMessageCaption.
 type EditMessageCaptionParams = bot.EditMessageCaptionParams
 
+// EditMessageMediaParams contains supported parameters for editMessageMedia.
+type EditMessageMediaParams = bot.EditMessageMediaParams
+
+// EditMessageLiveLocationParams contains supported parameters for editMessageLiveLocation.
+type EditMessageLiveLocationParams = bot.EditMessageLiveLocationParams
+
+// StopMessageLiveLocationParams contains supported parameters for stopMessageLiveLocation.
+type StopMessageLiveLocationParams = bot.StopMessageLiveLocationParams
+
 // ChatID identifies a Telegram chat by numeric ID or username string.
 type ChatID = bot.ChatID
 
@@ -501,19 +510,22 @@ type FileRef = bot.FileRef
 // UploadFile describes a file uploaded through multipart/form-data.
 type UploadFile = bot.UploadFile
 
-// InputMedia describes one media item accepted by sendMediaGroup.
+// InputMedia describes one media item accepted by supported media methods.
 type InputMedia = bot.InputMedia
 
-// InputMediaPhoto describes a photo item for sendMediaGroup.
+// InputMediaPhoto describes a photo input media item.
 type InputMediaPhoto = bot.InputMediaPhoto
 
-// InputMediaVideo describes a video item for sendMediaGroup.
+// InputMediaVideo describes a video input media item.
 type InputMediaVideo = bot.InputMediaVideo
 
-// InputMediaAudio describes an audio item for sendMediaGroup.
+// InputMediaAnimation describes an animation item for editMessageMedia.
+type InputMediaAnimation = bot.InputMediaAnimation
+
+// InputMediaAudio describes an audio input media item.
 type InputMediaAudio = bot.InputMediaAudio
 
-// InputMediaDocument describes a document item for sendMediaGroup.
+// InputMediaDocument describes a document input media item.
 type InputMediaDocument = bot.InputMediaDocument
 
 // APIError represents a Telegram Bot API response with ok=false.
@@ -912,6 +924,11 @@ func MediaPhoto(media FileRef) InputMediaPhoto {
 // MediaVideo creates a video input media item.
 func MediaVideo(media FileRef) InputMediaVideo {
 	return bot.MediaVideo(media)
+}
+
+// MediaAnimation creates an animation input media item for editMessageMedia.
+func MediaAnimation(media FileRef) InputMediaAnimation {
+	return bot.MediaAnimation(media)
 }
 
 // MediaAudio creates an audio input media item.
