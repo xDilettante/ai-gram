@@ -160,6 +160,32 @@ Manual check:
 - Optional: send `/access_open`, test from another account, then send `/access_close`.
 - Inspect logs with `./scripts/remote_logs.sh`; safe logs should include `action=access_status`, optional `action=access_mode_changed`, and no token, secret, or full message text.
 
+## v0.2 send methods smoke
+
+Use this script to verify the safe v0.2 send-method subset against a real bot without requiring user interaction:
+
+```bash
+export AIGRAM_BOT_TOKEN_MAIN='123456:replace_me'
+export AIGRAM_CHAT_ID='123456789'
+./scripts/smoke_v02_send_methods.sh
+```
+
+Required checks:
+
+- `SendContact` with a fake test contact.
+- `SendLocation` with neutral test coordinates.
+- `SendVenue` with neutral test coordinates.
+- `SendPoll`, followed by `StopPoll` for the sent poll message.
+- `SendDice` with `🎲`.
+
+Optional media checks are skipped without failing when media env is absent:
+
+- `AIGRAM_STICKER_FILE_ID` enables `SendSticker`.
+- `AIGRAM_ANIMATION_FILE_ID` or `AIGRAM_ANIMATION_PATH` enables `SendAnimation`.
+- `AIGRAM_VIDEO_NOTE_FILE_ID` or `AIGRAM_VIDEO_NOTE_PATH` enables `SendVideoNote`.
+
+Expected safe markers include `AIGRAM_V02_SMOKE_SEND_CONTACT_OK`, `AIGRAM_V02_SMOKE_STOP_POLL_OK`, optional `AIGRAM_V02_SMOKE_SEND_*_SKIPPED`, and final `AIGRAM_V02_SMOKE_OK`. The script must not print bot tokens, token-bearing endpoints, full file IDs, or private message text.
+
 ## Inline keyboard callback checklist
 
 ```bash
