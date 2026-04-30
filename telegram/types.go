@@ -60,10 +60,12 @@ type Message struct {
 	GeneralForumTopicHidden   *GeneralForumTopicHidden   `json:"general_forum_topic_hidden,omitempty"`
 	GeneralForumTopicUnhidden *GeneralForumTopicUnhidden `json:"general_forum_topic_unhidden,omitempty"`
 
-	ManagedBotCreated   *ManagedBotCreated `json:"managed_bot_created,omitempty"`
-	PollOptionAdded     *PollOptionAdded   `json:"poll_option_added,omitempty"`
-	PollOptionDeleted   *PollOptionDeleted `json:"poll_option_deleted,omitempty"`
-	ReplyToPollOptionID string             `json:"reply_to_poll_option_id,omitempty"`
+	ManagedBotCreated   *ManagedBotCreated  `json:"managed_bot_created,omitempty"`
+	PollOptionAdded     *PollOptionAdded    `json:"poll_option_added,omitempty"`
+	PollOptionDeleted   *PollOptionDeleted  `json:"poll_option_deleted,omitempty"`
+	ReplyToPollOptionID string              `json:"reply_to_poll_option_id,omitempty"`
+	WebAppData          *WebAppData         `json:"web_app_data,omitempty"`
+	WriteAccessAllowed  *WriteAccessAllowed `json:"write_access_allowed,omitempty"`
 }
 
 // ForumTopic represents a forum topic in a Telegram supergroup.

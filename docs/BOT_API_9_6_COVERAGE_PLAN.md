@@ -232,11 +232,14 @@ Stage 72 implements the first inline foundation: incoming inline query updates, 
 
 ### WebApp, prepared buttons, and Mini App related coverage
 
-- [ ] `AnswerWebAppQuery`
-- [ ] `SentWebAppMessage`
-- [ ] Web App fields in keyboard buttons and inline buttons, beyond current menu button support
-- [ ] Web App `requestChat` support from Bot API 9.6
-- [ ] Web App data message fields and helpers
+Stage 80 implements the remaining Bot API WebApp / Mini App support that belongs to the core Bot API surface. Mini App JavaScript methods such as `requestChat` live in the client-side WebApp API and are not Go Bot API methods.
+
+- [x] `AnswerWebAppQuery`
+- [x] `SentWebAppMessage`
+- [x] `WebAppData` / `Message.web_app_data`
+- [x] `WriteAccessAllowed` / `Message.write_access_allowed`
+- [x] `WebAppInfo` audit
+- [x] Web App fields in `InlineKeyboardButton`, `KeyboardButton`, `MenuButtonWebApp`, and `InlineQueryResultsButton`
 - [x] `PreparedKeyboardButton`
 - [x] `SavePreparedKeyboardButton`
 - [x] `KeyboardButtonRequestUsers`
@@ -351,7 +354,7 @@ Recommended local-only stages:
 4. Inline mode basics
 5. Sticker set management
 6. Payments, stars, and paid media
-7. WebApp and prepared buttons
+7. WebApp and prepared buttons - implemented locally in Stage 80; Mini App live checks manual-only.
 8. Managed Bots 9.6 - implemented locally in Stage 78; token-returning methods manual-only.
 9. Poll 9.6 updates
 10. Business APIs

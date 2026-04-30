@@ -342,10 +342,7 @@ func validateMenuButtonWebApp(button MenuButtonWebApp) error {
 	if strings.TrimSpace(button.Text) == "" {
 		return stderrors.New("menu_button.web_app text is required")
 	}
-	if strings.TrimSpace(button.WebApp.URL) == "" {
-		return stderrors.New("menu_button.web_app URL is required")
-	}
-	if err := validateHTTPURL(button.WebApp.URL, "menu_button.web_app URL"); err != nil {
+	if err := validateWebAppInfo(button.WebApp, "menu_button.web_app"); err != nil {
 		return err
 	}
 	return nil

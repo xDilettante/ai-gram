@@ -8,6 +8,7 @@ func TestInlineKeyboardValidation(t *testing.T) {
 	valid := NewInlineKeyboard(
 		[]InlineKeyboardButton{InlineButtonURL("Open", "https://example.com")},
 		[]InlineKeyboardButton{InlineButtonCallback("Confirm", "confirm")},
+		[]InlineKeyboardButton{InlineButtonWebApp("App", "https://example.com/app")},
 	)
 	if err := ValidateReplyMarkup(valid); err != nil {
 		t.Fatalf("unexpected valid inline keyboard error: %v", err)
@@ -17,6 +18,9 @@ func TestInlineKeyboardValidation(t *testing.T) {
 	}
 	if got := InlineButtonCallback("Confirm", "confirm"); got.CallbackData != "confirm" || got.Text != "Confirm" {
 		t.Fatalf("unexpected callback button: %+v", got)
+	}
+	if got := InlineButtonWebApp("App", "https://example.com/app"); got.WebApp == nil || got.WebApp.URL != "https://example.com/app" || got.Text != "App" {
+		t.Fatalf("unexpected web_app button: %+v", got)
 	}
 	if err := ValidateReplyMarkup(NewInlineKeyboard([]InlineKeyboardButton{InlineButtonCallback("OK", callback64)})); err != nil {
 		t.Fatalf("64 byte callback_data should be valid: %v", err)
@@ -33,6 +37,7 @@ func TestInlineKeyboardValidation(t *testing.T) {
 		{name: "empty callback", markup: NewInlineKeyboard([]InlineKeyboardButton{{Text: "x", CallbackData: ""}})},
 		{name: "callback too long", markup: NewInlineKeyboard([]InlineKeyboardButton{InlineButtonCallback("x", callback64+"x")})},
 		{name: "file url", markup: NewInlineKeyboard([]InlineKeyboardButton{InlineButtonURL("x", "file:///tmp/a")})},
+		{name: "invalid web app url", markup: NewInlineKeyboard([]InlineKeyboardButton{InlineButtonWebApp("x", "ftp://example.com/app")})},
 		{name: "two actions", markup: NewInlineKeyboard([]InlineKeyboardButton{{Text: "x", URL: "https://example.com", CallbackData: "x"}})},
 		{name: "no action", markup: NewInlineKeyboard([]InlineKeyboardButton{{Text: "x"}})},
 		{name: "empty keyboard", markup: InlineKeyboardMarkup{}},
@@ -48,7 +53,7 @@ func TestInlineKeyboardValidation(t *testing.T) {
 }
 
 func TestReplyKeyboardValidation(t *testing.T) {
-	valid := NewReplyKeyboard([]KeyboardButton{KeyboardButtonText("Yes"), KeyboardButtonContact("Phone"), KeyboardButtonLocation("Place")})
+	valid := NewReplyKeyboard([]KeyboardButton{KeyboardButtonText("Yes"), KeyboardButtonContact("Phone"), KeyboardButtonLocation("Place"), KeyboardButtonWebApp("App", "https://example.com/app")})
 	if err := ValidateReplyMarkup(valid); err != nil {
 		t.Fatalf("unexpected valid reply keyboard error: %v", err)
 	}
@@ -61,12 +66,17 @@ func TestReplyKeyboardValidation(t *testing.T) {
 	if got := KeyboardButtonLocation("Place"); got.Text != "Place" || got.RequestContact || !got.RequestLocation {
 		t.Fatalf("unexpected location button: %+v", got)
 	}
+	if got := KeyboardButtonWebApp("App", "https://example.com/app"); got.Text != "App" || got.WebApp == nil || got.WebApp.URL != "https://example.com/app" {
+		t.Fatalf("unexpected web_app button: %+v", got)
+	}
 
 	tests := []struct {
 		name   string
 		markup ReplyMarkup
 	}{
 		{name: "contact and location", markup: NewReplyKeyboard([]KeyboardButton{{Text: "x", RequestContact: true, RequestLocation: true}})},
+		{name: "contact and web app", markup: NewReplyKeyboard([]KeyboardButton{{Text: "x", RequestContact: true, WebApp: &WebAppInfo{URL: "https://example.com/app"}}})},
+		{name: "invalid web app", markup: NewReplyKeyboard([]KeyboardButton{KeyboardButtonWebApp("x", "ftp://example.com/app")})},
 		{name: "empty text", markup: NewReplyKeyboard([]KeyboardButton{KeyboardButtonText("")})},
 		{name: "empty keyboard", markup: ReplyKeyboardMarkup{}},
 		{name: "empty row", markup: NewReplyKeyboard([]KeyboardButton{})},

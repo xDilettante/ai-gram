@@ -18,9 +18,10 @@ type InlineKeyboardMarkup struct {
 
 // InlineKeyboardButton represents one inline keyboard button.
 type InlineKeyboardButton struct {
-	Text         string `json:"text"`
-	URL          string `json:"url,omitempty"`
-	CallbackData string `json:"callback_data,omitempty"`
+	Text         string      `json:"text"`
+	URL          string      `json:"url,omitempty"`
+	CallbackData string      `json:"callback_data,omitempty"`
+	WebApp       *WebAppInfo `json:"web_app,omitempty"`
 }
 
 // ReplyKeyboardMarkup represents a custom reply keyboard.
@@ -74,6 +75,7 @@ type KeyboardButton struct {
 	RequestManagedBot *KeyboardButtonRequestManagedBot `json:"request_managed_bot,omitempty"`
 	RequestContact    bool                             `json:"request_contact,omitempty"`
 	RequestLocation   bool                             `json:"request_location,omitempty"`
+	WebApp            *WebAppInfo                      `json:"web_app,omitempty"`
 }
 
 // ReplyKeyboardRemove requests removal of a custom reply keyboard.
@@ -109,6 +111,11 @@ func InlineButtonCallback(text string, data string) InlineKeyboardButton {
 	return InlineKeyboardButton{Text: text, CallbackData: data}
 }
 
+// InlineButtonWebApp creates an inline keyboard button that opens a Web App.
+func InlineButtonWebApp(text string, url string) InlineKeyboardButton {
+	return InlineKeyboardButton{Text: text, WebApp: &WebAppInfo{URL: url}}
+}
+
 // NewReplyKeyboard creates a ReplyKeyboardMarkup from rows of buttons.
 func NewReplyKeyboard(rows ...[]KeyboardButton) ReplyKeyboardMarkup {
 	return ReplyKeyboardMarkup{Keyboard: rows}
@@ -142,6 +149,11 @@ func KeyboardButtonChat(text string, request KeyboardButtonRequestChat) Keyboard
 // KeyboardButtonManagedBot creates a reply keyboard button that requests a managed bot.
 func KeyboardButtonManagedBot(text string, request KeyboardButtonRequestManagedBot) KeyboardButton {
 	return KeyboardButton{Text: text, RequestManagedBot: &request}
+}
+
+// KeyboardButtonWebApp creates a reply keyboard button that opens a Web App.
+func KeyboardButtonWebApp(text string, url string) KeyboardButton {
+	return KeyboardButton{Text: text, WebApp: &WebAppInfo{URL: url}}
 }
 
 // RemoveKeyboard creates a ReplyKeyboardRemove markup.
@@ -209,6 +221,12 @@ func validateInlineKeyboardButton(button InlineKeyboardButton) error {
 			return stderrors.New("inline keyboard callback_data must be at most 64 bytes")
 		}
 	}
+	if button.WebApp != nil {
+		actions++
+		if err := validateWebAppInfo(*button.WebApp, "inline keyboard button web_app"); err != nil {
+			return err
+		}
+	}
 	if actions != 1 {
 		return stderrors.New("inline keyboard button must have exactly one action")
 	}
@@ -256,6 +274,9 @@ func ValidateKeyboardButton(button KeyboardButton) error {
 	if button.RequestManagedBot != nil {
 		return validateKeyboardButtonRequestManagedBot(*button.RequestManagedBot)
 	}
+	if button.WebApp != nil {
+		return validateWebAppInfo(*button.WebApp, "keyboard button web_app")
+	}
 
 	return nil
 }
@@ -296,6 +317,9 @@ func keyboardButtonRequestActionCount(button KeyboardButton) int {
 		actions++
 	}
 	if button.RequestLocation {
+		actions++
+	}
+	if button.WebApp != nil {
 		actions++
 	}
 	return actions
@@ -363,5 +387,22 @@ func validateHTTPURL(rawURL string, field string) error {
 		return stderrors.New(field + " host is required")
 	}
 
+	return nil
+}
+
+func validateWebAppInfo(info WebAppInfo, field string) error {
+	if strings.TrimSpace(info.URL) == "" {
+		return stderrors.New(field + " URL is required")
+	}
+	parsed, err := url.Parse(info.URL)
+	if err != nil {
+		return stderrors.New(field + " URL must be a valid HTTPS URL")
+	}
+	if parsed.Scheme != "https" {
+		return stderrors.New(field + " URL scheme must be https")
+	}
+	if parsed.Host == "" {
+		return stderrors.New(field + " URL host is required")
+	}
 	return nil
 }

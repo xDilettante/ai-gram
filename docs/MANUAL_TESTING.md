@@ -501,6 +501,21 @@ Checklist:
 - A local Telegram Bot API server in `--local` mode can accept HTTP/local webhook URLs when `AIGRAM_BASE_URL` points to that local server.
 
 
+
+## WebApp / Mini App checklist
+
+`AnswerWebAppQuery`, `WebAppData`, and `WriteAccessAllowed` require a configured Telegram Mini App or Web App entry point. These flows can contain opaque user-provided payloads and are intentionally manual-only.
+
+Manual checklist:
+
+- Use a dedicated test bot, test Mini App, and test chat; do not use production Mini Apps without explicit confirmation.
+- Enable or configure the Mini App entry point in BotFather before the check.
+- Trigger only test Web App interactions and answer only the matching test `web_app_query_id`.
+- If testing `KeyboardButton.web_app`, `InlineKeyboardButton.web_app`, menu buttons, or inline query result buttons, use HTTPS test URLs only.
+- Verify `web_app_data` and `write_access_allowed` decoding from safe metadata.
+- Log only safe markers: update ID, action, result type, inline message ID presence, and redacted query IDs.
+- Do not log bot tokens, token-bearing URLs, raw `web_app_data`, private user input, or production Mini App payloads.
+
 ## Payments, paid media, and Stars checklist
 
 `SendInvoice`, `CreateInvoiceLink`, `AnswerShippingQuery`, `AnswerPreCheckoutQuery`, `SendPaidMedia`, `GetStarTransactions`, and `RefundStarPayment` require an explicit payment-capable test environment. They are intentionally not part of automatic live smoke.

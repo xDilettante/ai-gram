@@ -50,10 +50,7 @@ func ValidateInlineQueryResultsButton(button *InlineQueryResultsButton) error {
 	actions := 0
 	if button.WebApp != nil {
 		actions++
-		if strings.TrimSpace(button.WebApp.URL) == "" {
-			return stderrors.New("inline query results button web_app URL is required")
-		}
-		if err := validateHTTPURL(button.WebApp.URL, "inline query results button web_app URL"); err != nil {
+		if err := validateWebAppInfo(*button.WebApp, "inline query results button web_app"); err != nil {
 			return err
 		}
 	}

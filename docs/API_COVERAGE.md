@@ -108,6 +108,17 @@ This document maps the current `ai-gram` implementation to Telegram Bot API area
 | `bot.InlineQueryResultPhoto`, `bot.InlineQueryResultGif`, `bot.InlineQueryResultMpeg4Gif`, `bot.InlineQueryResultVideo`, `bot.InlineQueryResultAudio`, `bot.InlineQueryResultVoice`, `bot.InlineQueryResultDocument` | inline payload objects | unit | URL-backed media inline result variants. Manual-only live smoke. |
 | `bot.InlineQueryResultCachedPhoto`, `bot.InlineQueryResultCachedGif`, `bot.InlineQueryResultCachedMpeg4Gif`, `bot.InlineQueryResultCachedSticker`, `bot.InlineQueryResultCachedDocument`, `bot.InlineQueryResultCachedVideo`, `bot.InlineQueryResultCachedVoice`, `bot.InlineQueryResultCachedAudio` | inline payload objects | unit | Cached file-id-backed inline result variants. Manual-only live smoke. |
 
+
+### WebApp and Mini App
+
+| Public Go API | Telegram Bot API method / object | Tests | Notes |
+| --- | --- | --- | --- |
+| `(*bot.Bot).AnswerWebAppQuery` | `answerWebAppQuery` | unit/httptest | Sends an inline result for a Mini App interaction and decodes `SentWebAppMessage`. Manual-only live smoke. |
+| `telegram.SentWebAppMessage` | `SentWebAppMessage` | unit/httptest | Decodes the inline message identifier returned by `answerWebAppQuery`. |
+| `telegram.WebAppData` | `Message.web_app_data` | unit | Decodes opaque Web App data without logging payloads. |
+| `telegram.WriteAccessAllowed` | `Message.write_access_allowed` | unit | Decodes service messages for Web App write access grants. |
+| `telegram.WebAppInfo` | `web_app` button descriptors | unit | Audited against Bot API 9.6; used by inline keyboard buttons, reply keyboard buttons, menu buttons, and inline query results buttons. |
+
 ### Payments and invoices
 
 | Public Go API | Telegram Bot API method / object | Tests | Notes |
@@ -325,9 +336,8 @@ This document maps the current `ai-gram` implementation to Telegram Bot API area
 
 ### WebApp/LoginUrl
 
-- WebApp/LoginUrl fields outside the implemented menu button support
-- LoginUrl button fields and validation
-- web app data helpers
+- WebApp / Mini App support is implemented for `AnswerWebAppQuery`, `SentWebAppMessage`, `WebAppData`, `WriteAccessAllowed`, and Web App button descriptors.
+- LoginUrl button fields and validation remain pending.
 
 ### Business features
 

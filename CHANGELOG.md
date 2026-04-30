@@ -17,6 +17,7 @@
 - Paid media and Stars basics: `SendPaidMedia`, `GetStarTransactions`, `RefundStarPayment`, paid media message/update types, and Star transaction decoding.
 - Managed Bots 9.6 support: `User.can_manage_bots`, managed bot keyboard request/update types, `SavePreparedKeyboardButton`, `GetManagedBotToken`, and `ReplaceManagedBotToken`.
 - Poll 9.6 fields and update support: plural correct options, revoting/options controls, poll option service messages, `PollAnswer`, and poll-option replies.
+- WebApp / Mini App remaining support: `AnswerWebAppQuery`, `SentWebAppMessage`, `WebAppData`, `WriteAccessAllowed`, and Web App buttons.
 
 ### Documentation
 

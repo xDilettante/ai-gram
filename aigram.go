@@ -123,6 +123,9 @@ type DeleteWebhookParams = bot.DeleteWebhookParams
 // AnswerInlineQueryParams contains supported parameters for answerInlineQuery.
 type AnswerInlineQueryParams = bot.AnswerInlineQueryParams
 
+// AnswerWebAppQueryParams contains supported parameters for answerWebAppQuery.
+type AnswerWebAppQueryParams = bot.AnswerWebAppQueryParams
+
 // SendInvoiceParams contains supported parameters for sendInvoice.
 type SendInvoiceParams = bot.SendInvoiceParams
 
@@ -488,6 +491,18 @@ type LinkPreviewOptions = telegram.LinkPreviewOptions
 
 // InlineQueryResultsButton represents a button shown above inline query results.
 type InlineQueryResultsButton = telegram.InlineQueryResultsButton
+
+// WebAppInfo describes a Telegram Web App URL.
+type WebAppInfo = telegram.WebAppInfo
+
+// WebAppData describes data sent from a Web App to the bot.
+type WebAppData = telegram.WebAppData
+
+// WriteAccessAllowed describes a service message about Web App write access.
+type WriteAccessAllowed = telegram.WriteAccessAllowed
+
+// SentWebAppMessage describes an inline message sent by a Web App on behalf of a user.
+type SentWebAppMessage = telegram.SentWebAppMessage
 
 // WebhookInfo describes current Telegram webhook status.
 type WebhookInfo = telegram.WebhookInfo
@@ -857,6 +872,11 @@ func InlineButtonCallback(text string, data string) InlineKeyboardButton {
 	return telegram.InlineButtonCallback(text, data)
 }
 
+// InlineButtonWebApp creates an inline keyboard button that opens a Web App.
+func InlineButtonWebApp(text string, url string) InlineKeyboardButton {
+	return telegram.InlineButtonWebApp(text, url)
+}
+
 // NewReplyKeyboard creates a ReplyKeyboardMarkup from rows of buttons.
 func NewReplyKeyboard(rows ...[]KeyboardButton) ReplyKeyboardMarkup {
 	return telegram.NewReplyKeyboard(rows...)
@@ -890,6 +910,11 @@ func KeyboardButtonChat(text string, request KeyboardButtonRequestChat) Keyboard
 // KeyboardButtonManagedBot creates a reply keyboard button that requests a managed bot.
 func KeyboardButtonManagedBot(text string, request KeyboardButtonRequestManagedBot) KeyboardButton {
 	return telegram.KeyboardButtonManagedBot(text, request)
+}
+
+// KeyboardButtonWebApp creates a reply keyboard button that opens a Web App.
+func KeyboardButtonWebApp(text string, url string) KeyboardButton {
+	return telegram.KeyboardButtonWebApp(text, url)
 }
 
 // RemoveKeyboard creates a ReplyKeyboardRemove markup.
