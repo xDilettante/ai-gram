@@ -249,6 +249,22 @@ Checklist:
 - Inspect safe logs with `./scripts/remote_logs.sh`; successful `GetChat` is logged as `action=get_chat ok=true update_id=... chat_id=... chat_type=...`.
 - In groups/channels, `GetChatMember`, `GetChatAdministrators`, and member count behavior depends on Telegram access and bot permissions; permission errors are not library errors.
 
+## Moderation methods checklist
+
+`BanChatMember`, `UnbanChatMember`, and `RestrictChatMember` are destructive/admin methods. They are intentionally not part of the default live smoke flow and the smoke/deploy scripts do not call them automatically.
+
+Manual checklist for a dedicated test environment only:
+
+- Create a test group or supergroup.
+- Add the bot as an admin with the exact moderation rights you want to test.
+- Use only a dedicated test user account as the moderation target.
+- Run a small local probe with explicit `ChatID` and `UserID`; do not reuse production chats.
+- Start with `RestrictChatMember` and a short `UntilDate` if possible.
+- Use `UnbanChatMember` with `OnlyIfBanned: true` to restore the test user after a ban check.
+- Do not paste bot tokens, token-bearing URLs, or private group content into logs or reports.
+
+Treat Telegram permission errors in chats where the bot is not an admin as expected Bot API behavior, not as a library bug.
+
 ## Media upload/download checklist
 
 Upload a local file as a document:

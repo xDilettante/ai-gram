@@ -66,6 +66,15 @@ type UnpinChatMessageParams = bot.UnpinChatMessageParams
 // UnpinAllChatMessagesParams contains supported parameters for unpinAllChatMessages.
 type UnpinAllChatMessagesParams = bot.UnpinAllChatMessagesParams
 
+// BanChatMemberParams contains supported parameters for banChatMember.
+type BanChatMemberParams = bot.BanChatMemberParams
+
+// UnbanChatMemberParams contains supported parameters for unbanChatMember.
+type UnbanChatMemberParams = bot.UnbanChatMemberParams
+
+// RestrictChatMemberParams contains supported parameters for restrictChatMember.
+type RestrictChatMemberParams = bot.RestrictChatMemberParams
+
 // GetChatParams contains supported parameters for getChat.
 type GetChatParams = bot.GetChatParams
 
@@ -140,6 +149,9 @@ type ReplyMarkup = telegram.ReplyMarkup
 
 // ReplyParameters describes the message being replied to.
 type ReplyParameters = telegram.ReplyParameters
+
+// ChatPermissions describes actions a user is allowed to take in a chat.
+type ChatPermissions = telegram.ChatPermissions
 
 // InlineKeyboardMarkup represents an inline keyboard attached to a message.
 type InlineKeyboardMarkup = telegram.InlineKeyboardMarkup
