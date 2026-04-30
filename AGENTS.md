@@ -34,11 +34,66 @@
 
 Проект не должен превращаться во фреймворк с лишней магией. Сначала библиотека, потом удобные надстройки.
 
-## 3. Язык и стиль общения
+## 3. Язык проекта и стиль общения
 
-В коде, именах пакетов, публичных Go-символах и комментариях к экспортируемым сущностям используй английский язык.
+Public project language: English.
 
-В документации для владельца проекта, технических заметках и пояснениях можно использовать русский язык, если это явно удобно.
+Всё, что попадает в репозиторий как публичная часть проекта, должно быть на English:
+
+- `README.md`;
+- `CHANGELOG.md`;
+- `docs/*.md`;
+- `docs/releases/*.md`;
+- GoDoc;
+- code comments;
+- examples comments and output, если они видны пользователям;
+- public script output/help text;
+- `.env.example` comments;
+- commit messages;
+- branch/tag/release notes text;
+- GitHub Release notes;
+- test names/messages, если они user-visible или public-readable.
+
+Russian разрешён только для прямого общения с пользователем:
+
+- финальные отчёты пользователю в чате;
+- Telegram reports через `~/.codex/bin/codex-report`;
+- уточняющие вопросы пользователю;
+- private/operator notifications, если они предназначены лично пользователю.
+
+Commit messages must be English.
+
+Good:
+
+- `Add SendMediaGroup smoke`
+- `Fix long polling smoke auto-exit`
+- `Unify public documentation language`
+- `Add bot commands and menu methods`
+
+Bad:
+
+- `Добавлен SendMediaGroup`
+- `Исправлен smoke longpoll`
+- `Обновлена документация`
+
+Отчёты пользователю остаются на русском, потому что пользователь общается на русском. Если отчёт содержит commit message, title, release title, branch/tag name или public text, эти элементы должны оставаться на English.
+
+Do not translate technical/API names:
+
+- Bot API
+- webhook
+- long polling
+- middleware
+- dispatcher
+- access control
+- live smoke
+- safe logs
+- deploy harness
+- SendMediaGroup
+- InputMedia
+- FileUpload
+
+Existing Russian private Telegram/operator notifications in scripts are допустимы only if they are explicitly private UX for this user. New public strings must be English.
 
 Комментарии в коде нужны только там, где они объясняют смысл, контракт, ограничение или нетривиальное решение. Не комментируй очевидное.
 
