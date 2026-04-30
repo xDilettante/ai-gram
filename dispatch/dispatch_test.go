@@ -308,6 +308,96 @@ func TestMessageReactionRoutes(t *testing.T) {
 	}
 }
 
+func TestChatMemberRoutes(t *testing.T) {
+	dispatcher := New()
+	var myChatMemberCalls int
+	var chatMemberCalls int
+	must(t, dispatcher.OnMyChatMemberFunc(func(ctx context.Context, update telegram.Update) error {
+		myChatMemberCalls++
+		if update.MyChatMember == nil || update.MyChatMember.From.ID != 777 {
+			t.Fatalf("unexpected my_chat_member update: %+v", update)
+		}
+		return nil
+	}))
+	must(t, dispatcher.OnChatMemberFunc(func(ctx context.Context, update telegram.Update) error {
+		chatMemberCalls++
+		if update.ChatMember == nil || update.ChatMember.From.ID != 778 {
+			t.Fatalf("unexpected chat_member update: %+v", update)
+		}
+		return nil
+	}))
+
+	if err := dispatcher.HandleUpdate(context.Background(), myChatMemberUpdate()); err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if err := dispatcher.HandleUpdate(context.Background(), chatMemberUpdate()); err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if err := dispatcher.HandleUpdate(context.Background(), messageUpdate("hello")); err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if myChatMemberCalls != 1 || chatMemberCalls != 1 {
+		t.Fatalf("unexpected calls: my_chat_member=%d chat_member=%d", myChatMemberCalls, chatMemberCalls)
+	}
+	if !MyChatMember()(myChatMemberUpdate()) {
+		t.Fatal("my_chat_member predicate should match")
+	}
+	if MyChatMember()(messageUpdate("hello")) {
+		t.Fatal("my_chat_member predicate should not match message updates")
+	}
+	if !ChatMember()(chatMemberUpdate()) {
+		t.Fatal("chat_member predicate should match")
+	}
+	if ChatMember()(messageUpdate("hello")) {
+		t.Fatal("chat_member predicate should not match message updates")
+	}
+}
+
+func TestChatBoostRoutes(t *testing.T) {
+	dispatcher := New()
+	var boostCalls int
+	var removedCalls int
+	must(t, dispatcher.OnChatBoostFunc(func(ctx context.Context, update telegram.Update) error {
+		boostCalls++
+		if update.ChatBoost == nil || update.ChatBoost.Boost.BoostID != "boost-1" {
+			t.Fatalf("unexpected chat_boost update: %+v", update)
+		}
+		return nil
+	}))
+	must(t, dispatcher.OnRemovedChatBoostFunc(func(ctx context.Context, update telegram.Update) error {
+		removedCalls++
+		if update.RemovedChatBoost == nil || update.RemovedChatBoost.BoostID != "boost-2" {
+			t.Fatalf("unexpected removed_chat_boost update: %+v", update)
+		}
+		return nil
+	}))
+
+	if err := dispatcher.HandleUpdate(context.Background(), chatBoostUpdate()); err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if err := dispatcher.HandleUpdate(context.Background(), removedChatBoostUpdate()); err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if err := dispatcher.HandleUpdate(context.Background(), messageUpdate("hello")); err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if boostCalls != 1 || removedCalls != 1 {
+		t.Fatalf("unexpected calls: boost=%d removed=%d", boostCalls, removedCalls)
+	}
+	if !ChatBoost()(chatBoostUpdate()) {
+		t.Fatal("chat_boost predicate should match")
+	}
+	if ChatBoost()(messageUpdate("hello")) {
+		t.Fatal("chat_boost predicate should not match message updates")
+	}
+	if !RemovedChatBoost()(removedChatBoostUpdate()) {
+		t.Fatal("removed_chat_boost predicate should match")
+	}
+	if RemovedChatBoost()(messageUpdate("hello")) {
+		t.Fatal("removed_chat_boost predicate should not match message updates")
+	}
+}
+
 func TestMiddlewareAppliesToRouteInOrder(t *testing.T) {
 	dispatcher := New()
 	var calls []string
@@ -572,6 +662,56 @@ func messageReactionCountUpdate() telegram.Update {
 			Chat:      telegram.Chat{ID: -100123, Type: "supergroup"},
 			MessageID: 456,
 			Date:      1234567891,
+		},
+	}
+}
+
+func myChatMemberUpdate() telegram.Update {
+	return telegram.Update{
+		UpdateID: 8,
+		MyChatMember: &telegram.ChatMemberUpdated{
+			Chat:          telegram.Chat{ID: -100123, Type: "supergroup"},
+			From:          telegram.User{ID: 777, FirstName: "Admin"},
+			Date:          1234567890,
+			OldChatMember: telegram.ChatMember{Status: telegram.ChatMemberStatusLeft, User: telegram.User{ID: 1}},
+			NewChatMember: telegram.ChatMember{Status: telegram.ChatMemberStatusMember, User: telegram.User{ID: 1}},
+		},
+	}
+}
+
+func chatMemberUpdate() telegram.Update {
+	return telegram.Update{
+		UpdateID: 9,
+		ChatMember: &telegram.ChatMemberUpdated{
+			Chat:          telegram.Chat{ID: -100123, Type: "supergroup"},
+			From:          telegram.User{ID: 778, FirstName: "Admin"},
+			Date:          1234567891,
+			OldChatMember: telegram.ChatMember{Status: telegram.ChatMemberStatusMember, User: telegram.User{ID: 2}},
+			NewChatMember: telegram.ChatMember{Status: telegram.ChatMemberStatusRestricted, User: telegram.User{ID: 2}},
+		},
+	}
+}
+
+func chatBoostUpdate() telegram.Update {
+	return telegram.Update{
+		UpdateID: 10,
+		ChatBoost: &telegram.ChatBoostUpdated{
+			Chat: telegram.Chat{ID: -100124, Type: "supergroup"},
+			Boost: telegram.ChatBoost{
+				BoostID: "boost-1",
+				Source:  telegram.ChatBoostSourcePremium{Source: "premium", User: telegram.User{ID: 779, FirstName: "Booster"}},
+			},
+		},
+	}
+}
+
+func removedChatBoostUpdate() telegram.Update {
+	return telegram.Update{
+		UpdateID: 11,
+		RemovedChatBoost: &telegram.ChatBoostRemoved{
+			Chat:    telegram.Chat{ID: -100124, Type: "supergroup"},
+			BoostID: "boost-2",
+			Source:  telegram.ChatBoostSourceGiftCode{Source: "gift_code", User: telegram.User{ID: 780, FirstName: "Booster"}},
 		},
 	}
 }

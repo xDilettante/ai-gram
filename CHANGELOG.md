@@ -4,6 +4,7 @@
 
 ### Added
 
+- Chat member update, chat boost, and sender-chat moderation support: `ChatMemberUpdated`, `ChatBoostUpdated`, `ChatBoostRemoved`, `GetUserChatBoosts`, `SetChatMemberTag`, `BanChatSenderChat`, and `UnbanChatSenderChat`.
 - Verification and user status methods: `SetUserEmojiStatus`, `VerifyUser`, `VerifyChat`, `RemoveUserVerification`, and `RemoveChatVerification`.
 - Lifecycle and profile read APIs: `LogOut`, `Close`, `GetUserProfilePhotos`, `GetUserProfileAudios`, and `GetForumTopicIconStickers`.
 - Sticker set management methods and `InputSticker` support.

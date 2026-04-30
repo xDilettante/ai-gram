@@ -326,6 +326,46 @@ func (d *Dispatcher) OnMessageReactionCountFunc(handler HandlerFunc) error {
 	return d.OnMessageReactionCount(handler)
 }
 
+// OnMyChatMember registers a handler for bot chat member status updates.
+func (d *Dispatcher) OnMyChatMember(handler Handler) error {
+	return d.Handle(MyChatMember(), handler)
+}
+
+// OnMyChatMemberFunc registers a function handler for bot chat member status updates.
+func (d *Dispatcher) OnMyChatMemberFunc(handler HandlerFunc) error {
+	return d.OnMyChatMember(handler)
+}
+
+// OnChatMember registers a handler for chat member status updates.
+func (d *Dispatcher) OnChatMember(handler Handler) error {
+	return d.Handle(ChatMember(), handler)
+}
+
+// OnChatMemberFunc registers a function handler for chat member status updates.
+func (d *Dispatcher) OnChatMemberFunc(handler HandlerFunc) error {
+	return d.OnChatMember(handler)
+}
+
+// OnChatBoost registers a handler for chat boost updates.
+func (d *Dispatcher) OnChatBoost(handler Handler) error {
+	return d.Handle(ChatBoost(), handler)
+}
+
+// OnChatBoostFunc registers a function handler for chat boost updates.
+func (d *Dispatcher) OnChatBoostFunc(handler HandlerFunc) error {
+	return d.OnChatBoost(handler)
+}
+
+// OnRemovedChatBoost registers a handler for removed chat boost updates.
+func (d *Dispatcher) OnRemovedChatBoost(handler Handler) error {
+	return d.Handle(RemovedChatBoost(), handler)
+}
+
+// OnRemovedChatBoostFunc registers a function handler for removed chat boost updates.
+func (d *Dispatcher) OnRemovedChatBoostFunc(handler HandlerFunc) error {
+	return d.OnRemovedChatBoost(handler)
+}
+
 // Any matches every update.
 func Any() Predicate {
 	return func(telegram.Update) bool { return true }
@@ -423,6 +463,26 @@ func MessageReaction() Predicate {
 // MessageReactionCount matches updates with anonymous message reaction count changes.
 func MessageReactionCount() Predicate {
 	return func(update telegram.Update) bool { return update.MessageReactionCount != nil }
+}
+
+// MyChatMember matches updates with the bot's chat member status changes.
+func MyChatMember() Predicate {
+	return func(update telegram.Update) bool { return update.MyChatMember != nil }
+}
+
+// ChatMember matches updates with chat member status changes.
+func ChatMember() Predicate {
+	return func(update telegram.Update) bool { return update.ChatMember != nil }
+}
+
+// ChatBoost matches updates with added or changed chat boosts.
+func ChatBoost() Predicate {
+	return func(update telegram.Update) bool { return update.ChatBoost != nil }
+}
+
+// RemovedChatBoost matches updates with removed chat boosts.
+func RemovedChatBoost() Predicate {
+	return func(update telegram.Update) bool { return update.RemovedChatBoost != nil }
 }
 
 // Chain wraps handler with middleware in the order it is provided.

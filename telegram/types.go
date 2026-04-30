@@ -21,6 +21,10 @@ type Update struct {
 	PurchasedPaidMedia      *PaidMediaPurchased          `json:"purchased_paid_media,omitempty"`
 	ManagedBot              *ManagedBotUpdated           `json:"managed_bot,omitempty"`
 	PollAnswer              *PollAnswer                  `json:"poll_answer,omitempty"`
+	MyChatMember            *ChatMemberUpdated           `json:"my_chat_member,omitempty"`
+	ChatMember              *ChatMemberUpdated           `json:"chat_member,omitempty"`
+	ChatBoost               *ChatBoostUpdated            `json:"chat_boost,omitempty"`
+	RemovedChatBoost        *ChatBoostRemoved            `json:"removed_chat_boost,omitempty"`
 }
 
 // Message represents a Telegram message with the minimal fields needed by update handlers.
@@ -33,6 +37,7 @@ type Message struct {
 	Date                 int64  `json:"date"`
 	BusinessConnectionID string `json:"business_connection_id,omitempty"`
 	IsFromOffline        bool   `json:"is_from_offline,omitempty"`
+	SenderTag            string `json:"sender_tag,omitempty"`
 
 	Text     string          `json:"text,omitempty"`
 	Entities []MessageEntity `json:"entities,omitempty"`
@@ -215,18 +220,49 @@ type ChatMember struct {
 	CustomTitle string `json:"custom_title,omitempty"`
 	UntilDate   int64  `json:"until_date,omitempty"`
 
-	CanBeEdited         bool `json:"can_be_edited,omitempty"`
-	CanManageChat       bool `json:"can_manage_chat,omitempty"`
-	CanDeleteMessages   bool `json:"can_delete_messages,omitempty"`
-	CanManageVideoChats bool `json:"can_manage_video_chats,omitempty"`
-	CanRestrictMembers  bool `json:"can_restrict_members,omitempty"`
-	CanPromoteMembers   bool `json:"can_promote_members,omitempty"`
-	CanChangeInfo       bool `json:"can_change_info,omitempty"`
-	CanInviteUsers      bool `json:"can_invite_users,omitempty"`
-	CanPinMessages      bool `json:"can_pin_messages,omitempty"`
-	CanPostStories      bool `json:"can_post_stories,omitempty"`
-	CanEditStories      bool `json:"can_edit_stories,omitempty"`
-	CanDeleteStories    bool `json:"can_delete_stories,omitempty"`
+	CanBeEdited             bool `json:"can_be_edited,omitempty"`
+	CanManageChat           bool `json:"can_manage_chat,omitempty"`
+	CanDeleteMessages       bool `json:"can_delete_messages,omitempty"`
+	CanManageVideoChats     bool `json:"can_manage_video_chats,omitempty"`
+	CanRestrictMembers      bool `json:"can_restrict_members,omitempty"`
+	CanPromoteMembers       bool `json:"can_promote_members,omitempty"`
+	CanChangeInfo           bool `json:"can_change_info,omitempty"`
+	CanInviteUsers          bool `json:"can_invite_users,omitempty"`
+	CanPinMessages          bool `json:"can_pin_messages,omitempty"`
+	CanPostStories          bool `json:"can_post_stories,omitempty"`
+	CanEditStories          bool `json:"can_edit_stories,omitempty"`
+	CanDeleteStories        bool `json:"can_delete_stories,omitempty"`
+	CanPostMessages         bool `json:"can_post_messages,omitempty"`
+	CanEditMessages         bool `json:"can_edit_messages,omitempty"`
+	CanManageTopics         bool `json:"can_manage_topics,omitempty"`
+	CanManageDirectMessages bool `json:"can_manage_direct_messages,omitempty"`
+	CanManageTags           bool `json:"can_manage_tags,omitempty"`
+
+	Tag                   string `json:"tag,omitempty"`
+	IsMember              bool   `json:"is_member,omitempty"`
+	CanSendMessages       bool   `json:"can_send_messages,omitempty"`
+	CanSendAudios         bool   `json:"can_send_audios,omitempty"`
+	CanSendDocuments      bool   `json:"can_send_documents,omitempty"`
+	CanSendPhotos         bool   `json:"can_send_photos,omitempty"`
+	CanSendVideos         bool   `json:"can_send_videos,omitempty"`
+	CanSendVideoNotes     bool   `json:"can_send_video_notes,omitempty"`
+	CanSendVoiceNotes     bool   `json:"can_send_voice_notes,omitempty"`
+	CanSendPolls          bool   `json:"can_send_polls,omitempty"`
+	CanSendOtherMessages  bool   `json:"can_send_other_messages,omitempty"`
+	CanAddWebPagePreviews bool   `json:"can_add_web_page_previews,omitempty"`
+	CanEditTag            bool   `json:"can_edit_tag,omitempty"`
+}
+
+// ChatMemberUpdated represents changes in the status of a chat member.
+type ChatMemberUpdated struct {
+	Chat                    Chat            `json:"chat"`
+	From                    User            `json:"from"`
+	Date                    int64           `json:"date"`
+	OldChatMember           ChatMember      `json:"old_chat_member"`
+	NewChatMember           ChatMember      `json:"new_chat_member"`
+	InviteLink              *ChatInviteLink `json:"invite_link,omitempty"`
+	ViaJoinRequest          bool            `json:"via_join_request,omitempty"`
+	ViaChatFolderInviteLink bool            `json:"via_chat_folder_invite_link,omitempty"`
 }
 
 // ChatPermissions describes actions a user is allowed to take in a chat.
@@ -245,6 +281,7 @@ type ChatPermissions struct {
 	CanInviteUsers        bool `json:"can_invite_users,omitempty"`
 	CanPinMessages        bool `json:"can_pin_messages,omitempty"`
 	CanManageTopics       bool `json:"can_manage_topics,omitempty"`
+	CanEditTag            bool `json:"can_edit_tag,omitempty"`
 }
 
 // MessageEntity represents one special entity in a message text or caption.

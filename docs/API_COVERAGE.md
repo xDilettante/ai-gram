@@ -227,9 +227,12 @@ This document maps the current `ai-gram` implementation to Telegram Bot API area
 | Public Go API | Telegram Bot API method | Tests | Notes |
 | --- | --- | --- | --- |
 | `(*bot.Bot).GetChat` | `getChat` | unit/httptest, live example access panel | Minimal `telegram.Chat` fields plus optional description/invite/pinned message. |
-| `(*bot.Bot).GetChatMember` | `getChatMember` | unit/httptest | Minimal `telegram.ChatMember` fields and admin permission booleans. |
-| `(*bot.Bot).GetChatAdministrators` | `getChatAdministrators` | unit/httptest | Returns `[]telegram.ChatMember`. |
+| `(*bot.Bot).GetChatMember` | `getChatMember` | unit/httptest | `telegram.ChatMember` includes official status/user, admin, member tag, and restricted-permission fields in the current flat API shape. |
+| `(*bot.Bot).GetChatAdministrators` | `getChatAdministrators` | unit/httptest | Returns `[]telegram.ChatMember` with the same flat field coverage as `GetChatMember`. |
 | `(*bot.Bot).GetChatMemberCount` | `getChatMemberCount` | unit/httptest, optional live example | Safe read method; availability depends on chat permissions. |
+| `telegram.ChatMemberUpdated` | `my_chat_member`, `chat_member` updates | unit | Decodes old/new chat member data, invite-link flags, and effective chat/user helpers. |
+| `telegram.ChatBoostUpdated` / `telegram.ChatBoostRemoved` | `chat_boost`, `removed_chat_boost` updates | unit | Decodes chat boost updates and polymorphic boost sources. |
+| `(*bot.Bot).GetUserChatBoosts` | `getUserChatBoosts` | unit/httptest | Admin-required read method returning `telegram.UserChatBoosts`. Manual-only for live checks. |
 
 ### Moderation
 
@@ -238,6 +241,9 @@ This document maps the current `ai-gram` implementation to Telegram Bot API area
 | `(*bot.Bot).BanChatMember` | `banChatMember` | unit/httptest | Destructive/admin method; no automatic live smoke. |
 | `(*bot.Bot).UnbanChatMember` | `unbanChatMember` | unit/httptest | Admin method; `OnlyIfBanned` supported. |
 | `(*bot.Bot).RestrictChatMember` | `restrictChatMember` | unit/httptest | Destructive/admin method; zero `telegram.ChatPermissions` is valid and restricts all supported actions. |
+| `(*bot.Bot).SetChatMemberTag` | `setChatMemberTag` | unit/httptest | Admin/state-changing tag method; empty tag is allowed to clear the member tag. |
+| `(*bot.Bot).BanChatSenderChat` | `banChatSenderChat` | unit/httptest | Destructive sender-channel moderation method; no automatic live smoke. |
+| `(*bot.Bot).UnbanChatSenderChat` | `unbanChatSenderChat` | unit/httptest | Admin/state-changing sender-channel moderation method; no automatic live smoke. |
 | `telegram.ChatPermissions` | moderation permissions object | unit through method payload tests | Minimal supported permission fields for restriction and default chat permission payloads. |
 
 ### Chat management
@@ -358,15 +364,13 @@ Stage 88 performed a full official-doc comparison against the Telegram Bot API d
 
 ### Missing methods from the Stage 88 audit
 
-- Chat boosts/member updates/moderation: `getUserChatBoosts`, `setChatMemberTag`, `banChatSenderChat`, `unbanChatSenderChat`.
 - Subscription invite links: `createChatSubscriptionInviteLink`, `editChatSubscriptionInviteLink`.
 - Checklists and drafts: `sendChecklist`, `editMessageChecklist`, `sendMessageDraft`.
 - Business/Mini App follow-ups: `repostStory`, `savePreparedInlineMessage`.
 
 ### Missing type and field groups from the Stage 88 audit
 
-- `ChatFullInfo`, fuller `User`/`Chat` metadata, channel post updates, chat-member updates, and chat boost update types.
-- `ChatMemberUpdated`, concrete `ChatMember*` variants, `ChatBoost*`, `UserChatBoosts`, and related chat boost/member service fields.
+- `ChatFullInfo`, fuller `User`/`Chat` metadata, channel post updates, and remaining chat metadata fields.
 - `Checklist*` and `InputChecklist*` types plus checklist message/service fields.
 - Reply/forward metadata: `MessageOrigin*`, `ExternalReplyInfo`, `TextQuote`, `MaybeInaccessibleMessage`, `InaccessibleMessage`, and the remaining `ReplyParameters` quote/cross-chat/checklist fields.
 - Reply markup completion: `LoginUrl`, `SwitchInlineQueryChosenChat`, `CopyTextButton`, `KeyboardButtonPollType`, request-poll, pay, icon, and style fields.

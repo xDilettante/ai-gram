@@ -44,6 +44,8 @@ func TestPromoteChatMemberSendsPayloadAndDecodesResult(t *testing.T) {
 			"can_edit_messages",
 			"can_pin_messages",
 			"can_manage_topics",
+			"can_manage_direct_messages",
+			"can_manage_tags",
 		}
 		for _, field := range wantTrueFields {
 			if payload[field] != true {
@@ -57,23 +59,25 @@ func TestPromoteChatMemberSendsPayloadAndDecodesResult(t *testing.T) {
 
 	bot := newTestBot(t, token, server.URL, server.Client())
 	ok, err := bot.PromoteChatMember(context.Background(), PromoteChatMemberParams{
-		ChatID:              ChatIDInt(12345),
-		UserID:              777,
-		IsAnonymous:         true,
-		CanManageChat:       true,
-		CanDeleteMessages:   true,
-		CanManageVideoChats: true,
-		CanRestrictMembers:  true,
-		CanPromoteMembers:   true,
-		CanChangeInfo:       true,
-		CanInviteUsers:      true,
-		CanPostStories:      true,
-		CanEditStories:      true,
-		CanDeleteStories:    true,
-		CanPostMessages:     true,
-		CanEditMessages:     true,
-		CanPinMessages:      true,
-		CanManageTopics:     true,
+		ChatID:                  ChatIDInt(12345),
+		UserID:                  777,
+		IsAnonymous:             true,
+		CanManageChat:           true,
+		CanDeleteMessages:       true,
+		CanManageVideoChats:     true,
+		CanRestrictMembers:      true,
+		CanPromoteMembers:       true,
+		CanChangeInfo:           true,
+		CanInviteUsers:          true,
+		CanPostStories:          true,
+		CanEditStories:          true,
+		CanDeleteStories:        true,
+		CanPostMessages:         true,
+		CanEditMessages:         true,
+		CanPinMessages:          true,
+		CanManageTopics:         true,
+		CanManageDirectMessages: true,
+		CanManageTags:           true,
 	})
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)

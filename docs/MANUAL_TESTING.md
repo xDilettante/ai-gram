@@ -350,6 +350,20 @@ Manual checklist for a dedicated test environment only:
 
 Treat Telegram permission errors in chats where the bot is not an admin as expected Bot API behavior, not as a library bug.
 
+## Chat member, chat boost, and sender-chat checklist
+
+`GetUserChatBoosts`, `SetChatMemberTag`, `BanChatSenderChat`, and `UnbanChatSenderChat` require suitable chat access and, for mutation methods, administrator rights. Chat member and chat boost updates are decoded by the library, but no automatic live smoke should subscribe to or mutate production chats.
+
+Manual checklist for a dedicated test environment only:
+
+- Create a dedicated test supergroup or channel and add the bot as an administrator with the exact rights needed for the check.
+- For chat member update routing, explicitly allow `my_chat_member` and `chat_member` updates in the test receiver and verify only safe metadata: update ID, chat ID, performer user ID, and old/new status.
+- For chat boost updates and `GetUserChatBoosts`, use only expected test accounts and log only boost counts/source type labels; do not log private boost payloads beyond structural metadata.
+- For `SetChatMemberTag`, use a regular test member and restore the previous tag; an empty tag clears the member tag.
+- For `BanChatSenderChat` and `UnbanChatSenderChat`, use a disposable test sender channel and restore it immediately with `UnbanChatSenderChat`.
+- Do not run sender-chat bans or tag changes against production chats.
+- Do not paste bot tokens, token-bearing URLs, private chat content, or private chat boost payloads into logs or reports.
+
 ## Chat management methods checklist
 
 `SetChatTitle`, `SetChatDescription`, `SetChatPhoto`, `DeleteChatPhoto`, `LeaveChat`, `SetChatStickerSet`, and `DeleteChatStickerSet` require bot admin rights where applicable and change real chat state. They are intentionally not part of automatic live smoke.

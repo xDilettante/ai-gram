@@ -11,9 +11,11 @@ The audit compares official method/type headings and high-impact object fields a
 
 **Full coverage not yet reached.**
 
-The current repository covers the large local Stage 66-90 workstream, including forum topics, reactions, inline mode, payments, paid media, Stars/gifts, Managed Bots 9.6, Poll 9.6, WebApp/Mini App, Business API foundation/account/story/suggested posts, games, Passport, and lifecycle/profile read APIs, and verification/user status APIs. The remaining gaps are concentrated in checklist/message-draft APIs, subscription invite links, chat boost/member-update surfaces, and broad incoming message/type completeness.
+The current repository covers the large local Stage 66-91 workstream, including forum topics, reactions, inline mode, payments, paid media, Stars/gifts, Managed Bots 9.6, Poll 9.6, WebApp/Mini App, Business API foundation/account/story/suggested posts, games, Passport, lifecycle/profile read APIs, verification/user status APIs, and chat member/boost updates. The remaining gaps are concentrated in checklist/message-draft APIs, subscription invite links, prepared inline/business follow-ups, and broad incoming message/type completeness.
 
 ## Implemented areas
+
+- Chat member update and chat boost support: `ChatMemberUpdated`, `Update.my_chat_member`, `Update.chat_member`, `ChatBoostUpdated`, `ChatBoostRemoved`, `UserChatBoosts`, `GetUserChatBoosts`, `SetChatMemberTag`, `BanChatSenderChat`, and `UnbanChatSenderChat`.
 
 - Core bot construction, token-safe HTTP calls, configurable base URL/client, JSON and multipart requests, typed API errors.
 - Updates via `getUpdates`, managed long polling, inbound webhook handler, and JSON webhook management.
@@ -32,10 +34,6 @@ The current repository covers the large local Stage 66-90 workstream, including 
 
 | Official method name | Area | Risk level | Suggested implementation stage |
 | --- | --- | --- | --- |
-| `getUserChatBoosts` | Chat boosts | safe | Stage 91: chat boosts/member updates |
-| `setChatMemberTag` | Chat member tags | admin/state-changing | Stage 91: chat boosts/member updates |
-| `banChatSenderChat` | Sender chat moderation | admin/destructive | Stage 91: chat boosts/member updates |
-| `unbanChatSenderChat` | Sender chat moderation | admin/state-changing | Stage 91: chat boosts/member updates |
 | `createChatSubscriptionInviteLink` | Paid subscription invite links | state-changing/payment-related | Stage 92: subscription invite links |
 | `editChatSubscriptionInviteLink` | Paid subscription invite links | state-changing/payment-related | Stage 92: subscription invite links |
 | `sendChecklist` | Checklists | state-changing/send | Stage 93: checklists and drafts |
@@ -48,12 +46,12 @@ The current repository covers the large local Stage 66-90 workstream, including 
 
 | Official name | Parent type | Why it matters | Suggested stage |
 | --- | --- | --- | --- |
-| `ChatFullInfo` | `getChat` result | Official `getChat` returns the extended chat object; the current method returns minimal `Chat`, so many current chat metadata fields are unavailable. Stage 89 kept the existing signature and documented the transition strategy instead of making an incidental breaking change. | Stage 91 / Stage 96 |
+| `ChatFullInfo` | `getChat` result | Official `getChat` returns the extended chat object; the current method returns minimal `Chat`, so many current chat metadata fields are unavailable. Stage 89 kept the existing signature and documented the transition strategy instead of making an incidental breaking change. | Stage 96 |
 | `User.language_code`, `is_premium`, `added_to_attachment_menu`, `can_join_groups`, `can_read_all_group_messages`, `supports_inline_queries`, `can_connect_to_business`, `has_main_web_app`, `has_topics_enabled`, `allows_users_to_create_topics` | `User` | Returned by `getMe`/user payloads and newer topic/business/profile capability checks. | Stage 96 |
-| `Chat.is_forum`, `Chat.is_direct_messages` | `Chat` | Indicates forum and channel direct messages chats in lightweight chat payloads. | Stage 91 |
-| `channel_post`, `edited_channel_post`, `poll`, `my_chat_member`, `chat_member`, `chat_boost`, `removed_chat_boost` | `Update` | Missing update entry points block channel posts, standalone poll updates, chat member changes, and chat boost updates. | Stage 91 |
-| `ChatMemberUpdated`, concrete `ChatMember*` variants, `ChatBoost*`, `UserChatBoosts` | Chat member / boost types | Required for `my_chat_member`, `chat_member`, `getUserChatBoosts`, and boost updates. | Stage 91 |
-| `ChatBoostAdded`, `ChatBackground`, `BackgroundFill*`, `BackgroundType*` | `Message` service messages | Needed to decode chat boost and background service messages. | Stage 91 |
+| `Chat.is_forum`, `Chat.is_direct_messages` | `Chat` | Indicates forum and channel direct messages chats in lightweight chat payloads. | Stage 96 |
+| `channel_post`, `edited_channel_post`, `poll` | `Update` | Missing update entry points still block channel posts and standalone poll updates. Stage 91 added chat member and chat boost updates. | Stage 96 |
+| concrete `ChatMember*` variant structs | Chat member types | Stage 91 keeps the existing flat `ChatMember` struct and extends it with official 9.6 fields instead of introducing a breaking polymorphic API. Dedicated concrete variants remain a possible future refinement. | Stage 96 |
+| `ChatBoostAdded`, `ChatBackground`, `BackgroundFill*`, `BackgroundType*` | `Message` service messages | Needed to decode chat boost and background service messages. Stage 91 covered boost update objects but not these message service fields. | Stage 96 |
 | `MessageOrigin*`, `ExternalReplyInfo`, `TextQuote`, `MaybeInaccessibleMessage`, `InaccessibleMessage` | `Message` reply/forward fields | Current message decoding lacks official forward/reply metadata such as `forward_origin`, `external_reply`, `quote`, and inaccessible pinned messages. | Stage 96: message field completeness |
 | `DirectMessagesTopic`, `SuggestedPostInfo` | `Message` | Required for channel direct messages and suggested post metadata. | Stage 94 / Stage 96 |
 | `Message.direct_messages_topic`, `sender_chat`, `sender_boost_count`, `sender_tag`, `forward_origin`, `is_topic_message`, `is_automatic_forward`, `reply_to_message`, `external_reply`, `quote`, `reply_to_story`, `reply_to_checklist_task_id`, `via_bot`, `edit_date`, `has_protected_content`, `is_paid_post`, `media_group_id`, `author_signature`, `paid_star_count`, `link_preview_options`, `suggested_post_info`, `effect_id`, `story`, `show_caption_above_media`, `has_media_spoiler`, `reply_markup` | `Message` | High-impact official message fields are not decoded yet; several affect business/direct messages, captions, message effects, stars, and replies. | Stage 96 |
@@ -106,7 +104,7 @@ These areas must remain manual-only and require explicit user confirmation plus 
 
 1. **Stage 89 completed:** lifecycle and profile read APIs - `logOut`, `close`, `getUserProfilePhotos`, `getUserProfileAudios`, `getForumTopicIconStickers`; `ChatFullInfo` remains a documented getChat strategy mismatch.
 2. **Stage 90 completed:** verification and user status APIs - `setUserEmojiStatus`, `verifyUser`, `verifyChat`, `removeUserVerification`, `removeChatVerification`.
-3. **Stage 91: chat boosts, member updates, and sender-chat moderation** - `getUserChatBoosts`, `setChatMemberTag`, `banChatSenderChat`, `unbanChatSenderChat`, chat boost/member update types.
+3. **Stage 91: chat boosts, member updates, and sender-chat moderation** - completed locally: `getUserChatBoosts`, `setChatMemberTag`, `banChatSenderChat`, `unbanChatSenderChat`, chat boost/member update types.
 4. **Stage 92: subscription invite links** - `createChatSubscriptionInviteLink`, `editChatSubscriptionInviteLink`, invite link price/subscription fields audit.
 5. **Stage 93: checklists, message drafts, and structured poll options** - `sendChecklist`, `editMessageChecklist`, `sendMessageDraft`, `InputPollOption`, checklist message/service types.
 6. **Stage 94: business/direct-message story completion** - `repostStory`, direct message topic fields, incoming story metadata.

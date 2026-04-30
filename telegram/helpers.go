@@ -107,6 +107,18 @@ func (u *Update) EffectiveChat() *Chat {
 	if u != nil && u.DeletedBusinessMessages != nil {
 		return &u.DeletedBusinessMessages.Chat
 	}
+	if u != nil && u.MyChatMember != nil {
+		return &u.MyChatMember.Chat
+	}
+	if u != nil && u.ChatMember != nil {
+		return &u.ChatMember.Chat
+	}
+	if u != nil && u.ChatBoost != nil {
+		return &u.ChatBoost.Chat
+	}
+	if u != nil && u.RemovedChatBoost != nil {
+		return &u.RemovedChatBoost.Chat
+	}
 
 	return nil
 }
@@ -158,10 +170,46 @@ func (u *Update) EffectiveUser() *User {
 	if u.ChatJoinRequest != nil {
 		return &u.ChatJoinRequest.From
 	}
+	if u.MyChatMember != nil {
+		return &u.MyChatMember.From
+	}
+	if u.ChatMember != nil {
+		return &u.ChatMember.From
+	}
+	if u.ChatBoost != nil {
+		return effectiveChatBoostUser(u.ChatBoost.Boost.Source)
+	}
+	if u.RemovedChatBoost != nil {
+		return effectiveChatBoostUser(u.RemovedChatBoost.Source)
+	}
 	if u.MessageReaction != nil && u.MessageReaction.User != nil {
 		return u.MessageReaction.User
 	}
 
+	return nil
+}
+
+func effectiveChatBoostUser(source ChatBoostSource) *User {
+	switch value := source.(type) {
+	case ChatBoostSourcePremium:
+		return &value.User
+	case *ChatBoostSourcePremium:
+		if value != nil {
+			return &value.User
+		}
+	case ChatBoostSourceGiftCode:
+		return &value.User
+	case *ChatBoostSourceGiftCode:
+		if value != nil {
+			return &value.User
+		}
+	case ChatBoostSourceGiveaway:
+		return value.User
+	case *ChatBoostSourceGiveaway:
+		if value != nil {
+			return value.User
+		}
+	}
 	return nil
 }
 

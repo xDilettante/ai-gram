@@ -339,6 +339,12 @@ type UnpinAllChatMessagesParams = bot.UnpinAllChatMessagesParams
 // SetMessageReactionParams contains supported parameters for setMessageReaction.
 type SetMessageReactionParams = bot.SetMessageReactionParams
 
+// GetUserChatBoostsParams contains supported parameters for getUserChatBoosts.
+type GetUserChatBoostsParams = bot.GetUserChatBoostsParams
+
+// SetChatMemberTagParams contains supported parameters for setChatMemberTag.
+type SetChatMemberTagParams = bot.SetChatMemberTagParams
+
 // ReactionType marks Telegram message reaction type objects.
 type ReactionType = telegram.ReactionType
 
@@ -354,8 +360,14 @@ type ReactionTypePaid = telegram.ReactionTypePaid
 // BanChatMemberParams contains supported parameters for banChatMember.
 type BanChatMemberParams = bot.BanChatMemberParams
 
+// BanChatSenderChatParams contains supported parameters for banChatSenderChat.
+type BanChatSenderChatParams = bot.BanChatSenderChatParams
+
 // UnbanChatMemberParams contains supported parameters for unbanChatMember.
 type UnbanChatMemberParams = bot.UnbanChatMemberParams
+
+// UnbanChatSenderChatParams contains supported parameters for unbanChatSenderChat.
+type UnbanChatSenderChatParams = bot.UnbanChatSenderChatParams
 
 // RestrictChatMemberParams contains supported parameters for restrictChatMember.
 type RestrictChatMemberParams = bot.RestrictChatMemberParams
@@ -584,6 +596,33 @@ type ChatMemberStatus = telegram.ChatMemberStatus
 
 // ChatMember describes a Telegram user's membership and permissions in a chat.
 type ChatMember = telegram.ChatMember
+
+// ChatMemberUpdated represents changes in the status of a chat member.
+type ChatMemberUpdated = telegram.ChatMemberUpdated
+
+// ChatBoostUpdated represents a boost added to a chat or changed.
+type ChatBoostUpdated = telegram.ChatBoostUpdated
+
+// ChatBoostRemoved represents a boost removed from a chat.
+type ChatBoostRemoved = telegram.ChatBoostRemoved
+
+// ChatBoost contains information about a chat boost.
+type ChatBoost = telegram.ChatBoost
+
+// ChatBoostSource marks Telegram chat boost source objects.
+type ChatBoostSource = telegram.ChatBoostSource
+
+// ChatBoostSourcePremium describes a boost from Telegram Premium.
+type ChatBoostSourcePremium = telegram.ChatBoostSourcePremium
+
+// ChatBoostSourceGiftCode describes a boost from Premium gift codes.
+type ChatBoostSourceGiftCode = telegram.ChatBoostSourceGiftCode
+
+// ChatBoostSourceGiveaway describes a boost from a Premium or Star giveaway.
+type ChatBoostSourceGiveaway = telegram.ChatBoostSourceGiveaway
+
+// UserChatBoosts represents a list of boosts added to a chat by a user.
+type UserChatBoosts = telegram.UserChatBoosts
 
 // CallbackQuery represents an incoming callback query.
 type CallbackQuery = telegram.CallbackQuery
