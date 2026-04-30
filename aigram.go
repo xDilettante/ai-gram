@@ -213,6 +213,42 @@ type GetChatMenuButtonParams = bot.GetChatMenuButtonParams
 // SetMyDefaultAdministratorRightsParams contains supported parameters for setMyDefaultAdministratorRights.
 type SetMyDefaultAdministratorRightsParams = bot.SetMyDefaultAdministratorRightsParams
 
+// SetMyNameParams contains supported parameters for setMyName.
+type SetMyNameParams = bot.SetMyNameParams
+
+// GetMyNameParams contains supported parameters for getMyName.
+type GetMyNameParams = bot.GetMyNameParams
+
+// SetMyDescriptionParams contains supported parameters for setMyDescription.
+type SetMyDescriptionParams = bot.SetMyDescriptionParams
+
+// GetMyDescriptionParams contains supported parameters for getMyDescription.
+type GetMyDescriptionParams = bot.GetMyDescriptionParams
+
+// SetMyShortDescriptionParams contains supported parameters for setMyShortDescription.
+type SetMyShortDescriptionParams = bot.SetMyShortDescriptionParams
+
+// GetMyShortDescriptionParams contains supported parameters for getMyShortDescription.
+type GetMyShortDescriptionParams = bot.GetMyShortDescriptionParams
+
+// GetMyDefaultAdministratorRightsParams contains supported parameters for getMyDefaultAdministratorRights.
+type GetMyDefaultAdministratorRightsParams = bot.GetMyDefaultAdministratorRightsParams
+
+// SetMyProfilePhotoParams contains supported parameters for setMyProfilePhoto.
+type SetMyProfilePhotoParams = bot.SetMyProfilePhotoParams
+
+// RemoveMyProfilePhotoParams contains supported parameters for removeMyProfilePhoto.
+type RemoveMyProfilePhotoParams = bot.RemoveMyProfilePhotoParams
+
+// InputProfilePhoto describes a bot profile photo accepted by setMyProfilePhoto.
+type InputProfilePhoto = bot.InputProfilePhoto
+
+// InputProfilePhotoStatic describes a static JPG bot profile photo.
+type InputProfilePhotoStatic = bot.InputProfilePhotoStatic
+
+// InputProfilePhotoAnimated describes an animated MPEG4 bot profile photo.
+type InputProfilePhotoAnimated = bot.InputProfilePhotoAnimated
+
 // ExportChatInviteLinkParams contains supported parameters for exportChatInviteLink.
 type ExportChatInviteLinkParams = bot.ExportChatInviteLinkParams
 
@@ -311,6 +347,15 @@ type ReplyParameters = telegram.ReplyParameters
 
 // ChatPermissions describes actions a user is allowed to take in a chat.
 type ChatPermissions = telegram.ChatPermissions
+
+// BotName describes a localized bot name.
+type BotName = telegram.BotName
+
+// BotDescription describes a localized bot description.
+type BotDescription = telegram.BotDescription
+
+// BotShortDescription describes a localized bot short description.
+type BotShortDescription = telegram.BotShortDescription
 
 // InlineKeyboardMarkup represents an inline keyboard attached to a message.
 type InlineKeyboardMarkup = telegram.InlineKeyboardMarkup
@@ -431,6 +476,16 @@ func MediaAudio(media FileRef) InputMediaAudio {
 // MediaDocument creates a document input media item.
 func MediaDocument(media FileRef) InputMediaDocument {
 	return bot.MediaDocument(media)
+}
+
+// ProfilePhotoStatic creates a static JPG input profile photo.
+func ProfilePhotoStatic(photo FileRef) InputProfilePhotoStatic {
+	return bot.ProfilePhotoStatic(photo)
+}
+
+// ProfilePhotoAnimated creates an animated MPEG4 input profile photo.
+func ProfilePhotoAnimated(animation FileRef) InputProfilePhotoAnimated {
+	return bot.ProfilePhotoAnimated(animation)
 }
 
 // NewInlineKeyboard creates an InlineKeyboardMarkup from rows of buttons.

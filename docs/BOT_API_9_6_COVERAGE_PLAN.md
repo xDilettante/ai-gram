@@ -278,16 +278,18 @@ This plan is a working checklist derived from the official documentation and cha
 
 ### Bot profile and metadata
 
-- [ ] `SetMyName`
-- [ ] `GetMyName`
-- [ ] `SetMyDescription`
-- [ ] `GetMyDescription`
-- [ ] `SetMyShortDescription`
-- [ ] `GetMyShortDescription`
-- [ ] `SetMyProfilePhoto`, if present in current docs
-- [ ] `RemoveMyProfilePhoto`, if present in current docs
-- [ ] `GetMyDefaultAdministratorRights`, if missing
-- [ ] typed bot name/description/short description objects
+- [x] `SetMyName`
+- [x] `GetMyName`
+- [x] `SetMyDescription`
+- [x] `GetMyDescription`
+- [x] `SetMyShortDescription`
+- [x] `GetMyShortDescription`
+- [x] `SetMyProfilePhoto` with Bot API 9.6 `InputProfilePhotoStatic`/`InputProfilePhotoAnimated` upload-only multipart payloads
+- [x] `RemoveMyProfilePhoto`
+- [x] `GetMyDefaultAdministratorRights`
+- [x] typed bot name/description/short description objects
+
+Live smoke for this slice is manual-only because set/remove operations change real bot profile state.
 
 ### Business APIs
 

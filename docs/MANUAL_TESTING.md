@@ -286,6 +286,21 @@ Manual checklist:
 - Log only method names, chat ID, message ID count, first returned message ID for copy/forward, and boolean result for delete.
 - Do not paste bot tokens, token-bearing URLs, private message text, or full private chat content into logs or reports.
 
+## Bot profile and metadata checklist
+
+Bot profile and metadata methods change real bot state and are intentionally not part of automatic live smoke.
+
+Manual checklist:
+
+- Use a dedicated test bot, not a production bot.
+- Record the current bot name, description, short description, default administrator rights, and profile photo state before testing.
+- Use `GetMyName`, `GetMyDescription`, `GetMyShortDescription`, and `GetMyDefaultAdministratorRights` for read checks.
+- Call `SetMyName`, `SetMyDescription`, and `SetMyShortDescription` only with temporary test values and restore previous values afterwards.
+- Call `SetMyProfilePhoto` only with a disposable uploaded JPG or MPEG4 profile asset. Do not use file IDs or URLs; Bot API profile photos are upload-only.
+- Call `RemoveMyProfilePhoto` only if the test bot profile photo can be safely removed and restored.
+- Log only method names, language code, boolean results, and non-sensitive metadata field names.
+- Do not paste bot tokens, token-bearing URLs, private profile assets, or `.env.local` content into logs or reports.
+
 ## Webhook SendChatAction and pin/unpin checklist
 
 The default webhook smoke checks `SendChatAction` in the echo handler without requiring extra chat permissions. Pin and unpin methods are not enabled in the default webhook example because they require suitable admin rights in groups/channels and can be noisy.

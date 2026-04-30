@@ -8,6 +8,7 @@
 - Forum topic methods and forum topic service message types.
 - Reaction types, reaction update decoding and dispatch helpers, and `SetMessageReaction`.
 - Batch message methods: `ForwardMessages`, `CopyMessages`, and `DeleteMessages`.
+- Bot profile and metadata methods: `SetMyName`, `GetMyName`, `SetMyDescription`, `GetMyDescription`, `SetMyShortDescription`, `GetMyShortDescription`, `GetMyDefaultAdministratorRights`, `SetMyProfilePhoto`, and `RemoveMyProfilePhoto`.
 
 ### Planning
 

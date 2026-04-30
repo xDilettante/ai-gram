@@ -175,6 +175,21 @@ This document maps the current `ai-gram` implementation to Telegram Bot API area
 | `(*bot.Bot).SetMyDefaultAdministratorRights` | `setMyDefaultAdministratorRights` | unit/httptest | Sets or clears default administrator rights requested by the bot; no automatic live smoke. |
 | `telegram.BotCommandScope`, `telegram.MenuButton`, `telegram.ChatAdministratorRights` | related Bot API objects | unit through method payload tests | Hand-written minimal object coverage for command scopes, menu buttons, Web App info, and admin rights. |
 
+### Bot profile and metadata
+
+| Public Go API | Telegram Bot API method | Tests | Notes |
+| --- | --- | --- | --- |
+| `(*bot.Bot).SetMyName` | `setMyName` | unit/httptest | Changes localized bot name metadata; manual-only live smoke. |
+| `(*bot.Bot).GetMyName` | `getMyName` | unit/httptest | Decodes `telegram.BotName`. |
+| `(*bot.Bot).SetMyDescription` | `setMyDescription` | unit/httptest | Changes localized bot description metadata; manual-only live smoke. |
+| `(*bot.Bot).GetMyDescription` | `getMyDescription` | unit/httptest | Decodes `telegram.BotDescription`. |
+| `(*bot.Bot).SetMyShortDescription` | `setMyShortDescription` | unit/httptest | Changes localized bot short description metadata; manual-only live smoke. |
+| `(*bot.Bot).GetMyShortDescription` | `getMyShortDescription` | unit/httptest | Decodes `telegram.BotShortDescription`. |
+| `(*bot.Bot).GetMyDefaultAdministratorRights` | `getMyDefaultAdministratorRights` | unit/httptest | Reads default administrator rights requested by the bot. |
+| `(*bot.Bot).SetMyProfilePhoto` | `setMyProfilePhoto` | unit/httptest | Supports Bot API 9.6 `InputProfilePhotoStatic` and `InputProfilePhotoAnimated`; upload-only multipart because profile photos cannot be reused. Manual-only live smoke. |
+| `(*bot.Bot).RemoveMyProfilePhoto` | `removeMyProfilePhoto` | unit/httptest | Removes the bot profile photo; manual-only live smoke. |
+| `telegram.BotName`, `telegram.BotDescription`, `telegram.BotShortDescription` | related Bot API objects | unit through method result tests | Minimal localized bot profile metadata objects. |
+
 ### Invite links
 
 | Public Go API | Telegram Bot API method | Tests | Notes |
@@ -258,11 +273,6 @@ This document maps the current `ai-gram` implementation to Telegram Bot API area
 - WebApp/LoginUrl fields outside the implemented menu button support
 - LoginUrl button fields and validation
 - web app data helpers
-
-### Bot profile methods
-
-- bot name/description/short description methods
-- profile photo methods
 
 ### Business features
 
