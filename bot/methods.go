@@ -9,11 +9,13 @@ import (
 
 // SendMessageParams contains supported parameters for sendMessage.
 type SendMessageParams struct {
-	ChatID              ChatID               `json:"chat_id"`
-	Text                string               `json:"text"`
-	ParseMode           string               `json:"parse_mode,omitempty"`
-	DisableNotification bool                 `json:"disable_notification,omitempty"`
-	ReplyMarkup         telegram.ReplyMarkup `json:"reply_markup,omitempty"`
+	ChatID              ChatID                    `json:"chat_id"`
+	MessageThreadID     int64                     `json:"message_thread_id,omitempty"`
+	Text                string                    `json:"text"`
+	ParseMode           string                    `json:"parse_mode,omitempty"`
+	DisableNotification bool                      `json:"disable_notification,omitempty"`
+	ReplyParameters     *telegram.ReplyParameters `json:"reply_parameters,omitempty"`
+	ReplyMarkup         telegram.ReplyMarkup      `json:"reply_markup,omitempty"`
 }
 
 // GetUpdatesParams contains supported parameters for getUpdates.
@@ -67,8 +69,14 @@ func (b *Bot) SendMessage(ctx context.Context, params SendMessageParams) (*teleg
 	if !params.ChatID.valid() {
 		return nil, stderrors.New("chat_id is required")
 	}
+	if err := validateMessageThreadID(params.MessageThreadID); err != nil {
+		return nil, err
+	}
 	if params.Text == "" {
 		return nil, stderrors.New("text is required")
+	}
+	if err := validateReplyParameters(params.ReplyParameters); err != nil {
+		return nil, err
 	}
 	if err := telegram.ValidateReplyMarkup(params.ReplyMarkup); err != nil {
 		return nil, err
@@ -80,4 +88,23 @@ func (b *Bot) SendMessage(ctx context.Context, params SendMessageParams) (*teleg
 	}
 
 	return &message, nil
+}
+
+func validateMessageThreadID(id int64) error {
+	if id < 0 {
+		return stderrors.New("message_thread_id must not be negative")
+	}
+
+	return nil
+}
+
+func validateReplyParameters(reply *telegram.ReplyParameters) error {
+	if reply == nil {
+		return nil
+	}
+	if reply.MessageID <= 0 {
+		return stderrors.New("reply_parameters.message_id must be greater than zero")
+	}
+
+	return nil
 }

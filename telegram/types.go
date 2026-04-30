@@ -11,10 +11,11 @@ type Update struct {
 
 // Message represents a Telegram message with the minimal fields needed by update handlers.
 type Message struct {
-	MessageID int64 `json:"message_id"`
-	From      *User `json:"from,omitempty"`
-	Chat      Chat  `json:"chat"`
-	Date      int64 `json:"date"`
+	MessageID       int64 `json:"message_id"`
+	MessageThreadID int64 `json:"message_thread_id,omitempty"`
+	From            *User `json:"from,omitempty"`
+	Chat            Chat  `json:"chat"`
+	Date            int64 `json:"date"`
 
 	Text     string          `json:"text,omitempty"`
 	Entities []MessageEntity `json:"entities,omitempty"`
@@ -63,6 +64,12 @@ type MessageEntity struct {
 	User          *User  `json:"user,omitempty"`
 	Language      string `json:"language,omitempty"`
 	CustomEmojiID string `json:"custom_emoji_id,omitempty"`
+}
+
+// ReplyParameters describes the message being replied to.
+type ReplyParameters struct {
+	MessageID                int64 `json:"message_id"`
+	AllowSendingWithoutReply bool  `json:"allow_sending_without_reply,omitempty"`
 }
 
 const (

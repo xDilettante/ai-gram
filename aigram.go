@@ -102,6 +102,9 @@ type File = telegram.File
 // ReplyMarkup marks Telegram reply markup objects.
 type ReplyMarkup = telegram.ReplyMarkup
 
+// ReplyParameters describes the message being replied to.
+type ReplyParameters = telegram.ReplyParameters
+
 // InlineKeyboardMarkup represents an inline keyboard attached to a message.
 type InlineKeyboardMarkup = telegram.InlineKeyboardMarkup
 

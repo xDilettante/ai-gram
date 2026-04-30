@@ -65,6 +65,25 @@ if err != nil {
 fmt.Println(message.MessageID)
 ```
 
+Reply to an incoming message and keep a forum topic/thread when Telegram provides one:
+
+```go
+msg := update.EffectiveMessage()
+if msg == nil {
+    return nil
+}
+
+_, err := b.SendMessage(ctx, aigram.SendMessageParams{
+    ChatID:          aigram.ChatIDInt(msg.Chat.ID),
+    MessageThreadID: msg.MessageThreadID,
+    Text:            "Reply from ai-gram",
+    ReplyParameters: &aigram.ReplyParameters{MessageID: msg.MessageID},
+})
+if err != nil {
+    return err
+}
+```
+
 Attach reply markup:
 
 ```go
