@@ -49,6 +49,7 @@ This document maps the current `ai-gram` implementation to Telegram Bot API area
 | `(*bot.Bot).SendSticker` | `sendSticker` | unit/httptest, optional live v0.2 smoke | Supports `FileID`, `FileURL`, `FileUpload`, emoji, reply markup, thread/reply params. |
 | `(*bot.Bot).SendAnimation` | `sendAnimation` | unit/httptest, optional live v0.2 smoke | Supports `FileID`, `FileURL`, `FileUpload`, caption fields, thumbnail file ref/upload, spoiler, reply markup, thread/reply params. |
 | `(*bot.Bot).SendVideoNote` | `sendVideoNote` | unit/httptest, optional live v0.2 smoke | Supports `FileID`, `FileUpload`, thumbnail file ref/upload, duration/length, reply markup, thread/reply params. HTTP URL is intentionally rejected for video notes. |
+| `(*bot.Bot).SendMediaGroup` | `sendMediaGroup` | unit/httptest | Supports `InputMediaPhoto`, `InputMediaVideo`, `InputMediaAudio`, `InputMediaDocument`, JSON file IDs/URLs, multipart uploads, thumbnail uploads, thread/reply params. Does not support reply markup because Telegram does not accept it for media groups. |
 | `telegram.ReplyParameters` | send/copy reply payload | unit | Minimal supported fields: `message_id`, `allow_sending_without_reply`. |
 | `telegram.ReplyMarkup` implementations | send/edit reply markup | unit, live examples | Inline keyboard, reply keyboard, remove keyboard, force reply. Edit methods accept inline keyboard only. |
 
@@ -138,7 +139,6 @@ This document maps the current `ai-gram` implementation to Telegram Bot API area
 ### Remaining send methods
 
 - `sendPaidMedia`
-- `sendMediaGroup`
 - `sendGame`
 - `sendInvoice`
 
@@ -278,7 +278,8 @@ These still require real credentials and may notify users, but they are not dest
 - `SendAudio` with `FileUpload`
 - `SendVoice` with `FileUpload`
 - `SendSticker`, `SendAnimation`, and `SendVideoNote` with `FileUpload`
-- future upload methods such as media group, remaining thumbnails, certificates
+- `SendMediaGroup` with media or thumbnail `FileUpload`
+- future upload methods such as remaining thumbnails, certificates
 
 ### Requires live credentials
 
@@ -318,7 +319,7 @@ Unit and httptest suites do not require tokens.
 
 ### Nice-to-have before v0.1
 
-- Remaining high-risk/advanced Bot API coverage such as media groups, inline mode, payments, and business APIs.
+- Remaining high-risk/advanced Bot API coverage such as inline mode, payments, and business APIs.
 - Bot command and menu methods.
 - A small release checklist document if not folded into existing docs.
 - README tightening to avoid overpromising unimplemented Bot API areas.

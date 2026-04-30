@@ -39,6 +39,9 @@ type SendAnimationParams = bot.SendAnimationParams
 // SendVideoNoteParams contains supported parameters for sendVideoNote.
 type SendVideoNoteParams = bot.SendVideoNoteParams
 
+// SendMediaGroupParams contains supported parameters for sendMediaGroup.
+type SendMediaGroupParams = bot.SendMediaGroupParams
+
 // SendContactParams contains supported parameters for sendContact.
 type SendContactParams = bot.SendContactParams
 
@@ -155,6 +158,21 @@ type FileRef = bot.FileRef
 
 // UploadFile describes a file uploaded through multipart/form-data.
 type UploadFile = bot.UploadFile
+
+// InputMedia describes one media item accepted by sendMediaGroup.
+type InputMedia = bot.InputMedia
+
+// InputMediaPhoto describes a photo item for sendMediaGroup.
+type InputMediaPhoto = bot.InputMediaPhoto
+
+// InputMediaVideo describes a video item for sendMediaGroup.
+type InputMediaVideo = bot.InputMediaVideo
+
+// InputMediaAudio describes an audio item for sendMediaGroup.
+type InputMediaAudio = bot.InputMediaAudio
+
+// InputMediaDocument describes a document item for sendMediaGroup.
+type InputMediaDocument = bot.InputMediaDocument
 
 // APIError represents a Telegram Bot API response with ok=false.
 type APIError = telegramerrors.APIError
@@ -297,6 +315,26 @@ func FileURL(rawURL string) FileRef {
 // FileUpload creates a file reference from an UploadFile for multipart upload.
 func FileUpload(file UploadFile) FileRef {
 	return bot.FileUpload(file)
+}
+
+// MediaPhoto creates a photo input media item.
+func MediaPhoto(media FileRef) InputMediaPhoto {
+	return bot.MediaPhoto(media)
+}
+
+// MediaVideo creates a video input media item.
+func MediaVideo(media FileRef) InputMediaVideo {
+	return bot.MediaVideo(media)
+}
+
+// MediaAudio creates an audio input media item.
+func MediaAudio(media FileRef) InputMediaAudio {
+	return bot.MediaAudio(media)
+}
+
+// MediaDocument creates a document input media item.
+func MediaDocument(media FileRef) InputMediaDocument {
+	return bot.MediaDocument(media)
 }
 
 // NewInlineKeyboard creates an InlineKeyboardMarkup from rows of buttons.

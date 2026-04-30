@@ -2,7 +2,7 @@
 
 `ai-gram` is a Go library project for working with the Telegram Bot API.
 
-The project is in an early architecture stage. It provides practical incoming update types, a typed HTTP Bot API core, selected public Bot API methods, media sending by file_id, URL, or multipart upload, file download support, webhook management methods, a managed long polling runner, an inbound webhook HTTP handler, a small update dispatcher/router, helper middleware, examples, and manual smoke tooling. It does not yet implement FSM, scenes, storage, media groups, full thumbnail coverage for every media method, or full Bot API coverage.
+The project is in an early architecture stage. It provides practical incoming update types, a typed HTTP Bot API core, selected public Bot API methods, media sending by file_id, URL, or multipart upload, file download support, webhook management methods, a managed long polling runner, an inbound webhook HTTP handler, a small update dispatcher/router, helper middleware, examples, and manual smoke tooling. It does not yet implement FSM, scenes, storage, full thumbnail coverage for every media method, or full Bot API coverage.
 
 ## Status
 
@@ -14,7 +14,7 @@ The project is in an early architecture stage. It provides practical incoming up
 - Dispatcher/router: supports predicates, message/command/callback routes, middleware, fallback, and error handling.
 - Middleware helpers: recover, timeout, hook-based observability, and reusable access control are available.
 - Long polling transport: managed runner is available. Webhook transport: inbound HTTP handler is available.
-- Telegram Bot API method coverage: `GetMe`, `SendMessage`, `SendPhoto`, `SendDocument`, `SendVideo`, `SendAudio`, `SendVoice`, `SendContact`, `SendLocation`, `SendVenue`, `SendPoll`, `StopPoll`, `SendDice`, `SendSticker`, `SendAnimation`, `SendVideoNote`, `SetMyCommands`, `DeleteMyCommands`, `GetMyCommands`, `SetChatMenuButton`, `GetChatMenuButton`, `SetMyDefaultAdministratorRights`, `AnswerCallbackQuery`, `EditMessageText`, `EditMessageCaption`, `EditMessageReplyMarkup`, `DeleteMessage`, `ForwardMessage`, `CopyMessage`, `SendChatAction`, `PinChatMessage`, `UnpinChatMessage`, `UnpinAllChatMessages`, `GetChat`, `GetChatMember`, `GetChatAdministrators`, `GetChatMemberCount`, `BanChatMember`, `UnbanChatMember`, `RestrictChatMember`, reply markup for supported send and edit methods, the manual `GetUpdates` API call, `GetFile`, `DownloadFile`, multipart upload for media send methods, and JSON-only webhook management methods (`SetWebhook`, `DeleteWebhook`, `GetWebhookInfo`) are implemented. The rest of the Bot API is not implemented yet.
+- Telegram Bot API method coverage: `GetMe`, `SendMessage`, `SendPhoto`, `SendDocument`, `SendVideo`, `SendAudio`, `SendVoice`, `SendContact`, `SendLocation`, `SendVenue`, `SendPoll`, `StopPoll`, `SendDice`, `SendSticker`, `SendAnimation`, `SendVideoNote`, `SendMediaGroup`, `SetMyCommands`, `DeleteMyCommands`, `GetMyCommands`, `SetChatMenuButton`, `GetChatMenuButton`, `SetMyDefaultAdministratorRights`, `AnswerCallbackQuery`, `EditMessageText`, `EditMessageCaption`, `EditMessageReplyMarkup`, `DeleteMessage`, `ForwardMessage`, `CopyMessage`, `SendChatAction`, `PinChatMessage`, `UnpinChatMessage`, `UnpinAllChatMessages`, `GetChat`, `GetChatMember`, `GetChatAdministrators`, `GetChatMemberCount`, `BanChatMember`, `UnbanChatMember`, `RestrictChatMember`, reply markup for supported send and edit methods, the manual `GetUpdates` API call, `GetFile`, `DownloadFile`, multipart upload for media send methods, and JSON-only webhook management methods (`SetWebhook`, `DeleteWebhook`, `GetWebhookInfo`) are implemented. The rest of the Bot API is not implemented yet.
 - Public API stability: not guaranteed before the first stable release.
 
 ## Planned architecture
@@ -582,6 +582,22 @@ if err != nil {
 fmt.Println(videoNoteMessage.MessageID)
 ```
 
+Send a media group:
+
+```go
+album, err := b.SendMediaGroup(ctx, aigram.SendMediaGroupParams{
+    ChatID: aigram.ChatIDInt(123456789),
+    Media: []aigram.InputMedia{
+        aigram.MediaPhoto(aigram.FileID("existing-photo-file-id")),
+        aigram.MediaDocument(aigram.FileURL("https://example.com/file.pdf")),
+    },
+})
+if err != nil {
+    return err
+}
+fmt.Println(len(album))
+```
+
 Upload a video from `os.File`:
 
 ```go
@@ -606,7 +622,7 @@ if err != nil {
 fmt.Println(uploadedVideo.MessageID)
 ```
 
-`FileID` and `FileURL` are sent as JSON requests. `FileUpload` uses multipart/form-data and ai-gram generates the internal `attach://` value for the file field. The library consumes `UploadFile.Reader` but does not close it; the caller owns reader lifecycle. Thumbnail upload is supported for `SendAnimation` and `SendVideoNote`; other media thumbnail parameters are still deferred. Media groups are not implemented yet. `SendVideoNote` accepts file IDs and uploads, not HTTP URLs.
+`FileID` and `FileURL` are sent as JSON requests. `FileUpload` uses multipart/form-data and ai-gram generates the internal `attach://` value for the file field. The library consumes `UploadFile.Reader` but does not close it; the caller owns reader lifecycle. Thumbnail upload is supported for `SendAnimation`, `SendVideoNote`, and `SendMediaGroup` input media that accept thumbnails; other media thumbnail parameters are still deferred. `SendVideoNote` accepts file IDs and uploads, not HTTP URLs.
 
 Fetch updates manually with one `getUpdates` API call:
 
@@ -682,7 +698,7 @@ if err := d.OnCallbackDataFunc("confirm", func(ctx context.Context, update teleg
 }
 ```
 
-Telegram types currently support decoding incoming media and helper methods for handling them. Sending is currently available for text, photo, document, video, audio, and voice methods; media groups and other media send methods will be added separately later.
+Telegram types currently support decoding incoming media and helper methods for handling them. Sending is currently available for text, photo, document, video, audio, voice, contact, location, venue, poll, dice, sticker, animation, video note, and media group methods; remaining specialized Bot API areas will be added separately later.
 
 Add helper middleware:
 
@@ -809,7 +825,7 @@ if err != nil {
 fmt.Println(ok)
 ```
 
-Webhook management is JSON-only for now. Webhook certificate upload, media groups, thumbnails, editMessageMedia, answerInlineQuery, WebApp/LoginUrl buttons, payments, FSM, scenes, storage, dependency injection, and full Bot API coverage are not implemented yet.
+Webhook management is JSON-only for now. Webhook certificate upload, full thumbnail coverage, editMessageMedia, answerInlineQuery, WebApp/LoginUrl buttons, payments, FSM, scenes, storage, dependency injection, and full Bot API coverage are not implemented yet.
 
 
 ## Examples

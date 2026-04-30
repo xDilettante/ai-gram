@@ -13,6 +13,7 @@
 - `SendSticker`.
 - `SendAnimation`.
 - `SendVideoNote`.
+- `SendMediaGroup`.
 - Bot commands and menu methods: `SetMyCommands`, `DeleteMyCommands`, `GetMyCommands`, `SetChatMenuButton`, `GetChatMenuButton`, and `SetMyDefaultAdministratorRights`.
 
 ## v0.1.1 - 2026-04-30
@@ -149,7 +150,7 @@ Safe live flows verified before the tag:
 
 `v0.1.0` is not full Telegram Bot API coverage. Notable deferred areas include:
 
-- Remaining send methods: paid media and media group.
+- Remaining send methods: paid media.
 - Invite links and join requests.
 - Promote/admin management and chat metadata setters.
 - Inline mode and `answerInlineQuery`.
