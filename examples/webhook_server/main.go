@@ -129,7 +129,20 @@ func newDispatcher(b *aigram.Bot) (*dispatch.Dispatcher, error) {
 			return nil
 		}
 		logSafeUpdate(update, "message")
-		_, err := b.SendMessage(ctx, aigram.SendMessageParams{
+		ok, err := b.SendChatAction(ctx, aigram.SendChatActionParams{
+			ChatID:          aigram.ChatIDInt(message.Chat.ID),
+			MessageThreadID: message.MessageThreadID,
+			Action:          aigram.ChatActionTyping,
+		})
+		if err != nil {
+			return err
+		}
+		if !ok {
+			return errors.New("send_chat_action returned false")
+		}
+		log.Printf("webhook action=send_chat_action ok=true update_id=%d chat_id=%d chat_action=%s", update.UpdateID, message.Chat.ID, aigram.ChatActionTyping)
+
+		_, err = b.SendMessage(ctx, aigram.SendMessageParams{
 			ChatID:          aigram.ChatIDInt(message.Chat.ID),
 			MessageThreadID: message.MessageThreadID,
 			Text:            "echo received",

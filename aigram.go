@@ -54,6 +54,18 @@ type ForwardMessageParams = bot.ForwardMessageParams
 // CopyMessageParams contains supported parameters for copyMessage.
 type CopyMessageParams = bot.CopyMessageParams
 
+// SendChatActionParams contains supported parameters for sendChatAction.
+type SendChatActionParams = bot.SendChatActionParams
+
+// PinChatMessageParams contains supported parameters for pinChatMessage.
+type PinChatMessageParams = bot.PinChatMessageParams
+
+// UnpinChatMessageParams contains supported parameters for unpinChatMessage.
+type UnpinChatMessageParams = bot.UnpinChatMessageParams
+
+// UnpinAllChatMessagesParams contains supported parameters for unpinAllChatMessages.
+type UnpinAllChatMessagesParams = bot.UnpinAllChatMessagesParams
+
 // EditMessageResult contains the result returned by edit message methods.
 type EditMessageResult = bot.EditMessageResult
 
@@ -128,6 +140,31 @@ type ReplyKeyboardRemove = telegram.ReplyKeyboardRemove
 
 // ForceReply requests Telegram clients to show a reply interface for the message.
 type ForceReply = telegram.ForceReply
+
+const (
+	// ChatActionTyping tells Telegram clients that the bot is typing.
+	ChatActionTyping = bot.ChatActionTyping
+	// ChatActionUploadPhoto tells Telegram clients that the bot is uploading a photo.
+	ChatActionUploadPhoto = bot.ChatActionUploadPhoto
+	// ChatActionRecordVideo tells Telegram clients that the bot is recording a video.
+	ChatActionRecordVideo = bot.ChatActionRecordVideo
+	// ChatActionUploadVideo tells Telegram clients that the bot is uploading a video.
+	ChatActionUploadVideo = bot.ChatActionUploadVideo
+	// ChatActionRecordVoice tells Telegram clients that the bot is recording a voice message.
+	ChatActionRecordVoice = bot.ChatActionRecordVoice
+	// ChatActionUploadVoice tells Telegram clients that the bot is uploading a voice message.
+	ChatActionUploadVoice = bot.ChatActionUploadVoice
+	// ChatActionUploadDocument tells Telegram clients that the bot is uploading a document.
+	ChatActionUploadDocument = bot.ChatActionUploadDocument
+	// ChatActionChooseSticker tells Telegram clients that the bot is choosing a sticker.
+	ChatActionChooseSticker = bot.ChatActionChooseSticker
+	// ChatActionFindLocation tells Telegram clients that the bot is finding a location.
+	ChatActionFindLocation = bot.ChatActionFindLocation
+	// ChatActionRecordVideoNote tells Telegram clients that the bot is recording a video note.
+	ChatActionRecordVideoNote = bot.ChatActionRecordVideoNote
+	// ChatActionUploadVideoNote tells Telegram clients that the bot is uploading a video note.
+	ChatActionUploadVideoNote = bot.ChatActionUploadVideoNote
+)
 
 // New creates a Bot from config.
 func New(config BotConfig) (*Bot, error) {

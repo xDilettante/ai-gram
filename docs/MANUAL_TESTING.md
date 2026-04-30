@@ -168,6 +168,23 @@ Checklist:
 - Inspect safe logs with `./scripts/remote_logs.sh`; successful actions are logged as `action=copy_message ok=true update_id=... chat_id=... message_id=... copied_message_id=...` and `action=forward_message ok=true update_id=... chat_id=... message_id=... forwarded_message_id=...`.
 - Do not log or paste full message text; safe logs are enough for verification.
 
+## Webhook SendChatAction and pin/unpin checklist
+
+The default webhook smoke checks `SendChatAction` in the echo handler without requiring extra chat permissions. Pin and unpin methods are not enabled in the default webhook example because they require suitable admin rights in groups/channels and can be noisy.
+
+Checklist for `SendChatAction`:
+
+- Deploy or run `examples/webhook_server`.
+- Send a regular text message to the webhook bot.
+- The bot should reply with `echo received`.
+- Inspect safe logs with `./scripts/remote_logs.sh`; successful chat action is logged as `action=send_chat_action ok=true update_id=... chat_id=... chat_action=typing`, followed by `action=send_message ok=true`.
+
+Manual note for pin/unpin:
+
+- Use a group/channel where the bot has permission to pin messages.
+- Call `PinChatMessage`, `UnpinChatMessage`, or `UnpinAllChatMessages` from a small local probe or future targeted example.
+- Do not treat pin/unpin failure in a private chat or insufficient-rights chat as a library error; check Telegram permissions first.
+
 ## Media upload/download checklist
 
 Upload a local file as a document:

@@ -14,7 +14,7 @@ The project is in an early architecture stage. It provides a minimal package ske
 - Dispatcher/router: supports predicates, message/command/callback routes, middleware, fallback, and error handling.
 - Middleware helpers: recover, timeout, and hook-based observability are available.
 - Long polling transport: managed runner is available. Webhook transport: inbound HTTP handler is available.
-- Telegram Bot API method coverage: `GetMe`, `SendMessage`, `SendPhoto`, `SendDocument`, `SendVideo`, `SendAudio`, `SendVoice`, `AnswerCallbackQuery`, `EditMessageText`, `EditMessageCaption`, `EditMessageReplyMarkup`, `DeleteMessage`, `ForwardMessage`, `CopyMessage`, reply markup for supported send and edit methods, the manual `GetUpdates` API call, `GetFile`, `DownloadFile`, multipart upload for media send methods, and JSON-only webhook management methods (`SetWebhook`, `DeleteWebhook`, `GetWebhookInfo`) are implemented. The rest of the Bot API is not implemented yet.
+- Telegram Bot API method coverage: `GetMe`, `SendMessage`, `SendPhoto`, `SendDocument`, `SendVideo`, `SendAudio`, `SendVoice`, `AnswerCallbackQuery`, `EditMessageText`, `EditMessageCaption`, `EditMessageReplyMarkup`, `DeleteMessage`, `ForwardMessage`, `CopyMessage`, `SendChatAction`, `PinChatMessage`, `UnpinChatMessage`, `UnpinAllChatMessages`, reply markup for supported send and edit methods, the manual `GetUpdates` API call, `GetFile`, `DownloadFile`, multipart upload for media send methods, and JSON-only webhook management methods (`SetWebhook`, `DeleteWebhook`, `GetWebhookInfo`) are implemented. The rest of the Bot API is not implemented yet.
 - Public API stability: not guaranteed before the first stable release.
 
 ## Планируемая архитектура
@@ -252,6 +252,36 @@ if err != nil {
     return err
 }
 fmt.Println("copied:", copied.MessageID)
+```
+
+Send a chat action and pin or unpin a message:
+
+```go
+if _, err := b.SendChatAction(ctx, aigram.SendChatActionParams{
+    ChatID: aigram.ChatIDInt(123456789),
+    Action: aigram.ChatActionTyping,
+}); err != nil {
+    return err
+}
+
+pinned, err := b.PinChatMessage(ctx, aigram.PinChatMessageParams{
+    ChatID:              aigram.ChatIDInt(123456789),
+    MessageID:           42,
+    DisableNotification: true,
+})
+if err != nil {
+    return err
+}
+fmt.Println("pinned:", pinned)
+
+unpinned, err := b.UnpinChatMessage(ctx, aigram.UnpinChatMessageParams{
+    ChatID:    aigram.ChatIDInt(123456789),
+    MessageID: 42, // omit to unpin the most recent pinned message
+})
+if err != nil {
+    return err
+}
+fmt.Println("unpinned:", unpinned)
 ```
 
 Reply markup currently supports inline keyboards, reply keyboards, keyboard removal, and force reply for send methods. Edit methods intentionally accept only inline keyboard markup. `AnswerCallbackQuery` can acknowledge callback taps with a toast or alert. `editMessageMedia`, WebApp/LoginUrl buttons, payments, and a keyboard builder DSL will be added separately later.
