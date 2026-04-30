@@ -12,7 +12,7 @@ The project is in an early architecture stage. It provides a minimal package ske
 - Bot client package: scaffolded with token validation, private token storage, and an internal HTTP call core.
 - Typed Telegram API errors: scaffolded.
 - Dispatcher/router: supports predicates, message/command/callback routes, middleware, fallback, and error handling.
-- Middleware helpers: recover, timeout, and hook-based observability are available.
+- Middleware helpers: recover, timeout, hook-based observability, and reusable access control are available.
 - Long polling transport: managed runner is available. Webhook transport: inbound HTTP handler is available.
 - Telegram Bot API method coverage: `GetMe`, `SendMessage`, `SendPhoto`, `SendDocument`, `SendVideo`, `SendAudio`, `SendVoice`, `AnswerCallbackQuery`, `EditMessageText`, `EditMessageCaption`, `EditMessageReplyMarkup`, `DeleteMessage`, `ForwardMessage`, `CopyMessage`, `SendChatAction`, `PinChatMessage`, `UnpinChatMessage`, `UnpinAllChatMessages`, reply markup for supported send and edit methods, the manual `GetUpdates` API call, `GetFile`, `DownloadFile`, multipart upload for media send methods, and JSON-only webhook management methods (`SetWebhook`, `DeleteWebhook`, `GetWebhookInfo`) are implemented. The rest of the Bot API is not implemented yet.
 - Public API stability: not guaranteed before the first stable release.
@@ -26,7 +26,7 @@ The library is split into small packages with clear responsibilities:
 - `internal/httpclient` contains low-level HTTP sending helpers, response body handling, and HTTP status checks. It is internal and must not leak into the public API.
 - `errors` contains typed errors returned by Telegram Bot API responses.
 - `dispatch` defines update routing, middleware, fallback handling, and error handling without depending on HTTP details.
-- `middleware` provides reusable dispatch middleware helpers for panic recovery, per-update timeout contexts, and hook-based observability.
+- `middleware` provides reusable dispatch middleware helpers for panic recovery, per-update timeout contexts, hook-based observability, and admin/public/off access control.
 - `transport/longpoll` provides a managed runner that repeatedly calls `GetUpdates` and passes updates to a handler.
 - `transport/webhook` provides an inbound `net/http` handler for Telegram webhook updates.
 - `aigram` is a lightweight root facade that re-exports the most important public types.
@@ -285,6 +285,18 @@ fmt.Println("unpinned:", unpinned)
 ```
 
 Reply markup currently supports inline keyboards, reply keyboards, keyboard removal, and force reply for send methods. Edit methods intentionally accept only inline keyboard markup. `AnswerCallbackQuery` can acknowledge callback taps with a toast or alert. `editMessageMedia`, WebApp/LoginUrl buttons, payments, and a keyboard builder DSL will be added separately later.
+
+Protect handlers with access control middleware:
+
+```go
+d := dispatch.New()
+d.Use(middleware.Access(middleware.AccessConfig{
+    Mode:         middleware.AccessModeAdmin,
+    AdminUserIDs: []int64{123456789},
+}))
+```
+
+The examples default to admin-only mode through `AIGRAM_ACCESS_MODE=admin`. Use `AIGRAM_ADMIN_USER_IDS` for admins, `AIGRAM_ALLOWED_USER_IDS` / `AIGRAM_ALLOWED_CHAT_IDS` for temporary allow lists, or the runtime `/access_open` and `/access_close` commands in the examples.
 
 Send media by `file_id`, URL, or multipart upload:
 
@@ -632,8 +644,8 @@ Webhook management is JSON-only for now. Webhook certificate upload, media group
 Runnable examples are available under `examples/`:
 
 - `examples/echo_longpoll` — basic long polling echo bot.
-- `examples/inline_longpoll` — inline keyboard callbacks with `AnswerCallbackQuery`.
-- `examples/webhook_server` — inbound webhook server with `SetWebhook`, safe action logs, callback edit/delete flows, and caption edit smoke.
+- `examples/inline_longpoll` — admin-only inline keyboard callbacks with `AnswerCallbackQuery` and runtime access commands.
+- `examples/webhook_server` — admin-only inbound webhook server with `SetWebhook`, safe action logs, callback edit/delete flows, and caption edit smoke.
 - `examples/media_upload` — document upload and file download smoke checks.
 - `examples/local_api_server` — connectivity check for a local Telegram Bot API server.
 

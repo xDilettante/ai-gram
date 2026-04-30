@@ -21,6 +21,10 @@ The deploy/smoke scripts can send actionable Telegram notifications with the sel
 | `AIGRAM_WEBHOOK_SECRET` | Optional secret token used both in `SetWebhook` and `webhook.Config`. |
 | `AIGRAM_MEDIA_PATH` | Local file path for upload smoke testing. |
 | `AIGRAM_FILE_ID` | Existing Telegram `file_id` for download smoke testing. |
+| `AIGRAM_ACCESS_MODE` | Example access mode: `admin` (default), `public`, or `off`. |
+| `AIGRAM_ADMIN_USER_IDS` | Comma-separated admin user IDs. Falls back to numeric `AIGRAM_CHAT_ID` when empty. |
+| `AIGRAM_ALLOWED_USER_IDS` | Comma-separated user IDs allowed in admin mode. |
+| `AIGRAM_ALLOWED_CHAT_IDS` | Comma-separated chat IDs allowed in admin mode. |
 
 ## Long polling через api.telegram.org
 
@@ -108,6 +112,41 @@ When Codex asks for a targeted smoke, do only the listed steps, not the full che
 - Edit smoke: `/start` → `Edit message` → `Remove keyboard`.
 - Caption smoke: `/start` → `Caption demo` → `Edit caption` → `Delete media message`.
 - Delete smoke: `/start` → `Delete this message`.
+
+## Access control
+
+`examples/webhook_server` and `examples/inline_longpoll` are protected by access control middleware by default. This prevents random users who find a test bot username from running commands or pressing demo buttons.
+
+Configuration:
+
+```bash
+export AIGRAM_ACCESS_MODE=admin
+export AIGRAM_ADMIN_USER_IDS='123456789'
+export AIGRAM_ALLOWED_USER_IDS=''
+export AIGRAM_ALLOWED_CHAT_IDS=''
+```
+
+Rules:
+
+- `admin` is the default mode.
+- If `AIGRAM_ADMIN_USER_IDS` is empty, examples use numeric `AIGRAM_CHAT_ID` as both admin user/chat fallback for private smoke checks.
+- `public` and `off` let all updates pass. Use them only for local development or a short controlled smoke.
+- The examples do not disclose admin/allowed ID lists to denied users.
+
+Runtime commands:
+
+- `/access_status` — show current runtime mode.
+- `/access_open` — switch runtime mode to `public`.
+- `/access_close` — switch runtime mode back to `admin`.
+
+Only admin users can run `/access_*` commands. Even when access is open, a non-admin user cannot change the mode. In admin mode, unknown users receive `Access denied.` or are ignored depending on the update shape, and safe logs include `action=access_denied update_id=... chat_id=... from_user_id=...`.
+
+Manual check:
+
+- Start the bot as an admin and send `/access_status`; expect `Access mode: admin`.
+- Send `/start`; expect the normal demo keyboard.
+- Optional: send `/access_open`, test from another account, then send `/access_close`.
+- Inspect logs with `./scripts/remote_logs.sh`; safe logs should include `action=access_status`, optional `action=access_mode_changed`, and no token, secret, or full message text.
 
 ## Inline keyboard callback checklist
 

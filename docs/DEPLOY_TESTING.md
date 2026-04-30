@@ -331,6 +331,28 @@ By default, deploy notifications are not full checklists. `AIGRAM_SMOKE_MODE=tar
 
 If username discovery fails, scripts still send a notification with `username unknown` and continue without exposing the token. In that case, check the selected token role and `GetMe` connectivity.
 
+## Security/access
+
+Test bot usernames can be discovered or shared accidentally, so deployed examples run in admin-only mode by default.
+
+Environment:
+
+```bash
+AIGRAM_ACCESS_MODE=admin
+AIGRAM_ADMIN_USER_IDS=123456789
+AIGRAM_ALLOWED_USER_IDS=
+AIGRAM_ALLOWED_CHAT_IDS=
+```
+
+Rules:
+
+- `AIGRAM_ACCESS_MODE=admin` is the default for `examples/webhook_server` and `examples/inline_longpoll`.
+- If `AIGRAM_ADMIN_USER_IDS` is empty, examples fall back to numeric `AIGRAM_CHAT_ID` as admin user/chat for private smoke checks.
+- `AIGRAM_ALLOWED_USER_IDS` and `AIGRAM_ALLOWED_CHAT_IDS` are temporary allow lists for admin mode.
+- Do not use `public` or `off` for long-running public test bots. If access must be opened temporarily, use `/access_open` and then `/access_close`.
+- `/access_status`, `/access_open`, and `/access_close` are admin-only commands even while runtime mode is public.
+- Safe logs can include `action=access_status`, `action=access_mode_changed`, and `action=access_denied`, but they must not include tokens, webhook secrets, full message text, or admin lists.
+
 ## Security notes
 
 - Never commit `.env.local`, `.deploy/generated.env`, or real tokens.

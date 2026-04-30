@@ -1,7 +1,8 @@
 // Example inline_longpoll demonstrates inline keyboards and callback answers.
 //
 // Required env: AIGRAM_BOT_TOKEN.
-// Optional env: AIGRAM_BASE_URL, AIGRAM_FILE_BASE_URL.
+// Optional env: AIGRAM_BASE_URL, AIGRAM_FILE_BASE_URL, AIGRAM_ACCESS_MODE,
+// AIGRAM_ADMIN_USER_IDS, AIGRAM_ALLOWED_USER_IDS, AIGRAM_ALLOWED_CHAT_IDS.
 // It deletes any configured webhook before polling. Send /start to the bot. Stop with Ctrl+C or SIGTERM.
 package main
 
@@ -13,6 +14,7 @@ import (
 	"ai-gram"
 	"ai-gram/dispatch"
 	"ai-gram/examples/internal/exampleutil"
+	"ai-gram/middleware"
 	"ai-gram/telegram"
 	"ai-gram/transport/longpoll"
 )
@@ -80,6 +82,102 @@ func safeCallbackData(update telegram.Update) string {
 	}
 }
 
+func registerAccessCommands(dp *dispatch.Dispatcher, b *aigram.Bot, controller *exampleutil.AccessController, logPrefix string) error {
+	if err := dp.OnCommandFunc("access_status", func(ctx context.Context, update telegram.Update) error {
+		if !controller.IsAdmin(update) {
+			return accessDenyHandler(b, logPrefix)(ctx, update)
+		}
+		message := update.EffectiveMessage()
+		if message == nil {
+			return nil
+		}
+		mode := controller.Mode()
+		logSafeUpdate(update, "command")
+		_, err := b.SendMessage(ctx, aigram.SendMessageParams{
+			ChatID:          aigram.ChatIDInt(message.Chat.ID),
+			MessageThreadID: message.MessageThreadID,
+			Text:            fmt.Sprintf("Access mode: %s", mode),
+			ReplyParameters: &aigram.ReplyParameters{MessageID: message.MessageID},
+		})
+		if err != nil {
+			return err
+		}
+		userID := int64(0)
+		if user := update.EffectiveUser(); user != nil {
+			userID = user.ID
+		}
+		log.Printf("%s action=access_status mode=%s update_id=%d by_user_id=%d", logPrefix, mode, update.UpdateID, userID)
+		return nil
+	}); err != nil {
+		return err
+	}
+	if err := dp.OnCommandFunc("access_open", func(ctx context.Context, update telegram.Update) error {
+		return setAccessMode(ctx, b, controller, logPrefix, update, middleware.AccessModePublic)
+	}); err != nil {
+		return err
+	}
+	if err := dp.OnCommandFunc("access_close", func(ctx context.Context, update telegram.Update) error {
+		return setAccessMode(ctx, b, controller, logPrefix, update, middleware.AccessModeAdmin)
+	}); err != nil {
+		return err
+	}
+	return nil
+}
+
+func setAccessMode(ctx context.Context, b *aigram.Bot, controller *exampleutil.AccessController, logPrefix string, update telegram.Update, mode middleware.AccessMode) error {
+	if !controller.IsAdmin(update) {
+		return accessDenyHandler(b, logPrefix)(ctx, update)
+	}
+	message := update.EffectiveMessage()
+	if message == nil {
+		return nil
+	}
+	controller.SetMode(mode)
+	logSafeUpdate(update, "command")
+	_, err := b.SendMessage(ctx, aigram.SendMessageParams{
+		ChatID:          aigram.ChatIDInt(message.Chat.ID),
+		MessageThreadID: message.MessageThreadID,
+		Text:            fmt.Sprintf("Access mode changed: %s", mode),
+		ReplyParameters: &aigram.ReplyParameters{MessageID: message.MessageID},
+	})
+	if err != nil {
+		return err
+	}
+	userID := int64(0)
+	if user := update.EffectiveUser(); user != nil {
+		userID = user.ID
+	}
+	log.Printf("%s action=access_mode_changed mode=%s update_id=%d by_user_id=%d", logPrefix, mode, update.UpdateID, userID)
+	return nil
+}
+
+func accessDenyHandler(b *aigram.Bot, logPrefix string) func(context.Context, telegram.Update) error {
+	return func(ctx context.Context, update telegram.Update) error {
+		chatID := int64(0)
+		userID := int64(0)
+		messageThreadID := int64(0)
+		if chat := update.EffectiveChat(); chat != nil {
+			chatID = chat.ID
+		}
+		if user := update.EffectiveUser(); user != nil {
+			userID = user.ID
+		}
+		if message := update.EffectiveMessage(); message != nil {
+			messageThreadID = message.MessageThreadID
+		}
+		log.Printf("%s action=access_denied update_id=%d chat_id=%d from_user_id=%d", logPrefix, update.UpdateID, chatID, userID)
+		if chatID == 0 {
+			return nil
+		}
+		_, err := b.SendMessage(ctx, aigram.SendMessageParams{
+			ChatID:          aigram.ChatIDInt(chatID),
+			MessageThreadID: messageThreadID,
+			Text:            "Access denied.",
+		})
+		return err
+	}
+}
+
 func main() {
 	if err := run(); err != nil {
 		log.Fatal(err)
@@ -101,6 +199,16 @@ func run() error {
 	dp := dispatch.New(dispatch.WithErrorHandler(func(ctx context.Context, update telegram.Update, err error) {
 		log.Printf("handler error for update %d: %v", update.UpdateID, err)
 	}))
+	accessConfig, err := exampleutil.AccessConfigFromEnv()
+	if err != nil {
+		return err
+	}
+	accessController := exampleutil.NewAccessController(accessConfig)
+	dp.Use(middleware.AccessWithPolicy(accessController, accessDenyHandler(b, "longpoll")))
+
+	if err := registerAccessCommands(dp, b, accessController, "longpoll"); err != nil {
+		return err
+	}
 	if err := dp.OnCommandFunc("start", func(ctx context.Context, update telegram.Update) error {
 		message := update.EffectiveMessage()
 		if message == nil {
