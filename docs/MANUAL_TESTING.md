@@ -502,6 +502,19 @@ Checklist:
 
 
 
+## Lifecycle and profile read checklist
+
+`LogOut` and `Close` are lifecycle migration methods for local Bot API server workflows. Profile photos, profile audios, and forum topic icon stickers are read-only, but they are still kept out of automatic live smoke until a targeted safe script exists.
+
+Manual checklist:
+
+- Use a dedicated test bot and explicit confirmation before calling `LogOut` or `Close`.
+- Run `LogOut` only when intentionally moving a bot from the cloud Bot API server to a local Bot API server.
+- Run `Close` only when intentionally moving a bot between local Bot API servers, after deleting the webhook as required by Telegram.
+- Use `GetUserProfilePhotos` and `GetUserProfileAudios` only for expected test users and record counts/file metadata, not full private identifiers from production accounts.
+- Use `GetForumTopicIconStickers` as a safe metadata check and record only result counts or redacted custom emoji IDs.
+- Do not log bot tokens, token-bearing URLs, private profile media file IDs from production users, or unrelated user metadata.
+
 ## WebApp / Mini App checklist
 
 `AnswerWebAppQuery`, `WebAppData`, and `WriteAccessAllowed` require a configured Telegram Mini App or Web App entry point. These flows can contain opaque user-provided payloads and are intentionally manual-only.

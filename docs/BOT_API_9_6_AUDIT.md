@@ -2,7 +2,7 @@
 
 ## Source of truth
 
-- [Official Telegram Bot API documentation](https://core.telegram.org/bots/api), fetched for this audit on 2026-04-30.
+- [Official Telegram Bot API documentation](https://core.telegram.org/bots/api), fetched for the original audit on 2026-04-30 and rechecked for Stage 89 on 2026-05-01.
 - [Official Telegram Bot API changelog](https://core.telegram.org/bots/api-changelog), especially the April 3, 2026 Bot API 9.6 entry.
 
 The audit compares official method/type headings and high-impact object fields against the current local implementation. It is intentionally documentation-only: no new Bot API methods are implemented in this stage.
@@ -11,7 +11,7 @@ The audit compares official method/type headings and high-impact object fields a
 
 **Full coverage not yet reached.**
 
-The current repository covers the large local Stage 66-87 workstream, including forum topics, reactions, inline mode, payments, paid media, Stars/gifts, Managed Bots 9.6, Poll 9.6, WebApp/Mini App, Business API foundation/account/story/suggested posts, games, and Passport. The remaining gaps are concentrated in legacy lifecycle methods, checklist/message-draft APIs, subscription invite links, chat boost/member-update/profile-audio surfaces, verification/emoji-status methods, and broad incoming message/type completeness.
+The current repository covers the large local Stage 66-89 workstream, including forum topics, reactions, inline mode, payments, paid media, Stars/gifts, Managed Bots 9.6, Poll 9.6, WebApp/Mini App, Business API foundation/account/story/suggested posts, games, Passport, and lifecycle/profile read APIs. The remaining gaps are concentrated in checklist/message-draft APIs, subscription invite links, chat boost/member-update surfaces, verification/emoji-status methods, and broad incoming message/type completeness.
 
 ## Implemented areas
 
@@ -24,16 +24,13 @@ The current repository covers the large local Stage 66-87 workstream, including 
 - Payments/invoices, paid media, Stars transaction/refund basics, gifts, business gifts, and Premium subscription gift methods implemented in the recent local stages.
 - Managed Bots 9.6 types/methods and Poll 9.6 fields/service messages.
 - WebApp/Mini App Bot API surface, Business API foundation/account/story/suggested post methods, games, and Telegram Passport types/error methods.
+- Lifecycle/profile read APIs: `logOut`, `close`, `getUserProfilePhotos`, `getUserProfileAudios`, and `getForumTopicIconStickers`.
 - Unit/httptest coverage for implemented method families and token/payload redaction checks in sensitive areas.
 
 ## Missing methods
 
 | Official method name | Area | Risk level | Suggested implementation stage |
 | --- | --- | --- | --- |
-| `logOut` | Bot session lifecycle | state-changing | Stage 89: lifecycle/profile read APIs |
-| `close` | Bot session lifecycle | state-changing | Stage 89: lifecycle/profile read APIs |
-| `getUserProfilePhotos` | User/profile media | safe | Stage 89: lifecycle/profile read APIs |
-| `getUserProfileAudios` | User/profile media | safe | Stage 89: lifecycle/profile read APIs |
 | `setUserEmojiStatus` | User/profile status | state-changing | Stage 90: verification/status APIs |
 | `getUserChatBoosts` | Chat boosts | safe | Stage 91: chat boosts/member updates |
 | `setChatMemberTag` | Chat member tags | admin/state-changing | Stage 91: chat boosts/member updates |
@@ -41,7 +38,6 @@ The current repository covers the large local Stage 66-87 workstream, including 
 | `unbanChatSenderChat` | Sender chat moderation | admin/state-changing | Stage 91: chat boosts/member updates |
 | `createChatSubscriptionInviteLink` | Paid subscription invite links | state-changing/payment-related | Stage 92: subscription invite links |
 | `editChatSubscriptionInviteLink` | Paid subscription invite links | state-changing/payment-related | Stage 92: subscription invite links |
-| `getForumTopicIconStickers` | Forum topic metadata | safe | Stage 89: lifecycle/profile read APIs |
 | `verifyUser` | Verification | state-changing/sensitive | Stage 90: verification/status APIs |
 | `verifyChat` | Verification | state-changing/sensitive | Stage 90: verification/status APIs |
 | `removeUserVerification` | Verification | state-changing/sensitive | Stage 90: verification/status APIs |
@@ -56,9 +52,8 @@ The current repository covers the large local Stage 66-87 workstream, including 
 
 | Official name | Parent type | Why it matters | Suggested stage |
 | --- | --- | --- | --- |
-| `ChatFullInfo` | `getChat` result | Official `getChat` returns the extended chat object; the current method returns minimal `Chat`, so many current chat metadata fields are unavailable. | Stage 89 / Stage 91 |
-| `UserProfilePhotos`, `UserProfileAudios` | `getUserProfilePhotos`, `getUserProfileAudios` results | Required result types for the missing profile media methods. | Stage 89 |
-| `User.language_code`, `is_premium`, `added_to_attachment_menu`, `can_join_groups`, `can_read_all_group_messages`, `supports_inline_queries`, `can_connect_to_business`, `has_main_web_app`, `has_topics_enabled`, `allows_users_to_create_topics` | `User` | Returned by `getMe`/user payloads and newer topic/business/profile capability checks. | Stage 89 |
+| `ChatFullInfo` | `getChat` result | Official `getChat` returns the extended chat object; the current method returns minimal `Chat`, so many current chat metadata fields are unavailable. Stage 89 kept the existing signature and documented the transition strategy instead of making an incidental breaking change. | Stage 91 / Stage 96 |
+| `User.language_code`, `is_premium`, `added_to_attachment_menu`, `can_join_groups`, `can_read_all_group_messages`, `supports_inline_queries`, `can_connect_to_business`, `has_main_web_app`, `has_topics_enabled`, `allows_users_to_create_topics` | `User` | Returned by `getMe`/user payloads and newer topic/business/profile capability checks. | Stage 90 / Stage 96 |
 | `Chat.is_forum`, `Chat.is_direct_messages` | `Chat` | Indicates forum and channel direct messages chats in lightweight chat payloads. | Stage 91 |
 | `channel_post`, `edited_channel_post`, `poll`, `my_chat_member`, `chat_member`, `chat_boost`, `removed_chat_boost` | `Update` | Missing update entry points block channel posts, standalone poll updates, chat member changes, and chat boost updates. | Stage 91 |
 | `ChatMemberUpdated`, concrete `ChatMember*` variants, `ChatBoost*`, `UserChatBoosts` | Chat member / boost types | Required for `my_chat_member`, `chat_member`, `getUserChatBoosts`, and boost updates. | Stage 91 |
@@ -113,7 +108,7 @@ These areas must remain manual-only and require explicit user confirmation plus 
 
 ## Recommended next stages
 
-1. **Stage 89: lifecycle and profile read APIs** - `logOut`, `close`, `getUserProfilePhotos`, `getUserProfileAudios`, `getForumTopicIconStickers`, `ChatFullInfo` planning.
+1. **Stage 89 completed:** lifecycle and profile read APIs - `logOut`, `close`, `getUserProfilePhotos`, `getUserProfileAudios`, `getForumTopicIconStickers`; `ChatFullInfo` remains a documented getChat strategy mismatch.
 2. **Stage 90: verification and user status APIs** - `setUserEmojiStatus`, `verifyUser`, `verifyChat`, `removeUserVerification`, `removeChatVerification`.
 3. **Stage 91: chat boosts, member updates, and sender-chat moderation** - `getUserChatBoosts`, `setChatMemberTag`, `banChatSenderChat`, `unbanChatSenderChat`, chat boost/member update types.
 4. **Stage 92: subscription invite links** - `createChatSubscriptionInviteLink`, `editChatSubscriptionInviteLink`, invite link price/subscription fields audit.

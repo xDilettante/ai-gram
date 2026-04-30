@@ -370,6 +370,18 @@ const (
 	EntityCustomEmoji = "custom_emoji"
 )
 
+// UserProfilePhotos represents a user's profile pictures.
+type UserProfilePhotos struct {
+	TotalCount int           `json:"total_count"`
+	Photos     [][]PhotoSize `json:"photos"`
+}
+
+// UserProfileAudios represents the audios displayed on a user's profile.
+type UserProfileAudios struct {
+	TotalCount int     `json:"total_count"`
+	Audios     []Audio `json:"audios"`
+}
+
 // PhotoSize represents one available size of a photo-like file.
 type PhotoSize struct {
 	FileID       string `json:"file_id"`

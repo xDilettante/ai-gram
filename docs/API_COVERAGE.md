@@ -14,6 +14,10 @@ This document maps the current `ai-gram` implementation to Telegram Bot API area
 | --- | --- | --- | --- |
 | `aigram.New`, `aigram.NewBot`, `bot.New` | n/a | unit | Token validation, configurable base URL and HTTP client. Token is stored privately, not exposed by public accessors, and redacted from string output. |
 | `(*bot.Bot).GetMe` | `getMe` | unit/httptest, live via smoke scripts | Basic identity check used by discovery and smoke helpers. |
+| `(*bot.Bot).LogOut` | `logOut` | unit/httptest | Logs the bot out from the cloud Bot API server before local Bot API migration. Manual-only lifecycle operation. |
+| `(*bot.Bot).Close` | `close` | unit/httptest | Closes a local Bot API bot instance before moving it between local servers. Manual-only lifecycle operation. |
+| `(*bot.Bot).GetUserProfilePhotos` | `getUserProfilePhotos` | unit/httptest | Safe profile read returning `telegram.UserProfilePhotos`. |
+| `(*bot.Bot).GetUserProfileAudios` | `getUserProfileAudios` | unit/httptest | Safe profile read returning `telegram.UserProfileAudios`. |
 | `errors.APIError`, `errors.ResponseParameters` | Bot API error envelope | unit | `ok:false` responses return typed errors; tests cover `errors.As`. |
 | `bot.ChatID`, `ChatIDInt`, `ChatIDString` | `chat_id` parameter shape | unit | Supports numeric chat IDs and string IDs such as `@channelusername`. |
 
@@ -259,6 +263,7 @@ This document maps the current `ai-gram` implementation to Telegram Bot API area
 | `(*bot.Bot).HideGeneralForumTopic` | `hideGeneralForumTopic` | unit/httptest | Hides the General forum topic. Not auto-smoked. |
 | `(*bot.Bot).UnhideGeneralForumTopic` | `unhideGeneralForumTopic` | unit/httptest | Unhides the General forum topic. Not auto-smoked. |
 | `(*bot.Bot).UnpinAllGeneralForumTopicMessages` | `unpinAllGeneralForumTopicMessages` | unit/httptest | Clears pinned messages in the General forum topic. Not auto-smoked. |
+| `(*bot.Bot).GetForumTopicIconStickers` | `getForumTopicIconStickers` | unit/httptest | Safe read for custom emoji stickers allowed as forum topic icons. Manual-only until a targeted smoke exists. |
 | `telegram.ForumTopic` and forum topic service message types | related Bot API objects | unit | Minimal topic result and service message decoding for created, edited, closed, reopened, hidden, and unhidden topic events. |
 
 ### Reactions
@@ -348,7 +353,6 @@ Stage 88 performed a full official-doc comparison against the Telegram Bot API d
 
 ### Missing methods from the Stage 88 audit
 
-- Bot lifecycle/profile reads: `logOut`, `close`, `getUserProfilePhotos`, `getUserProfileAudios`, `getForumTopicIconStickers`.
 - Verification/status: `setUserEmojiStatus`, `verifyUser`, `verifyChat`, `removeUserVerification`, `removeChatVerification`.
 - Chat boosts/member updates/moderation: `getUserChatBoosts`, `setChatMemberTag`, `banChatSenderChat`, `unbanChatSenderChat`.
 - Subscription invite links: `createChatSubscriptionInviteLink`, `editChatSubscriptionInviteLink`.
@@ -383,6 +387,9 @@ Stage 88 performed a full official-doc comparison against the Telegram Bot API d
 - `GetChatMember`
 - `GetChatAdministrators`
 - `GetChatMemberCount`
+- `GetUserProfilePhotos`
+- `GetUserProfileAudios`
+- `GetForumTopicIconStickers`
 - `DownloadFile` when the file path comes from `GetFile` and the destination is controlled by the caller
 
 ### Safe send
@@ -448,6 +455,7 @@ These still require real credentials and may notify users, but they are not dest
 - chat join request methods, because they approve or decline real users waiting to join
 - reaction methods when used outside isolated test messages, because they change real message reaction state
 - batch delete methods when used outside disposable test messages
+- `LogOut` and `Close` outside an explicit local Bot API migration window
 - future moderation/admin methods
 
 ### Requires upload/multipart
@@ -481,7 +489,7 @@ Unit and httptest suites do not require tokens.
 - `DeleteWebhook` with `drop_pending_updates=true`
 - bot commands/menu setters because they change bot-level command/menu state
 - invite link and chat join request methods
-- future migration methods such as `logOut`/`close`
+- `LogOut` and `Close` outside an explicit local Bot API migration window
 - payments, Passport, gifts, Stars, games, and other sensitive/value/state-changing methods outside dedicated manual test flows
 
 ## v0.1 recommendation

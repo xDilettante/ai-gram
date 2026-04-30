@@ -123,6 +123,12 @@ type DeleteStickerSetParams = bot.DeleteStickerSetParams
 // GetUpdatesParams contains supported parameters for getUpdates.
 type GetUpdatesParams = bot.GetUpdatesParams
 
+// GetUserProfilePhotosParams contains supported parameters for getUserProfilePhotos.
+type GetUserProfilePhotosParams = bot.GetUserProfilePhotosParams
+
+// GetUserProfileAudiosParams contains supported parameters for getUserProfileAudios.
+type GetUserProfileAudiosParams = bot.GetUserProfileAudiosParams
+
 // GetFileParams contains supported parameters for getFile.
 type GetFileParams = bot.GetFileParams
 
