@@ -38,7 +38,47 @@ type Message struct {
 	Location *Location `json:"location,omitempty"`
 	Poll     *Poll     `json:"poll,omitempty"`
 	Venue    *Venue    `json:"venue,omitempty"`
+
+	ForumTopicCreated         *ForumTopicCreated         `json:"forum_topic_created,omitempty"`
+	ForumTopicEdited          *ForumTopicEdited          `json:"forum_topic_edited,omitempty"`
+	ForumTopicClosed          *ForumTopicClosed          `json:"forum_topic_closed,omitempty"`
+	ForumTopicReopened        *ForumTopicReopened        `json:"forum_topic_reopened,omitempty"`
+	GeneralForumTopicHidden   *GeneralForumTopicHidden   `json:"general_forum_topic_hidden,omitempty"`
+	GeneralForumTopicUnhidden *GeneralForumTopicUnhidden `json:"general_forum_topic_unhidden,omitempty"`
 }
+
+// ForumTopic represents a forum topic in a Telegram supergroup.
+type ForumTopic struct {
+	MessageThreadID   int64  `json:"message_thread_id"`
+	Name              string `json:"name"`
+	IconColor         int    `json:"icon_color"`
+	IconCustomEmojiID string `json:"icon_custom_emoji_id,omitempty"`
+}
+
+// ForumTopicCreated describes a service message about a newly created forum topic.
+type ForumTopicCreated struct {
+	Name              string `json:"name"`
+	IconColor         int    `json:"icon_color"`
+	IconCustomEmojiID string `json:"icon_custom_emoji_id,omitempty"`
+}
+
+// ForumTopicEdited describes a service message about an edited forum topic.
+type ForumTopicEdited struct {
+	Name              string `json:"name,omitempty"`
+	IconCustomEmojiID string `json:"icon_custom_emoji_id,omitempty"`
+}
+
+// ForumTopicClosed describes a service message about a closed forum topic.
+type ForumTopicClosed struct{}
+
+// ForumTopicReopened describes a service message about a reopened forum topic.
+type ForumTopicReopened struct{}
+
+// GeneralForumTopicHidden describes a service message about the hidden General forum topic.
+type GeneralForumTopicHidden struct{}
+
+// GeneralForumTopicUnhidden describes a service message about the unhidden General forum topic.
+type GeneralForumTopicUnhidden struct{}
 
 // MessageID contains the identifier of a Telegram message returned by methods that create a copy.
 type MessageID struct {

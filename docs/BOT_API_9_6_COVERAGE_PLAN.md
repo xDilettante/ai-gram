@@ -82,6 +82,7 @@ This plan is a working checklist derived from the official documentation and cha
 - `BanChatMember`, `UnbanChatMember`, `RestrictChatMember`.
 - `SetChatTitle`, `SetChatDescription`, `SetChatPhoto`, `DeleteChatPhoto`, and `LeaveChat`.
 - `SetChatStickerSet` and `DeleteChatStickerSet`.
+- Forum topic methods and service message types.
 - `PromoteChatMember`.
 - `SetChatAdministratorCustomTitle`.
 - `SetChatPermissions`.
@@ -125,24 +126,26 @@ This plan is a working checklist derived from the official documentation and cha
 
 ### Forum topics
 
-- [ ] `CreateForumTopic`
-- [ ] `EditForumTopic`
-- [ ] `CloseForumTopic`
-- [ ] `ReopenForumTopic`
-- [ ] `DeleteForumTopic`
-- [ ] `UnpinAllForumTopicMessages`
-- [ ] `EditGeneralForumTopic`
-- [ ] `CloseGeneralForumTopic`
-- [ ] `ReopenGeneralForumTopic`
-- [ ] `HideGeneralForumTopic`
-- [ ] `UnhideGeneralForumTopic`
-- [ ] `UnpinAllGeneralForumTopicMessages`
-- [ ] `ForumTopic`
-- [ ] `ForumTopicCreated`
-- [ ] `ForumTopicEdited`
-- [ ] `ForumTopicClosed`
-- [ ] `ForumTopicReopened`
-- [ ] audit topic icon sticker and general topic fields against Bot API 9.6
+- [x] `CreateForumTopic`
+- [x] `EditForumTopic`
+- [x] `CloseForumTopic`
+- [x] `ReopenForumTopic`
+- [x] `DeleteForumTopic`
+- [x] `UnpinAllForumTopicMessages`
+- [x] `EditGeneralForumTopic`
+- [x] `CloseGeneralForumTopic`
+- [x] `ReopenGeneralForumTopic`
+- [x] `HideGeneralForumTopic`
+- [x] `UnhideGeneralForumTopic`
+- [x] `UnpinAllGeneralForumTopicMessages`
+- [x] `ForumTopic`
+- [x] `ForumTopicCreated`
+- [x] `ForumTopicEdited`
+- [x] `ForumTopicClosed`
+- [x] `ForumTopicReopened`
+- [x] `GeneralForumTopicHidden`
+- [x] `GeneralForumTopicUnhidden`
+- [ ] audit topic icon sticker fields against Bot API 9.6
 
 ### Reactions
 
@@ -335,7 +338,7 @@ This plan is a working checklist derived from the official documentation and cha
 Recommended local-only stages:
 
 1. Chat management - implemented locally in Stage 66; manual-only live smoke.
-2. Forum topics
+2. Forum topics - implemented locally in Stage 67; manual-only live smoke.
 3. Reactions
 4. Inline mode basics
 5. Sticker set management

@@ -352,6 +352,20 @@ Manual checklist for a dedicated test environment only:
 
 Treat Telegram permission errors in chats where the bot is not an admin or lacks ownership-level rights as expected Bot API behavior, not as a library bug.
 
+## Forum topic methods checklist
+
+`CreateForumTopic`, `EditForumTopic`, `CloseForumTopic`, `ReopenForumTopic`, `DeleteForumTopic`, `UnpinAllForumTopicMessages`, `EditGeneralForumTopic`, `CloseGeneralForumTopic`, `ReopenGeneralForumTopic`, `HideGeneralForumTopic`, `UnhideGeneralForumTopic`, and `UnpinAllGeneralForumTopicMessages` require bot admin rights in a forum supergroup and change real forum topic state. They are intentionally not part of automatic live smoke.
+
+Manual checklist:
+
+- Create a dedicated test forum supergroup.
+- Add the bot as an admin with topic-management rights needed for the methods under test.
+- Do not run these checks on production groups.
+- Create only clearly named test topics.
+- Close, reopen, edit, unpin, and delete only test topics.
+- If testing General topic methods, record the initial state first and restore it after testing.
+- Do not paste bot tokens, token-bearing URLs, private group content, or full production identifiers into logs or reports.
+
 ## Invite link methods checklist
 
 `ExportChatInviteLink`, `CreateChatInviteLink`, `EditChatInviteLink`, and `RevokeChatInviteLink` require bot admin rights and create or revoke real chat invite links. They are intentionally not part of automatic live smoke.

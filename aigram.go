@@ -135,6 +135,42 @@ type SetChatStickerSetParams = bot.SetChatStickerSetParams
 // DeleteChatStickerSetParams contains supported parameters for deleteChatStickerSet.
 type DeleteChatStickerSetParams = bot.DeleteChatStickerSetParams
 
+// CreateForumTopicParams contains supported parameters for createForumTopic.
+type CreateForumTopicParams = bot.CreateForumTopicParams
+
+// EditForumTopicParams contains supported parameters for editForumTopic.
+type EditForumTopicParams = bot.EditForumTopicParams
+
+// CloseForumTopicParams contains supported parameters for closeForumTopic.
+type CloseForumTopicParams = bot.CloseForumTopicParams
+
+// ReopenForumTopicParams contains supported parameters for reopenForumTopic.
+type ReopenForumTopicParams = bot.ReopenForumTopicParams
+
+// DeleteForumTopicParams contains supported parameters for deleteForumTopic.
+type DeleteForumTopicParams = bot.DeleteForumTopicParams
+
+// UnpinAllForumTopicMessagesParams contains supported parameters for unpinAllForumTopicMessages.
+type UnpinAllForumTopicMessagesParams = bot.UnpinAllForumTopicMessagesParams
+
+// EditGeneralForumTopicParams contains supported parameters for editGeneralForumTopic.
+type EditGeneralForumTopicParams = bot.EditGeneralForumTopicParams
+
+// CloseGeneralForumTopicParams contains supported parameters for closeGeneralForumTopic.
+type CloseGeneralForumTopicParams = bot.CloseGeneralForumTopicParams
+
+// ReopenGeneralForumTopicParams contains supported parameters for reopenGeneralForumTopic.
+type ReopenGeneralForumTopicParams = bot.ReopenGeneralForumTopicParams
+
+// HideGeneralForumTopicParams contains supported parameters for hideGeneralForumTopic.
+type HideGeneralForumTopicParams = bot.HideGeneralForumTopicParams
+
+// UnhideGeneralForumTopicParams contains supported parameters for unhideGeneralForumTopic.
+type UnhideGeneralForumTopicParams = bot.UnhideGeneralForumTopicParams
+
+// UnpinAllGeneralForumTopicMessagesParams contains supported parameters for unpinAllGeneralForumTopicMessages.
+type UnpinAllGeneralForumTopicMessagesParams = bot.UnpinAllGeneralForumTopicMessagesParams
+
 // GetChatParams contains supported parameters for getChat.
 type GetChatParams = bot.GetChatParams
 

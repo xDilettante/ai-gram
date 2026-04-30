@@ -99,8 +99,8 @@ Repository policy for this workstream:
 
 Recommended local-only implementation order:
 
-1. Chat management
-2. Forum topics
+1. Chat management - implemented locally in Stage 66; manual-only live smoke.
+2. Forum topics - implemented locally in Stage 67; manual-only live smoke.
 3. Reactions
 4. Inline mode basics
 5. Sticker set management

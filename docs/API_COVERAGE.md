@@ -122,6 +122,24 @@ This document maps the current `ai-gram` implementation to Telegram Bot API area
 | `(*bot.Bot).SetChatStickerSet` | `setChatStickerSet` | unit/httptest | Admin/state-changing supergroup sticker-set method. Not auto-smoked. |
 | `(*bot.Bot).DeleteChatStickerSet` | `deleteChatStickerSet` | unit/httptest | Admin/state-changing supergroup sticker-set method. Not auto-smoked. |
 
+### Forum topics
+
+| Public Go API | Telegram Bot API method | Tests | Notes |
+| --- | --- | --- | --- |
+| `(*bot.Bot).CreateForumTopic` | `createForumTopic` | unit/httptest | Admin/state-changing forum supergroup method; returns `telegram.ForumTopic`. Not auto-smoked. |
+| `(*bot.Bot).EditForumTopic` | `editForumTopic` | unit/httptest | Edits a real forum topic name or icon. Not auto-smoked. |
+| `(*bot.Bot).CloseForumTopic` | `closeForumTopic` | unit/httptest | Closes a real forum topic. Not auto-smoked. |
+| `(*bot.Bot).ReopenForumTopic` | `reopenForumTopic` | unit/httptest | Reopens a real forum topic. Not auto-smoked. |
+| `(*bot.Bot).DeleteForumTopic` | `deleteForumTopic` | unit/httptest | Deletes a real forum topic. Not auto-smoked. |
+| `(*bot.Bot).UnpinAllForumTopicMessages` | `unpinAllForumTopicMessages` | unit/httptest | Clears pinned messages in a real forum topic. Not auto-smoked. |
+| `(*bot.Bot).EditGeneralForumTopic` | `editGeneralForumTopic` | unit/httptest | Edits the General forum topic name. Not auto-smoked. |
+| `(*bot.Bot).CloseGeneralForumTopic` | `closeGeneralForumTopic` | unit/httptest | Closes the General forum topic. Not auto-smoked. |
+| `(*bot.Bot).ReopenGeneralForumTopic` | `reopenGeneralForumTopic` | unit/httptest | Reopens the General forum topic. Not auto-smoked. |
+| `(*bot.Bot).HideGeneralForumTopic` | `hideGeneralForumTopic` | unit/httptest | Hides the General forum topic. Not auto-smoked. |
+| `(*bot.Bot).UnhideGeneralForumTopic` | `unhideGeneralForumTopic` | unit/httptest | Unhides the General forum topic. Not auto-smoked. |
+| `(*bot.Bot).UnpinAllGeneralForumTopicMessages` | `unpinAllGeneralForumTopicMessages` | unit/httptest | Clears pinned messages in the General forum topic. Not auto-smoked. |
+| `telegram.ForumTopic` and forum topic service message types | related Bot API objects | unit | Minimal topic result and service message decoding for created, edited, closed, reopened, hidden, and unhidden topic events. |
+
 ### Admin management
 
 | Public Go API | Telegram Bot API method | Tests | Notes |
@@ -202,9 +220,8 @@ This document maps the current `ai-gram` implementation to Telegram Bot API area
 
 - subscription-specific join request flows beyond basic approval/decline
 
-### Forum topics and remaining advanced chat surfaces
+### Remaining advanced chat surfaces
 
-- forum topic methods and types
 - reaction methods and types
 - inline mode basics
 
@@ -237,16 +254,6 @@ This document maps the current `ai-gram` implementation to Telegram Bot API area
 
 - bot name/description/short description methods
 - profile photo methods
-
-### Forum topics
-
-- `CreateForumTopic` (`createForumTopic`)
-- `EditForumTopic` (`editForumTopic`)
-- `CloseForumTopic` (`closeForumTopic`)
-- `ReopenForumTopic` (`reopenForumTopic`)
-- `DeleteForumTopic` (`deleteForumTopic`)
-- `UnpinAllForumTopicMessages` (`unpinAllForumTopicMessages`)
-- remaining general forum topic and topic icon sticker methods
 
 ### Business features
 
@@ -314,6 +321,7 @@ These still require real credentials and may notify users, but they are not dest
 - `SetChatAdministratorCustomTitle`
 - `SetChatPermissions`
 - some chat/member info methods depending on chat type and bot permissions
+- forum topic methods and service message types
 - chat invite link methods (`ExportChatInviteLink`, `CreateChatInviteLink`, `EditChatInviteLink`, `RevokeChatInviteLink`)
 - chat join request methods (`ApproveChatJoinRequest`, `DeclineChatJoinRequest`)
 
@@ -326,6 +334,7 @@ These still require real credentials and may notify users, but they are not dest
 - `UnbanChatMember`
 - `RestrictChatMember`
 - chat management methods (`SetChatTitle`, `SetChatDescription`, `SetChatPhoto`, `DeleteChatPhoto`, `LeaveChat`, `SetChatStickerSet`, `DeleteChatStickerSet`) when used outside isolated test chats, because they change real chat state
+- forum topic methods when used outside isolated test forum supergroups, because they create, edit, close, reopen, delete, hide, or unpin real forum topic state
 - admin management methods (`PromoteChatMember`, `SetChatAdministratorCustomTitle`, `SetChatPermissions`) when used outside isolated test chats, because they change real chat/admin state
 - invite link methods when used outside isolated test chats, because they create or revoke real access links
 - chat join request methods, because they approve or decline real users waiting to join

@@ -124,6 +124,38 @@ func TestUpdateDecodesChatJoinRequest(t *testing.T) {
 	}
 }
 
+func TestMessageDecodesForumTopicServiceFields(t *testing.T) {
+	payload := []byte(`{
+		"message_id": 10,
+		"message_thread_id": 777,
+		"chat": {"id": -100123, "type": "supergroup", "title": "Forum"},
+		"date": 123,
+		"forum_topic_created": {"name": "News", "icon_color": 7322096, "icon_custom_emoji_id": "emoji-create"},
+		"forum_topic_edited": {"name": "Renamed", "icon_custom_emoji_id": "emoji-edit"},
+		"forum_topic_closed": {},
+		"forum_topic_reopened": {},
+		"general_forum_topic_hidden": {},
+		"general_forum_topic_unhidden": {}
+	}`)
+
+	var message Message
+	if err := json.Unmarshal(payload, &message); err != nil {
+		t.Fatalf("decode message: %v", err)
+	}
+	if message.MessageThreadID != 777 {
+		t.Fatalf("unexpected message_thread_id: %d", message.MessageThreadID)
+	}
+	if message.ForumTopicCreated == nil || message.ForumTopicCreated.Name != "News" || message.ForumTopicCreated.IconColor != 7322096 || message.ForumTopicCreated.IconCustomEmojiID != "emoji-create" {
+		t.Fatalf("unexpected forum_topic_created: %+v", message.ForumTopicCreated)
+	}
+	if message.ForumTopicEdited == nil || message.ForumTopicEdited.Name != "Renamed" || message.ForumTopicEdited.IconCustomEmojiID != "emoji-edit" {
+		t.Fatalf("unexpected forum_topic_edited: %+v", message.ForumTopicEdited)
+	}
+	if message.ForumTopicClosed == nil || message.ForumTopicReopened == nil || message.GeneralForumTopicHidden == nil || message.GeneralForumTopicUnhidden == nil {
+		t.Fatalf("expected all forum service message fields: %+v", message)
+	}
+}
+
 func TestMessageHelpers(t *testing.T) {
 	var nilMessage *Message
 	if nilMessage.IsText() || nilMessage.IsCommand("start") || nilMessage.Command() != "" || nilMessage.CommandArguments() != "" || nilMessage.HasPhoto() || nilMessage.HasDocument() || nilMessage.HasMedia() {
