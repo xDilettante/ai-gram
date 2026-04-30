@@ -110,6 +110,18 @@ This document maps the current `ai-gram` implementation to Telegram Bot API area
 | `(*bot.Bot).RestrictChatMember` | `restrictChatMember` | unit/httptest | Destructive/admin method; zero `telegram.ChatPermissions` is valid and restricts all supported actions. |
 | `telegram.ChatPermissions` | moderation permissions object | unit through method payload tests | Minimal supported permission fields for restriction and default chat permission payloads. |
 
+### Chat management
+
+| Public Go API | Telegram Bot API method | Tests | Notes |
+| --- | --- | --- | --- |
+| `(*bot.Bot).SetChatTitle` | `setChatTitle` | unit/httptest | Admin/state-changing method for chat titles. Not auto-smoked. |
+| `(*bot.Bot).SetChatDescription` | `setChatDescription` | unit/httptest | Admin/state-changing method for chat descriptions; empty description is allowed to remove it. Not auto-smoked. |
+| `(*bot.Bot).SetChatPhoto` | `setChatPhoto` | unit/httptest | Multipart-only upload method; `FileID` and `FileURL` are intentionally rejected. Not auto-smoked. |
+| `(*bot.Bot).DeleteChatPhoto` | `deleteChatPhoto` | unit/httptest | Admin/state-changing method for chat photos. Not auto-smoked. |
+| `(*bot.Bot).LeaveChat` | `leaveChat` | unit/httptest | Makes the bot leave a chat; manual-only and disposable-chat testing recommended. |
+| `(*bot.Bot).SetChatStickerSet` | `setChatStickerSet` | unit/httptest | Admin/state-changing supergroup sticker-set method. Not auto-smoked. |
+| `(*bot.Bot).DeleteChatStickerSet` | `deleteChatStickerSet` | unit/httptest | Admin/state-changing supergroup sticker-set method. Not auto-smoked. |
+
 ### Admin management
 
 | Public Go API | Telegram Bot API method | Tests | Notes |
@@ -190,14 +202,11 @@ This document maps the current `ai-gram` implementation to Telegram Bot API area
 
 - subscription-specific join request flows beyond basic approval/decline
 
-### Admin/chat management methods
+### Forum topics and remaining advanced chat surfaces
 
-- `SetChatTitle` (`setChatTitle`)
-- `SetChatDescription` (`setChatDescription`)
-- `SetChatPhoto` (`setChatPhoto`)
-- `DeleteChatPhoto` (`deleteChatPhoto`)
-- `LeaveChat` (`leaveChat`)
-- remaining chat sticker-set/default-permission follow-ups not already implemented
+- forum topic methods and types
+- reaction methods and types
+- inline mode basics
 
 ### Payments
 
@@ -316,6 +325,7 @@ These still require real credentials and may notify users, but they are not dest
 - `BanChatMember`
 - `UnbanChatMember`
 - `RestrictChatMember`
+- chat management methods (`SetChatTitle`, `SetChatDescription`, `SetChatPhoto`, `DeleteChatPhoto`, `LeaveChat`, `SetChatStickerSet`, `DeleteChatStickerSet`) when used outside isolated test chats, because they change real chat state
 - admin management methods (`PromoteChatMember`, `SetChatAdministratorCustomTitle`, `SetChatPermissions`) when used outside isolated test chats, because they change real chat/admin state
 - invite link methods when used outside isolated test chats, because they create or revoke real access links
 - chat join request methods, because they approve or decline real users waiting to join
@@ -330,6 +340,7 @@ These still require real credentials and may notify users, but they are not dest
 - `SendVoice` with `FileUpload`
 - `SendSticker`, `SendAnimation`, and `SendVideoNote` with `FileUpload`
 - `SendMediaGroup` with media or thumbnail `FileUpload`
+- `SetChatPhoto` with `FileUpload`
 - future upload methods such as remaining thumbnails, certificates
 
 ### Requires live credentials

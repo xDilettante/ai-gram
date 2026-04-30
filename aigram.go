@@ -114,6 +114,27 @@ type SetChatAdministratorCustomTitleParams = bot.SetChatAdministratorCustomTitle
 // SetChatPermissionsParams contains supported parameters for setChatPermissions.
 type SetChatPermissionsParams = bot.SetChatPermissionsParams
 
+// SetChatTitleParams contains supported parameters for setChatTitle.
+type SetChatTitleParams = bot.SetChatTitleParams
+
+// SetChatDescriptionParams contains supported parameters for setChatDescription.
+type SetChatDescriptionParams = bot.SetChatDescriptionParams
+
+// SetChatPhotoParams contains supported parameters for setChatPhoto.
+type SetChatPhotoParams = bot.SetChatPhotoParams
+
+// DeleteChatPhotoParams contains supported parameters for deleteChatPhoto.
+type DeleteChatPhotoParams = bot.DeleteChatPhotoParams
+
+// LeaveChatParams contains supported parameters for leaveChat.
+type LeaveChatParams = bot.LeaveChatParams
+
+// SetChatStickerSetParams contains supported parameters for setChatStickerSet.
+type SetChatStickerSetParams = bot.SetChatStickerSetParams
+
+// DeleteChatStickerSetParams contains supported parameters for deleteChatStickerSet.
+type DeleteChatStickerSetParams = bot.DeleteChatStickerSetParams
+
 // GetChatParams contains supported parameters for getChat.
 type GetChatParams = bot.GetChatParams
 

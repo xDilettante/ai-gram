@@ -77,9 +77,11 @@ This plan is a working checklist derived from the official documentation and cha
 - `GetChatAdministrators`.
 - `GetChatMemberCount`.
 
-### Moderation and administration
+### Moderation, chat management, and administration
 
 - `BanChatMember`, `UnbanChatMember`, `RestrictChatMember`.
+- `SetChatTitle`, `SetChatDescription`, `SetChatPhoto`, `DeleteChatPhoto`, and `LeaveChat`.
+- `SetChatStickerSet` and `DeleteChatStickerSet`.
 - `PromoteChatMember`.
 - `SetChatAdministratorCustomTitle`.
 - `SetChatPermissions`.
@@ -113,13 +115,13 @@ This plan is a working checklist derived from the official documentation and cha
 
 ### Chat management
 
-- [ ] `SetChatTitle`
-- [ ] `SetChatDescription`
-- [ ] `SetChatPhoto`
-- [ ] `DeleteChatPhoto`
-- [ ] `LeaveChat`
-- [ ] `SetChatStickerSet`
-- [ ] `DeleteChatStickerSet`
+- [x] `SetChatTitle`
+- [x] `SetChatDescription`
+- [x] `SetChatPhoto`
+- [x] `DeleteChatPhoto`
+- [x] `LeaveChat`
+- [x] `SetChatStickerSet`
+- [x] `DeleteChatStickerSet`
 
 ### Forum topics
 
@@ -332,7 +334,7 @@ This plan is a working checklist derived from the official documentation and cha
 
 Recommended local-only stages:
 
-1. Chat management
+1. Chat management - implemented locally in Stage 66; manual-only live smoke.
 2. Forum topics
 3. Reactions
 4. Inline mode basics

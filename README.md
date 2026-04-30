@@ -14,7 +14,7 @@ The latest public release is `v0.2.0`. Local development is now focused on reach
 - Dispatcher/router: supports predicates, message/command/callback routes, middleware, fallback, and error handling.
 - Middleware helpers: recover, timeout, hook-based observability, and reusable access control are available.
 - Long polling transport: managed runner is available. Webhook transport: inbound HTTP handler is available.
-- Telegram Bot API method coverage: `GetMe`, `SendMessage`, `SendPhoto`, `SendDocument`, `SendVideo`, `SendAudio`, `SendVoice`, `SendContact`, `SendLocation`, `SendVenue`, `SendPoll`, `StopPoll`, `SendDice`, `SendSticker`, `SendAnimation`, `SendVideoNote`, `SendMediaGroup`, `SetMyCommands`, `DeleteMyCommands`, `GetMyCommands`, `SetChatMenuButton`, `GetChatMenuButton`, `SetMyDefaultAdministratorRights`, `AnswerCallbackQuery`, `EditMessageText`, `EditMessageCaption`, `EditMessageReplyMarkup`, `DeleteMessage`, `ForwardMessage`, `CopyMessage`, `SendChatAction`, `PinChatMessage`, `UnpinChatMessage`, `UnpinAllChatMessages`, `GetChat`, `GetChatMember`, `GetChatAdministrators`, `GetChatMemberCount`, `ExportChatInviteLink`, `CreateChatInviteLink`, `EditChatInviteLink`, `RevokeChatInviteLink`, `ApproveChatJoinRequest`, `DeclineChatJoinRequest`, `PromoteChatMember`, `SetChatAdministratorCustomTitle`, `SetChatPermissions`, `BanChatMember`, `UnbanChatMember`, `RestrictChatMember`, reply markup for supported send and edit methods, the manual `GetUpdates` API call, `GetFile`, `DownloadFile`, multipart upload for media send methods, and JSON-only webhook management methods (`SetWebhook`, `DeleteWebhook`, `GetWebhookInfo`) are implemented. The rest of the Bot API is not implemented yet.
+- Telegram Bot API method coverage: `GetMe`, `SendMessage`, `SendPhoto`, `SendDocument`, `SendVideo`, `SendAudio`, `SendVoice`, `SendContact`, `SendLocation`, `SendVenue`, `SendPoll`, `StopPoll`, `SendDice`, `SendSticker`, `SendAnimation`, `SendVideoNote`, `SendMediaGroup`, `SetMyCommands`, `DeleteMyCommands`, `GetMyCommands`, `SetChatMenuButton`, `GetChatMenuButton`, `SetMyDefaultAdministratorRights`, `AnswerCallbackQuery`, `EditMessageText`, `EditMessageCaption`, `EditMessageReplyMarkup`, `DeleteMessage`, `ForwardMessage`, `CopyMessage`, `SendChatAction`, `PinChatMessage`, `UnpinChatMessage`, `UnpinAllChatMessages`, `GetChat`, `GetChatMember`, `GetChatAdministrators`, `GetChatMemberCount`, `SetChatTitle`, `SetChatDescription`, `SetChatPhoto`, `DeleteChatPhoto`, `LeaveChat`, `SetChatStickerSet`, `DeleteChatStickerSet`, `ExportChatInviteLink`, `CreateChatInviteLink`, `EditChatInviteLink`, `RevokeChatInviteLink`, `ApproveChatJoinRequest`, `DeclineChatJoinRequest`, `PromoteChatMember`, `SetChatAdministratorCustomTitle`, `SetChatPermissions`, `BanChatMember`, `UnbanChatMember`, `RestrictChatMember`, reply markup for supported send and edit methods, the manual `GetUpdates` API call, `GetFile`, `DownloadFile`, multipart upload for media send methods, and JSON-only webhook management methods (`SetWebhook`, `DeleteWebhook`, `GetWebhookInfo`) are implemented. The rest of the Bot API is not implemented yet.
 - Public API stability: not guaranteed before the first stable release.
 - Latest public release: `v0.2.0`.
 - Current local strategy: full Telegram Bot API 9.6 coverage before the next push/tag/release.
@@ -425,9 +425,35 @@ if err != nil {
 fmt.Println("unbanned:", unbanned)
 ```
 
-Admin management methods also require suitable bot admin rights and change real chat/admin state. Keep live checks limited to dedicated test groups and revert permission changes after testing:
+Chat management and admin management methods require suitable bot admin rights where applicable and change real chat state. Keep live checks limited to dedicated test groups and revert changes after testing:
 
 ```go
+renamed, err := b.SetChatTitle(ctx, aigram.SetChatTitleParams{
+    ChatID: aigram.ChatIDInt(-1001234567890),
+    Title:  "ai-gram test group",
+})
+if err != nil {
+    return err
+}
+fmt.Println("renamed:", renamed)
+
+described, err := b.SetChatDescription(ctx, aigram.SetChatDescriptionParams{
+    ChatID:      aigram.ChatIDInt(-1001234567890),
+    Description: "temporary ai-gram test description",
+})
+if err != nil {
+    return err
+}
+fmt.Println("description set:", described)
+
+left, err := b.LeaveChat(ctx, aigram.LeaveChatParams{
+    ChatID: aigram.ChatIDInt(-1001234567890),
+})
+if err != nil {
+    return err
+}
+fmt.Println("left:", left)
+
 promoted, err := b.PromoteChatMember(ctx, aigram.PromoteChatMemberParams{
     ChatID:            aigram.ChatIDInt(-1001234567890),
     UserID:            987654321,

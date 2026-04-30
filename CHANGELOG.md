@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Added
+
+- Chat management methods: `SetChatTitle`, `SetChatDescription`, `SetChatPhoto`, `DeleteChatPhoto`, `LeaveChat`, `SetChatStickerSet`, and `DeleteChatStickerSet`.
+
 ### Planning
 
 - Added v0.3 plan for chat management, forum topics, reactions, and inline mode basics.

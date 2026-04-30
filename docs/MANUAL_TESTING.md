@@ -319,6 +319,23 @@ Manual checklist for a dedicated test environment only:
 
 Treat Telegram permission errors in chats where the bot is not an admin as expected Bot API behavior, not as a library bug.
 
+## Chat management methods checklist
+
+`SetChatTitle`, `SetChatDescription`, `SetChatPhoto`, `DeleteChatPhoto`, `LeaveChat`, `SetChatStickerSet`, and `DeleteChatStickerSet` require bot admin rights where applicable and change real chat state. They are intentionally not part of automatic live smoke.
+
+Manual checklist for a dedicated test environment only:
+
+- Create a dedicated test group or supergroup.
+- Add the bot as an admin with rights to change chat info; add sticker-set permissions when testing sticker-set methods.
+- Do not test these methods on production groups/channels.
+- Save the original title, description, photo, and sticker-set state before testing.
+- Revert title, description, photo, and sticker-set changes after testing.
+- Test `LeaveChat` only with a disposable group or bot instance that can be safely re-added.
+- Use `SetChatPhoto` only with explicit test image uploads; do not paste token-bearing URLs or private paths into logs.
+- Do not paste bot tokens, token-bearing URLs, private group content, or full file metadata into logs or reports.
+
+Treat Telegram permission errors in chats where the bot is not an admin or lacks change-info rights as expected Bot API behavior, not as a library bug.
+
 ## Admin management methods checklist
 
 `PromoteChatMember`, `SetChatAdministratorCustomTitle`, and `SetChatPermissions` require bot admin rights and change real chat or admin state. They are intentionally not part of automatic live smoke.
