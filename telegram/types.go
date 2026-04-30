@@ -52,12 +52,56 @@ type User struct {
 
 // Chat represents a Telegram chat.
 type Chat struct {
-	ID        int64  `json:"id"`
-	Type      string `json:"type"`
-	Title     string `json:"title,omitempty"`
-	Username  string `json:"username,omitempty"`
-	FirstName string `json:"first_name,omitempty"`
-	LastName  string `json:"last_name,omitempty"`
+	ID            int64    `json:"id"`
+	Type          string   `json:"type"`
+	Title         string   `json:"title,omitempty"`
+	Username      string   `json:"username,omitempty"`
+	FirstName     string   `json:"first_name,omitempty"`
+	LastName      string   `json:"last_name,omitempty"`
+	Description   string   `json:"description,omitempty"`
+	InviteLink    string   `json:"invite_link,omitempty"`
+	PinnedMessage *Message `json:"pinned_message,omitempty"`
+}
+
+// ChatMemberStatus identifies a user's membership state in a chat.
+type ChatMemberStatus string
+
+const (
+	// ChatMemberStatusCreator means the user owns the chat.
+	ChatMemberStatusCreator ChatMemberStatus = "creator"
+	// ChatMemberStatusAdministrator means the user is a chat administrator.
+	ChatMemberStatusAdministrator ChatMemberStatus = "administrator"
+	// ChatMemberStatusMember means the user is a regular chat member.
+	ChatMemberStatusMember ChatMemberStatus = "member"
+	// ChatMemberStatusRestricted means the user is restricted in the chat.
+	ChatMemberStatusRestricted ChatMemberStatus = "restricted"
+	// ChatMemberStatusLeft means the user is not currently a member.
+	ChatMemberStatusLeft ChatMemberStatus = "left"
+	// ChatMemberStatusKicked means the user was removed from the chat.
+	ChatMemberStatusKicked ChatMemberStatus = "kicked"
+)
+
+// ChatMember describes a Telegram user's membership and relevant permissions in a chat.
+type ChatMember struct {
+	Status ChatMemberStatus `json:"status"`
+	User   User             `json:"user"`
+
+	IsAnonymous bool   `json:"is_anonymous,omitempty"`
+	CustomTitle string `json:"custom_title,omitempty"`
+	UntilDate   int64  `json:"until_date,omitempty"`
+
+	CanBeEdited         bool `json:"can_be_edited,omitempty"`
+	CanManageChat       bool `json:"can_manage_chat,omitempty"`
+	CanDeleteMessages   bool `json:"can_delete_messages,omitempty"`
+	CanManageVideoChats bool `json:"can_manage_video_chats,omitempty"`
+	CanRestrictMembers  bool `json:"can_restrict_members,omitempty"`
+	CanPromoteMembers   bool `json:"can_promote_members,omitempty"`
+	CanChangeInfo       bool `json:"can_change_info,omitempty"`
+	CanInviteUsers      bool `json:"can_invite_users,omitempty"`
+	CanPinMessages      bool `json:"can_pin_messages,omitempty"`
+	CanPostStories      bool `json:"can_post_stories,omitempty"`
+	CanEditStories      bool `json:"can_edit_stories,omitempty"`
+	CanDeleteStories    bool `json:"can_delete_stories,omitempty"`
 }
 
 // MessageEntity represents one special entity in a message text or caption.

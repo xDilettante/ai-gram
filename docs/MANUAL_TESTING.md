@@ -235,6 +235,20 @@ Manual note for pin/unpin:
 - Call `PinChatMessage`, `UnpinChatMessage`, or `UnpinAllChatMessages` from a small local probe or future targeted example.
 - Do not treat pin/unpin failure in a private chat or insufficient-rights chat as a library error; check Telegram permissions first.
 
+
+## Webhook chat info checklist
+
+The webhook example includes an admin-only chat info action in the access panel. It uses `GetChat` and, when Telegram allows it for the current chat, `GetChatMemberCount`.
+
+Checklist:
+
+- Deploy or run `examples/webhook_server`.
+- Open the access panel via the targeted notification or send `/start access_panel`.
+- Press `Bot chat info`.
+- The bot should send a short safe summary with chat ID, chat type, optional title/username, and member count when available.
+- Inspect safe logs with `./scripts/remote_logs.sh`; successful `GetChat` is logged as `action=get_chat ok=true update_id=... chat_id=... chat_type=...`.
+- In groups/channels, `GetChatMember`, `GetChatAdministrators`, and member count behavior depends on Telegram access and bot permissions; permission errors are not library errors.
+
 ## Media upload/download checklist
 
 Upload a local file as a document:

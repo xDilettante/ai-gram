@@ -66,6 +66,18 @@ type UnpinChatMessageParams = bot.UnpinChatMessageParams
 // UnpinAllChatMessagesParams contains supported parameters for unpinAllChatMessages.
 type UnpinAllChatMessagesParams = bot.UnpinAllChatMessagesParams
 
+// GetChatParams contains supported parameters for getChat.
+type GetChatParams = bot.GetChatParams
+
+// GetChatMemberParams contains supported parameters for getChatMember.
+type GetChatMemberParams = bot.GetChatMemberParams
+
+// GetChatAdministratorsParams contains supported parameters for getChatAdministrators.
+type GetChatAdministratorsParams = bot.GetChatAdministratorsParams
+
+// GetChatMemberCountParams contains supported parameters for getChatMemberCount.
+type GetChatMemberCountParams = bot.GetChatMemberCountParams
+
 // EditMessageResult contains the result returned by edit message methods.
 type EditMessageResult = bot.EditMessageResult
 
@@ -108,6 +120,12 @@ type User = telegram.User
 // Chat represents a Telegram chat.
 type Chat = telegram.Chat
 
+// ChatMemberStatus identifies a user's membership state in a chat.
+type ChatMemberStatus = telegram.ChatMemberStatus
+
+// ChatMember describes a Telegram user's membership and permissions in a chat.
+type ChatMember = telegram.ChatMember
+
 // CallbackQuery represents an incoming callback query.
 type CallbackQuery = telegram.CallbackQuery
 
@@ -142,6 +160,19 @@ type ReplyKeyboardRemove = telegram.ReplyKeyboardRemove
 type ForceReply = telegram.ForceReply
 
 const (
+	// ChatMemberStatusCreator means the user owns the chat.
+	ChatMemberStatusCreator = telegram.ChatMemberStatusCreator
+	// ChatMemberStatusAdministrator means the user is a chat administrator.
+	ChatMemberStatusAdministrator = telegram.ChatMemberStatusAdministrator
+	// ChatMemberStatusMember means the user is a regular chat member.
+	ChatMemberStatusMember = telegram.ChatMemberStatusMember
+	// ChatMemberStatusRestricted means the user is restricted in the chat.
+	ChatMemberStatusRestricted = telegram.ChatMemberStatusRestricted
+	// ChatMemberStatusLeft means the user is not currently a member.
+	ChatMemberStatusLeft = telegram.ChatMemberStatusLeft
+	// ChatMemberStatusKicked means the user was removed from the chat.
+	ChatMemberStatusKicked = telegram.ChatMemberStatusKicked
+
 	// ChatActionTyping tells Telegram clients that the bot is typing.
 	ChatActionTyping = bot.ChatActionTyping
 	// ChatActionUploadPhoto tells Telegram clients that the bot is uploading a photo.

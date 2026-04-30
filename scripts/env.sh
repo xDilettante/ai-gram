@@ -689,6 +689,7 @@ notify_access_panel_ready() {
 Нажми ссылку: бот откроет control panel.
 Дальше просто нажимай кнопки в боте:
 - Access status
+- Bot chat info
 - Start smoke
 - Open access
 - Close access

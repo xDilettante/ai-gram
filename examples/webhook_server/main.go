@@ -395,6 +395,11 @@ func registerAccessCallbacks(dp *dispatch.Dispatcher, b *aigram.Bot, controller 
 	}); err != nil {
 		return err
 	}
+	if err := dp.OnCallbackDataFunc("access:chat_info", func(ctx context.Context, update telegram.Update) error {
+		return handleAccessCallback(ctx, b, controller, logPrefix, update, "chat_info")
+	}); err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -433,6 +438,11 @@ func handleAccessCallback(ctx context.Context, b *aigram.Bot, controller *exampl
 			return err
 		}
 		return showSmokeKeyboardFromCallback(ctx, b, logPrefix, update)
+	case "chat_info":
+		if _, err := b.AnswerCallbackQuery(ctx, aigram.AnswerCallbackQueryParams{CallbackQueryID: callback.ID, Text: "Loading chat info"}); err != nil {
+			return err
+		}
+		return sendChatInfo(ctx, b, update, logPrefix)
 	default:
 		return nil
 	}
@@ -502,6 +512,41 @@ func sendAccessStatus(ctx context.Context, b *aigram.Bot, controller *exampleuti
 	}
 	log.Printf("%s action=access_status ok=true mode=%s update_id=%d by_user_id=%d", logPrefix, mode, update.UpdateID, effectiveUserID(update))
 	return nil
+}
+
+func sendChatInfo(ctx context.Context, b *aigram.Bot, update telegram.Update, logPrefix string) error {
+	message := update.EffectiveMessage()
+	if message == nil {
+		return nil
+	}
+	chat, err := b.GetChat(ctx, aigram.GetChatParams{ChatID: aigram.ChatIDInt(message.Chat.ID)})
+	if err != nil {
+		return err
+	}
+	memberCount, countErr := b.GetChatMemberCount(ctx, aigram.GetChatMemberCountParams{ChatID: aigram.ChatIDInt(message.Chat.ID)})
+	log.Printf("%s action=get_chat ok=true update_id=%d chat_id=%d chat_type=%s", logPrefix, update.UpdateID, message.Chat.ID, chat.Type)
+
+	lines := []string{
+		"Chat info",
+		fmt.Sprintf("ID: %d", chat.ID),
+		fmt.Sprintf("Type: %s", chat.Type),
+	}
+	if chat.Title != "" {
+		lines = append(lines, fmt.Sprintf("Title: %s", chat.Title))
+	}
+	if chat.Username != "" {
+		lines = append(lines, fmt.Sprintf("Username: @%s", chat.Username))
+	}
+	if countErr == nil {
+		lines = append(lines, fmt.Sprintf("Members: %d", memberCount))
+	}
+	_, err = b.SendMessage(ctx, aigram.SendMessageParams{
+		ChatID:          aigram.ChatIDInt(message.Chat.ID),
+		MessageThreadID: message.MessageThreadID,
+		Text:            strings.Join(lines, "\n"),
+		ReplyParameters: &aigram.ReplyParameters{MessageID: message.MessageID},
+	})
+	return err
 }
 
 func sendAccessPanel(ctx context.Context, b *aigram.Bot, controller *exampleutil.AccessController, update telegram.Update, logPrefix string) error {
@@ -643,6 +688,9 @@ func accessPanelKeyboard() aigram.InlineKeyboardMarkup {
 		[]aigram.InlineKeyboardButton{
 			aigram.InlineButtonCallback("Access status", "access:status"),
 			aigram.InlineButtonCallback("Start smoke", "access:smoke"),
+		},
+		[]aigram.InlineKeyboardButton{
+			aigram.InlineButtonCallback("Bot chat info", "access:chat_info"),
 		},
 		[]aigram.InlineKeyboardButton{
 			aigram.InlineButtonCallback("Open access", "access:open"),
@@ -791,7 +839,7 @@ func safeCallbackData(update telegram.Update) string {
 		return ""
 	}
 	switch update.CallbackQuery.Data {
-	case "demo:edit", "demo:remove_keyboard", "demo:caption", "demo:edit_caption", "demo:delete_media", "demo:delete", "demo:copy", "demo:forward", "access:status", "access:open", "access:close", "access:smoke":
+	case "demo:edit", "demo:remove_keyboard", "demo:caption", "demo:edit_caption", "demo:delete_media", "demo:delete", "demo:copy", "demo:forward", "access:status", "access:open", "access:close", "access:smoke", "access:chat_info":
 		return update.CallbackQuery.Data
 	default:
 		return "<redacted>"
