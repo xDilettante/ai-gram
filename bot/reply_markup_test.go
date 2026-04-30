@@ -8,7 +8,7 @@ import (
 	"strings"
 	"testing"
 
-	"ai-gram/telegram"
+	"github.com/xDilettante/ai-gram/telegram"
 )
 
 func TestSendMessageReplyMarkupJSON(t *testing.T) {

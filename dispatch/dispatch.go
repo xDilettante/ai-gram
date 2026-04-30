@@ -7,7 +7,7 @@ import (
 	"reflect"
 	"strings"
 
-	"ai-gram/telegram"
+	"github.com/xDilettante/ai-gram/telegram"
 )
 
 // Handler handles one Telegram update.

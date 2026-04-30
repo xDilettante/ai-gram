@@ -11,7 +11,7 @@ import (
 	"strings"
 	"testing"
 
-	apierrors "ai-gram/errors"
+	apierrors "github.com/xDilettante/ai-gram/errors"
 )
 
 func TestGetFileSendsPayloadAndDecodesFile(t *testing.T) {

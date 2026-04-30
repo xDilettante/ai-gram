@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.1.1 - Unreleased
+
+### Fixed
+
+- Changed Go module path to `github.com/xDilettante/ai-gram` for canonical public Go module usage.
+
 ## v0.1.0
 
 Дата: 2026-04-30
@@ -141,4 +147,4 @@ Safe live flows verified before the tag:
 - `v0.1.0` is an early API milestone, not a stable promise of full Telegram Bot API coverage.
 - Some admin/destructive methods are implemented but intentionally not live-smoked automatically.
 - Documentation contains API coverage, roadmap, manual testing, deploy testing, live smoke matrix, and release checklist.
-- The current Go module path is `ai-gram`. Public import-path/module-path stabilization is a future release decision.
+- At the `v0.1.0` tag, the Go module path was `ai-gram`. Public import-path/module-path stabilization is prepared for the next patch release.

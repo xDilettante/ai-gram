@@ -6,9 +6,9 @@ import (
 	"net/url"
 	"strings"
 
-	apierrors "ai-gram/errors"
-	"ai-gram/internal/telegramsecret"
-	"ai-gram/telegram"
+	apierrors "github.com/xDilettante/ai-gram/errors"
+	"github.com/xDilettante/ai-gram/internal/telegramsecret"
+	"github.com/xDilettante/ai-gram/telegram"
 )
 
 // SetWebhookParams contains supported parameters for setWebhook.

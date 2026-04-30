@@ -11,7 +11,7 @@ import (
 	"strings"
 	"syscall"
 
-	"ai-gram"
+	"github.com/xDilettante/ai-gram"
 )
 
 // RequiredEnv returns a non-empty environment variable value.

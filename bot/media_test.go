@@ -11,8 +11,8 @@ import (
 	"strings"
 	"testing"
 
-	apierrors "ai-gram/errors"
-	"ai-gram/telegram"
+	apierrors "github.com/xDilettante/ai-gram/errors"
+	"github.com/xDilettante/ai-gram/telegram"
 )
 
 func TestFileRefMarshalAndValidation(t *testing.T) {

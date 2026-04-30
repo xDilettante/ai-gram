@@ -11,7 +11,7 @@ import (
 	"net/textproto"
 	"strings"
 
-	apierrors "ai-gram/errors"
+	apierrors "github.com/xDilettante/ai-gram/errors"
 )
 
 func (b *Bot) callMultipart(ctx context.Context, method string, fields map[string]string, files map[string]UploadFile, result any) error {

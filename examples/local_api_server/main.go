@@ -12,7 +12,7 @@ import (
 	"os"
 	"strings"
 
-	"ai-gram/examples/internal/exampleutil"
+	"github.com/xDilettante/ai-gram/examples/internal/exampleutil"
 )
 
 func main() {

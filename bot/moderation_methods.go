@@ -4,7 +4,7 @@ import (
 	"context"
 	stderrors "errors"
 
-	"ai-gram/telegram"
+	"github.com/xDilettante/ai-gram/telegram"
 )
 
 // BanChatMemberParams contains supported parameters for banChatMember.

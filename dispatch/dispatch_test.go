@@ -6,7 +6,7 @@ import (
 	"reflect"
 	"testing"
 
-	"ai-gram/telegram"
+	"github.com/xDilettante/ai-gram/telegram"
 )
 
 func TestNewCreatesDispatcher(t *testing.T) {

@@ -8,7 +8,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	apierrors "ai-gram/errors"
+	apierrors "github.com/xDilettante/ai-gram/errors"
 )
 
 func TestSendChatActionSendsPayloadAndDecodesResult(t *testing.T) {

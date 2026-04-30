@@ -14,8 +14,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	"ai-gram"
-	"ai-gram/examples/internal/exampleutil"
+	"github.com/xDilettante/ai-gram"
+	"github.com/xDilettante/ai-gram/examples/internal/exampleutil"
 )
 
 func main() {

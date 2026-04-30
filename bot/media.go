@@ -10,7 +10,7 @@ import (
 	"strconv"
 	"strings"
 
-	"ai-gram/telegram"
+	"github.com/xDilettante/ai-gram/telegram"
 )
 
 type fileRefKind uint8

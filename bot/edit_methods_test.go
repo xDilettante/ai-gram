@@ -8,8 +8,8 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	apierrors "ai-gram/errors"
-	"ai-gram/telegram"
+	apierrors "github.com/xDilettante/ai-gram/errors"
+	"github.com/xDilettante/ai-gram/telegram"
 )
 
 func TestEditMessageResultUnmarshal(t *testing.T) {

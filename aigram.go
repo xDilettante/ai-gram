@@ -1,9 +1,9 @@
 package aigram
 
 import (
-	"ai-gram/bot"
-	telegramerrors "ai-gram/errors"
-	"ai-gram/telegram"
+	"github.com/xDilettante/ai-gram/bot"
+	telegramerrors "github.com/xDilettante/ai-gram/errors"
+	"github.com/xDilettante/ai-gram/telegram"
 )
 
 // Bot is the primary Telegram Bot API client.

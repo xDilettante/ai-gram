@@ -6,8 +6,8 @@ import (
 	stderrors "errors"
 	"time"
 
-	"ai-gram/dispatch"
-	"ai-gram/telegram"
+	"github.com/xDilettante/ai-gram/dispatch"
+	"github.com/xDilettante/ai-gram/telegram"
 )
 
 // PanicError reports a panic recovered from a user handler.

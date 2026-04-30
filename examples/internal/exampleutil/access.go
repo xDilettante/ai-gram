@@ -8,8 +8,8 @@ import (
 	"strings"
 	"sync"
 
-	"ai-gram/middleware"
-	"ai-gram/telegram"
+	"github.com/xDilettante/ai-gram/middleware"
+	"github.com/xDilettante/ai-gram/telegram"
 )
 
 // ParseInt64ListEnv parses a comma-separated int64 environment variable.

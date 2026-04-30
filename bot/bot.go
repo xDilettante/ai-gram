@@ -11,8 +11,8 @@ import (
 	"net/url"
 	"strings"
 
-	apierrors "ai-gram/errors"
-	"ai-gram/internal/httpclient"
+	apierrors "github.com/xDilettante/ai-gram/errors"
+	"github.com/xDilettante/ai-gram/internal/httpclient"
 )
 
 const (

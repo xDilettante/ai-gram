@@ -8,8 +8,8 @@ import (
 	"strings"
 	"testing"
 
-	"ai-gram/dispatch"
-	"ai-gram/telegram"
+	"github.com/xDilettante/ai-gram/dispatch"
+	"github.com/xDilettante/ai-gram/telegram"
 )
 
 func TestNewValidation(t *testing.T) {

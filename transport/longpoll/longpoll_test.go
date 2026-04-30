@@ -8,8 +8,8 @@ import (
 	"testing"
 	"time"
 
-	"ai-gram/bot"
-	"ai-gram/telegram"
+	"github.com/xDilettante/ai-gram/bot"
+	"github.com/xDilettante/ai-gram/telegram"
 )
 
 func TestNewValidation(t *testing.T) {

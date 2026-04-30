@@ -7,7 +7,7 @@ import (
 	stderrors "errors"
 	"strings"
 
-	"ai-gram/telegram"
+	"github.com/xDilettante/ai-gram/telegram"
 )
 
 // EditMessageResult contains the polymorphic result returned by Telegram edit message methods.

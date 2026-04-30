@@ -12,12 +12,12 @@ import (
 	"log"
 	"os"
 
-	"ai-gram"
-	"ai-gram/dispatch"
-	"ai-gram/examples/internal/exampleutil"
-	"ai-gram/middleware"
-	"ai-gram/telegram"
-	"ai-gram/transport/longpoll"
+	"github.com/xDilettante/ai-gram"
+	"github.com/xDilettante/ai-gram/dispatch"
+	"github.com/xDilettante/ai-gram/examples/internal/exampleutil"
+	"github.com/xDilettante/ai-gram/middleware"
+	"github.com/xDilettante/ai-gram/telegram"
+	"github.com/xDilettante/ai-gram/transport/longpoll"
 )
 
 func demoKeyboard() aigram.InlineKeyboardMarkup {

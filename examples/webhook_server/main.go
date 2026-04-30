@@ -18,12 +18,12 @@ import (
 	"strings"
 	"time"
 
-	"ai-gram"
-	"ai-gram/dispatch"
-	"ai-gram/examples/internal/exampleutil"
-	"ai-gram/middleware"
-	"ai-gram/telegram"
-	"ai-gram/transport/webhook"
+	"github.com/xDilettante/ai-gram"
+	"github.com/xDilettante/ai-gram/dispatch"
+	"github.com/xDilettante/ai-gram/examples/internal/exampleutil"
+	"github.com/xDilettante/ai-gram/middleware"
+	"github.com/xDilettante/ai-gram/telegram"
+	"github.com/xDilettante/ai-gram/transport/webhook"
 )
 
 func main() {
@@ -760,7 +760,7 @@ func sendCaptionDemo(ctx context.Context, b *aigram.Bot, chatID int64) (*telegra
 		ChatID: aigram.ChatIDInt(chatID),
 		Document: aigram.FileUpload(aigram.UploadFile{
 			Name:   "aigram-caption-demo.txt",
-			Reader: strings.NewReader("ai-gram caption demo\n"),
+			Reader: strings.NewReader("github.com/xDilettante/ai-gram caption demo\n"),
 		}),
 		Caption:     "Original caption from ai-gram",
 		ReplyMarkup: markup,

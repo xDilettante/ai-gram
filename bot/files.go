@@ -8,7 +8,7 @@ import (
 	"net/url"
 	"strings"
 
-	"ai-gram/telegram"
+	"github.com/xDilettante/ai-gram/telegram"
 )
 
 // GetFileParams contains supported parameters for getFile.

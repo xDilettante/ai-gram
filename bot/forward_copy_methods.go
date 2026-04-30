@@ -4,7 +4,7 @@ import (
 	"context"
 	stderrors "errors"
 
-	"ai-gram/telegram"
+	"github.com/xDilettante/ai-gram/telegram"
 )
 
 // ForwardMessageParams contains supported parameters for forwardMessage.

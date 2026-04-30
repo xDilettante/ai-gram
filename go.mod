@@ -1,3 +1,3 @@
-module ai-gram
+module github.com/xDilettante/ai-gram
 
 go 1.26

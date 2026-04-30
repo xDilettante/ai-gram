@@ -33,6 +33,20 @@ The library is split into small packages with clear responsibilities:
 
 The intended dependency direction is data types first, then the Bot API client and transports, then dispatching and middleware. Transports deliver updates; dispatchers process already received updates; the API client does not know about dispatching.
 
+## Installation
+
+For public GitHub module usage, install from the canonical module path:
+
+```bash
+go get github.com/xDilettante/ai-gram@latest
+```
+
+`v0.1.0` was the first milestone tag. The canonical public module path fix is prepared for the next patch release, so after `v0.1.1` is tagged the version-pinned command will be:
+
+```bash
+go get github.com/xDilettante/ai-gram@v0.1.1
+```
+
 ## Usage examples
 
 Create a bot and call `getMe`:

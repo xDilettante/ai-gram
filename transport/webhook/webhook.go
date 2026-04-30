@@ -8,8 +8,8 @@ import (
 	"mime"
 	"net/http"
 
-	"ai-gram/internal/telegramsecret"
-	"ai-gram/telegram"
+	"github.com/xDilettante/ai-gram/internal/telegramsecret"
+	"github.com/xDilettante/ai-gram/telegram"
 )
 
 const (
