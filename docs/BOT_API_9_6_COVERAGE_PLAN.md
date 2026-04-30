@@ -19,6 +19,28 @@ This plan is a working checklist derived from the official documentation and cha
 - Local commits are still expected after verified local work.
 - Final user reports may say: "local commit created; push intentionally skipped by project policy".
 
+
+## Stage 88 audit result
+
+Stage 88 compared the current local implementation with the official Telegram Bot API documentation and the April 3, 2026 Bot API 9.6 changelog. Full coverage is **not yet reached**. The precise missing method/type/field checklist now lives in [`docs/BOT_API_9_6_AUDIT.md`](BOT_API_9_6_AUDIT.md).
+
+Top pending method groups from the audit:
+
+- lifecycle/profile reads: `logOut`, `close`, `getUserProfilePhotos`, `getUserProfileAudios`, `getForumTopicIconStickers`;
+- verification/status: `setUserEmojiStatus`, `verifyUser`, `verifyChat`, `removeUserVerification`, `removeChatVerification`;
+- chat boosts/member updates/moderation: `getUserChatBoosts`, `setChatMemberTag`, `banChatSenderChat`, `unbanChatSenderChat`;
+- subscription invite links: `createChatSubscriptionInviteLink`, `editChatSubscriptionInviteLink`;
+- checklists/drafts: `sendChecklist`, `editMessageChecklist`, `sendMessageDraft`;
+- Business/Mini App follow-ups: `repostStory`, `savePreparedInlineMessage`.
+
+Top pending type/field groups:
+
+- `ChatFullInfo`, full `User`/`Chat` metadata, channel post and chat-member/boost update fields;
+- structured chat member/boost/background/giveaway/service-message types;
+- checklist types and `InputPollOption`;
+- reply/forward metadata (`MessageOrigin*`, `ExternalReplyInfo`, `TextQuote`, `ReplyParameters` quote/cross-chat fields);
+- reply markup completion (`LoginUrl`, switch-inline, copy-text, pay, request-poll, icon/style fields).
+
 ## Current implemented baseline
 
 ### Core
@@ -112,7 +134,7 @@ This plan is a working checklist derived from the official documentation and cha
 - Media upload and live smoke helpers.
 - Deploy/manual smoke harness, safe logs, Telegram reports, and redaction rules.
 
-## Missing Bot API 9.6 areas
+## Bot API 9.6 coverage checklist
 
 ### Chat management
 
@@ -145,7 +167,7 @@ This plan is a working checklist derived from the official documentation and cha
 - [x] `ForumTopicReopened`
 - [x] `GeneralForumTopicHidden`
 - [x] `GeneralForumTopicUnhidden`
-- [ ] audit topic icon sticker fields against Bot API 9.6
+- [ ] `GetForumTopicIconStickers` and topic icon sticker coverage (pending from Stage 88 audit)
 
 ### Reactions
 
@@ -156,7 +178,7 @@ This plan is a working checklist derived from the official documentation and cha
 - [x] `MessageReactionUpdated`
 - [x] `MessageReactionCountUpdated`
 - [x] update fields for reaction updates
-- [ ] reaction count/list fields on messages, if missing
+- [ ] Full message-field completeness audit for reactions and related message metadata (pending Stage 96)
 
 ### Inline mode
 
@@ -281,7 +303,7 @@ Stage 78 implements Managed Bots 9.6 support. Token-returning methods are sensit
 - [x] `PollOptionDeleted` and `Message.poll_option_deleted`
 - [x] `ReplyParameters.poll_option_id`
 - [x] `Message.reply_to_poll_option_id`
-- [ ] `date_time` entity support in poll/checklist/gift-related contexts where relevant
+- [ ] `InputPollOption` and `Poll.question_entities` entity-aware poll option/question coverage
 - [x] audit all poll-related fields against official Bot API 9.6 docs for this slice
 
 ### Bot profile and metadata
@@ -326,7 +348,7 @@ Stage 81 implements the Business API foundation. Stage 82 adds business read, ac
 - [x] `business_connection_id` on current send methods: `SendMessage`, `SendPhoto`, `SendDocument`, `SendVideo`, `SendAudio`, `SendVoice`, `SendAnimation`, `SendVideoNote`, `SendSticker`, `SendPaidMedia`, `SendMediaGroup`, `SendContact`, `SendLocation`, `SendVenue`, `SendPoll`, and `SendDice`
 - [x] `business_connection_id` on current chat action/pin methods: `SendChatAction`, `PinChatMessage`, and `UnpinChatMessage`
 - [x] `business_connection_id` on current edit/stop methods: `EditMessageText`, `EditMessageCaption`, `EditMessageReplyMarkup`, `EditMessageMedia`, `EditMessageLiveLocation`, `StopMessageLiveLocation`, and `StopPoll`
-- [ ] `SendChecklist`, `EditMessageChecklist`, and other business-enabled methods not yet implemented locally
+- [ ] `SendChecklist`, `EditMessageChecklist`, and `SendMessageDraft`
 - [x] `GetBusinessAccountStarBalance`
 - [x] `TransferBusinessAccountStars`
 - [x] `Gift`, `Gifts`, `GiftInfo`, `UniqueGift`, `UniqueGiftInfo`, `OwnedGift`, and `OwnedGifts` types
@@ -341,7 +363,7 @@ Stage 81 implements the Business API foundation. Stage 82 adds business read, ac
 - [x] `TransferGift`
 - [x] `GetMyStarBalance`
 - [x] `EditUserStarSubscription`
-- [ ] business intro/location/hours/account metadata, if present in Bot API 9.6 docs
+- [ ] `ChatFullInfo` business intro/location/hours metadata coverage
 
 ### Games
 
@@ -375,29 +397,27 @@ Notes:
 - [x] `EditMessageMedia`
 - [x] `EditMessageLiveLocation`
 - [x] `StopMessageLiveLocation`
-- [ ] `SendChecklist`, if present in Bot API 9.6 docs
-- [ ] `EditMessageChecklist`, if present in Bot API 9.6 docs
-- [ ] `SendMessageDraft`, if present in Bot API 9.6 docs
-- [ ] any missing methods discovered by a final official-doc audit
+- [ ] `SendChecklist`
+- [ ] `EditMessageChecklist`
+- [ ] `SendMessageDraft`
+- [ ] `logOut` and `close`
+- [ ] `GetUserProfilePhotos`, `GetUserProfileAudios`, and `GetForumTopicIconStickers`
+- [ ] verification/status methods and chat boost/member update methods listed in `docs/BOT_API_9_6_AUDIT.md`
 
 ## Implementation strategy
 
-Recommended local-only stages:
+Recommended local-only stages after the Stage 88 audit:
 
-1. Chat management - implemented locally in Stage 66; manual-only live smoke.
-2. Forum topics - implemented locally in Stage 67; manual-only live smoke.
-3. Reactions - implemented locally in Stage 68; manual-only live smoke.
-4. Inline mode basics
-5. Sticker set management
-6. Payments, stars, and paid media
-7. WebApp and prepared buttons - implemented locally in Stage 80; Mini App live checks manual-only.
-8. Managed Bots 9.6 - implemented locally in Stage 78; token-returning methods manual-only.
-9. Poll 9.6 updates
-10. Business APIs
-11. Games - implemented locally in Stage 86; BotFather/game setup live checks manual-only. Passport implemented locally in Stage 87; sensitive-data live checks manual-only
-12. Batch methods - implemented locally in Stage 69; `DeleteMessages` manual-only live smoke.
-13. Remaining message/edit methods
-14. Final full coverage audit against official Bot API 9.6
+1. Stage 89: lifecycle/profile read APIs (`logOut`, `close`, profile photos/audios, forum topic icon stickers).
+2. Stage 90: verification and user status APIs.
+3. Stage 91: chat boosts, chat-member updates/tags, and sender-chat moderation.
+4. Stage 92: subscription invite links.
+5. Stage 93: checklists, message drafts, and structured poll options.
+6. Stage 94: business/direct-message story completion.
+7. Stage 95: prepared inline messages and reply-markup completion.
+8. Stage 96: message field completeness.
+9. Stage 97: service-message completeness.
+10. Final official-doc audit and release-readiness review after the missing checklist is empty.
 
 Each stage should:
 

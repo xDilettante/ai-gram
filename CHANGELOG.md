@@ -28,6 +28,7 @@
 
 ### Documentation
 
+- Added full Bot API 9.6 coverage audit documentation.
 - Completed inline mode audit against official Bot API 9.6 documentation.
 
 ### Planning

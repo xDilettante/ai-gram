@@ -87,7 +87,7 @@ Milestone outcome:
 
 ## vNext Bot API 9.6 full coverage workstream
 
-Strategic change: the small v0.3 release plan is superseded. The current goal is full Telegram Bot API 9.6 method, type, and update coverage before the next push, tag, or GitHub Release. See [`docs/BOT_API_9_6_COVERAGE_PLAN.md`](BOT_API_9_6_COVERAGE_PLAN.md) for the source-of-truth local plan.
+Strategic change: the small v0.3 release plan is superseded. The current goal remains full Telegram Bot API 9.6 method, type, and update coverage before the next push, tag, or GitHub Release. See [`docs/BOT_API_9_6_COVERAGE_PLAN.md`](BOT_API_9_6_COVERAGE_PLAN.md) for the working plan and [`docs/BOT_API_9_6_AUDIT.md`](BOT_API_9_6_AUDIT.md) for the Stage 88 official-doc audit.
 
 Repository policy for this workstream:
 
@@ -97,26 +97,24 @@ Repository policy for this workstream:
 - Do not create tags or GitHub Releases until full Bot API 9.6 coverage is complete.
 - Do not run `git push` unless the user explicitly asks.
 
-Recommended local-only implementation order:
+Stage 88 outcome: **full coverage is not yet reached**. The largest recent slices are implemented locally through Games and Passport, but the audit found missing official methods and type/field groups.
 
-1. Chat management - implemented locally in Stage 66; manual-only live smoke.
-2. Forum topics - implemented locally in Stage 67; manual-only live smoke.
-3. Reactions - implemented locally in Stage 68; manual-only live smoke.
-4. Inline mode basics
-5. Sticker set management
-6. Payments, Stars, and paid media
-7. WebApp and prepared buttons
-8. Managed Bots 9.6
-9. Poll 9.6 updates
-10. Business APIs
-11. Games - implemented locally in Stage 86; Passport - implemented locally in Stage 87
-12. Batch methods
-13. Remaining message/edit methods
-14. Final full coverage audit against official Bot API 9.6
+Recommended local-only implementation order after Stage 88:
+
+1. Lifecycle/profile read APIs: `logOut`, `close`, profile photos/audios, forum topic icon stickers.
+2. Verification and user status APIs.
+3. Chat boosts, chat-member updates/tags, and sender-chat moderation.
+4. Subscription invite links.
+5. Checklists, message drafts, and structured poll options.
+6. Business/direct-message story completion.
+7. Prepared inline messages and reply-markup completion.
+8. Message field completeness.
+9. Service-message completeness.
+10. Final official-doc audit and release-readiness review only after the missing checklist is empty.
 
 Live smoke policy:
 
-- Safe/read-only flows may be live-smoked.
+- Safe/read-only flows may be live-smoked only when explicitly useful.
 - Admin/state-changing flows require a dedicated test chat and explicit user confirmation.
 - Payments, Passport, Business, Managed Bots, gifts, and Stars flows require explicit confirmation.
 - Destructive/admin flows must not be auto-smoked.

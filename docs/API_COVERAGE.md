@@ -4,6 +4,8 @@ This document maps the current `ai-gram` implementation to Telegram Bot API area
 
 > **Bot API 9.6 target:** The current coverage target is 100% Telegram Bot API 9.6. Track the local-only full coverage workstream in [`docs/BOT_API_9_6_COVERAGE_PLAN.md`](BOT_API_9_6_COVERAGE_PLAN.md). Not all Bot API 9.6 areas are implemented yet. Push, tag, and GitHub Release suggestions are frozen until the full 9.6 plan is complete.
 
+> **Stage 88 audit:** Full coverage is not yet reached. The precise missing-method and missing-type checklist is in [`docs/BOT_API_9_6_AUDIT.md`](BOT_API_9_6_AUDIT.md).
+
 ## Implemented
 
 ### Core
@@ -342,48 +344,33 @@ This document maps the current `ai-gram` implementation to Telegram Bot API area
 
 ## Not implemented yet
 
-### Invite links
+Stage 88 performed a full official-doc comparison against the Telegram Bot API documentation and the April 3, 2026 Bot API 9.6 changelog. Full coverage is **not yet reached**. See [`docs/BOT_API_9_6_AUDIT.md`](BOT_API_9_6_AUDIT.md) for the detailed checklist and recommended order.
 
-- subscription invite link methods
+### Missing methods from the Stage 88 audit
 
-### Join requests
+- Bot lifecycle/profile reads: `logOut`, `close`, `getUserProfilePhotos`, `getUserProfileAudios`, `getForumTopicIconStickers`.
+- Verification/status: `setUserEmojiStatus`, `verifyUser`, `verifyChat`, `removeUserVerification`, `removeChatVerification`.
+- Chat boosts/member updates/moderation: `getUserChatBoosts`, `setChatMemberTag`, `banChatSenderChat`, `unbanChatSenderChat`.
+- Subscription invite links: `createChatSubscriptionInviteLink`, `editChatSubscriptionInviteLink`.
+- Checklists and drafts: `sendChecklist`, `editMessageChecklist`, `sendMessageDraft`.
+- Business/Mini App follow-ups: `repostStory`, `savePreparedInlineMessage`.
 
-- subscription-specific join request flows beyond basic approval/decline
+### Missing type and field groups from the Stage 88 audit
 
-### Payments
+- `ChatFullInfo`, fuller `User`/`Chat` metadata, channel post updates, chat-member updates, and chat boost update types.
+- `ChatMemberUpdated`, concrete `ChatMember*` variants, `ChatBoost*`, `UserChatBoosts`, and related chat boost/member service fields.
+- `Checklist*` and `InputChecklist*` types plus checklist message/service fields.
+- Reply/forward metadata: `MessageOrigin*`, `ExternalReplyInfo`, `TextQuote`, `MaybeInaccessibleMessage`, `InaccessibleMessage`, and the remaining `ReplyParameters` quote/cross-chat/checklist fields.
+- Reply markup completion: `LoginUrl`, `SwitchInlineQueryChosenChat`, `CopyTextButton`, `KeyboardButtonPollType`, request-poll, pay, icon, and style fields.
+- Service-message completeness for giveaways, chat backgrounds, video chats, proximity alerts, auto-delete timer changes, shared users/chats, paid/direct message price changes, and related message fields.
+- `InputPollOption`, `Poll.question_entities`, `VideoQuality`, video cover/start metadata, `PreparedInlineMessage`, and direct-message/suggested-post metadata fields.
 
-- Paid media, Star transaction history, Star payment refunds, gifts, business gifts, Star balance, Premium subscriptions, and Stars subscription editing are implemented. Broader advanced Stars/payment flows remain pending only where not covered by the official Bot API 9.6 gifts/stars slice.
+### Intentional architecture differences to keep documented
 
-### Inline mode
-
-- Stage 75 audited inline mode against official Bot API 9.6 documentation. Incoming inline updates, `AnswerInlineQuery`, `InlineQueryResultsButton`, all current `InputMessageContent` variants, and all 20 current `InlineQueryResult` variants are represented.
-- Payments/invoice basics, paid media, Star transaction history, Star refunds, gifts, business gifts, Star balances/transfers, Premium subscription gifts, and Stars subscription editing are implemented separately.
-
-### WebApp/LoginUrl
-
-- WebApp / Mini App support is implemented for `AnswerWebAppQuery`, `SentWebAppMessage`, `WebAppData`, `WriteAccessAllowed`, and Web App button descriptors.
-- LoginUrl button fields and validation remain pending.
-
-### Business features
-
-- Business API foundation plus account/read/story/suggested post methods are implemented for `BusinessConnection`, business update fields, dispatch helpers, `GetBusinessConnection`, `ReadBusinessMessage`, `DeleteBusinessMessages`, account profile methods, gift settings, stories, and suggested posts.
-- Supported send/edit params now accept optional `business_connection_id` for business messages where the official Bot API exposes the field, including `EditMessageMedia`, `EditMessageLiveLocation`, and `StopMessageLiveLocation`. Business intro/location/hours/account metadata and not-yet-implemented checklist methods remain pending.
-
-### Stars/gifts if applicable
-
-- Star transaction history, refunds, bot/business Star balances, business Star transfer, gifts, business gifts, Premium subscription gifts, and Stars subscription editing are implemented. Any remaining advanced Stars-related methods should be found by a final official-doc audit.
-
-### Poll 9.6 support
-
-- `telegram.Poll.correct_option_ids`, `allows_revoting`, `description`, and `description_entities`.
-- `telegram.PollOption.persistent_id`, `added_by_user`, `added_by_chat`, and `addition_date`.
-- `telegram.PollAnswer` update decoding with `option_persistent_ids` plus effective-user/effective-chat helpers and dispatch routing.
-- Poll option service messages: `PollOptionAdded`, `PollOptionDeleted`, `Message.poll_option_added`, `Message.poll_option_deleted`, and `Message.reply_to_poll_option_id`.
-- `SendPoll` Bot API 9.6 parameters: `correct_option_ids`, `allows_revoting`, `shuffle_options`, `allow_adding_options`, `hide_results_until_closes`, `description`, `description_parse_mode`, and `description_entities`.
-
-### Codegen/openapi tooling if applicable
-
-- No code generation is in use. Full Bot API codegen/openapi tooling is intentionally deferred until the hand-written public API shape stabilizes.
+- Official `InputFile` is represented by the public `FileID`, `FileURL`, and `FileUpload` helpers.
+- Official `MessageId` is represented as idiomatic Go `telegram.MessageID`.
+- Passport decryption helpers remain intentionally out of scope for the typed Bot API wrapper.
+- Live smoke for state-changing, payment/value, Business, Passport, Managed Bot token, admin/destructive, sticker mutation, games, inline, and Mini App flows remains manual-only.
 
 ## Risk classification
 
