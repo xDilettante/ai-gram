@@ -2,6 +2,19 @@
 
 This checklist is for preparing a future `v0.1.0` tag. It does not create the tag or publish a release by itself.
 
+
+## Current pre-v0.1 status
+
+Last verified: 2026-04-30, Stage 30 pre-release verification.
+
+- [x] Static checks passed: `gofmt -w .`, `bash -n scripts/*.sh`, `go test ./...`, `go vet ./...`, `git diff --check`, and clean `git status --short` before live/docs updates.
+- [x] Docs checked: README, API coverage, roadmap, manual testing, deploy testing, live smoke matrix, and this checklist are present and aligned with current scope.
+- [x] Examples compile through `go test ./...` and keep admin-only access control enabled by default.
+- [x] API coverage checked: raw `Bot.Token()` accessor is removed; chat info, chat action/pin, and moderation methods are listed; destructive/admin methods are marked as not auto-smoked.
+- [x] Safe live smoke subset passed: local Bot API smoke, webhook deploy, access panel/status, chat info, edit text/reply markup, generated-document caption edit/delete, delete bot-created message, reply/sendChatAction, and forward/copy.
+- [x] Security/secrets checks passed: no tracked token-like strings found, `.env.local` and `.deploy/generated.env` are ignored, raw token accessor search is clean, and logs/reports used safe excerpts only.
+- [x] Known limitations remain documented; no `v0.1.0` tag or GitHub release has been created.
+
 ## Pre-release checks
 
 - Confirm `docs/API_COVERAGE.md` matches current implemented methods.
