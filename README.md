@@ -590,7 +590,7 @@ Deployment-oriented manual integration checks are described in [`docs/DEPLOY_TES
 
 The integration harness supports role-specific test bot tokens (`MAIN`, `LOCAL`, `WEBHOOK`, `NOTIFY`, and others) while preserving the legacy single-token `AIGRAM_BOT_TOKEN` mode. Set `AIGRAM_BOTAPI_SSH_TARGET` when the local Telegram Bot API server runs on a different SSH host than the webhook example.
 
-Manual smoke scripts can also send actionable Telegram notifications with the target `@username`, `t.me` link, exact commands/buttons, and what Codex will verify in safe logs. See [`docs/DEPLOY_TESTING.md`](docs/DEPLOY_TESTING.md#telegram-notifications-during-smoke-checks).
+Manual smoke scripts can also send Telegram notifications with the target `@username`, `t.me` link, exact commands/buttons, and what Codex will verify in safe logs. Webhook deploy notifications use `AIGRAM_SMOKE_MODE=targeted` by default, so deploys do not ask for a full checklist unless `AIGRAM_SMOKE_MODE=full` is explicitly set. See [`docs/DEPLOY_TESTING.md`](docs/DEPLOY_TESTING.md#telegram-notifications-during-smoke-checks).
 
 ## Development checks
 

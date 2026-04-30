@@ -288,6 +288,7 @@ AIGRAM_BOT_TOKEN_NOTIFY=
 AIGRAM_BOT_TOKEN_MAIN=
 AIGRAM_NOTIFY_ENABLED=1
 AIGRAM_NOTIFY_STRICT=0
+AIGRAM_SMOKE_MODE=targeted
 ```
 
 Token selection order:
@@ -303,13 +304,30 @@ The scripts currently notify about these manual checkpoints:
 - `smoke_longpoll.sh`: sends the selected local bot `@username`, a `https://t.me/<username>` link, asks you to send any message or `/start` within `AIGRAM_SMOKE_WAIT_SECONDS` seconds (default `120`), then sends a completion notification.
 - `smoke_local_api.sh`: reports successful local Bot API smoke.
 - `smoke_media.sh`: sends the selected main bot `@username` and a `https://t.me/<username>` link before asking you to check media delivery/download, or reports that media smoke was skipped until `AIGRAM_MEDIA_PATH` or `AIGRAM_FILE_ID` is set.
-- `deploy_webhook_example.sh`: after successful webhook deploy, sends the webhook bot `@username`, a `https://t.me/<username>?start=smoke` link, and exact button steps for `Edit message`, `Remove keyboard`, `Caption demo`, `Edit caption`, `Delete media message`, and `Delete this message`; it also reports deploy failure.
+- `deploy_webhook_example.sh`: after successful webhook deploy, uses `AIGRAM_SMOKE_MODE` to decide whether to send a full manual checklist, a deploy-done FYI, or no manual-action notification.
+
+`AIGRAM_SMOKE_MODE` controls webhook deploy notifications:
+
+- `targeted` (default): deploy script sends only an FYI: webhook example is deployed and no action is required unless the current Codex stage sends a separate targeted smoke request.
+- `full`: deploy script sends the full manual regression checklist (`/start`, `Edit message`, `Remove keyboard`, `Caption demo`, `Edit caption`, `Delete media message`, `Delete this message`). Use this only when you intentionally want a full manual regression.
+- `none`: deploy script does not send manual-action notifications after successful deploy. The global Codex final report may still be sent separately through `~/.codex/bin/codex-notify`.
+
+For targeted checks, Codex or a script should send a separate targeted notification. Examples:
+
+- Reply smoke: send one ordinary text message to the bot.
+- Edit smoke: `/start` → `Edit message` → `Remove keyboard`.
+- Caption smoke: `/start` → `Caption demo` → `Edit caption` → `Delete media message`.
+- Delete smoke: `/start` → `Delete this message`.
+
+If Codex asks for a targeted action, do only the listed steps, not the full checklist.
 
 Notifications are sent through `examples/notify_user`, which uses the ai-gram `SendMessage` method. Scripts do not print bot tokens or `/bot<TOKEN>/sendMessage` URLs.
 
 ## Actionable Telegram notifications
 
 Manual smoke notifications are intentionally actionable: they include the bot username, a `t.me` link, the command to send, the buttons to press, and what Codex will verify in safe logs. The operator should not need to search for the bot or remember the smoke sequence from this document during a live check.
+
+By default, deploy notifications are not full checklists. `AIGRAM_SMOKE_MODE=targeted` means the deploy script only says that the service was deployed; a separate targeted notification tells you exactly which current-stage action to perform. Set `AIGRAM_SMOKE_MODE=full` only for full manual regression, or `AIGRAM_SMOKE_MODE=none` to suppress deploy manual-action prompts.
 
 If username discovery fails, scripts still send a notification with `username unknown` and continue without exposing the token. In that case, check the selected token role and `GetMe` connectivity.
 

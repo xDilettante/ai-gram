@@ -93,6 +93,22 @@ Checklist:
 - `GetWebhookInfo` shows the expected URL and no recent error.
 - Incoming messages receive replies.
 
+
+## Smoke notification modes
+
+Deploy and smoke scripts support `AIGRAM_SMOKE_MODE`:
+
+- `targeted` is the default. The deploy script only reports that the webhook example was deployed; perform manual actions only when Codex sends a separate targeted notification.
+- `full` sends the full webhook regression checklist after deploy. Use it only when intentionally running a full manual regression.
+- `none` disables deploy manual-action prompts. Final Codex reports may still be sent through the global notification helper.
+
+When Codex asks for a targeted smoke, do only the listed steps, not the full checklist. Common targeted flows:
+
+- Reply smoke: send one ordinary text message.
+- Edit smoke: `/start` → `Edit message` → `Remove keyboard`.
+- Caption smoke: `/start` → `Caption demo` → `Edit caption` → `Delete media message`.
+- Delete smoke: `/start` → `Delete this message`.
+
 ## Inline keyboard callback checklist
 
 ```bash

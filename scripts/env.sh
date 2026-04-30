@@ -536,6 +536,25 @@ notify_manual_action() {
 ${body}"
 }
 
+smoke_mode() {
+  local mode="${AIGRAM_SMOKE_MODE:-targeted}"
+  case "${mode}" in
+    full|targeted|none)
+      printf '%s\n' "${mode}"
+      ;;
+    *)
+      echo "warning: unsupported AIGRAM_SMOKE_MODE=${mode}; using targeted" >&2
+      printf 'targeted\n'
+      ;;
+  esac
+}
+
+notify_targeted_action() {
+  local title="$1"
+  local body="$2"
+  notify_manual_action "${title}" "${body}"
+}
+
 notify_longpoll_smoke_ready() {
   local username="$1"
   local wait_seconds="${2:-120}"
@@ -556,7 +575,7 @@ ${open_line}
 Codex проверит, что update пришёл и бот ответил."
 }
 
-notify_webhook_smoke_ready() {
+webhook_bot_lines() {
   local username="$1"
   local bot_line="Бот: username unknown"
   local open_line="Открой webhook bot вручную."
@@ -564,21 +583,112 @@ notify_webhook_smoke_ready() {
     bot_line="Бот: @${username}"
     open_line="Открой: https://t.me/${username}?start=smoke"
   fi
+  printf '%s\n%s\n' "${bot_line}" "${open_line}"
+}
 
-  notify_manual_action "Webhook smoke готов." "${bot_line}
-${open_line}
+notify_full_webhook_smoke() {
+  local username="$1"
+  local lines
+  lines="$(webhook_bot_lines "${username}")"
 
-Сделай:
+  notify_manual_action "Webhook full smoke готов." "${lines}
+
+Сделай полный regression checklist:
 1. Нажми Start или отправь /start
-2. Нажми \"Edit message\"
-3. Нажми \"Remove keyboard\"
-4. Нажми \"Caption demo\"
-5. Нажми \"Edit caption\"
-6. Нажми \"Delete media message\"
+2. Нажми "Edit message"
+3. Нажми "Remove keyboard"
+4. Нажми "Caption demo"
+5. Нажми "Edit caption"
+6. Нажми "Delete media message"
 7. Отправь /start снова
-8. Нажми \"Delete this message\"
+8. Нажми "Delete this message"
 
 Codex проверит safe action logs сам."
+}
+
+notify_webhook_deploy_done() {
+  local username="$1"
+  local lines
+  lines="$(webhook_bot_lines "${username}")"
+
+  notify_manual_action "Webhook example задеплоен." "${lines}
+
+Действий от пользователя не требуется, если текущий этап отдельно не запросил targeted smoke.
+
+Если Codex прислал targeted notification, выполняй только указанные там шаги, не полный checklist."
+}
+
+notify_webhook_smoke_ready() {
+  local username="$1"
+  case "$(smoke_mode)" in
+    full)
+      notify_full_webhook_smoke "${username}"
+      ;;
+    targeted)
+      notify_webhook_deploy_done "${username}"
+      ;;
+    none)
+      return 0
+      ;;
+  esac
+}
+
+notify_reply_smoke_ready() {
+  local username="$1"
+  local lines
+  lines="$(webhook_bot_lines "${username}")"
+
+  notify_targeted_action "Reply smoke готов." "${lines}
+
+Сделай только targeted action:
+1. Отправь обычное текстовое сообщение (не команду)
+
+Codex проверит safe logs: matched=message и action=send_message с reply_to_message_id."
+}
+
+notify_edit_smoke_ready() {
+  local username="$1"
+  local lines
+  lines="$(webhook_bot_lines "${username}")"
+
+  notify_targeted_action "Edit smoke готов." "${lines}
+
+Сделай только targeted actions:
+1. Нажми Start или отправь /start
+2. Нажми "Edit message"
+3. Нажми "Remove keyboard"
+
+Codex проверит action=edit_message_text и action=edit_message_reply_markup."
+}
+
+notify_caption_smoke_ready() {
+  local username="$1"
+  local lines
+  lines="$(webhook_bot_lines "${username}")"
+
+  notify_targeted_action "Caption smoke готов." "${lines}
+
+Сделай только targeted actions:
+1. Нажми Start или отправь /start
+2. Нажми "Caption demo"
+3. Нажми "Edit caption"
+4. Нажми "Delete media message"
+
+Codex проверит action=send_media_caption_demo, action=edit_message_caption и action=delete_message."
+}
+
+notify_delete_smoke_ready() {
+  local username="$1"
+  local lines
+  lines="$(webhook_bot_lines "${username}")"
+
+  notify_targeted_action "Delete smoke готов." "${lines}
+
+Сделай только targeted actions:
+1. Нажми Start или отправь /start
+2. Нажми "Delete this message"
+
+Codex проверит action=delete_message."
 }
 
 notify_media_smoke_ready() {
