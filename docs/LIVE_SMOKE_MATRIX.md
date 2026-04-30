@@ -1,0 +1,35 @@
+# Live Smoke Matrix
+
+This matrix defines which live checks are safe to run during v0.1 stabilization and which checks require explicit human confirmation. Unit tests and `httptest` coverage remain the default verification path; live smoke is only for integration confidence with real Telegram or a local Telegram Bot API server.
+
+## Safe flows
+
+| Flow | Command/script | Required env | User action | Expected safe logs | Auto/manual | Risk |
+| --- | --- | --- | --- | --- | --- | --- |
+| Local Bot API smoke | `./scripts/discover_env.sh` then `./scripts/smoke_local_api.sh` | `AIGRAM_CHAT_ID`, local-role token, deploy/botapi SSH target when using remote local Bot API | none | `GetMe`/`GetWebhookInfo` script output without token-bearing URLs | manual script, safe to run when env is configured | Low: read-only API checks. |
+| Long polling smoke | `./scripts/smoke_longpoll.sh` | local-role token, `AIGRAM_CHAT_ID`; optional discovered `AIGRAM_BASE_URL` | Open the notified `t.me` link and send any text or `/start` within the wait window | local process output showing update handling; no full private text required | manual script plus user action | Low/medium: sends a reply and may call `DeleteWebhook` as documented for long polling mode. |
+| Webhook `/start` | `AIGRAM_TARGETED_SMOKE=access ./scripts/deploy_webhook_example.sh` or targeted deploy | webhook-role token, `AIGRAM_WEBHOOK_URL`, deploy env | Open the notified bot deep link and press Start/send `/start` | `action=start_payload`, `action=smoke_keyboard_shown`, `action=send_message` | manual deploy plus user action | Low: sends test messages only. |
+| Access panel | `AIGRAM_TARGETED_SMOKE=access ./scripts/deploy_webhook_example.sh`, then `./scripts/remote_logs.sh` | webhook deploy env, admin IDs/chat ID | Open `?start=access_panel`; press `Access status`, optionally `Open access` then `Close access` | `action=access_panel_shown`, `action=access_status`, `action=access_mode_changed mode=public/admin` | manual targeted | Low/medium: `Open access` temporarily allows public access; close it after the check. |
+| Edit flow | deploy webhook example, then `./scripts/remote_logs.sh` | webhook deploy env | `/start` or `?start=smoke`; press `Edit message`, then `Remove keyboard` | `action=answer_callback_query`, `action=edit_message_text`, `action=edit_message_reply_markup` | manual targeted | Low: edits test message created by the bot. |
+| Caption flow generated document | deploy webhook example, then `./scripts/remote_logs.sh` | webhook deploy env; media env optional | `/start`; press `Caption demo`, `Edit caption`, `Delete media message` | `action=send_media_caption_demo source=generated_document` or `file_id`/`media_path`, `action=edit_message_caption`, `action=delete_message` | manual targeted | Low/medium: uploads a small generated document or configured test media and deletes that test message. |
+| Delete flow | deploy webhook example, then `./scripts/remote_logs.sh` | webhook deploy env | `/start`; press `Delete this message` | `action=delete_message ok=true update_id=... chat_id=... message_id=...` | manual targeted | Medium: deletes only the bot-created smoke message. |
+| Reply flow | deploy webhook example, then `./scripts/remote_logs.sh` | webhook deploy env | Send a regular text message to the webhook bot | `action=send_chat_action`, `action=send_message reply_to_message_id=...` | manual targeted | Low: replies to the user's test message without logging full text. |
+| Forward/copy flow | deploy webhook example, then `./scripts/remote_logs.sh` | webhook deploy env | `/start`; press `Copy this message`, then `Forward this message` | `action=copy_message copied_message_id=...`, `action=forward_message forwarded_message_id=...` | manual targeted | Low/medium: duplicates bot-created smoke messages in the same chat. |
+| SendChatAction flow | deploy webhook example, then `./scripts/remote_logs.sh` | webhook deploy env | Send a regular text message | `action=send_chat_action ok=true chat_action=typing`, followed by `action=send_message` | manual targeted | Low. |
+
+## Dangerous/admin flows
+
+| Flow | Command/script | Required env | User action | Expected safe logs | Auto/manual | Risk |
+| --- | --- | --- | --- | --- | --- | --- |
+| Pin/unpin | no default script | Dedicated group/channel, bot admin rights | Run a dedicated probe only after explicit approval | Bot API result logs without private text | manual only | Admin/noisy; may alter chat pinned messages. |
+| Moderation ban/restrict | no default script | Dedicated test group, bot admin rights, test target user, explicit confirmation | Run a dedicated probe; restore target with `UnbanChatMember` when needed | Method/result logs without admin list or private content | manual only | Destructive: can remove or restrict a user. Never auto-smoke. |
+| Future invite links | not implemented | Dedicated test chat and explicit confirmation | Create/edit/revoke only in test chat | Redacted link metadata only | manual only | Sensitive links; can grant access. |
+| Destructive methods | method-specific | Explicit confirmation and isolated test data | Depends on method | Safe action/result logs only | manual only | Includes `DeleteWebhook` with dropped pending updates, mass unpin, future migration methods, payments/refunds, and admin changes. |
+
+## Safety rules
+
+- Do not print bot tokens, webhook secrets, token-bearing URLs, private keys, `.env.local`, or full private message text.
+- Prefer role-specific test bot tokens so long polling, webhook, local Bot API, destructive, and notify flows do not interfere.
+- Keep `AIGRAM_SMOKE_MODE=targeted` by default; use `full` only for deliberate full regression.
+- Use deep-link notifications for manual user actions, and verify with safe logs.
+- If a network/live check fails, diagnose local TUN/Xray, SSH target, tunnel, local Bot API server, webhook reachability, firewall/listeners, systemd logs, and `GetWebhookInfo` before changing library code.

@@ -6,6 +6,8 @@ This document describes a manual integration harness for ai-gram examples. It is
 
 The harness does not contain real tokens, IP addresses, domains, or secrets. Runtime configuration is read from `.env.local` and generated values are stored in `.deploy/generated.env`. Both files must stay uncommitted.
 
+Use [`LIVE_SMOKE_MATRIX.md`](LIVE_SMOKE_MATRIX.md) for the current safe/dangerous smoke classification and [`RELEASE_CHECKLIST.md`](RELEASE_CHECKLIST.md) before tagging a v0.1 release.
+
 ## Minimal `.env.local`
 
 Copy the template and fill the minimal values:

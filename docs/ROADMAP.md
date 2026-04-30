@@ -11,7 +11,7 @@ This roadmap is intentionally pragmatic: keep `ai-gram` useful and stable as a G
   - Preserve compatibility of `ChatID`, `FileRef`, reply markup, reply parameters, and edit targets.
 - Docs polish
   - Keep README concise and accurate.
-  - Maintain `docs/API_COVERAGE.md`, `docs/MANUAL_TESTING.md`, and `docs/DEPLOY_TESTING.md`.
+  - Maintain `docs/API_COVERAGE.md`, `docs/MANUAL_TESTING.md`, `docs/DEPLOY_TESTING.md`, `docs/LIVE_SMOKE_MATRIX.md`, and `docs/RELEASE_CHECKLIST.md`.
   - Add a release checklist covering tests, vet, examples compilation, safe logs, and secret hygiene.
 - Examples cleanup
   - Keep examples short and runnable.

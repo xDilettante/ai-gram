@@ -305,8 +305,8 @@ Unit and httptest suites do not require tokens.
 - Forward/copy and basic chat action/chat info support.
 - Examples for long polling, inline callbacks, webhook, local Bot API, media, deploy harness.
 - Admin-only examples and safe logs for live smoke.
-- Documentation: README, manual testing, deploy testing, API coverage, roadmap, security notes.
-- Release checklist with no-token/no-secret verification.
+- Documentation: README, manual testing, deploy testing, API coverage, roadmap, live smoke matrix, release checklist, security notes.
+- Release checklist with no-token/no-secret verification and explicit no-auto-smoke rules for destructive/admin methods.
 
 ### Nice-to-have before v0.1
 

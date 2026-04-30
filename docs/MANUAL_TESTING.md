@@ -10,6 +10,8 @@ The deploy/smoke scripts can send actionable Telegram notifications with the sel
 
 Smoke notifications prefer Telegram deep links such as `https://t.me/<bot>?start=access_panel` or `?start=smoke`. Telegram deep links can only pass a `/start` payload, so the target bot opens a control panel or smoke keyboard instead of receiving arbitrary commands from the notification bot.
 
+Use [`LIVE_SMOKE_MATRIX.md`](LIVE_SMOKE_MATRIX.md) to decide which flows are safe to run automatically or manually, and which destructive/admin flows require an explicit isolated test setup.
+
 ## Environment variables
 
 | Variable | Purpose |

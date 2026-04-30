@@ -2,14 +2,14 @@
 
 `ai-gram` is a Go library project for working with the Telegram Bot API.
 
-The project is in an early architecture stage. It provides a minimal package skeleton, practical incoming update types, a foundational HTTP core, the first public Bot API methods, media sending by file_id, URL, or multipart upload, minimal file download support, webhook management methods, a managed long polling runner, an inbound webhook HTTP handler, a small update dispatcher/router, and helper middleware. It does not yet implement FSM, scenes, storage, media groups, thumbnails, sendAnimation/sendVideoNote, or full Bot API coverage.
+The project is in an early architecture stage. It provides practical incoming update types, a typed HTTP Bot API core, selected public Bot API methods, media sending by file_id, URL, or multipart upload, file download support, webhook management methods, a managed long polling runner, an inbound webhook HTTP handler, a small update dispatcher/router, helper middleware, examples, and manual smoke tooling. It does not yet implement FSM, scenes, storage, media groups, thumbnails, sendAnimation/sendVideoNote, or full Bot API coverage.
 
 ## Статус
 
 - Minimal Go module: present.
 - Root facade package `aigram`: present.
 - Base Telegram data types: include practical incoming message fields for text entities, captions, media, contacts, locations, venues, and callback queries.
-- Bot client package: scaffolded with token validation, private token storage, and an internal HTTP call core.
+- Bot client package: present with token validation, private token storage, an internal HTTP call core, JSON/multipart calls, and typed method wrappers.
 - Typed Telegram API errors: scaffolded.
 - Dispatcher/router: supports predicates, message/command/callback routes, middleware, fallback, and error handling.
 - Middleware helpers: recover, timeout, hook-based observability, and reusable access control are available.
@@ -724,6 +724,8 @@ Coverage and planning documents:
 - [`docs/ROADMAP.md`](docs/ROADMAP.md) — stabilization and expansion roadmap.
 - [`docs/MANUAL_TESTING.md`](docs/MANUAL_TESTING.md) — local/manual smoke checklist.
 - [`docs/DEPLOY_TESTING.md`](docs/DEPLOY_TESTING.md) — deploy/manual integration harness.
+- [`docs/LIVE_SMOKE_MATRIX.md`](docs/LIVE_SMOKE_MATRIX.md) — safe and dangerous live smoke flows.
+- [`docs/RELEASE_CHECKLIST.md`](docs/RELEASE_CHECKLIST.md) — pre-tag v0.1 release checklist.
 
 Deployment-oriented manual integration checks are described in [`docs/DEPLOY_TESTING.md`](docs/DEPLOY_TESTING.md). The deploy harness can start from a minimal `.env.local` with bot token, chat ID, and SSH alias, then write discovered values to ignored `.deploy/generated.env`. Smoke scripts can open a temporary SSH tunnel when a discovered local Bot API server listens only on a remote loopback; the Bot API server may live on a separate SSH target from the webhook deploy target. Remote logs are redacted before printing.
 
