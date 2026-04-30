@@ -186,6 +186,16 @@ func (d *Dispatcher) OnCallbackDataFunc(data string, handler HandlerFunc) error 
 	return d.OnCallbackData(data, handler)
 }
 
+// OnChatJoinRequest registers a handler for chat join request updates.
+func (d *Dispatcher) OnChatJoinRequest(handler Handler) error {
+	return d.Handle(ChatJoinRequest(), handler)
+}
+
+// OnChatJoinRequestFunc registers a function handler for chat join request updates.
+func (d *Dispatcher) OnChatJoinRequestFunc(handler HandlerFunc) error {
+	return d.OnChatJoinRequest(handler)
+}
+
 // Any matches every update.
 func Any() Predicate {
 	return func(telegram.Update) bool { return true }
@@ -213,6 +223,11 @@ func CallbackData(data string) Predicate {
 	return func(update telegram.Update) bool {
 		return data != "" && update.CallbackQuery != nil && update.CallbackQuery.Data == data
 	}
+}
+
+// ChatJoinRequest matches updates with a chat join request.
+func ChatJoinRequest() Predicate {
+	return func(update telegram.Update) bool { return update.ChatJoinRequest != nil }
 }
 
 // Chain wraps handler with middleware in the order it is provided.

@@ -88,6 +88,42 @@ func TestUpdateDecodesPracticalMessagePayloads(t *testing.T) {
 	}
 }
 
+func TestUpdateDecodesChatJoinRequest(t *testing.T) {
+	payload := []byte(`{
+		"update_id": 101,
+		"chat_join_request": {
+			"chat": {"id": -100123, "type": "supergroup", "title": "Test group"},
+			"from": {"id": 777, "is_bot": false, "first_name": "Joiner", "username": "joiner"},
+			"user_chat_id": 888,
+			"date": 1234567890,
+			"bio": "hello",
+			"invite_link": {
+				"invite_link": "https://t.me/+redacted",
+				"creator": {"id": 1, "is_bot": true, "first_name": "Bot"},
+				"creates_join_request": true,
+				"is_primary": false,
+				"is_revoked": false,
+				"name": "join requests"
+			}
+		}
+	}`)
+
+	var update Update
+	if err := json.Unmarshal(payload, &update); err != nil {
+		t.Fatalf("decode update: %v", err)
+	}
+	request := update.ChatJoinRequest
+	if update.UpdateID != 101 || request == nil {
+		t.Fatalf("unexpected update: %+v", update)
+	}
+	if request.Chat.ID != -100123 || request.Chat.Type != "supergroup" || request.From.ID != 777 || request.UserChatID != 888 || request.Date != 1234567890 || request.Bio != "hello" {
+		t.Fatalf("unexpected join request: %+v", request)
+	}
+	if request.InviteLink == nil || request.InviteLink.Creator.ID != 1 || !request.InviteLink.CreatesJoinRequest || request.InviteLink.Name != "join requests" {
+		t.Fatalf("unexpected invite link: %+v", request.InviteLink)
+	}
+}
+
 func TestMessageHelpers(t *testing.T) {
 	var nilMessage *Message
 	if nilMessage.IsText() || nilMessage.IsCommand("start") || nilMessage.Command() != "" || nilMessage.CommandArguments() != "" || nilMessage.HasPhoto() || nilMessage.HasDocument() || nilMessage.HasMedia() {
@@ -206,5 +242,16 @@ func TestUpdateHelpers(t *testing.T) {
 	}
 	if user := update.EffectiveUser(); user == nil || user.ID != 3 {
 		t.Fatalf("unexpected callback effective user: %+v", user)
+	}
+
+	update = &Update{ChatJoinRequest: &ChatJoinRequest{Chat: Chat{ID: 23, Type: "supergroup"}, From: User{ID: 4, FirstName: "Dave"}}}
+	if update.EffectiveMessage() != nil {
+		t.Fatal("chat join request should not have an effective message")
+	}
+	if chat := update.EffectiveChat(); chat == nil || chat.ID != 23 {
+		t.Fatalf("unexpected join request effective chat: %+v", chat)
+	}
+	if user := update.EffectiveUser(); user == nil || user.ID != 4 {
+		t.Fatalf("unexpected join request effective user: %+v", user)
 	}
 }

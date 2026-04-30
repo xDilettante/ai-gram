@@ -333,6 +333,20 @@ Manual checklist for a dedicated test environment only:
 - Treat Telegram permission errors in non-admin chats as expected Bot API behavior, not as a library bug.
 - Do not paste bot tokens, token-bearing URLs, full invite links, or private group content into logs or reports.
 
+## Chat join request methods checklist
+
+`ApproveChatJoinRequest` and `DeclineChatJoinRequest` require bot admin rights with invite-user permission and change real pending join request state. They are intentionally not part of automatic live smoke.
+
+Manual checklist for a dedicated test environment only:
+
+- Create a dedicated test group or channel.
+- Add the bot as an admin with invite-user rights.
+- Create an invite link with `CreatesJoinRequest: true`.
+- Use a dedicated test account to request to join through that link.
+- Approve or decline only that test account's join request.
+- Do not run this checklist on production groups/channels.
+- Do not paste bot tokens, token-bearing URLs, full invite links, user private content, or production group details into logs or reports.
+
 ## Media upload/download checklist
 
 Upload a local file as a document:

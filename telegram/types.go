@@ -3,10 +3,11 @@ package telegram
 
 // Update represents an incoming Telegram update.
 type Update struct {
-	UpdateID      int64          `json:"update_id"`
-	Message       *Message       `json:"message,omitempty"`
-	EditedMessage *Message       `json:"edited_message,omitempty"`
-	CallbackQuery *CallbackQuery `json:"callback_query,omitempty"`
+	UpdateID        int64            `json:"update_id"`
+	Message         *Message         `json:"message,omitempty"`
+	EditedMessage   *Message         `json:"edited_message,omitempty"`
+	CallbackQuery   *CallbackQuery   `json:"callback_query,omitempty"`
+	ChatJoinRequest *ChatJoinRequest `json:"chat_join_request,omitempty"`
 }
 
 // Message represents a Telegram message with the minimal fields needed by update handlers.
@@ -77,6 +78,16 @@ type ChatInviteLink struct {
 	ExpireDate              int64  `json:"expire_date,omitempty"`
 	MemberLimit             int    `json:"member_limit,omitempty"`
 	PendingJoinRequestCount int    `json:"pending_join_request_count,omitempty"`
+}
+
+// ChatJoinRequest describes a request to join a chat.
+type ChatJoinRequest struct {
+	Chat       Chat            `json:"chat"`
+	From       User            `json:"from"`
+	UserChatID int64           `json:"user_chat_id"`
+	Date       int64           `json:"date"`
+	Bio        string          `json:"bio,omitempty"`
+	InviteLink *ChatInviteLink `json:"invite_link,omitempty"`
 }
 
 // ChatMemberStatus identifies a user's membership state in a chat.

@@ -80,14 +80,17 @@ func (u *Update) EffectiveMessage() *Message {
 	return nil
 }
 
-// EffectiveChat returns the chat from the effective message contained in u.
+// EffectiveChat returns the chat most directly associated with u.
 func (u *Update) EffectiveChat() *Chat {
 	message := u.EffectiveMessage()
-	if message == nil {
-		return nil
+	if message != nil {
+		return &message.Chat
+	}
+	if u != nil && u.ChatJoinRequest != nil {
+		return &u.ChatJoinRequest.Chat
 	}
 
-	return &message.Chat
+	return nil
 }
 
 // EffectiveUser returns the user most directly associated with u.
@@ -103,6 +106,9 @@ func (u *Update) EffectiveUser() *User {
 	}
 	if u.CallbackQuery != nil {
 		return &u.CallbackQuery.From
+	}
+	if u.ChatJoinRequest != nil {
+		return &u.ChatJoinRequest.From
 	}
 
 	return nil

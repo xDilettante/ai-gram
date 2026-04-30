@@ -147,6 +147,12 @@ type EditChatInviteLinkParams = bot.EditChatInviteLinkParams
 // RevokeChatInviteLinkParams contains supported parameters for revokeChatInviteLink.
 type RevokeChatInviteLinkParams = bot.RevokeChatInviteLinkParams
 
+// ApproveChatJoinRequestParams contains supported parameters for approveChatJoinRequest.
+type ApproveChatJoinRequestParams = bot.ApproveChatJoinRequestParams
+
+// DeclineChatJoinRequestParams contains supported parameters for declineChatJoinRequest.
+type DeclineChatJoinRequestParams = bot.DeclineChatJoinRequestParams
+
 // EditMessageResult contains the result returned by edit message methods.
 type EditMessageResult = bot.EditMessageResult
 

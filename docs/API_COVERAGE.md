@@ -130,6 +130,15 @@ This document maps the current `ai-gram` implementation to Telegram Bot API area
 | `(*bot.Bot).RevokeChatInviteLink` | `revokeChatInviteLink` | unit/httptest | Revokes a real invite link created by the bot. Not auto-smoked. |
 | `telegram.ChatInviteLink` | invite link object | unit through method result tests | Minimal invite link metadata with creator, primary/revoked flags, limits, expiry, and pending join request count. |
 
+### Chat join requests
+
+| Public Go API | Telegram Bot API method | Tests | Notes |
+| --- | --- | --- | --- |
+| `(*bot.Bot).ApproveChatJoinRequest` | `approveChatJoinRequest` | unit/httptest | Admin-required method that approves a real pending join request. Not auto-smoked. |
+| `(*bot.Bot).DeclineChatJoinRequest` | `declineChatJoinRequest` | unit/httptest | Admin-required method that declines a real pending join request. Not auto-smoked. |
+| `telegram.ChatJoinRequest`, `telegram.Update.ChatJoinRequest` | `chat_join_request` update | unit | Decodes join request updates and supports `EffectiveChat`/`EffectiveUser`. |
+| `dispatch.ChatJoinRequest`, `(*dispatch.Dispatcher).OnChatJoinRequest` | n/a | unit | Predicate and route helper for join request updates. |
+
 ### Access/example infrastructure
 
 | Public Go API / artifact | Tests | Notes |
@@ -169,9 +178,7 @@ This document maps the current `ai-gram` implementation to Telegram Bot API area
 
 ### Join requests
 
-- `approveChatJoinRequest`
-- `declineChatJoinRequest`
-- join request update-specific helpers
+- subscription-specific join request flows beyond basic approval/decline
 
 ### Admin/promote methods
 
@@ -270,6 +277,7 @@ These still require real credentials and may notify users, but they are not dest
 - `RestrictChatMember`
 - some chat/member info methods depending on chat type and bot permissions
 - chat invite link methods (`ExportChatInviteLink`, `CreateChatInviteLink`, `EditChatInviteLink`, `RevokeChatInviteLink`)
+- chat join request methods (`ApproveChatJoinRequest`, `DeclineChatJoinRequest`)
 
 ### Destructive
 
@@ -280,6 +288,7 @@ These still require real credentials and may notify users, but they are not dest
 - `UnbanChatMember`
 - `RestrictChatMember`
 - invite link methods when used outside isolated test chats, because they create or revoke real access links
+- chat join request methods, because they approve or decline real users waiting to join
 - future moderation/admin methods
 
 ### Requires upload/multipart

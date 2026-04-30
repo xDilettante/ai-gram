@@ -190,6 +190,34 @@ func TestCallbackRoutes(t *testing.T) {
 	}
 }
 
+func TestChatJoinRequestRoute(t *testing.T) {
+	dispatcher := New()
+	var calls int
+	must(t, dispatcher.OnChatJoinRequestFunc(func(ctx context.Context, update telegram.Update) error {
+		calls++
+		if update.ChatJoinRequest == nil || update.ChatJoinRequest.From.ID != 777 {
+			t.Fatalf("unexpected join request update: %+v", update)
+		}
+		return nil
+	}))
+
+	if err := dispatcher.HandleUpdate(context.Background(), joinRequestUpdate()); err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if err := dispatcher.HandleUpdate(context.Background(), messageUpdate("hello")); err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if calls != 1 {
+		t.Fatalf("unexpected calls: %d", calls)
+	}
+	if !ChatJoinRequest()(joinRequestUpdate()) {
+		t.Fatal("chat join request predicate should match")
+	}
+	if ChatJoinRequest()(messageUpdate("hello")) {
+		t.Fatal("chat join request predicate should not match message updates")
+	}
+}
+
 func TestMiddlewareAppliesToRouteInOrder(t *testing.T) {
 	dispatcher := New()
 	var calls []string
@@ -421,4 +449,16 @@ func messageUpdate(text string) telegram.Update {
 
 func callbackUpdate(data string) telegram.Update {
 	return telegram.Update{UpdateID: 2, CallbackQuery: &telegram.CallbackQuery{ID: "cb", Data: data}}
+}
+
+func joinRequestUpdate() telegram.Update {
+	return telegram.Update{
+		UpdateID: 3,
+		ChatJoinRequest: &telegram.ChatJoinRequest{
+			Chat:       telegram.Chat{ID: -100123, Type: "supergroup"},
+			From:       telegram.User{ID: 777, FirstName: "Joiner"},
+			UserChatID: 888,
+			Date:       1234567890,
+		},
+	}
 }

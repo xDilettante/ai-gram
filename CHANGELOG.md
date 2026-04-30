@@ -16,6 +16,7 @@
 - `SendMediaGroup`.
 - Bot commands and menu methods: `SetMyCommands`, `DeleteMyCommands`, `GetMyCommands`, `SetChatMenuButton`, `GetChatMenuButton`, and `SetMyDefaultAdministratorRights`.
 - Chat invite link methods: `ExportChatInviteLink`, `CreateChatInviteLink`, `EditChatInviteLink`, and `RevokeChatInviteLink`.
+- Chat join request methods: `ApproveChatJoinRequest`, `DeclineChatJoinRequest`, plus `telegram.ChatJoinRequest` update decoding and dispatch predicates.
 - Targeted `SendMediaGroup` live smoke script with generated upload fallback.
 
 ## v0.1.1 - 2026-04-30
