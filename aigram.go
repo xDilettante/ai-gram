@@ -129,11 +129,35 @@ type InputMessageContent = bot.InputMessageContent
 // InputTextMessageContent describes text content for an inline query result.
 type InputTextMessageContent = bot.InputTextMessageContent
 
+// InputLocationMessageContent describes location content for an inline query result.
+type InputLocationMessageContent = bot.InputLocationMessageContent
+
+// InputVenueMessageContent describes venue content for an inline query result.
+type InputVenueMessageContent = bot.InputVenueMessageContent
+
+// InputContactMessageContent describes contact content for an inline query result.
+type InputContactMessageContent = bot.InputContactMessageContent
+
+// InputInvoiceMessageContent describes invoice content for an inline query result.
+type InputInvoiceMessageContent = bot.InputInvoiceMessageContent
+
 // InlineQueryResult marks Telegram inline query result objects.
 type InlineQueryResult = bot.InlineQueryResult
 
 // InlineQueryResultArticle represents an article inline query result.
 type InlineQueryResultArticle = bot.InlineQueryResultArticle
+
+// InlineQueryResultLocation represents a location inline query result.
+type InlineQueryResultLocation = bot.InlineQueryResultLocation
+
+// InlineQueryResultVenue represents a venue inline query result.
+type InlineQueryResultVenue = bot.InlineQueryResultVenue
+
+// InlineQueryResultContact represents a contact inline query result.
+type InlineQueryResultContact = bot.InlineQueryResultContact
+
+// InlineQueryResultGame represents a game inline query result.
+type InlineQueryResultGame = bot.InlineQueryResultGame
 
 // AnswerCallbackQueryParams contains supported parameters for answerCallbackQuery.
 type AnswerCallbackQueryParams = bot.AnswerCallbackQueryParams
@@ -441,6 +465,9 @@ type BotDescription = telegram.BotDescription
 // BotShortDescription describes a localized bot short description.
 type BotShortDescription = telegram.BotShortDescription
 
+// LabeledPrice represents a price component in the smallest units of a currency.
+type LabeledPrice = telegram.LabeledPrice
+
 // InlineKeyboardMarkup represents an inline keyboard attached to a message.
 type InlineKeyboardMarkup = telegram.InlineKeyboardMarkup
 
@@ -582,9 +609,44 @@ func InputText(message string) InputTextMessageContent {
 	return bot.InputText(message)
 }
 
+// InputLocation creates location content for an inline query result.
+func InputLocation(latitude float64, longitude float64) InputLocationMessageContent {
+	return bot.InputLocation(latitude, longitude)
+}
+
+// InputVenue creates venue content for an inline query result.
+func InputVenue(latitude float64, longitude float64, title string, address string) InputVenueMessageContent {
+	return bot.InputVenue(latitude, longitude, title, address)
+}
+
+// InputContact creates contact content for an inline query result.
+func InputContact(phoneNumber string, firstName string) InputContactMessageContent {
+	return bot.InputContact(phoneNumber, firstName)
+}
+
 // InlineArticle creates an article inline query result.
 func InlineArticle(id string, title string, content InputMessageContent) InlineQueryResultArticle {
 	return bot.InlineArticle(id, title, content)
+}
+
+// InlineLocation creates a location inline query result.
+func InlineLocation(id string, latitude float64, longitude float64, title string) InlineQueryResultLocation {
+	return bot.InlineLocation(id, latitude, longitude, title)
+}
+
+// InlineVenue creates a venue inline query result.
+func InlineVenue(id string, latitude float64, longitude float64, title string, address string) InlineQueryResultVenue {
+	return bot.InlineVenue(id, latitude, longitude, title, address)
+}
+
+// InlineContact creates a contact inline query result.
+func InlineContact(id string, phoneNumber string, firstName string) InlineQueryResultContact {
+	return bot.InlineContact(id, phoneNumber, firstName)
+}
+
+// InlineGame creates a game inline query result.
+func InlineGame(id string, gameShortName string) InlineQueryResultGame {
+	return bot.InlineGame(id, gameShortName)
 }
 
 // NewInlineKeyboard creates an InlineKeyboardMarkup from rows of buttons.

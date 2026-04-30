@@ -160,7 +160,7 @@ This plan is a working checklist derived from the official documentation and cha
 
 ### Inline mode
 
-Stage 72 implements the first inline foundation: incoming inline query updates, chosen inline result updates, `AnswerInlineQuery`, article results, text input content, and dispatch helpers. Remaining result/content variants stay pending.
+Stage 72 implements the first inline foundation: incoming inline query updates, chosen inline result updates, `AnswerInlineQuery`, article results, text input content, and dispatch helpers. Stage 73 adds non-media inline results and the remaining input message content variants, including inline invoice content. Media and cached result variants stay pending.
 
 - [x] `InlineQuery` update
 - [x] `ChosenInlineResult` update
@@ -173,16 +173,16 @@ Stage 72 implements the first inline foundation: incoming inline query updates, 
 - [ ] `InlineQueryResultAudio`
 - [ ] `InlineQueryResultVoice`
 - [ ] `InlineQueryResultDocument`
-- [ ] `InlineQueryResultLocation`
-- [ ] `InlineQueryResultVenue`
-- [ ] `InlineQueryResultContact`
-- [ ] `InlineQueryResultGame`
+- [x] `InlineQueryResultLocation`
+- [x] `InlineQueryResultVenue`
+- [x] `InlineQueryResultContact`
+- [x] `InlineQueryResultGame`
 - [ ] cached inline result variants
 - [x] `InputTextMessageContent`
-- [ ] `InputLocationMessageContent`
-- [ ] `InputVenueMessageContent`
-- [ ] `InputContactMessageContent`
-- [ ] `InputInvoiceMessageContent`
+- [x] `InputLocationMessageContent`
+- [x] `InputVenueMessageContent`
+- [x] `InputContactMessageContent`
+- [x] `InputInvoiceMessageContent`
 - [x] inline mode dispatcher predicates/helpers
 
 ### Payments, invoices, stars, and paid media
@@ -200,7 +200,7 @@ Stage 72 implements the first inline foundation: incoming inline query updates, 
 - [ ] `SuccessfulPayment`
 - [ ] `ShippingQuery`
 - [ ] `PreCheckoutQuery`
-- [ ] `LabeledPrice`
+- [x] `LabeledPrice` (minimal inline invoice support)
 - [ ] `ShippingOption`
 - [ ] `PaidMediaInfo`
 - [ ] paid media input/result types

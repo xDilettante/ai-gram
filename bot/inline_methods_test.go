@@ -62,6 +62,184 @@ func TestInputTextMessageContentMarshalAndValidation(t *testing.T) {
 	}
 }
 
+func TestInputLocationMessageContentMarshalAndValidation(t *testing.T) {
+	content := InputLocation(52.3676, 4.9041)
+	content.HorizontalAccuracy = 12.5
+	content.LivePeriod = 60
+	content.Heading = 90
+	content.ProximityAlertRadius = 100
+
+	data, err := json.Marshal(content)
+	if err != nil {
+		t.Fatalf("marshal content: %v", err)
+	}
+	var got map[string]any
+	if err := json.Unmarshal(data, &got); err != nil {
+		t.Fatalf("decode content: %v", err)
+	}
+	if got["latitude"] != 52.3676 || got["longitude"] != 4.9041 || got["heading"] != float64(90) {
+		t.Fatalf("unexpected location content: %#v", got)
+	}
+	if err := validateInputMessageContent(content); err != nil {
+		t.Fatalf("valid location content rejected: %v", err)
+	}
+
+	tests := []struct {
+		name    string
+		content InputMessageContent
+	}{
+		{name: "latitude too small", content: InputLocationMessageContent{Latitude: -91, Longitude: 4}},
+		{name: "latitude too large", content: InputLocationMessageContent{Latitude: 91, Longitude: 4}},
+		{name: "longitude too small", content: InputLocationMessageContent{Latitude: 52, Longitude: -181}},
+		{name: "longitude too large", content: InputLocationMessageContent{Latitude: 52, Longitude: 181}},
+		{name: "negative horizontal accuracy", content: InputLocationMessageContent{Latitude: 52, Longitude: 4, HorizontalAccuracy: -1}},
+		{name: "negative live period", content: InputLocationMessageContent{Latitude: 52, Longitude: 4, LivePeriod: -1}},
+		{name: "negative heading", content: InputLocationMessageContent{Latitude: 52, Longitude: 4, Heading: -1}},
+		{name: "negative proximity alert radius", content: InputLocationMessageContent{Latitude: 52, Longitude: 4, ProximityAlertRadius: -1}},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if err := validateInputMessageContent(tt.content); err == nil {
+				t.Fatal("expected validation error")
+			}
+		})
+	}
+}
+
+func TestInputVenueMessageContentMarshalAndValidation(t *testing.T) {
+	content := InputVenue(52.3676, 4.9041, "ai-gram venue", "test address")
+	content.FoursquareID = "fs"
+	content.GooglePlaceID = "gp"
+
+	data, err := json.Marshal(content)
+	if err != nil {
+		t.Fatalf("marshal content: %v", err)
+	}
+	var got map[string]any
+	if err := json.Unmarshal(data, &got); err != nil {
+		t.Fatalf("decode content: %v", err)
+	}
+	if got["title"] != "ai-gram venue" || got["address"] != "test address" || got["foursquare_id"] != "fs" || got["google_place_id"] != "gp" {
+		t.Fatalf("unexpected venue content: %#v", got)
+	}
+	if err := validateInputMessageContent(content); err != nil {
+		t.Fatalf("valid venue content rejected: %v", err)
+	}
+
+	tests := []struct {
+		name    string
+		content InputMessageContent
+	}{
+		{name: "invalid coordinates", content: InputVenueMessageContent{Latitude: 100, Longitude: 4, Title: "venue", Address: "address"}},
+		{name: "empty title", content: InputVenueMessageContent{Latitude: 52, Longitude: 4, Address: "address"}},
+		{name: "empty address", content: InputVenueMessageContent{Latitude: 52, Longitude: 4, Title: "venue"}},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if err := validateInputMessageContent(tt.content); err == nil {
+				t.Fatal("expected validation error")
+			}
+		})
+	}
+}
+
+func TestInputContactMessageContentMarshalAndValidation(t *testing.T) {
+	content := InputContact("+10000000000", "ai-gram")
+	content.LastName = "Smoke"
+	content.VCard = "BEGIN:VCARD\nEND:VCARD"
+
+	data, err := json.Marshal(content)
+	if err != nil {
+		t.Fatalf("marshal content: %v", err)
+	}
+	var got map[string]any
+	if err := json.Unmarshal(data, &got); err != nil {
+		t.Fatalf("decode content: %v", err)
+	}
+	if got["phone_number"] != "+10000000000" || got["first_name"] != "ai-gram" || got["last_name"] != "Smoke" {
+		t.Fatalf("unexpected contact content: %#v", got)
+	}
+	if err := validateInputMessageContent(content); err != nil {
+		t.Fatalf("valid contact content rejected: %v", err)
+	}
+
+	tests := []struct {
+		name    string
+		content InputMessageContent
+	}{
+		{name: "empty phone", content: InputContactMessageContent{FirstName: "ai-gram"}},
+		{name: "empty first name", content: InputContactMessageContent{PhoneNumber: "+10000000000"}},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if err := validateInputMessageContent(tt.content); err == nil {
+				t.Fatal("expected validation error")
+			}
+		})
+	}
+}
+
+func TestInputInvoiceMessageContentMarshalAndValidation(t *testing.T) {
+	content := InputInvoiceMessageContent{
+		Title:               "Product",
+		Description:         "Description",
+		Payload:             "payload",
+		Currency:            "XTR",
+		Prices:              []telegram.LabeledPrice{{Label: "Price", Amount: 100}},
+		MaxTipAmount:        10,
+		SuggestedTipAmounts: []int64{1, 5},
+		PhotoURL:            "https://example.com/photo.jpg",
+		PhotoSize:           1000,
+		PhotoWidth:          320,
+		PhotoHeight:         240,
+	}
+
+	data, err := json.Marshal(content)
+	if err != nil {
+		t.Fatalf("marshal content: %v", err)
+	}
+	var got map[string]any
+	if err := json.Unmarshal(data, &got); err != nil {
+		t.Fatalf("decode content: %v", err)
+	}
+	if got["title"] != "Product" || got["currency"] != "XTR" {
+		t.Fatalf("unexpected invoice content: %#v", got)
+	}
+	prices, ok := got["prices"].([]any)
+	if !ok || len(prices) != 1 {
+		t.Fatalf("unexpected prices: %#v", got["prices"])
+	}
+	if err := validateInputMessageContent(content); err != nil {
+		t.Fatalf("valid invoice content rejected: %v", err)
+	}
+
+	tests := []struct {
+		name    string
+		content InputMessageContent
+	}{
+		{name: "empty title", content: InputInvoiceMessageContent{Description: "d", Payload: "p", Currency: "XTR", Prices: []telegram.LabeledPrice{{Label: "Price", Amount: 1}}}},
+		{name: "empty description", content: InputInvoiceMessageContent{Title: "t", Payload: "p", Currency: "XTR", Prices: []telegram.LabeledPrice{{Label: "Price", Amount: 1}}}},
+		{name: "empty payload", content: InputInvoiceMessageContent{Title: "t", Description: "d", Currency: "XTR", Prices: []telegram.LabeledPrice{{Label: "Price", Amount: 1}}}},
+		{name: "empty currency", content: InputInvoiceMessageContent{Title: "t", Description: "d", Payload: "p", Prices: []telegram.LabeledPrice{{Label: "Price", Amount: 1}}}},
+		{name: "empty prices", content: InputInvoiceMessageContent{Title: "t", Description: "d", Payload: "p", Currency: "XTR"}},
+		{name: "empty price label", content: InputInvoiceMessageContent{Title: "t", Description: "d", Payload: "p", Currency: "XTR", Prices: []telegram.LabeledPrice{{Amount: 1}}}},
+		{name: "negative price", content: InputInvoiceMessageContent{Title: "t", Description: "d", Payload: "p", Currency: "XTR", Prices: []telegram.LabeledPrice{{Label: "Price", Amount: -1}}}},
+		{name: "negative max tip", content: InputInvoiceMessageContent{Title: "t", Description: "d", Payload: "p", Currency: "XTR", Prices: []telegram.LabeledPrice{{Label: "Price", Amount: 1}}, MaxTipAmount: -1}},
+		{name: "negative suggested tip", content: InputInvoiceMessageContent{Title: "t", Description: "d", Payload: "p", Currency: "XTR", Prices: []telegram.LabeledPrice{{Label: "Price", Amount: 1}}, SuggestedTipAmounts: []int64{-1}}},
+		{name: "invalid photo url", content: InputInvoiceMessageContent{Title: "t", Description: "d", Payload: "p", Currency: "XTR", Prices: []telegram.LabeledPrice{{Label: "Price", Amount: 1}}, PhotoURL: "ftp://example.com/photo.jpg"}},
+		{name: "negative photo size", content: InputInvoiceMessageContent{Title: "t", Description: "d", Payload: "p", Currency: "XTR", Prices: []telegram.LabeledPrice{{Label: "Price", Amount: 1}}, PhotoSize: -1}},
+		{name: "negative photo width", content: InputInvoiceMessageContent{Title: "t", Description: "d", Payload: "p", Currency: "XTR", Prices: []telegram.LabeledPrice{{Label: "Price", Amount: 1}}, PhotoWidth: -1}},
+		{name: "negative photo height", content: InputInvoiceMessageContent{Title: "t", Description: "d", Payload: "p", Currency: "XTR", Prices: []telegram.LabeledPrice{{Label: "Price", Amount: 1}}, PhotoHeight: -1}},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if err := validateInputMessageContent(tt.content); err == nil {
+				t.Fatal("expected validation error")
+			}
+		})
+	}
+}
+
 func TestInlineQueryResultArticleMarshalAndValidation(t *testing.T) {
 	markup := telegram.NewInlineKeyboard([]telegram.InlineKeyboardButton{telegram.InlineButtonCallback("Open", "open")})
 	result := InlineArticle("article-1", "Article", InputText("hello"))
@@ -120,6 +298,171 @@ func TestInlineQueryResultArticleMarshalAndValidation(t *testing.T) {
 	}
 }
 
+func TestInlineQueryResultLocationMarshalAndValidation(t *testing.T) {
+	markup := telegram.NewInlineKeyboard([]telegram.InlineKeyboardButton{telegram.InlineButtonCallback("Open", "open")})
+	result := InlineLocation("location-1", 52.3676, 4.9041, "Amsterdam")
+	result.ReplyMarkup = &markup
+	result.InputMessageContent = InputLocation(52.3676, 4.9041)
+	result.ThumbnailURL = "https://example.com/thumb.jpg"
+	result.ThumbnailWidth = 100
+	result.ThumbnailHeight = 50
+
+	data, err := json.Marshal(result)
+	if err != nil {
+		t.Fatalf("marshal location: %v", err)
+	}
+	var got map[string]any
+	if err := json.Unmarshal(data, &got); err != nil {
+		t.Fatalf("decode location: %v", err)
+	}
+	if got["type"] != "location" || got["id"] != "location-1" || got["title"] != "Amsterdam" {
+		t.Fatalf("unexpected location payload: %#v", got)
+	}
+	if _, ok := got["input_message_content"].(map[string]any); !ok {
+		t.Fatalf("expected input_message_content object: %#v", got)
+	}
+	if err := validateInlineQueryResult(result); err != nil {
+		t.Fatalf("valid location rejected: %v", err)
+	}
+
+	tests := []struct {
+		name   string
+		result InlineQueryResult
+	}{
+		{name: "empty id", result: InlineQueryResultLocation{Latitude: 52, Longitude: 4, Title: "Location"}},
+		{name: "invalid coordinates", result: InlineQueryResultLocation{ID: "location-1", Latitude: 91, Longitude: 4, Title: "Location"}},
+		{name: "empty title", result: InlineQueryResultLocation{ID: "location-1", Latitude: 52, Longitude: 4}},
+		{name: "negative thumbnail width", result: InlineQueryResultLocation{ID: "location-1", Latitude: 52, Longitude: 4, Title: "Location", ThumbnailWidth: -1}},
+		{name: "negative thumbnail height", result: InlineQueryResultLocation{ID: "location-1", Latitude: 52, Longitude: 4, Title: "Location", ThumbnailHeight: -1}},
+		{name: "invalid thumbnail url", result: InlineQueryResultLocation{ID: "location-1", Latitude: 52, Longitude: 4, Title: "Location", ThumbnailURL: "ftp://example.com/thumb.jpg"}},
+		{name: "invalid reply markup", result: InlineQueryResultLocation{ID: "location-1", Latitude: 52, Longitude: 4, Title: "Location", ReplyMarkup: &telegram.InlineKeyboardMarkup{}}},
+		{name: "invalid input content", result: InlineQueryResultLocation{ID: "location-1", Latitude: 52, Longitude: 4, Title: "Location", InputMessageContent: InputTextMessageContent{}}},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if err := validateInlineQueryResult(tt.result); err == nil {
+				t.Fatal("expected validation error")
+			}
+		})
+	}
+}
+
+func TestInlineQueryResultVenueMarshalAndValidation(t *testing.T) {
+	result := InlineVenue("venue-1", 52.3676, 4.9041, "Venue", "Address")
+	result.InputMessageContent = InputVenue(52.3676, 4.9041, "Venue", "Address")
+
+	data, err := json.Marshal(result)
+	if err != nil {
+		t.Fatalf("marshal venue: %v", err)
+	}
+	var got map[string]any
+	if err := json.Unmarshal(data, &got); err != nil {
+		t.Fatalf("decode venue: %v", err)
+	}
+	if got["type"] != "venue" || got["id"] != "venue-1" || got["title"] != "Venue" || got["address"] != "Address" {
+		t.Fatalf("unexpected venue payload: %#v", got)
+	}
+	if err := validateInlineQueryResult(result); err != nil {
+		t.Fatalf("valid venue rejected: %v", err)
+	}
+
+	tests := []struct {
+		name   string
+		result InlineQueryResult
+	}{
+		{name: "empty id", result: InlineQueryResultVenue{Latitude: 52, Longitude: 4, Title: "Venue", Address: "Address"}},
+		{name: "invalid coordinates", result: InlineQueryResultVenue{ID: "venue-1", Latitude: 52, Longitude: 181, Title: "Venue", Address: "Address"}},
+		{name: "empty title", result: InlineQueryResultVenue{ID: "venue-1", Latitude: 52, Longitude: 4, Address: "Address"}},
+		{name: "empty address", result: InlineQueryResultVenue{ID: "venue-1", Latitude: 52, Longitude: 4, Title: "Venue"}},
+		{name: "negative thumbnail width", result: InlineQueryResultVenue{ID: "venue-1", Latitude: 52, Longitude: 4, Title: "Venue", Address: "Address", ThumbnailWidth: -1}},
+		{name: "invalid reply markup", result: InlineQueryResultVenue{ID: "venue-1", Latitude: 52, Longitude: 4, Title: "Venue", Address: "Address", ReplyMarkup: &telegram.InlineKeyboardMarkup{}}},
+		{name: "invalid input content", result: InlineQueryResultVenue{ID: "venue-1", Latitude: 52, Longitude: 4, Title: "Venue", Address: "Address", InputMessageContent: InputVenueMessageContent{Title: "Venue", Address: "Address", Latitude: 91}}},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if err := validateInlineQueryResult(tt.result); err == nil {
+				t.Fatal("expected validation error")
+			}
+		})
+	}
+}
+
+func TestInlineQueryResultContactMarshalAndValidation(t *testing.T) {
+	result := InlineContact("contact-1", "+10000000000", "ai-gram")
+	result.InputMessageContent = InputContact("+10000000000", "ai-gram")
+
+	data, err := json.Marshal(result)
+	if err != nil {
+		t.Fatalf("marshal contact: %v", err)
+	}
+	var got map[string]any
+	if err := json.Unmarshal(data, &got); err != nil {
+		t.Fatalf("decode contact: %v", err)
+	}
+	if got["type"] != "contact" || got["id"] != "contact-1" || got["phone_number"] != "+10000000000" || got["first_name"] != "ai-gram" {
+		t.Fatalf("unexpected contact payload: %#v", got)
+	}
+	if err := validateInlineQueryResult(result); err != nil {
+		t.Fatalf("valid contact rejected: %v", err)
+	}
+
+	tests := []struct {
+		name   string
+		result InlineQueryResult
+	}{
+		{name: "empty id", result: InlineQueryResultContact{PhoneNumber: "+10000000000", FirstName: "ai-gram"}},
+		{name: "empty phone", result: InlineQueryResultContact{ID: "contact-1", FirstName: "ai-gram"}},
+		{name: "empty first name", result: InlineQueryResultContact{ID: "contact-1", PhoneNumber: "+10000000000"}},
+		{name: "negative thumbnail width", result: InlineQueryResultContact{ID: "contact-1", PhoneNumber: "+10000000000", FirstName: "ai-gram", ThumbnailWidth: -1}},
+		{name: "invalid reply markup", result: InlineQueryResultContact{ID: "contact-1", PhoneNumber: "+10000000000", FirstName: "ai-gram", ReplyMarkup: &telegram.InlineKeyboardMarkup{}}},
+		{name: "invalid input content", result: InlineQueryResultContact{ID: "contact-1", PhoneNumber: "+10000000000", FirstName: "ai-gram", InputMessageContent: InputContactMessageContent{FirstName: "ai-gram"}}},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if err := validateInlineQueryResult(tt.result); err == nil {
+				t.Fatal("expected validation error")
+			}
+		})
+	}
+}
+
+func TestInlineQueryResultGameMarshalAndValidation(t *testing.T) {
+	markup := telegram.NewInlineKeyboard([]telegram.InlineKeyboardButton{telegram.InlineButtonCallback("Play", "play")})
+	result := InlineGame("game-1", "short-name")
+	result.ReplyMarkup = &markup
+
+	data, err := json.Marshal(result)
+	if err != nil {
+		t.Fatalf("marshal game: %v", err)
+	}
+	var got map[string]any
+	if err := json.Unmarshal(data, &got); err != nil {
+		t.Fatalf("decode game: %v", err)
+	}
+	if got["type"] != "game" || got["id"] != "game-1" || got["game_short_name"] != "short-name" {
+		t.Fatalf("unexpected game payload: %#v", got)
+	}
+	if err := validateInlineQueryResult(result); err != nil {
+		t.Fatalf("valid game rejected: %v", err)
+	}
+
+	tests := []struct {
+		name   string
+		result InlineQueryResult
+	}{
+		{name: "empty id", result: InlineQueryResultGame{GameShortName: "short-name"}},
+		{name: "empty game short name", result: InlineQueryResultGame{ID: "game-1"}},
+		{name: "invalid reply markup", result: InlineQueryResultGame{ID: "game-1", GameShortName: "short-name", ReplyMarkup: &telegram.InlineKeyboardMarkup{}}},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if err := validateInlineQueryResult(tt.result); err == nil {
+				t.Fatal("expected validation error")
+			}
+		})
+	}
+}
+
 func TestAnswerInlineQuerySendsPayloadAndDecodesResult(t *testing.T) {
 	const token = "123:secret"
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -137,13 +480,32 @@ func TestAnswerInlineQuerySendsPayloadAndDecodesResult(t *testing.T) {
 			t.Fatalf("unexpected payload: %#v", payload)
 		}
 		results, ok := payload["results"].([]any)
-		if !ok || len(results) != 1 {
+		if !ok || len(results) != 5 {
 			t.Fatalf("unexpected results: %#v", payload["results"])
 		}
 		article, _ := results[0].(map[string]any)
 		content, _ := article["input_message_content"].(map[string]any)
 		if article["type"] != "article" || article["id"] != "article-1" || article["title"] != "Article" || content["message_text"] != "hello" {
 			t.Fatalf("unexpected article result: %#v", article)
+		}
+		location, _ := results[1].(map[string]any)
+		locationContent, _ := location["input_message_content"].(map[string]any)
+		if location["type"] != "location" || location["id"] != "location-1" || locationContent["latitude"] != 52.3676 {
+			t.Fatalf("unexpected location result: %#v", location)
+		}
+		venue, _ := results[2].(map[string]any)
+		venueContent, _ := venue["input_message_content"].(map[string]any)
+		if venue["type"] != "venue" || venue["id"] != "venue-1" || venueContent["title"] != "Venue" {
+			t.Fatalf("unexpected venue result: %#v", venue)
+		}
+		contact, _ := results[3].(map[string]any)
+		contactContent, _ := contact["input_message_content"].(map[string]any)
+		if contact["type"] != "contact" || contact["id"] != "contact-1" || contactContent["phone_number"] != "+10000000000" {
+			t.Fatalf("unexpected contact result: %#v", contact)
+		}
+		game, _ := results[4].(map[string]any)
+		if game["type"] != "game" || game["id"] != "game-1" || game["game_short_name"] != "game" {
+			t.Fatalf("unexpected game result: %#v", game)
 		}
 		button, _ := payload["button"].(map[string]any)
 		if button["text"] != "Open" || button["start_parameter"] != "start_1" {
@@ -157,11 +519,29 @@ func TestAnswerInlineQuerySendsPayloadAndDecodesResult(t *testing.T) {
 	bot := newTestBot(t, token, server.URL, server.Client())
 	ok, err := bot.AnswerInlineQuery(context.Background(), AnswerInlineQueryParams{
 		InlineQueryID: "inline-query-id",
-		Results:       []InlineQueryResult{InlineArticle("article-1", "Article", InputText("hello"))},
-		CacheTime:     10,
-		IsPersonal:    true,
-		NextOffset:    "next",
-		Button:        &telegram.InlineQueryResultsButton{Text: "Open", StartParameter: "start_1"},
+		Results: []InlineQueryResult{
+			InlineArticle("article-1", "Article", InputText("hello")),
+			func() InlineQueryResultLocation {
+				result := InlineLocation("location-1", 52.3676, 4.9041, "Location")
+				result.InputMessageContent = InputLocation(52.3676, 4.9041)
+				return result
+			}(),
+			func() InlineQueryResultVenue {
+				result := InlineVenue("venue-1", 52.3676, 4.9041, "Venue", "Address")
+				result.InputMessageContent = InputVenue(52.3676, 4.9041, "Venue", "Address")
+				return result
+			}(),
+			func() InlineQueryResultContact {
+				result := InlineContact("contact-1", "+10000000000", "ai-gram")
+				result.InputMessageContent = InputContact("+10000000000", "ai-gram")
+				return result
+			}(),
+			InlineGame("game-1", "game"),
+		},
+		CacheTime:  10,
+		IsPersonal: true,
+		NextOffset: "next",
+		Button:     &telegram.InlineQueryResultsButton{Text: "Open", StartParameter: "start_1"},
 	})
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
