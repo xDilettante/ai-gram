@@ -41,6 +41,9 @@ This document maps the current `ai-gram` implementation to Telegram Bot API area
 | `(*bot.Bot).SendVideo` | `sendVideo` | unit/httptest | Supports `FileID`, `FileURL`, `FileUpload`, caption, duration, dimensions, streaming, thread/reply params. |
 | `(*bot.Bot).SendAudio` | `sendAudio` | unit/httptest | Supports `FileID`, `FileURL`, `FileUpload`, caption, duration, performer/title, thread/reply params. |
 | `(*bot.Bot).SendVoice` | `sendVoice` | unit/httptest | Supports `FileID`, `FileURL`, `FileUpload`, caption, duration, thread/reply params. |
+| `(*bot.Bot).SendContact` | `sendContact` | unit/httptest | Supports contact phone/name/vCard fields, reply markup, `message_thread_id`, `reply_parameters`. |
+| `(*bot.Bot).SendLocation` | `sendLocation` | unit/httptest | Supports latitude/longitude, live-location optional fields, reply markup, thread/reply params. |
+| `(*bot.Bot).SendVenue` | `sendVenue` | unit/httptest | Supports venue coordinates, title/address, Foursquare/Google place fields, reply markup, thread/reply params. |
 | `telegram.ReplyParameters` | send/copy reply payload | unit | Minimal supported fields: `message_id`, `allow_sending_without_reply`. |
 | `telegram.ReplyMarkup` implementations | send/edit reply markup | unit, live examples | Inline keyboard, reply keyboard, remove keyboard, force reply. Edit methods accept inline keyboard only. |
 
@@ -120,12 +123,9 @@ This document maps the current `ai-gram` implementation to Telegram Bot API area
 - `sendVideoNote`
 - `sendPaidMedia`
 - `sendMediaGroup`
-- `sendContact`
 - `sendDice`
 - `sendGame`
 - `sendInvoice`
-- `sendLocation`
-- `sendVenue`
 
 ### Polls
 
@@ -310,7 +310,6 @@ Unit and httptest suites do not require tokens.
 
 ### Nice-to-have before v0.1
 
-- `SendContact`, `SendLocation`, `SendVenue`.
 - `SendPoll` and `StopPoll`.
 - `SendSticker`, `SendAnimation`, `SendVideoNote`.
 - Bot command and menu methods.

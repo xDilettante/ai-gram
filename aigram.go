@@ -30,6 +30,15 @@ type SendAudioParams = bot.SendAudioParams
 // SendVoiceParams contains supported parameters for sendVoice.
 type SendVoiceParams = bot.SendVoiceParams
 
+// SendContactParams contains supported parameters for sendContact.
+type SendContactParams = bot.SendContactParams
+
+// SendLocationParams contains supported parameters for sendLocation.
+type SendLocationParams = bot.SendLocationParams
+
+// SendVenueParams contains supported parameters for sendVenue.
+type SendVenueParams = bot.SendVenueParams
+
 // GetUpdatesParams contains supported parameters for getUpdates.
 type GetUpdatesParams = bot.GetUpdatesParams
 
