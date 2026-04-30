@@ -262,6 +262,16 @@ This document maps the current `ai-gram` implementation to Telegram Bot API area
 - `SendVideo`
 - `SendAudio`
 - `SendVoice`
+- `SendContact`
+- `SendLocation`
+- `SendVenue`
+- `SendPoll`
+- `StopPoll`
+- `SendDice`
+- `SendSticker`
+- `SendAnimation`
+- `SendVideoNote`
+- `SendMediaGroup`
 - `AnswerCallbackQuery`
 - `EditMessageText`
 - `EditMessageCaption`
@@ -328,6 +338,8 @@ Unit and httptest suites do not require tokens.
 - `PromoteChatMember`, `SetChatAdministratorCustomTitle`, and `SetChatPermissions`
 - `PinChatMessage`, `UnpinChatMessage`, `UnpinAllChatMessages` outside a dedicated test group
 - `DeleteWebhook` with `drop_pending_updates=true`
+- bot commands/menu setters because they change bot-level command/menu state
+- invite link and chat join request methods
 - future migration methods such as `logOut`/`close`
 - future payment/passport/gift methods
 

@@ -4,6 +4,8 @@
 
 ### Added
 
+#### Send methods
+
 - `SendContact`.
 - `SendLocation`.
 - `SendVenue`.
@@ -13,12 +15,29 @@
 - `SendSticker`.
 - `SendAnimation`.
 - `SendVideoNote`.
-- `SendMediaGroup`.
+
+#### Media groups
+
+- `SendMediaGroup` with `InputMediaPhoto`, `InputMediaVideo`, `InputMediaAudio`, and `InputMediaDocument`.
+
+#### Bot commands/menu
+
 - Bot commands and menu methods: `SetMyCommands`, `DeleteMyCommands`, `GetMyCommands`, `SetChatMenuButton`, `GetChatMenuButton`, and `SetMyDefaultAdministratorRights`.
+
+#### Invite links and join requests
+
 - Chat invite link methods: `ExportChatInviteLink`, `CreateChatInviteLink`, `EditChatInviteLink`, and `RevokeChatInviteLink`.
 - Chat join request methods: `ApproveChatJoinRequest`, `DeclineChatJoinRequest`, plus `telegram.ChatJoinRequest` update decoding and dispatch predicates.
+
+#### Admin management
+
 - Admin management methods: `PromoteChatMember`, `SetChatAdministratorCustomTitle`, and `SetChatPermissions`.
+
+#### Smoke and release planning
+
+- Targeted v0.2 send-method live smoke script.
 - Targeted `SendMediaGroup` live smoke script with generated upload fallback.
+- v0.2 checkpoint document for release decision-making.
 
 ## v0.1.1 - 2026-04-30
 

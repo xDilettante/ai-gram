@@ -4,73 +4,107 @@ This roadmap is intentionally pragmatic: keep `ai-gram` useful and stable as a G
 
 ## v0.1 stabilization
 
-- API polish
-  - Review exported names and GoDoc for consistency.
-  - Keep typed params/results and avoid `map[string]any` in public API.
-  - Confirm token-safe error messages across all public methods.
-  - Keep raw bot token out of public accessors; use `GetMe` for identity and redacted string output for diagnostics.
-  - Preserve compatibility of `ChatID`, `FileRef`, reply markup, reply parameters, and edit targets.
-- Docs polish
-  - Keep README concise and accurate.
-  - Maintain `docs/API_COVERAGE.md`, `docs/MANUAL_TESTING.md`, `docs/DEPLOY_TESTING.md`, `docs/LIVE_SMOKE_MATRIX.md`, and `docs/RELEASE_CHECKLIST.md`.
-  - Add a release checklist covering tests, vet, examples compilation, safe logs, and secret hygiene.
-- Examples cleanup
-  - Keep examples short and runnable.
-  - Ensure examples read configuration only from env.
-  - Keep webhook and long polling examples admin-protected by default.
-  - Keep safe logs free of full message text, bot tokens, webhook secrets, and token-bearing URLs.
-- Live smoke matrix
-  - Maintain targeted smoke flows for local Bot API, long polling, webhook, media, callbacks, edit/delete, forward/copy, chat action, and chat info.
-  - Keep destructive/admin methods out of automatic smoke.
-  - Document when manual confirmation and dedicated test chats are required.
-- Release checklist
-  - `gofmt -w .`
-  - `bash -n scripts/*.sh`
-  - `go test ./...`
-  - `go vet ./...`
-  - `git diff --check`
-  - Optional targeted live smoke only for safe flows.
+Status: completed and released as v0.1.1 for canonical public Go module usage.
+
+Completed scope:
+
+- Typed Bot construction, configurable base URL and HTTP client, private token storage, and token-safe diagnostics.
+- Typed Bot API errors and consistent `errors.As` support.
+- Updates, webhook receiver, webhook management, and long polling runner.
+- Dispatcher/router and essential middleware including recovery, timeout, observability, and access control.
+- Text/media sends, reply markup, reply parameters, thread IDs, callbacks, edit/delete, forward/copy, chat actions, chat info, file upload/download, and safe examples.
+- Manual/deploy/live smoke documentation, API coverage, roadmap, release checklist, and safe logs.
 
 ## v0.2 Bot API coverage expansion
 
-- Remaining send methods
+Status: current `main` contains the planned v0.2 expansion slices. Recommended next step: stabilize for v0.2.0 instead of adding more methods immediately, unless a specific missing Bot API area is required before release.
+
+Completed slices:
+
+- Additional send methods:
   - `SendContact`
   - `SendLocation`
   - `SendVenue`
   - `SendDice`
+  - `SendSticker`
   - `SendAnimation`
   - `SendVideoNote`
-  - `SendSticker`
-  - `SendMediaGroup`
-- Polls
+- Polls:
   - `SendPoll`
   - `StopPoll`
-- Stickers
-  - Basic sticker sending first.
-  - Sticker set management only after the basic type surface is stable.
-- Invite links
-  - Create/edit/revoke invite links.
-  - Keep admin/destructive behavior clearly documented.
-- Join requests
-  - Approve/decline methods.
-  - Join request update helpers.
+- Media groups:
+  - `SendMediaGroup`
+  - `InputMediaPhoto`
+  - `InputMediaVideo`
+  - `InputMediaAudio`
+  - `InputMediaDocument`
+- Bot commands/menu:
+  - `SetMyCommands`
+  - `DeleteMyCommands`
+  - `GetMyCommands`
+  - `SetChatMenuButton`
+  - `GetChatMenuButton`
+  - `SetMyDefaultAdministratorRights`
+- Invite links:
+  - `ExportChatInviteLink`
+  - `CreateChatInviteLink`
+  - `EditChatInviteLink`
+  - `RevokeChatInviteLink`
+- Join requests:
+  - `ApproveChatJoinRequest`
+  - `DeclineChatJoinRequest`
+  - `telegram.ChatJoinRequest` update decoding
+  - dispatch helpers for join request updates
+- Admin management:
+  - `PromoteChatMember`
+  - `SetChatAdministratorCustomTitle`
+  - `SetChatPermissions`
+- Smoke/docs:
+  - v0.2 send-method smoke script
+  - `SendMediaGroup` smoke script with generated upload fallback
+  - English public documentation cleanup
+  - v0.2 checkpoint document
 
-## v0.3 Advanced/admin features
+Verification status:
 
-- Promote/restrict/admin tools
-  - `PromoteChatMember` and related admin methods.
-  - `SetChatPermissions` and chat metadata setters.
-  - Dedicated manual smoke docs for admin-only flows.
-- Forum topics
-  - Create/edit/close/reopen/delete topic methods.
-  - General forum topic helpers.
-- Bot commands/menu
-  - Command scopes.
-  - Command set/get/delete.
-  - Menu button methods.
-- Reactions
-  - Message reaction send/set methods.
-  - Reaction update/type coverage.
+- Unit/httptest coverage exists for the implemented v0.2 API methods.
+- Safe live smoke has covered contact/location/venue/poll/stop-poll/dice and `SendMediaGroup` generated upload fallback.
+- State-changing/admin methods are intentionally documented as manual-only and not auto-smoked.
+
+Remaining candidate slices before or after v0.2.0:
+
+- Chat management methods: `setChatTitle`, `setChatDescription`, `setChatPhoto`, `deleteChatPhoto`, `leaveChat`.
+- Forum topic methods.
+- Reactions.
+- Inline mode basics.
+- Remaining sticker set methods.
+- Bot profile methods.
+
+Milestone recommendation:
+
+- Prefer a v0.2.0 stabilization pass now if the goal is to publish a coherent expanded API milestone.
+- Continue coverage before v0.2.0 only if chat management, forum topics, reactions, inline mode, or sticker set management is required for the release boundary.
+
+## v0.3 Advanced coverage candidates
+
+The v0.3 scope should be chosen after the v0.2.0 decision. Good candidates:
+
+- Chat management methods:
+  - title/description/photo/sticker-set/default permissions follow-ups
+  - leave chat and related lifecycle methods
+- Forum topics:
+  - create/edit/close/reopen/delete topic methods
+  - general forum topic helpers
+- Reactions:
+  - message reaction methods
+  - reaction update/type coverage
+- Inline mode:
+  - inline query result types
+  - `answerInlineQuery`
+  - chosen inline result handling
+- Sticker set management:
+  - create/add/set/delete sticker set methods
+  - custom emoji/sticker metadata methods
 
 ## Later
 
