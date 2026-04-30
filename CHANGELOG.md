@@ -1,0 +1,144 @@
+# Changelog
+
+## v0.1.0
+
+Дата: 2026-04-30
+
+Первый рабочий milestone `ai-gram`: ранняя, но уже проверяемая Go-библиотека для Telegram Bot API с typed core, transports, dispatcher/middleware, examples и manual/live smoke контуром.
+
+### Added
+
+#### Core
+
+- Bot construction/config through `aigram.New`, `aigram.NewBot`, and `bot.New`.
+- Typed `ChatID` helpers for numeric chat IDs and string IDs such as `@channelusername`.
+- Internal JSON Bot API calls with configurable base URL and HTTP client.
+- Multipart upload support for implemented media send methods.
+- Typed Telegram API errors through `errors.APIError` and response parameters.
+- Safe token redaction in bot string output, scripts, logs, and reports.
+
+#### Updates/transports
+
+- `GetUpdates` typed API call.
+- Managed long polling runner with context cancellation, offset advancement, backoff, and handler error reporting.
+- Inbound webhook HTTP handler with method/content-type checks, JSON decoding, optional secret-token validation, and handler error handling.
+- Webhook management methods: `SetWebhook`, `DeleteWebhook`, and `GetWebhookInfo`.
+
+#### Dispatch/middleware
+
+- Dispatcher routes and predicates for messages, commands, callback queries, and exact callback data.
+- Middleware chain for update handlers.
+- Recovery middleware, per-update timeout middleware, and observability hooks.
+- Access control middleware with admin/public/off modes and dynamic policy support.
+
+#### Send/media/files
+
+- `SendMessage`.
+- `SendPhoto`.
+- `SendDocument`.
+- `SendVideo`.
+- `SendAudio`.
+- `SendVoice`.
+- File references through `FileID`, `FileURL`, and `FileUpload`.
+- `GetFile` and `DownloadFile` without exposing token-bearing download URLs.
+
+#### Reply/callback/edit/delete
+
+- Reply markup types for inline keyboards, reply keyboards, remove keyboard, and force reply.
+- `AnswerCallbackQuery`.
+- `EditMessageText`.
+- `EditMessageCaption`.
+- `EditMessageReplyMarkup`.
+- `DeleteMessage`.
+- `ReplyParameters` support for implemented send/copy methods.
+- `MessageThreadID` support for implemented send methods and relevant operations.
+
+#### Forward/copy
+
+- `ForwardMessage`.
+- `CopyMessage` with `telegram.MessageID` result.
+
+#### Chat actions/pin
+
+- `SendChatAction` with known action constants.
+- `PinChatMessage`.
+- `UnpinChatMessage`.
+- `UnpinAllChatMessages`.
+
+#### Chat/member/moderation
+
+- `GetChat`.
+- `GetChatMember`.
+- `GetChatAdministrators`.
+- `GetChatMemberCount`.
+- `BanChatMember`.
+- `UnbanChatMember`.
+- `RestrictChatMember` with `telegram.ChatPermissions`.
+
+#### Examples/testing/deploy
+
+- Echo long polling example.
+- Inline long polling example.
+- Webhook server example.
+- Media upload/download example.
+- Local Bot API server smoke example.
+- Deploy/manual smoke harness.
+- Auto-discovery for deploy/manual smoke env.
+- SSH alias support and separate local Bot API host support.
+- Auto SSH tunnel support for remote loopback local Bot API servers.
+- Telegram notifications for manual smoke/deploy checks.
+- Deep-link smoke panels for examples.
+- Safe logs that avoid tokens, webhook secrets, token-bearing URLs, and full private message text.
+- Live smoke matrix and release checklist docs.
+
+### Changed
+
+- Removed raw public `Bot.Token()` access before `v0.1.0`.
+- Updated README and docs to reflect implemented coverage, roadmap, safe smoke flows, and release readiness.
+- Protected the webhook example with admin-only access mode by default.
+- Made long polling smoke event-driven: it exits after the first successfully handled text update instead of waiting for the full timeout window.
+
+### Security
+
+- Raw bot token is not exposed by the public Bot API.
+- Errors and logs avoid token leakage.
+- Scripts redact bot tokens, webhook secrets, Telegram API hash values, and token-bearing Bot API URLs.
+- `.env.local` and generated deploy env files are ignored.
+- Examples use access control by default so test bots are not public by default.
+
+### Live smoke verified
+
+Safe live flows verified before the tag:
+
+- Local Bot API smoke.
+- Webhook deploy.
+- Access panel including open/close access checks.
+- Access denied behavior.
+- Edit text and edit reply markup flow.
+- Generated document caption edit flow.
+- Delete message flow limited to bot-created test messages.
+- Reply parameters flow.
+- `SendChatAction` flow.
+- Forward/copy flow.
+- `GetChat` chat info flow.
+- Long polling auto-exit flow after successful update and reply.
+
+### Not included yet
+
+`v0.1.0` is not full Telegram Bot API coverage. Notable deferred areas include:
+
+- Remaining send methods: contact, location, venue, poll, dice, sticker, animation, video note, paid media, and media group.
+- Invite links and join requests.
+- Promote/admin management and chat metadata setters.
+- Inline mode and `answerInlineQuery`.
+- Payments, Passport, and Games.
+- WebApp/LoginUrl button fields and helpers.
+- Business APIs, Stars, gifts, and related recent Bot API areas.
+- Full Bot API code generation/openapi tooling.
+
+### Notes
+
+- `v0.1.0` is an early API milestone, not a stable promise of full Telegram Bot API coverage.
+- Some admin/destructive methods are implemented but intentionally not live-smoked automatically.
+- Documentation contains API coverage, roadmap, manual testing, deploy testing, live smoke matrix, and release checklist.
+- The current Go module path is `ai-gram`. Public import-path/module-path stabilization is a future release decision.
