@@ -123,6 +123,18 @@ type DeleteWebhookParams = bot.DeleteWebhookParams
 // AnswerInlineQueryParams contains supported parameters for answerInlineQuery.
 type AnswerInlineQueryParams = bot.AnswerInlineQueryParams
 
+// SendInvoiceParams contains supported parameters for sendInvoice.
+type SendInvoiceParams = bot.SendInvoiceParams
+
+// CreateInvoiceLinkParams contains supported parameters for createInvoiceLink.
+type CreateInvoiceLinkParams = bot.CreateInvoiceLinkParams
+
+// AnswerShippingQueryParams contains supported parameters for answerShippingQuery.
+type AnswerShippingQueryParams = bot.AnswerShippingQueryParams
+
+// AnswerPreCheckoutQueryParams contains supported parameters for answerPreCheckoutQuery.
+type AnswerPreCheckoutQueryParams = bot.AnswerPreCheckoutQueryParams
+
 // InputMessageContent marks Telegram input message content objects used by inline results.
 type InputMessageContent = bot.InputMessageContent
 

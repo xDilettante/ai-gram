@@ -13,6 +13,7 @@
 - Inline mode basics: `InlineQuery`, `ChosenInlineResult`, `AnswerInlineQuery`, `InlineQueryResultArticle`, and `InputTextMessageContent`.
 - Additional inline mode result and input message content variants.
 - Media and cached inline query result variants.
+- Payments and invoice basics: `SendInvoice`, `CreateInvoiceLink`, `AnswerShippingQuery`, `AnswerPreCheckoutQuery`, and payment update/message types.
 
 ### Documentation
 

@@ -12,6 +12,8 @@ type Update struct {
 	ChatJoinRequest      *ChatJoinRequest             `json:"chat_join_request,omitempty"`
 	MessageReaction      *MessageReactionUpdated      `json:"message_reaction,omitempty"`
 	MessageReactionCount *MessageReactionCountUpdated `json:"message_reaction_count,omitempty"`
+	ShippingQuery        *ShippingQuery               `json:"shipping_query,omitempty"`
+	PreCheckoutQuery     *PreCheckoutQuery            `json:"pre_checkout_query,omitempty"`
 }
 
 // Message represents a Telegram message with the minimal fields needed by update handlers.
@@ -42,6 +44,10 @@ type Message struct {
 	Location *Location `json:"location,omitempty"`
 	Poll     *Poll     `json:"poll,omitempty"`
 	Venue    *Venue    `json:"venue,omitempty"`
+
+	Invoice           *Invoice           `json:"invoice,omitempty"`
+	SuccessfulPayment *SuccessfulPayment `json:"successful_payment,omitempty"`
+	RefundedPayment   *RefundedPayment   `json:"refunded_payment,omitempty"`
 
 	ForumTopicCreated         *ForumTopicCreated         `json:"forum_topic_created,omitempty"`
 	ForumTopicEdited          *ForumTopicEdited          `json:"forum_topic_edited,omitempty"`

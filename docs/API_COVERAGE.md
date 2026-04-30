@@ -108,6 +108,20 @@ This document maps the current `ai-gram` implementation to Telegram Bot API area
 | `bot.InlineQueryResultPhoto`, `bot.InlineQueryResultGif`, `bot.InlineQueryResultMpeg4Gif`, `bot.InlineQueryResultVideo`, `bot.InlineQueryResultAudio`, `bot.InlineQueryResultVoice`, `bot.InlineQueryResultDocument` | inline payload objects | unit | URL-backed media inline result variants. Manual-only live smoke. |
 | `bot.InlineQueryResultCachedPhoto`, `bot.InlineQueryResultCachedGif`, `bot.InlineQueryResultCachedMpeg4Gif`, `bot.InlineQueryResultCachedSticker`, `bot.InlineQueryResultCachedDocument`, `bot.InlineQueryResultCachedVideo`, `bot.InlineQueryResultCachedVoice`, `bot.InlineQueryResultCachedAudio` | inline payload objects | unit | Cached file-id-backed inline result variants. Manual-only live smoke. |
 
+### Payments and invoices
+
+| Public Go API | Telegram Bot API method / object | Tests | Notes |
+| --- | --- | --- | --- |
+| `(*bot.Bot).SendInvoice` | `sendInvoice` | unit/httptest | Sends invoice messages with prices, tips, provider metadata, shipping flags, reply parameters, and inline keyboard markup. Empty `provider_token` is allowed for Stars-compatible flows. Manual-only live smoke. |
+| `(*bot.Bot).CreateInvoiceLink` | `createInvoiceLink` | unit/httptest | Creates invoice links with the same invoice core fields and optional subscription period. Manual-only live smoke. |
+| `(*bot.Bot).AnswerShippingQuery` | `answerShippingQuery` | unit/httptest | Answers flexible invoice shipping queries with shipping options or an error message. Manual-only live smoke. |
+| `(*bot.Bot).AnswerPreCheckoutQuery` | `answerPreCheckoutQuery` | unit/httptest | Confirms or rejects pre-checkout queries before goods are delivered. Manual-only live smoke. |
+| `telegram.Invoice`, `telegram.SuccessfulPayment`, `telegram.RefundedPayment` | payment message objects | unit | Decodes invoice, successful payment, and refunded payment message payloads. |
+| `telegram.ShippingQuery`, `telegram.PreCheckoutQuery` | payment updates | unit | Decodes payment query updates and supports `EffectiveUser` without inventing an effective chat. |
+| `dispatch.ShippingQuery`, `dispatch.PreCheckoutQuery` | dispatch predicates/helpers | unit | Includes `OnShippingQuery` and `OnPreCheckoutQuery` handler registration helpers. |
+| `telegram.LabeledPrice`, `telegram.ShippingOption`, `telegram.OrderInfo`, `telegram.ShippingAddress` | payment payload/support objects | unit through method payload/result tests | Minimal typed support for invoice prices, shipping options, and order metadata. |
+
+
 ### Forward/copy
 
 | Public Go API | Telegram Bot API method | Tests | Notes |
@@ -261,7 +275,6 @@ This document maps the current `ai-gram` implementation to Telegram Bot API area
 
 - `sendPaidMedia`
 - `sendGame`
-- `sendInvoice`
 
 ### Invite links
 
@@ -273,7 +286,7 @@ This document maps the current `ai-gram` implementation to Telegram Bot API area
 
 ### Payments
 
-- invoice, shipping query, pre-checkout query, refund and paid media/star payment flows
+- Paid media, Star balance/transaction, refund methods, subscriptions, gifts, and broader payments/stars flows. Invoice basics, shipping query, pre-checkout query, and payment message/update decoding are implemented.
 
 ### Passport
 
@@ -286,7 +299,7 @@ This document maps the current `ai-gram` implementation to Telegram Bot API area
 ### Inline mode
 
 - Stage 75 audited inline mode against official Bot API 9.6 documentation. Incoming inline updates, `AnswerInlineQuery`, `InlineQueryResultsButton`, all current `InputMessageContent` variants, and all 20 current `InlineQueryResult` variants are represented.
-- Full payments methods remain pending; only `InputInvoiceMessageContent` and `LabeledPrice` are currently covered for inline invoice results.
+- Payments/invoice basics are implemented separately; paid media, Star transaction, refunds, subscriptions, gifts, and broader payments/stars flows remain pending.
 
 ### WebApp/LoginUrl
 
@@ -438,14 +451,14 @@ Unit and httptest suites do not require tokens.
 
 ### Nice-to-have before v0.1
 
-- Remaining high-risk/advanced Bot API coverage such as payments, business APIs, and advanced inline variants.
+- Remaining high-risk/advanced Bot API coverage such as paid media, broader Stars/payment flows, business APIs, Passport, and games.
 - Bot command and menu methods.
 - A small release checklist document if not folded into existing docs.
 - README tightening to avoid overpromising unimplemented Bot API areas.
 
 ### Defer after v0.1
 
-- Payments and paid media.
+- Paid media and broader Stars/payment flows.
 - Passport.
 - Games.
 - Business APIs.

@@ -119,6 +119,12 @@ func (u *Update) EffectiveUser() *User {
 	if u.ChosenInlineResult != nil {
 		return &u.ChosenInlineResult.From
 	}
+	if u.ShippingQuery != nil {
+		return &u.ShippingQuery.From
+	}
+	if u.PreCheckoutQuery != nil {
+		return &u.PreCheckoutQuery.From
+	}
 	if u.ChatJoinRequest != nil {
 		return &u.ChatJoinRequest.From
 	}

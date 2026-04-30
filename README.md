@@ -642,7 +642,35 @@ if err := d.OnInlineQueryFunc(func(ctx context.Context, update telegram.Update) 
 }
 ```
 
-Reply markup currently supports inline keyboards, reply keyboards, keyboard removal, and force reply for send methods. Edit methods intentionally accept only inline keyboard markup. `AnswerCallbackQuery` can acknowledge callback taps with a toast or alert. `editMessageMedia`, WebApp/LoginUrl buttons, payments, and a keyboard builder DSL will be added separately later.
+Payments and invoice basics support `SendInvoice`, `CreateInvoiceLink`, `AnswerShippingQuery`, and `AnswerPreCheckoutQuery`. Payment live testing requires an explicit payment-capable test environment and is manual-only:
+
+```go
+invoice, err := b.SendInvoice(ctx, aigram.SendInvoiceParams{
+    ChatID:      aigram.ChatIDInt(123456789),
+    Title:       "Test invoice",
+    Description: "Test payment flow",
+    Payload:     "opaque-test-payload",
+    Currency:    "XTR",
+    Prices: []telegram.LabeledPrice{
+        {Label: "Test", Amount: 1},
+    },
+})
+if err != nil {
+    return err
+}
+fmt.Println("invoice:", invoice.MessageID)
+
+confirmed, err := b.AnswerPreCheckoutQuery(ctx, aigram.AnswerPreCheckoutQueryParams{
+    PreCheckoutQueryID: query.ID,
+    OK:                 true,
+})
+if err != nil {
+    return err
+}
+fmt.Println("pre-checkout confirmed:", confirmed)
+```
+
+Reply markup currently supports inline keyboards, reply keyboards, keyboard removal, and force reply for send methods. Edit methods intentionally accept only inline keyboard markup. `AnswerCallbackQuery` can acknowledge callback taps with a toast or alert. `editMessageMedia`, WebApp/LoginUrl buttons, paid media, broader Stars flows, and a keyboard builder DSL will be added separately later.
 
 Protect handlers with access control middleware:
 
@@ -1073,7 +1101,7 @@ if err != nil {
 fmt.Println(ok)
 ```
 
-Webhook management is JSON-only for now. Webhook certificate upload, full thumbnail coverage, editMessageMedia, WebApp/LoginUrl buttons, payments, FSM, scenes, storage, dependency injection, and full Bot API coverage are not implemented yet.
+Webhook management is JSON-only for now. Webhook certificate upload, full thumbnail coverage, editMessageMedia, WebApp/LoginUrl buttons, paid media, broader Stars/payment flows, FSM, scenes, storage, dependency injection, and full Bot API coverage are not implemented yet.
 
 
 ## Examples

@@ -498,6 +498,22 @@ Checklist:
 - Official Telegram webhooks require a public HTTPS URL.
 - A local Telegram Bot API server in `--local` mode can accept HTTP/local webhook URLs when `AIGRAM_BASE_URL` points to that local server.
 
+
+## Payments and invoice basics checklist
+
+`SendInvoice`, `CreateInvoiceLink`, `AnswerShippingQuery`, and `AnswerPreCheckoutQuery` require an explicit payment-capable test environment. They are intentionally not part of automatic live smoke.
+
+Manual checklist:
+
+- Use a dedicated test bot and payment test environment; do not use production payment flows without explicit confirmation.
+- For Stars/XTR flows, confirm the expected provider-token behavior before running a live check.
+- Send only test invoices to a dedicated test chat or test account.
+- If `is_flexible` is used, answer only the matching test `shipping_query` with test shipping options or a safe error message.
+- Validate every `pre_checkout_query` before delivering any goods or enabling any paid feature.
+- Log only safe markers: method name, redacted query IDs, currency, amount, boolean result, message ID, and whether an invoice link was created.
+- Do not log bot tokens, provider credentials, raw payment payloads, full invoice links from production flows, private user data, or provider charge IDs from real payments.
+- Reconcile and clean up any test artifacts according to the payment provider's test-mode guidance.
+
 ## Inline mode checklist
 
 `AnswerInlineQuery`, `InlineQuery`, and `ChosenInlineResult` require inline mode to be enabled for the bot in BotFather. Inline mode sends selectable results into real chats, so it is intentionally not part of automatic live smoke.

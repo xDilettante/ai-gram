@@ -366,3 +366,101 @@ func TestUpdateHelpers(t *testing.T) {
 		t.Fatalf("unexpected chosen inline result effective user: %+v", user)
 	}
 }
+
+func TestPaymentMessageDecoding(t *testing.T) {
+	message := mustDecodeMessage(t, `{
+		"message_id": 100,
+		"date": 1,
+		"chat": {"id": 123, "type": "private"},
+		"invoice": {"title": "Invoice", "description": "Description", "start_parameter": "start", "currency": "XTR", "total_amount": 150},
+		"successful_payment": {
+			"currency": "XTR",
+			"total_amount": 150,
+			"invoice_payload": "payload",
+			"subscription_expiration_date": 1893456000,
+			"is_recurring": true,
+			"is_first_recurring": true,
+			"shipping_option_id": "standard",
+			"order_info": {"name": "Alice", "shipping_address": {"country_code": "US", "state": "CA", "city": "SF", "street_line1": "1 Main", "street_line2": "2", "post_code": "94105"}},
+			"telegram_payment_charge_id": "tg-charge",
+			"provider_payment_charge_id": "provider-charge"
+		},
+		"refunded_payment": {
+			"currency": "XTR",
+			"total_amount": 50,
+			"invoice_payload": "payload",
+			"telegram_payment_charge_id": "tg-refund",
+			"provider_payment_charge_id": "provider-refund"
+		}
+	}`)
+	if message.Invoice == nil || message.Invoice.TotalAmount != 150 || message.Invoice.StartParameter != "start" {
+		t.Fatalf("unexpected invoice: %+v", message.Invoice)
+	}
+	if message.SuccessfulPayment == nil || !message.SuccessfulPayment.IsRecurring || message.SuccessfulPayment.OrderInfo == nil || message.SuccessfulPayment.OrderInfo.ShippingAddress == nil {
+		t.Fatalf("unexpected successful payment: %+v", message.SuccessfulPayment)
+	}
+	if message.RefundedPayment == nil || message.RefundedPayment.ProviderPaymentChargeID != "provider-refund" {
+		t.Fatalf("unexpected refunded payment: %+v", message.RefundedPayment)
+	}
+}
+
+func TestPaymentUpdateDecodingAndEffectiveUser(t *testing.T) {
+	shipping := mustDecodeUpdate(t, `{
+		"update_id": 1,
+		"shipping_query": {
+			"id": "ship-id",
+			"from": {"id": 7, "is_bot": false, "first_name": "Alice"},
+			"invoice_payload": "payload",
+			"shipping_address": {"country_code": "US", "state": "CA", "city": "SF", "street_line1": "1 Main", "street_line2": "2", "post_code": "94105"}
+		}
+	}`)
+	if shipping.ShippingQuery == nil || shipping.ShippingQuery.ShippingAddress.CountryCode != "US" {
+		t.Fatalf("unexpected shipping query: %+v", shipping.ShippingQuery)
+	}
+	if chat := shipping.EffectiveChat(); chat != nil {
+		t.Fatalf("shipping query should not invent an effective chat: %+v", chat)
+	}
+	if user := shipping.EffectiveUser(); user == nil || user.ID != 7 {
+		t.Fatalf("unexpected shipping effective user: %+v", user)
+	}
+
+	preCheckout := mustDecodeUpdate(t, `{
+		"update_id": 2,
+		"pre_checkout_query": {
+			"id": "pre-id",
+			"from": {"id": 8, "is_bot": false, "first_name": "Bob"},
+			"currency": "XTR",
+			"total_amount": 150,
+			"invoice_payload": "payload",
+			"shipping_option_id": "standard",
+			"order_info": {"email": "user@example.test"}
+		}
+	}`)
+	if preCheckout.PreCheckoutQuery == nil || preCheckout.PreCheckoutQuery.TotalAmount != 150 || preCheckout.PreCheckoutQuery.OrderInfo == nil {
+		t.Fatalf("unexpected pre-checkout query: %+v", preCheckout.PreCheckoutQuery)
+	}
+	if chat := preCheckout.EffectiveChat(); chat != nil {
+		t.Fatalf("pre-checkout query should not invent an effective chat: %+v", chat)
+	}
+	if user := preCheckout.EffectiveUser(); user == nil || user.ID != 8 {
+		t.Fatalf("unexpected pre-checkout effective user: %+v", user)
+	}
+}
+
+func mustDecodeMessage(t *testing.T, payload string) Message {
+	t.Helper()
+	var message Message
+	if err := json.Unmarshal([]byte(payload), &message); err != nil {
+		t.Fatalf("decode message: %v", err)
+	}
+	return message
+}
+
+func mustDecodeUpdate(t *testing.T, payload string) Update {
+	t.Helper()
+	var update Update
+	if err := json.Unmarshal([]byte(payload), &update); err != nil {
+		t.Fatalf("decode update: %v", err)
+	}
+	return update
+}

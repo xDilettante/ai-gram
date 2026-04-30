@@ -598,3 +598,56 @@ func chosenInlineResultUpdate() telegram.Update {
 		},
 	}
 }
+
+func TestPaymentQueryRoutes(t *testing.T) {
+	dispatcher := New()
+	var shippingCalls int
+	var preCheckoutCalls int
+	must(t, dispatcher.OnShippingQueryFunc(func(ctx context.Context, update telegram.Update) error {
+		shippingCalls++
+		if update.ShippingQuery == nil || update.ShippingQuery.From.ID != 777 {
+			t.Fatalf("unexpected shipping query update: %+v", update)
+		}
+		return nil
+	}))
+	must(t, dispatcher.OnPreCheckoutQueryFunc(func(ctx context.Context, update telegram.Update) error {
+		preCheckoutCalls++
+		if update.PreCheckoutQuery == nil || update.PreCheckoutQuery.From.ID != 778 {
+			t.Fatalf("unexpected pre-checkout query update: %+v", update)
+		}
+		return nil
+	}))
+
+	if err := dispatcher.HandleUpdate(context.Background(), shippingQueryUpdate()); err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if err := dispatcher.HandleUpdate(context.Background(), preCheckoutQueryUpdate()); err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if err := dispatcher.HandleUpdate(context.Background(), messageUpdate("hello")); err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if shippingCalls != 1 || preCheckoutCalls != 1 {
+		t.Fatalf("unexpected calls: shipping=%d pre_checkout=%d", shippingCalls, preCheckoutCalls)
+	}
+	if !ShippingQuery()(shippingQueryUpdate()) {
+		t.Fatal("shipping query predicate should match")
+	}
+	if ShippingQuery()(messageUpdate("hello")) {
+		t.Fatal("shipping query predicate should not match message updates")
+	}
+	if !PreCheckoutQuery()(preCheckoutQueryUpdate()) {
+		t.Fatal("pre-checkout query predicate should match")
+	}
+	if PreCheckoutQuery()(messageUpdate("hello")) {
+		t.Fatal("pre-checkout query predicate should not match message updates")
+	}
+}
+
+func shippingQueryUpdate() telegram.Update {
+	return telegram.Update{ShippingQuery: &telegram.ShippingQuery{ID: "ship", From: telegram.User{ID: 777, FirstName: "Alice"}}}
+}
+
+func preCheckoutQueryUpdate() telegram.Update {
+	return telegram.Update{PreCheckoutQuery: &telegram.PreCheckoutQuery{ID: "pre", From: telegram.User{ID: 778, FirstName: "Bob"}}}
+}

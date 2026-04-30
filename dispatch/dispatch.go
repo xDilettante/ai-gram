@@ -206,6 +206,26 @@ func (d *Dispatcher) OnChosenInlineResultFunc(handler HandlerFunc) error {
 	return d.OnChosenInlineResult(handler)
 }
 
+// OnShippingQuery registers a handler for shipping query updates.
+func (d *Dispatcher) OnShippingQuery(handler Handler) error {
+	return d.Handle(ShippingQuery(), handler)
+}
+
+// OnShippingQueryFunc registers a function handler for shipping query updates.
+func (d *Dispatcher) OnShippingQueryFunc(handler HandlerFunc) error {
+	return d.OnShippingQuery(handler)
+}
+
+// OnPreCheckoutQuery registers a handler for pre-checkout query updates.
+func (d *Dispatcher) OnPreCheckoutQuery(handler Handler) error {
+	return d.Handle(PreCheckoutQuery(), handler)
+}
+
+// OnPreCheckoutQueryFunc registers a function handler for pre-checkout query updates.
+func (d *Dispatcher) OnPreCheckoutQueryFunc(handler HandlerFunc) error {
+	return d.OnPreCheckoutQuery(handler)
+}
+
 // OnChatJoinRequest registers a handler for chat join request updates.
 func (d *Dispatcher) OnChatJoinRequest(handler Handler) error {
 	return d.Handle(ChatJoinRequest(), handler)
@@ -273,6 +293,16 @@ func InlineQuery() Predicate {
 // ChosenInlineResult matches updates with a chosen inline result.
 func ChosenInlineResult() Predicate {
 	return func(update telegram.Update) bool { return update.ChosenInlineResult != nil }
+}
+
+// ShippingQuery matches updates with a shipping query.
+func ShippingQuery() Predicate {
+	return func(update telegram.Update) bool { return update.ShippingQuery != nil }
+}
+
+// PreCheckoutQuery matches updates with a pre-checkout query.
+func PreCheckoutQuery() Predicate {
+	return func(update telegram.Update) bool { return update.PreCheckoutQuery != nil }
 }
 
 // ChatJoinRequest matches updates with a chat join request.
