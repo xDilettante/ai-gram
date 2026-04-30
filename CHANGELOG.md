@@ -15,6 +15,7 @@
 - Media and cached inline query result variants.
 - Payments and invoice basics: `SendInvoice`, `CreateInvoiceLink`, `AnswerShippingQuery`, `AnswerPreCheckoutQuery`, and payment update/message types.
 - Paid media and Stars basics: `SendPaidMedia`, `GetStarTransactions`, `RefundStarPayment`, paid media message/update types, and Star transaction decoding.
+- Managed Bots 9.6 support: `User.can_manage_bots`, managed bot keyboard request/update types, `SavePreparedKeyboardButton`, `GetManagedBotToken`, and `ReplaceManagedBotToken`.
 
 ### Documentation
 

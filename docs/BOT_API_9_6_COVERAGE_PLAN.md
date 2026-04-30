@@ -237,25 +237,27 @@ Stage 72 implements the first inline foundation: incoming inline query updates, 
 - [ ] Web App fields in keyboard buttons and inline buttons, beyond current menu button support
 - [ ] Web App `requestChat` support from Bot API 9.6
 - [ ] Web App data message fields and helpers
-- [ ] `PreparedKeyboardButton`
-- [ ] `SavePreparedKeyboardButton`
-- [ ] `KeyboardButtonRequestUsers`
-- [ ] `KeyboardButtonRequestChat`
-- [ ] `KeyboardButtonRequestManagedBot`, if present in Bot API 9.6 docs
+- [x] `PreparedKeyboardButton`
+- [x] `SavePreparedKeyboardButton`
+- [x] `KeyboardButtonRequestUsers`
+- [x] `KeyboardButtonRequestChat`
+- [x] `KeyboardButtonRequestManagedBot`
 
 ### Managed Bots, Bot API 9.6
 
-- [ ] `User.can_manage_bots`
-- [ ] `KeyboardButtonRequestManagedBot`
-- [ ] `KeyboardButton.request_managed_bot`
-- [ ] `ManagedBotCreated`
-- [ ] `Message.managed_bot_created`
-- [ ] `ManagedBotUpdated`
-- [ ] `Update.managed_bot`
-- [ ] `GetManagedBotToken`
-- [ ] `ReplaceManagedBotToken`
-- [ ] `PreparedKeyboardButton`
-- [ ] `SavePreparedKeyboardButton`
+Stage 78 implements Managed Bots 9.6 support. Token-returning methods are sensitive and remain manual-only for live checks.
+
+- [x] `User.can_manage_bots`
+- [x] `KeyboardButtonRequestManagedBot`
+- [x] `KeyboardButton.request_managed_bot`
+- [x] `ManagedBotCreated`
+- [x] `Message.managed_bot_created`
+- [x] `ManagedBotUpdated`
+- [x] `Update.managed_bot`
+- [x] `GetManagedBotToken`
+- [x] `ReplaceManagedBotToken`
+- [x] `PreparedKeyboardButton`
+- [x] `SavePreparedKeyboardButton`
 
 ### Poll 9.6 updates
 
@@ -350,7 +352,7 @@ Recommended local-only stages:
 5. Sticker set management
 6. Payments, stars, and paid media
 7. WebApp and prepared buttons
-8. Managed Bots 9.6
+8. Managed Bots 9.6 - implemented locally in Stage 78; token-returning methods manual-only.
 9. Poll 9.6 updates
 10. Business APIs
 11. Games and Passport

@@ -518,6 +518,18 @@ Manual checklist:
 - Use `RefundStarPayment` only for matching test Stars payments and record only redacted charge IDs.
 - Do not run paid media, Stars refunds, subscriptions, gifts, or business gift flows on production bots without explicit confirmation.
 
+
+## Managed Bots 9.6 checklist
+
+Managed Bots 9.6 live checks are manual-only because `GetManagedBotToken` and `ReplaceManagedBotToken` return bot tokens that must be treated as secrets.
+
+- Use only a dedicated manager bot with managed-bot capability enabled.
+- Use a dedicated test managed bot/user; never run token replacement on production managed bots.
+- Do not print, paste, log, or include returned managed bot tokens in reports.
+- Use `SavePreparedKeyboardButton` only with test `request_users`, `request_chat`, or `request_managed_bot` buttons.
+- If token replacement is tested, immediately update only the isolated test environment that depends on the old token.
+- Record only safe metadata: method name, user ID, prepared keyboard button ID, and token presence as a boolean.
+
 ## Inline mode checklist
 
 `AnswerInlineQuery`, `InlineQuery`, and `ChosenInlineResult` require inline mode to be enabled for the bot in BotFather. Inline mode sends selectable results into real chats, so it is intentionally not part of automatic live smoke.

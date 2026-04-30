@@ -33,11 +33,47 @@ type ReplyKeyboardMarkup struct {
 	Selective             bool               `json:"selective,omitempty"`
 }
 
+// KeyboardButtonRequestUsers defines criteria for requesting users with a reply keyboard button.
+type KeyboardButtonRequestUsers struct {
+	RequestID       int   `json:"request_id"`
+	UserIsBot       *bool `json:"user_is_bot,omitempty"`
+	UserIsPremium   *bool `json:"user_is_premium,omitempty"`
+	MaxQuantity     int   `json:"max_quantity,omitempty"`
+	RequestName     bool  `json:"request_name,omitempty"`
+	RequestUsername bool  `json:"request_username,omitempty"`
+	RequestPhoto    bool  `json:"request_photo,omitempty"`
+}
+
+// KeyboardButtonRequestChat defines criteria for requesting a chat with a reply keyboard button.
+type KeyboardButtonRequestChat struct {
+	RequestID               int                      `json:"request_id"`
+	ChatIsChannel           bool                     `json:"chat_is_channel"`
+	ChatIsForum             *bool                    `json:"chat_is_forum,omitempty"`
+	ChatHasUsername         *bool                    `json:"chat_has_username,omitempty"`
+	ChatIsCreated           bool                     `json:"chat_is_created,omitempty"`
+	UserAdministratorRights *ChatAdministratorRights `json:"user_administrator_rights,omitempty"`
+	BotAdministratorRights  *ChatAdministratorRights `json:"bot_administrator_rights,omitempty"`
+	BotIsMember             bool                     `json:"bot_is_member,omitempty"`
+	RequestTitle            bool                     `json:"request_title,omitempty"`
+	RequestUsername         bool                     `json:"request_username,omitempty"`
+	RequestPhoto            bool                     `json:"request_photo,omitempty"`
+}
+
+// KeyboardButtonRequestManagedBot defines parameters for creating and sharing a managed bot.
+type KeyboardButtonRequestManagedBot struct {
+	RequestID         int    `json:"request_id"`
+	SuggestedName     string `json:"suggested_name,omitempty"`
+	SuggestedUsername string `json:"suggested_username,omitempty"`
+}
+
 // KeyboardButton represents one custom reply keyboard button.
 type KeyboardButton struct {
-	Text            string `json:"text"`
-	RequestContact  bool   `json:"request_contact,omitempty"`
-	RequestLocation bool   `json:"request_location,omitempty"`
+	Text              string                           `json:"text"`
+	RequestUsers      *KeyboardButtonRequestUsers      `json:"request_users,omitempty"`
+	RequestChat       *KeyboardButtonRequestChat       `json:"request_chat,omitempty"`
+	RequestManagedBot *KeyboardButtonRequestManagedBot `json:"request_managed_bot,omitempty"`
+	RequestContact    bool                             `json:"request_contact,omitempty"`
+	RequestLocation   bool                             `json:"request_location,omitempty"`
 }
 
 // ReplyKeyboardRemove requests removal of a custom reply keyboard.
@@ -91,6 +127,21 @@ func KeyboardButtonContact(text string) KeyboardButton {
 // KeyboardButtonLocation creates a reply keyboard button that requests a location.
 func KeyboardButtonLocation(text string) KeyboardButton {
 	return KeyboardButton{Text: text, RequestLocation: true}
+}
+
+// KeyboardButtonUsers creates a reply keyboard button that requests users.
+func KeyboardButtonUsers(text string, request KeyboardButtonRequestUsers) KeyboardButton {
+	return KeyboardButton{Text: text, RequestUsers: &request}
+}
+
+// KeyboardButtonChat creates a reply keyboard button that requests a chat.
+func KeyboardButtonChat(text string, request KeyboardButtonRequestChat) KeyboardButton {
+	return KeyboardButton{Text: text, RequestChat: &request}
+}
+
+// KeyboardButtonManagedBot creates a reply keyboard button that requests a managed bot.
+func KeyboardButtonManagedBot(text string, request KeyboardButtonRequestManagedBot) KeyboardButton {
+	return KeyboardButton{Text: text, RequestManagedBot: &request}
 }
 
 // RemoveKeyboard creates a ReplyKeyboardRemove markup.
@@ -177,7 +228,7 @@ func validateReplyKeyboard(markup ReplyKeyboardMarkup) error {
 			return stderrors.New("reply keyboard row must not be empty")
 		}
 		for _, button := range row {
-			if err := validateKeyboardButton(button); err != nil {
+			if err := ValidateKeyboardButton(button); err != nil {
 				return err
 			}
 		}
@@ -186,14 +237,98 @@ func validateReplyKeyboard(markup ReplyKeyboardMarkup) error {
 	return nil
 }
 
-func validateKeyboardButton(button KeyboardButton) error {
+// ValidateKeyboardButton checks whether button can be sent as a reply keyboard button.
+func ValidateKeyboardButton(button KeyboardButton) error {
 	if strings.TrimSpace(button.Text) == "" {
 		return stderrors.New("keyboard button text is required")
 	}
-	if button.RequestContact && button.RequestLocation {
-		return stderrors.New("keyboard button cannot request contact and location together")
+
+	actions := keyboardButtonRequestActionCount(button)
+	if actions > 1 {
+		return stderrors.New("keyboard button must not use more than one request action")
+	}
+	if button.RequestUsers != nil {
+		return validateKeyboardButtonRequestUsers(*button.RequestUsers)
+	}
+	if button.RequestChat != nil {
+		return validateKeyboardButtonRequestChat(*button.RequestChat)
+	}
+	if button.RequestManagedBot != nil {
+		return validateKeyboardButtonRequestManagedBot(*button.RequestManagedBot)
 	}
 
+	return nil
+}
+
+// ValidatePreparedKeyboardButton checks whether button can be saved for Mini App use.
+func ValidatePreparedKeyboardButton(button KeyboardButton) error {
+	if err := ValidateKeyboardButton(button); err != nil {
+		return err
+	}
+	actions := 0
+	if button.RequestUsers != nil {
+		actions++
+	}
+	if button.RequestChat != nil {
+		actions++
+	}
+	if button.RequestManagedBot != nil {
+		actions++
+	}
+	if actions != 1 {
+		return stderrors.New("prepared keyboard button must request users, chat, or managed bot")
+	}
+	return nil
+}
+
+func keyboardButtonRequestActionCount(button KeyboardButton) int {
+	actions := 0
+	if button.RequestUsers != nil {
+		actions++
+	}
+	if button.RequestChat != nil {
+		actions++
+	}
+	if button.RequestManagedBot != nil {
+		actions++
+	}
+	if button.RequestContact {
+		actions++
+	}
+	if button.RequestLocation {
+		actions++
+	}
+	return actions
+}
+
+func validateKeyboardButtonRequestUsers(request KeyboardButtonRequestUsers) error {
+	if err := validateRequestID(request.RequestID, "keyboard button request_users request_id"); err != nil {
+		return err
+	}
+	if request.MaxQuantity < 0 {
+		return stderrors.New("keyboard button request_users max_quantity must be non-negative")
+	}
+	if request.MaxQuantity > 10 {
+		return stderrors.New("keyboard button request_users max_quantity must be at most 10")
+	}
+	return nil
+}
+
+func validateKeyboardButtonRequestChat(request KeyboardButtonRequestChat) error {
+	return validateRequestID(request.RequestID, "keyboard button request_chat request_id")
+}
+
+func validateKeyboardButtonRequestManagedBot(request KeyboardButtonRequestManagedBot) error {
+	return validateRequestID(request.RequestID, "keyboard button request_managed_bot request_id")
+}
+
+func validateRequestID(requestID int, field string) error {
+	if requestID == 0 {
+		return stderrors.New(field + " is required")
+	}
+	if requestID < -2147483648 || requestID > 2147483647 {
+		return stderrors.New(field + " must fit signed 32-bit integer")
+	}
 	return nil
 }
 

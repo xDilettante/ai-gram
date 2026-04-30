@@ -555,6 +555,15 @@ type GetStarTransactionsParams = bot.GetStarTransactionsParams
 // RefundStarPaymentParams contains supported parameters for refundStarPayment.
 type RefundStarPaymentParams = bot.RefundStarPaymentParams
 
+// SavePreparedKeyboardButtonParams contains supported parameters for savePreparedKeyboardButton.
+type SavePreparedKeyboardButtonParams = bot.SavePreparedKeyboardButtonParams
+
+// GetManagedBotTokenParams contains supported parameters for getManagedBotToken.
+type GetManagedBotTokenParams = bot.GetManagedBotTokenParams
+
+// ReplaceManagedBotTokenParams contains supported parameters for replaceManagedBotToken.
+type ReplaceManagedBotTokenParams = bot.ReplaceManagedBotTokenParams
+
 // InlineKeyboardMarkup represents an inline keyboard attached to a message.
 type InlineKeyboardMarkup = telegram.InlineKeyboardMarkup
 
@@ -566,6 +575,18 @@ type ReplyKeyboardMarkup = telegram.ReplyKeyboardMarkup
 
 // KeyboardButton represents one custom reply keyboard button.
 type KeyboardButton = telegram.KeyboardButton
+
+// KeyboardButtonRequestUsers defines criteria for requesting users with a reply keyboard button.
+type KeyboardButtonRequestUsers = telegram.KeyboardButtonRequestUsers
+
+// KeyboardButtonRequestChat defines criteria for requesting a chat with a reply keyboard button.
+type KeyboardButtonRequestChat = telegram.KeyboardButtonRequestChat
+
+// KeyboardButtonRequestManagedBot defines parameters for creating and sharing a managed bot.
+type KeyboardButtonRequestManagedBot = telegram.KeyboardButtonRequestManagedBot
+
+// PreparedKeyboardButton describes a saved keyboard button for Mini App use.
+type PreparedKeyboardButton = telegram.PreparedKeyboardButton
 
 // ReplyKeyboardRemove requests removal of a custom reply keyboard.
 type ReplyKeyboardRemove = telegram.ReplyKeyboardRemove
@@ -854,6 +875,21 @@ func KeyboardButtonContact(text string) KeyboardButton {
 // KeyboardButtonLocation creates a reply keyboard button that requests a location.
 func KeyboardButtonLocation(text string) KeyboardButton {
 	return telegram.KeyboardButtonLocation(text)
+}
+
+// KeyboardButtonUsers creates a reply keyboard button that requests users.
+func KeyboardButtonUsers(text string, request KeyboardButtonRequestUsers) KeyboardButton {
+	return telegram.KeyboardButtonUsers(text, request)
+}
+
+// KeyboardButtonChat creates a reply keyboard button that requests a chat.
+func KeyboardButtonChat(text string, request KeyboardButtonRequestChat) KeyboardButton {
+	return telegram.KeyboardButtonChat(text, request)
+}
+
+// KeyboardButtonManagedBot creates a reply keyboard button that requests a managed bot.
+func KeyboardButtonManagedBot(text string, request KeyboardButtonRequestManagedBot) KeyboardButton {
+	return telegram.KeyboardButtonManagedBot(text, request)
 }
 
 // RemoveKeyboard creates a ReplyKeyboardRemove markup.

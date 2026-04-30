@@ -129,6 +129,22 @@ This document maps the current `ai-gram` implementation to Telegram Bot API area
 | `telegram.StarTransactions`, `telegram.StarTransaction`, `telegram.TransactionPartner*` | Stars transaction objects | unit | Decodes basic Star transactions, paid media purchases, affiliate details, Fragment withdrawal state, Telegram Ads/API, chat, user, and other partner variants. Gift-specific partner payloads remain pending for the gifts slice. |
 
 
+
+### Managed Bots 9.6
+
+| Public Go API | Telegram Bot API method / object | Tests | Notes |
+| --- | --- | --- | --- |
+| `telegram.User.CanManageBots` | `User.can_manage_bots` | unit | Decodes Bot API 9.6 managed-bot capability returned by `getMe`. |
+| `telegram.KeyboardButtonRequestManagedBot`, `telegram.KeyboardButton.RequestManagedBot` | `KeyboardButton.request_managed_bot` | unit | Request keyboard support for managed bot creation. |
+| `telegram.KeyboardButtonRequestUsers`, `telegram.KeyboardButtonRequestChat` | `KeyboardButton.request_users`, `KeyboardButton.request_chat` | unit | Request keyboard support needed by prepared keyboard button validation. |
+| `telegram.ManagedBotCreated` | `Message.managed_bot_created` | unit | Decodes service messages for newly created managed bots. |
+| `telegram.ManagedBotUpdated` | `Update.managed_bot` | unit | Decodes managed bot creation/token/owner updates and supports `EffectiveUser` without inventing an effective chat. |
+| `dispatch.ManagedBot` | dispatch predicate/helper | unit | Includes `OnManagedBot` handler registration helpers. |
+| `telegram.PreparedKeyboardButton` | `PreparedKeyboardButton` | unit/httptest | Decodes saved Mini App keyboard button identifiers. |
+| `(*bot.Bot).SavePreparedKeyboardButton` | `savePreparedKeyboardButton` | unit/httptest | Stores request-users, request-chat, or request-managed-bot buttons for Mini App users. Manual-only live smoke. |
+| `(*bot.Bot).GetManagedBotToken` | `getManagedBotToken` | unit/httptest | Returns a managed bot token; callers must treat the result as secret. Manual-only live smoke. |
+| `(*bot.Bot).ReplaceManagedBotToken` | `replaceManagedBotToken` | unit/httptest | Revokes and replaces a managed bot token; callers must treat the result as secret. Manual-only live smoke. |
+
 ### Forward/copy
 
 | Public Go API | Telegram Bot API method | Tests | Notes |
@@ -292,7 +308,7 @@ This document maps the current `ai-gram` implementation to Telegram Bot API area
 
 ### Payments
 
-- Paid media, basic Star transaction history, and Star payment refunds are implemented. Star balance, subscriptions, gifts, business gifts, and broader advanced Stars/payment flows remain pending.
+- Paid media, basic Star transaction history, Star payment refunds, and Managed Bots 9.6 are implemented. Star balance, subscriptions, gifts, business gifts, and broader advanced Stars/payment flows remain pending.
 
 ### Passport
 

@@ -14,7 +14,7 @@ The latest public release is `v0.2.0`. Local development is now focused on reach
 - Dispatcher/router: supports predicates, message/command/callback routes, middleware, fallback, and error handling.
 - Middleware helpers: recover, timeout, hook-based observability, and reusable access control are available.
 - Long polling transport: managed runner is available. Webhook transport: inbound HTTP handler is available.
-- Telegram Bot API method coverage: `GetMe`, `SendMessage`, `SendPhoto`, `SendDocument`, `SendVideo`, `SendAudio`, `SendVoice`, `SendContact`, `SendLocation`, `SendVenue`, `SendPoll`, `StopPoll`, `SendDice`, `SendSticker`, `SendAnimation`, `SendVideoNote`, `SendMediaGroup`, `GetStickerSet`, `GetCustomEmojiStickers`, `UploadStickerFile`, `CreateNewStickerSet`, `AddStickerToSet`, `SetStickerPositionInSet`, `DeleteStickerFromSet`, `ReplaceStickerInSet`, `SetStickerEmojiList`, `SetStickerKeywords`, `SetStickerMaskPosition`, `SetStickerSetTitle`, `SetStickerSetThumbnail`, `SetCustomEmojiStickerSetThumbnail`, `DeleteStickerSet`, `SetMyCommands`, `DeleteMyCommands`, `GetMyCommands`, `SetChatMenuButton`, `GetChatMenuButton`, `SetMyDefaultAdministratorRights`, `SetMyName`, `GetMyName`, `SetMyDescription`, `GetMyDescription`, `SetMyShortDescription`, `GetMyShortDescription`, `GetMyDefaultAdministratorRights`, `SetMyProfilePhoto`, `RemoveMyProfilePhoto`, `AnswerCallbackQuery`, `EditMessageText`, `EditMessageCaption`, `EditMessageReplyMarkup`, `DeleteMessage`, `DeleteMessages`, `ForwardMessage`, `ForwardMessages`, `CopyMessage`, `CopyMessages`, `SendChatAction`, `PinChatMessage`, `UnpinChatMessage`, `UnpinAllChatMessages`, `GetChat`, `GetChatMember`, `GetChatAdministrators`, `GetChatMemberCount`, `SetChatTitle`, `SetChatDescription`, `SetChatPhoto`, `DeleteChatPhoto`, `LeaveChat`, `SetChatStickerSet`, `DeleteChatStickerSet`, `CreateForumTopic`, `EditForumTopic`, `CloseForumTopic`, `ReopenForumTopic`, `DeleteForumTopic`, `UnpinAllForumTopicMessages`, `EditGeneralForumTopic`, `CloseGeneralForumTopic`, `ReopenGeneralForumTopic`, `HideGeneralForumTopic`, `UnhideGeneralForumTopic`, `UnpinAllGeneralForumTopicMessages`, `SetMessageReaction`, `ExportChatInviteLink`, `CreateChatInviteLink`, `EditChatInviteLink`, `RevokeChatInviteLink`, `ApproveChatJoinRequest`, `DeclineChatJoinRequest`, `PromoteChatMember`, `SetChatAdministratorCustomTitle`, `SetChatPermissions`, `BanChatMember`, `UnbanChatMember`, `RestrictChatMember`, reply markup for supported send and edit methods, the manual `GetUpdates` API call, `GetFile`, `DownloadFile`, multipart upload for media send methods, and JSON-only webhook management methods (`SetWebhook`, `DeleteWebhook`, `GetWebhookInfo`) are implemented. The rest of the Bot API is not implemented yet.
+- Telegram Bot API method coverage: `GetMe`, `SendMessage`, `SendPhoto`, `SendDocument`, `SendVideo`, `SendAudio`, `SendVoice`, `SendContact`, `SendLocation`, `SendVenue`, `SendPoll`, `StopPoll`, `SendDice`, `SendSticker`, `SendAnimation`, `SendVideoNote`, `SendMediaGroup`, `GetStickerSet`, `GetCustomEmojiStickers`, `UploadStickerFile`, `CreateNewStickerSet`, `AddStickerToSet`, `SetStickerPositionInSet`, `DeleteStickerFromSet`, `ReplaceStickerInSet`, `SetStickerEmojiList`, `SetStickerKeywords`, `SetStickerMaskPosition`, `SetStickerSetTitle`, `SetStickerSetThumbnail`, `SetCustomEmojiStickerSetThumbnail`, `DeleteStickerSet`, `SetMyCommands`, `DeleteMyCommands`, `GetMyCommands`, `SetChatMenuButton`, `GetChatMenuButton`, `SetMyDefaultAdministratorRights`, `SetMyName`, `GetMyName`, `SetMyDescription`, `GetMyDescription`, `SetMyShortDescription`, `GetMyShortDescription`, `GetMyDefaultAdministratorRights`, `SetMyProfilePhoto`, `RemoveMyProfilePhoto`, `AnswerCallbackQuery`, `EditMessageText`, `EditMessageCaption`, `EditMessageReplyMarkup`, `DeleteMessage`, `DeleteMessages`, `ForwardMessage`, `ForwardMessages`, `CopyMessage`, `CopyMessages`, `SendChatAction`, `PinChatMessage`, `UnpinChatMessage`, `UnpinAllChatMessages`, `GetChat`, `GetChatMember`, `GetChatAdministrators`, `GetChatMemberCount`, `SetChatTitle`, `SetChatDescription`, `SetChatPhoto`, `DeleteChatPhoto`, `LeaveChat`, `SetChatStickerSet`, `DeleteChatStickerSet`, `CreateForumTopic`, `EditForumTopic`, `CloseForumTopic`, `ReopenForumTopic`, `DeleteForumTopic`, `UnpinAllForumTopicMessages`, `EditGeneralForumTopic`, `CloseGeneralForumTopic`, `ReopenGeneralForumTopic`, `HideGeneralForumTopic`, `UnhideGeneralForumTopic`, `UnpinAllGeneralForumTopicMessages`, `SetMessageReaction`, `SendInvoice`, `CreateInvoiceLink`, `AnswerShippingQuery`, `AnswerPreCheckoutQuery`, `SendPaidMedia`, `GetStarTransactions`, `RefundStarPayment`, `SavePreparedKeyboardButton`, `GetManagedBotToken`, `ReplaceManagedBotToken`, `ExportChatInviteLink`, `CreateChatInviteLink`, `EditChatInviteLink`, `RevokeChatInviteLink`, `ApproveChatJoinRequest`, `DeclineChatJoinRequest`, `PromoteChatMember`, `SetChatAdministratorCustomTitle`, `SetChatPermissions`, `BanChatMember`, `UnbanChatMember`, `RestrictChatMember`, reply markup for supported send and edit methods, the manual `GetUpdates` API call, `GetFile`, `DownloadFile`, multipart upload for media send methods, and JSON-only webhook management methods (`SetWebhook`, `DeleteWebhook`, `GetWebhookInfo`) are implemented. The rest of the Bot API is not implemented yet.
 - Public API stability: not guaranteed before the first stable release.
 - Latest public release: `v0.2.0`.
 - Current local strategy: full Telegram Bot API 9.6 coverage before the next push/tag/release.
@@ -681,6 +681,30 @@ if err != nil {
     return err
 }
 fmt.Println("paid media:", paid.MessageID)
+```
+
+
+Managed Bots 9.6 support includes `User.can_manage_bots`, `KeyboardButtonRequestManagedBot`, `managed_bot_created` messages, `managed_bot` updates, prepared keyboard buttons, and token management methods. Managed bot tokens are sensitive; do not log returned values, and keep live checks manual-only:
+
+```go
+button, err := b.SavePreparedKeyboardButton(ctx, aigram.SavePreparedKeyboardButtonParams{
+    UserID: 123456789,
+    Button: aigram.KeyboardButtonManagedBot("Create test bot", aigram.KeyboardButtonRequestManagedBot{
+        RequestID:         1,
+        SuggestedName:     "Test Bot",
+        SuggestedUsername: "test_managed_bot",
+    }),
+})
+if err != nil {
+    return err
+}
+fmt.Println("prepared button:", button.ID)
+
+managedToken, err := b.GetManagedBotToken(ctx, aigram.GetManagedBotTokenParams{UserID: 987654321})
+if err != nil {
+    return err
+}
+_ = managedToken // Treat as secret; never print or log it.
 ```
 
 Reply markup currently supports inline keyboards, reply keyboards, keyboard removal, and force reply for send methods. Edit methods intentionally accept only inline keyboard markup. `AnswerCallbackQuery` can acknowledge callback taps with a toast or alert. `editMessageMedia`, WebApp/LoginUrl buttons, gifts/business gifts, advanced Stars flows, and a keyboard builder DSL will be added separately later.

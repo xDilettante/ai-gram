@@ -678,3 +678,32 @@ func TestPaidMediaPurchasedPredicateAndHandler(t *testing.T) {
 		t.Fatal("predicate should not match unrelated update")
 	}
 }
+
+func TestManagedBotRoute(t *testing.T) {
+	dispatcher := New()
+	var calls int
+	must(t, dispatcher.OnManagedBotFunc(func(ctx context.Context, update telegram.Update) error {
+		calls++
+		if update.ManagedBot == nil || update.ManagedBot.User.ID != 7 || update.ManagedBot.Bot.ID != 77 {
+			t.Fatalf("unexpected managed bot update: %+v", update)
+		}
+		return nil
+	}))
+
+	managed := telegram.Update{UpdateID: 500, ManagedBot: &telegram.ManagedBotUpdated{User: telegram.User{ID: 7, FirstName: "Owner"}, Bot: telegram.User{ID: 77, IsBot: true, FirstName: "Child"}}}
+	if err := dispatcher.HandleUpdate(context.Background(), managed); err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if err := dispatcher.HandleUpdate(context.Background(), messageUpdate("hello")); err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if calls != 1 {
+		t.Fatalf("unexpected calls: %d", calls)
+	}
+	if !ManagedBot()(managed) {
+		t.Fatal("managed bot predicate should match")
+	}
+	if ManagedBot()(messageUpdate("hello")) {
+		t.Fatal("managed bot predicate should not match message updates")
+	}
+}

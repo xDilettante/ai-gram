@@ -15,6 +15,7 @@ type Update struct {
 	ShippingQuery        *ShippingQuery               `json:"shipping_query,omitempty"`
 	PreCheckoutQuery     *PreCheckoutQuery            `json:"pre_checkout_query,omitempty"`
 	PurchasedPaidMedia   *PaidMediaPurchased          `json:"purchased_paid_media,omitempty"`
+	ManagedBot           *ManagedBotUpdated           `json:"managed_bot,omitempty"`
 }
 
 // Message represents a Telegram message with the minimal fields needed by update handlers.
@@ -57,6 +58,8 @@ type Message struct {
 	ForumTopicReopened        *ForumTopicReopened        `json:"forum_topic_reopened,omitempty"`
 	GeneralForumTopicHidden   *GeneralForumTopicHidden   `json:"general_forum_topic_hidden,omitempty"`
 	GeneralForumTopicUnhidden *GeneralForumTopicUnhidden `json:"general_forum_topic_unhidden,omitempty"`
+
+	ManagedBotCreated *ManagedBotCreated `json:"managed_bot_created,omitempty"`
 }
 
 // ForumTopic represents a forum topic in a Telegram supergroup.
@@ -99,11 +102,12 @@ type MessageID struct {
 
 // User represents a Telegram user or bot account.
 type User struct {
-	ID        int64  `json:"id"`
-	IsBot     bool   `json:"is_bot"`
-	FirstName string `json:"first_name"`
-	LastName  string `json:"last_name,omitempty"`
-	Username  string `json:"username,omitempty"`
+	ID            int64  `json:"id"`
+	IsBot         bool   `json:"is_bot"`
+	FirstName     string `json:"first_name"`
+	LastName      string `json:"last_name,omitempty"`
+	Username      string `json:"username,omitempty"`
+	CanManageBots bool   `json:"can_manage_bots,omitempty"`
 }
 
 // Chat represents a Telegram chat.
