@@ -530,6 +530,21 @@ Manual checklist:
 - Log only safe markers: method name, chat ID, message ID or inline-target flag, media type or live-location action, and boolean/message result shape.
 - Do not log bot tokens, token-bearing URLs, raw business message payloads, or private message text.
 
+
+## Games checklist
+
+`SendGame`, `SetGameScore`, and `GetGameHighScores` require a game configured through BotFather. They are intentionally not part of automatic live smoke.
+
+Manual checklist:
+
+- Use a dedicated test bot with a BotFather-configured test game and a dedicated test chat.
+- Send only test game messages; do not use production game messages for library smoke.
+- Keep `callback_game` as the first button in the first inline keyboard row.
+- Update scores only for test users/messages and only after explicit confirmation.
+- If testing inline game messages, use a disposable inline result/message and log only whether the target was inline.
+- Log only safe markers: method name, chat ID, message ID or inline-target flag, test game short name, score, result shape, and high-score count.
+- Do not log bot tokens, token-bearing URLs, or private user data.
+
 ## Business API checklist
 
 Business API checks require a configured Telegram business account connection. They are intentionally manual-only because business messages can contain private payloads and account/profile/story/suggested-post/delete methods change real business account state.

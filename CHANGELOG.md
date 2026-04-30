@@ -23,6 +23,7 @@
 - Gifts, business gifts, and remaining Stars methods: `GetAvailableGifts`, `SendGift`, `GiftPremiumSubscription`, `GetBusinessAccountStarBalance`, `TransferBusinessAccountStars`, `GetBusinessAccountGifts`, `GetUserGifts`, `GetChatGifts`, `ConvertGiftToStars`, `UpgradeGift`, `TransferGift`, `GetMyStarBalance`, and `EditUserStarSubscription`.
 - `business_connection_id` support for supported send, edit, chat action, pin/unpin, media group, and poll-stop methods.
 - Edit media and live location edit methods: `EditMessageMedia`, `EditMessageLiveLocation`, `StopMessageLiveLocation`, and `InputMediaAnimation`.
+- Game methods and types: `SendGame`, `SetGameScore`, `GetGameHighScores`, `Game`, `CallbackGame`, and `GameHighScore`.
 
 ### Documentation
 

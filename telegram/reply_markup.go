@@ -18,10 +18,11 @@ type InlineKeyboardMarkup struct {
 
 // InlineKeyboardButton represents one inline keyboard button.
 type InlineKeyboardButton struct {
-	Text         string      `json:"text"`
-	URL          string      `json:"url,omitempty"`
-	CallbackData string      `json:"callback_data,omitempty"`
-	WebApp       *WebAppInfo `json:"web_app,omitempty"`
+	Text         string        `json:"text"`
+	URL          string        `json:"url,omitempty"`
+	CallbackData string        `json:"callback_data,omitempty"`
+	WebApp       *WebAppInfo   `json:"web_app,omitempty"`
+	CallbackGame *CallbackGame `json:"callback_game,omitempty"`
 }
 
 // ReplyKeyboardMarkup represents a custom reply keyboard.
@@ -116,6 +117,11 @@ func InlineButtonWebApp(text string, url string) InlineKeyboardButton {
 	return InlineKeyboardButton{Text: text, WebApp: &WebAppInfo{URL: url}}
 }
 
+// InlineButtonGame creates an inline keyboard button that launches a game.
+func InlineButtonGame(text string) InlineKeyboardButton {
+	return InlineKeyboardButton{Text: text, CallbackGame: &CallbackGame{}}
+}
+
 // NewReplyKeyboard creates a ReplyKeyboardMarkup from rows of buttons.
 func NewReplyKeyboard(rows ...[]KeyboardButton) ReplyKeyboardMarkup {
 	return ReplyKeyboardMarkup{Keyboard: rows}
@@ -190,13 +196,16 @@ func validateInlineKeyboard(markup InlineKeyboardMarkup) error {
 	if len(markup.InlineKeyboard) == 0 {
 		return stderrors.New("inline keyboard must not be empty")
 	}
-	for _, row := range markup.InlineKeyboard {
+	for rowIndex, row := range markup.InlineKeyboard {
 		if len(row) == 0 {
 			return stderrors.New("inline keyboard row must not be empty")
 		}
-		for _, button := range row {
+		for buttonIndex, button := range row {
 			if err := validateInlineKeyboardButton(button); err != nil {
 				return err
+			}
+			if button.CallbackGame != nil && (rowIndex != 0 || buttonIndex != 0) {
+				return stderrors.New("inline keyboard callback_game button must be first")
 			}
 		}
 	}
@@ -226,6 +235,9 @@ func validateInlineKeyboardButton(button InlineKeyboardButton) error {
 		if err := validateWebAppInfo(*button.WebApp, "inline keyboard button web_app"); err != nil {
 			return err
 		}
+	}
+	if button.CallbackGame != nil {
+		actions++
 	}
 	if actions != 1 {
 		return stderrors.New("inline keyboard button must have exactly one action")

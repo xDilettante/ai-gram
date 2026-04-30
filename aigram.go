@@ -60,6 +60,15 @@ type StopPollParams = bot.StopPollParams
 // SendDiceParams contains supported parameters for sendDice.
 type SendDiceParams = bot.SendDiceParams
 
+// SendGameParams contains supported parameters for sendGame.
+type SendGameParams = bot.SendGameParams
+
+// SetGameScoreParams contains supported parameters for setGameScore.
+type SetGameScoreParams = bot.SetGameScoreParams
+
+// GetGameHighScoresParams contains supported parameters for getGameHighScores.
+type GetGameHighScoresParams = bot.GetGameHighScoresParams
+
 // InputSticker describes a sticker accepted by sticker set management methods.
 type InputSticker = bot.InputSticker
 

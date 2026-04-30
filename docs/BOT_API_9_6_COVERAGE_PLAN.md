@@ -326,7 +326,7 @@ Stage 81 implements the Business API foundation. Stage 82 adds business read, ac
 - [x] `business_connection_id` on current send methods: `SendMessage`, `SendPhoto`, `SendDocument`, `SendVideo`, `SendAudio`, `SendVoice`, `SendAnimation`, `SendVideoNote`, `SendSticker`, `SendPaidMedia`, `SendMediaGroup`, `SendContact`, `SendLocation`, `SendVenue`, `SendPoll`, and `SendDice`
 - [x] `business_connection_id` on current chat action/pin methods: `SendChatAction`, `PinChatMessage`, and `UnpinChatMessage`
 - [x] `business_connection_id` on current edit/stop methods: `EditMessageText`, `EditMessageCaption`, `EditMessageReplyMarkup`, `EditMessageMedia`, `EditMessageLiveLocation`, `StopMessageLiveLocation`, and `StopPoll`
-- [ ] `SendChecklist`, `EditMessageChecklist`, `SendGame`, and other business-enabled methods not yet implemented locally
+- [ ] `SendChecklist`, `EditMessageChecklist`, and other business-enabled methods not yet implemented locally
 - [x] `GetBusinessAccountStarBalance`
 - [x] `TransferBusinessAccountStars`
 - [x] `Gift`, `Gifts`, `GiftInfo`, `UniqueGift`, `UniqueGiftInfo`, `OwnedGift`, and `OwnedGifts` types
@@ -345,12 +345,12 @@ Stage 81 implements the Business API foundation. Stage 82 adds business read, ac
 
 ### Games
 
-- [ ] `SendGame`
-- [ ] `SetGameScore`
-- [ ] `GetGameHighScores`
-- [ ] `CallbackGame`
-- [ ] `Game`
-- [ ] `GameHighScore`
+- [x] `SendGame`
+- [x] `SetGameScore`
+- [x] `GetGameHighScores`
+- [x] `CallbackGame`
+- [x] `Game`
+- [x] `GameHighScore`
 
 ### Passport
 
@@ -389,7 +389,7 @@ Recommended local-only stages:
 8. Managed Bots 9.6 - implemented locally in Stage 78; token-returning methods manual-only.
 9. Poll 9.6 updates
 10. Business APIs
-11. Games and Passport
+11. Games - implemented locally in Stage 86; BotFather/game setup live checks manual-only. Passport remains pending
 12. Batch methods - implemented locally in Stage 69; `DeleteMessages` manual-only live smoke.
 13. Remaining message/edit methods
 14. Final full coverage audit against official Bot API 9.6

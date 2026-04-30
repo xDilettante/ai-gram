@@ -48,6 +48,7 @@ This document maps the current `ai-gram` implementation to Telegram Bot API area
 | `(*bot.Bot).SendVenue` | `sendVenue` | unit/httptest, live v0.2 smoke | Supports venue coordinates, title/address, Foursquare/Google place fields, reply markup, thread/reply params, and optional `business_connection_id`. |
 | `(*bot.Bot).SendPoll` | `sendPoll` | unit/httptest, live v0.2 smoke | Supports question/options, quiz fields, Bot API 9.6 `correct_option_ids`, revoting/options controls, poll description formatting, reply markup, thread/reply params, and optional `business_connection_id`. |
 | `(*bot.Bot).SendDice` | `sendDice` | unit/httptest, live v0.2 smoke | Supports known Telegram dice emoji, reply markup, thread/reply params, and optional `business_connection_id`. |
+| `(*bot.Bot).SendGame` | `sendGame` | unit/httptest | Sends BotFather-configured games with inline keyboard, reply params, `message_thread_id`, `allow_paid_broadcast`, `message_effect_id`, and optional `business_connection_id`. Manual-only live smoke. |
 | `(*bot.Bot).SendSticker` | `sendSticker` | unit/httptest, optional live v0.2 smoke | Supports `FileID`, `FileURL`, `FileUpload`, emoji, reply markup, thread/reply params, and optional `business_connection_id`. |
 | `(*bot.Bot).SendAnimation` | `sendAnimation` | unit/httptest, optional live v0.2 smoke | Supports `FileID`, `FileURL`, `FileUpload`, caption fields, thumbnail file ref/upload, spoiler, reply markup, thread/reply params, and optional `business_connection_id`. |
 | `(*bot.Bot).SendVideoNote` | `sendVideoNote` | unit/httptest, optional live v0.2 smoke | Supports `FileID`, `FileUpload`, thumbnail file ref/upload, duration/length, reply markup, thread/reply params, and optional `business_connection_id`. HTTP URL is intentionally rejected for video notes. |
@@ -101,6 +102,9 @@ This document maps the current `ai-gram` implementation to Telegram Bot API area
 | `(*bot.Bot).DeleteMessage` | `deleteMessage` | unit/httptest, live examples | Destructive; live example only deletes messages created during smoke. |
 | `(*bot.Bot).DeleteMessages` | `deleteMessages` | unit/httptest | Destructive batch delete for 1-100 message IDs; manual-only live smoke. |
 | `(*bot.Bot).StopPoll` | `stopPoll` | unit/httptest, live v0.2 smoke | Stops a poll sent by the bot and returns `telegram.Poll`; optional `business_connection_id` is supported. |
+| `(*bot.Bot).SetGameScore` | `setGameScore` | unit/httptest | Supports chat and inline targets and decodes Telegram `Message`/`true` result shape through `EditMessageResult`. Manual-only live smoke. |
+| `(*bot.Bot).GetGameHighScores` | `getGameHighScores` | unit/httptest | Supports chat and inline targets and decodes `[]telegram.GameHighScore`. Manual-only live smoke. |
+| `telegram.Game`, `telegram.CallbackGame`, `telegram.GameHighScore` | game objects | unit | Includes `Message.game` decoding and `InlineKeyboardButton.callback_game` validation. |
 | `(*bot.Bot).AnswerInlineQuery` | `answerInlineQuery` | unit/httptest, official Bot API 9.6 audit | Supports all current inline result variants, input message content variants, cache/pagination fields, and inline results button. Manual-only live smoke. |
 | `telegram.InlineQuery` | `inline_query` update | unit | Incoming inline query decoding and `EffectiveUser` support. |
 | `telegram.ChosenInlineResult` | `chosen_inline_result` update | unit | Incoming chosen inline result decoding and `EffectiveUser` support. |
@@ -336,10 +340,6 @@ This document maps the current `ai-gram` implementation to Telegram Bot API area
 
 ## Not implemented yet
 
-### Remaining send methods
-
-- `sendGame`
-
 ### Invite links
 
 - subscription invite link methods
@@ -356,10 +356,6 @@ This document maps the current `ai-gram` implementation to Telegram Bot API area
 
 - Telegram Passport data types and error methods
 
-### Games
-
-- game sending and score methods
-
 ### Inline mode
 
 - Stage 75 audited inline mode against official Bot API 9.6 documentation. Incoming inline updates, `AnswerInlineQuery`, `InlineQueryResultsButton`, all current `InputMessageContent` variants, and all 20 current `InlineQueryResult` variants are represented.
@@ -373,7 +369,7 @@ This document maps the current `ai-gram` implementation to Telegram Bot API area
 ### Business features
 
 - Business API foundation plus account/read/story/suggested post methods are implemented for `BusinessConnection`, business update fields, dispatch helpers, `GetBusinessConnection`, `ReadBusinessMessage`, `DeleteBusinessMessages`, account profile methods, gift settings, stories, and suggested posts.
-- Supported send/edit params now accept optional `business_connection_id` for business messages where the official Bot API exposes the field, including `EditMessageMedia`, `EditMessageLiveLocation`, and `StopMessageLiveLocation`. Business intro/location/hours/account metadata and not-yet-implemented checklist methods and games remain pending.
+- Supported send/edit params now accept optional `business_connection_id` for business messages where the official Bot API exposes the field, including `EditMessageMedia`, `EditMessageLiveLocation`, and `StopMessageLiveLocation`. Business intro/location/hours/account metadata and not-yet-implemented checklist methods remain pending.
 
 ### Stars/gifts if applicable
 
@@ -531,7 +527,6 @@ Unit and httptest suites do not require tokens.
 
 - Final audit for any Stars/gift/payment flows not covered by the gifts and remaining Stars slice.
 - Passport.
-- Games.
 - Business APIs.
 - Stars/gifts.
 - Full Bot API codegen or openapi tooling.

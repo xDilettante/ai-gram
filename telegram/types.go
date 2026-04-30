@@ -51,6 +51,7 @@ type Message struct {
 
 	Contact  *Contact  `json:"contact,omitempty"`
 	Dice     *Dice     `json:"dice,omitempty"`
+	Game     *Game     `json:"game,omitempty"`
 	Location *Location `json:"location,omitempty"`
 	Poll     *Poll     `json:"poll,omitempty"`
 	Venue    *Venue    `json:"venue,omitempty"`
