@@ -525,6 +525,36 @@ type BotShortDescription = telegram.BotShortDescription
 // LabeledPrice represents a price component in the smallest units of a currency.
 type LabeledPrice = telegram.LabeledPrice
 
+// PaidMediaInfo describes paid media attached to a message.
+type PaidMediaInfo = telegram.PaidMediaInfo
+
+// PaidMedia marks Telegram paid media objects.
+type PaidMedia = telegram.PaidMedia
+
+// StarTransactions contains a list of Telegram Star transactions.
+type StarTransactions = telegram.StarTransactions
+
+// StarTransaction describes a Telegram Star transaction.
+type StarTransaction = telegram.StarTransaction
+
+// InputPaidMedia marks paid media items accepted by sendPaidMedia.
+type InputPaidMedia = bot.InputPaidMedia
+
+// InputPaidMediaPhoto describes a paid photo to send.
+type InputPaidMediaPhoto = bot.InputPaidMediaPhoto
+
+// InputPaidMediaVideo describes a paid video to send.
+type InputPaidMediaVideo = bot.InputPaidMediaVideo
+
+// SendPaidMediaParams contains supported parameters for sendPaidMedia.
+type SendPaidMediaParams = bot.SendPaidMediaParams
+
+// GetStarTransactionsParams contains supported parameters for getStarTransactions.
+type GetStarTransactionsParams = bot.GetStarTransactionsParams
+
+// RefundStarPaymentParams contains supported parameters for refundStarPayment.
+type RefundStarPaymentParams = bot.RefundStarPaymentParams
+
 // InlineKeyboardMarkup represents an inline keyboard attached to a message.
 type InlineKeyboardMarkup = telegram.InlineKeyboardMarkup
 
@@ -649,6 +679,16 @@ func MediaAudio(media FileRef) InputMediaAudio {
 // MediaDocument creates a document input media item.
 func MediaDocument(media FileRef) InputMediaDocument {
 	return bot.MediaDocument(media)
+}
+
+// PaidPhoto creates a paid photo input media item.
+func PaidPhoto(media FileRef) InputPaidMediaPhoto {
+	return bot.PaidPhoto(media)
+}
+
+// PaidVideo creates a paid video input media item.
+func PaidVideo(media FileRef) InputPaidMediaVideo {
+	return bot.PaidVideo(media)
 }
 
 // ProfilePhotoStatic creates a static JPG input profile photo.

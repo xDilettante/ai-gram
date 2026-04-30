@@ -191,8 +191,8 @@ Stage 72 implements the first inline foundation: incoming inline query updates, 
 - [x] `CreateInvoiceLink`
 - [x] `AnswerShippingQuery`
 - [x] `AnswerPreCheckoutQuery`
-- [ ] `RefundStarPayment`, if present in Bot API 9.6 docs
-- [ ] `SendPaidMedia`, if present in Bot API 9.6 docs
+- [x] `RefundStarPayment`
+- [x] `SendPaidMedia`
 - [ ] `GetMyStarBalance`, if present in Bot API 9.6 docs
 - [ ] gift methods such as `SendGift` and `GiftPremiumSubscription`, if present in Bot API 9.6 docs
 - [ ] available gift and owned gift methods/types, if present in Bot API 9.6 docs
@@ -203,9 +203,10 @@ Stage 72 implements the first inline foundation: incoming inline query updates, 
 - [x] `LabeledPrice`
 - [x] `ShippingOption`
 - [x] `RefundedPayment` message type
-- [ ] `PaidMediaInfo`
-- [ ] paid media input/result types
-- [ ] `StarTransaction` and revenue-related types, if present in Bot API 9.6 docs
+- [x] `PaidMediaInfo`
+- [x] paid media input/result types
+- [x] `StarTransaction` and basic revenue-related transaction partner types
+- [ ] Advanced gift-specific transaction partner payloads remain pending for the gifts/business gifts slice
 
 ### Stickers
 

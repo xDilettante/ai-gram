@@ -499,9 +499,9 @@ Checklist:
 - A local Telegram Bot API server in `--local` mode can accept HTTP/local webhook URLs when `AIGRAM_BASE_URL` points to that local server.
 
 
-## Payments and invoice basics checklist
+## Payments, paid media, and Stars checklist
 
-`SendInvoice`, `CreateInvoiceLink`, `AnswerShippingQuery`, and `AnswerPreCheckoutQuery` require an explicit payment-capable test environment. They are intentionally not part of automatic live smoke.
+`SendInvoice`, `CreateInvoiceLink`, `AnswerShippingQuery`, `AnswerPreCheckoutQuery`, `SendPaidMedia`, `GetStarTransactions`, and `RefundStarPayment` require an explicit payment-capable test environment. They are intentionally not part of automatic live smoke.
 
 Manual checklist:
 
@@ -513,6 +513,10 @@ Manual checklist:
 - Log only safe markers: method name, redacted query IDs, currency, amount, boolean result, message ID, and whether an invoice link was created.
 - Do not log bot tokens, provider credentials, raw payment payloads, full invoice links from production flows, private user data, or provider charge IDs from real payments.
 - Reconcile and clean up any test artifacts according to the payment provider's test-mode guidance.
+- Send paid media only to a dedicated test chat and use test FileID/URL/upload media.
+- Query `GetStarTransactions` only for expected test windows and avoid copying raw transaction payloads into reports.
+- Use `RefundStarPayment` only for matching test Stars payments and record only redacted charge IDs.
+- Do not run paid media, Stars refunds, subscriptions, gifts, or business gift flows on production bots without explicit confirmation.
 
 ## Inline mode checklist
 

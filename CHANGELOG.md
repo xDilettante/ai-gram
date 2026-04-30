@@ -14,6 +14,7 @@
 - Additional inline mode result and input message content variants.
 - Media and cached inline query result variants.
 - Payments and invoice basics: `SendInvoice`, `CreateInvoiceLink`, `AnswerShippingQuery`, `AnswerPreCheckoutQuery`, and payment update/message types.
+- Paid media and Stars basics: `SendPaidMedia`, `GetStarTransactions`, `RefundStarPayment`, paid media message/update types, and Star transaction decoding.
 
 ### Documentation
 

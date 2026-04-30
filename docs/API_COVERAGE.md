@@ -120,6 +120,13 @@ This document maps the current `ai-gram` implementation to Telegram Bot API area
 | `telegram.ShippingQuery`, `telegram.PreCheckoutQuery` | payment updates | unit | Decodes payment query updates and supports `EffectiveUser` without inventing an effective chat. |
 | `dispatch.ShippingQuery`, `dispatch.PreCheckoutQuery` | dispatch predicates/helpers | unit | Includes `OnShippingQuery` and `OnPreCheckoutQuery` handler registration helpers. |
 | `telegram.LabeledPrice`, `telegram.ShippingOption`, `telegram.OrderInfo`, `telegram.ShippingAddress` | payment payload/support objects | unit through method payload/result tests | Minimal typed support for invoice prices, shipping options, and order metadata. |
+| `(*bot.Bot).SendPaidMedia` | `sendPaidMedia` | unit/httptest | Sends paid photo/video media by file ID, URL, or multipart upload with deterministic `attach://` names. Manual-only live smoke. |
+| `(*bot.Bot).GetStarTransactions` | `getStarTransactions` | unit/httptest | Retrieves typed Star transaction history with polymorphic transaction partner decoding. Manual-only live smoke. |
+| `(*bot.Bot).RefundStarPayment` | `refundStarPayment` | unit/httptest | Refunds successful Telegram Stars payments by user ID and Telegram payment charge ID. Manual-only live smoke. |
+| `telegram.PaidMediaInfo`, `telegram.PaidMediaPreview`, `telegram.PaidMediaPhoto`, `telegram.PaidMediaVideo` | paid media message objects | unit | Decodes paid media attached to messages with polymorphic paid media items. |
+| `telegram.PaidMediaPurchased` | `purchased_paid_media` update | unit | Decodes paid media purchase updates and supports `EffectiveUser` without inventing an effective chat. |
+| `dispatch.PaidMediaPurchased` | dispatch predicate/helper | unit | Includes `OnPaidMediaPurchased` handler registration helpers. |
+| `telegram.StarTransactions`, `telegram.StarTransaction`, `telegram.TransactionPartner*` | Stars transaction objects | unit | Decodes basic Star transactions, paid media purchases, affiliate details, Fragment withdrawal state, Telegram Ads/API, chat, user, and other partner variants. Gift-specific partner payloads remain pending for the gifts slice. |
 
 
 ### Forward/copy
@@ -273,7 +280,6 @@ This document maps the current `ai-gram` implementation to Telegram Bot API area
 
 ### Remaining send methods
 
-- `sendPaidMedia`
 - `sendGame`
 
 ### Invite links
@@ -286,7 +292,7 @@ This document maps the current `ai-gram` implementation to Telegram Bot API area
 
 ### Payments
 
-- Paid media, Star balance/transaction, refund methods, subscriptions, gifts, and broader payments/stars flows. Invoice basics, shipping query, pre-checkout query, and payment message/update decoding are implemented.
+- Paid media, basic Star transaction history, and Star payment refunds are implemented. Star balance, subscriptions, gifts, business gifts, and broader advanced Stars/payment flows remain pending.
 
 ### Passport
 
@@ -299,7 +305,7 @@ This document maps the current `ai-gram` implementation to Telegram Bot API area
 ### Inline mode
 
 - Stage 75 audited inline mode against official Bot API 9.6 documentation. Incoming inline updates, `AnswerInlineQuery`, `InlineQueryResultsButton`, all current `InputMessageContent` variants, and all 20 current `InlineQueryResult` variants are represented.
-- Payments/invoice basics are implemented separately; paid media, Star transaction, refunds, subscriptions, gifts, and broader payments/stars flows remain pending.
+- Payments/invoice basics, paid media, Star transaction history, and Star payment refunds are implemented separately; Star balance, subscriptions, gifts, business gifts, and broader advanced Stars/payment flows remain pending.
 
 ### WebApp/LoginUrl
 
@@ -314,7 +320,7 @@ This document maps the current `ai-gram` implementation to Telegram Bot API area
 
 ### Stars/gifts if applicable
 
-- Stars transaction/gift methods and related update types should be reviewed against the current official Bot API before planning.
+- Basic Star transaction history and refunds are implemented; Star balance, gifts, business gifts, and advanced Stars-related methods remain pending and should be reviewed against the official Bot API before implementation.
 
 ### Codegen/openapi tooling if applicable
 
@@ -451,14 +457,14 @@ Unit and httptest suites do not require tokens.
 
 ### Nice-to-have before v0.1
 
-- Remaining high-risk/advanced Bot API coverage such as paid media, broader Stars/payment flows, business APIs, Passport, and games.
+- Remaining high-risk/advanced Bot API coverage such as broader Stars/gift flows, business APIs, Passport, and games.
 - Bot command and menu methods.
 - A small release checklist document if not folded into existing docs.
 - README tightening to avoid overpromising unimplemented Bot API areas.
 
 ### Defer after v0.1
 
-- Paid media and broader Stars/payment flows.
+- Broader Stars/gift/payment flows beyond paid media and basic Star refunds.
 - Passport.
 - Games.
 - Business APIs.

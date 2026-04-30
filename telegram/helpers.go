@@ -125,6 +125,9 @@ func (u *Update) EffectiveUser() *User {
 	if u.PreCheckoutQuery != nil {
 		return &u.PreCheckoutQuery.From
 	}
+	if u.PurchasedPaidMedia != nil {
+		return &u.PurchasedPaidMedia.From
+	}
 	if u.ChatJoinRequest != nil {
 		return &u.ChatJoinRequest.From
 	}

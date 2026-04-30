@@ -651,3 +651,30 @@ func shippingQueryUpdate() telegram.Update {
 func preCheckoutQueryUpdate() telegram.Update {
 	return telegram.Update{PreCheckoutQuery: &telegram.PreCheckoutQuery{ID: "pre", From: telegram.User{ID: 778, FirstName: "Bob"}}}
 }
+
+func TestPaidMediaPurchasedPredicateAndHandler(t *testing.T) {
+	dispatcher := New()
+	called := false
+	if err := dispatcher.OnPaidMediaPurchasedFunc(func(ctx context.Context, update telegram.Update) error {
+		called = true
+		if update.PurchasedPaidMedia == nil || update.PurchasedPaidMedia.From.ID != 7 {
+			t.Fatalf("unexpected update: %+v", update)
+		}
+		return nil
+	}); err != nil {
+		t.Fatalf("register handler: %v", err)
+	}
+	update := telegram.Update{UpdateID: 1, PurchasedPaidMedia: &telegram.PaidMediaPurchased{From: telegram.User{ID: 7, FirstName: "Alice"}, PaidMediaPayload: "payload"}}
+	if !PaidMediaPurchased()(update) {
+		t.Fatal("predicate should match paid media purchase")
+	}
+	if err := dispatcher.HandleUpdate(context.Background(), update); err != nil {
+		t.Fatalf("handle update: %v", err)
+	}
+	if !called {
+		t.Fatal("expected handler call")
+	}
+	if PaidMediaPurchased()(telegram.Update{UpdateID: 2}) {
+		t.Fatal("predicate should not match unrelated update")
+	}
+}

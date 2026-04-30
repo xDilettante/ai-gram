@@ -226,6 +226,16 @@ func (d *Dispatcher) OnPreCheckoutQueryFunc(handler HandlerFunc) error {
 	return d.OnPreCheckoutQuery(handler)
 }
 
+// OnPaidMediaPurchased registers a handler for paid media purchase updates.
+func (d *Dispatcher) OnPaidMediaPurchased(handler Handler) error {
+	return d.Handle(PaidMediaPurchased(), handler)
+}
+
+// OnPaidMediaPurchasedFunc registers a function handler for paid media purchase updates.
+func (d *Dispatcher) OnPaidMediaPurchasedFunc(handler HandlerFunc) error {
+	return d.OnPaidMediaPurchased(handler)
+}
+
 // OnChatJoinRequest registers a handler for chat join request updates.
 func (d *Dispatcher) OnChatJoinRequest(handler Handler) error {
 	return d.Handle(ChatJoinRequest(), handler)
@@ -303,6 +313,11 @@ func ShippingQuery() Predicate {
 // PreCheckoutQuery matches updates with a pre-checkout query.
 func PreCheckoutQuery() Predicate {
 	return func(update telegram.Update) bool { return update.PreCheckoutQuery != nil }
+}
+
+// PaidMediaPurchased matches updates with a paid media purchase.
+func PaidMediaPurchased() Predicate {
+	return func(update telegram.Update) bool { return update.PurchasedPaidMedia != nil }
 }
 
 // ChatJoinRequest matches updates with a chat join request.

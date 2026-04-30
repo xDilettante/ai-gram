@@ -642,7 +642,7 @@ if err := d.OnInlineQueryFunc(func(ctx context.Context, update telegram.Update) 
 }
 ```
 
-Payments and invoice basics support `SendInvoice`, `CreateInvoiceLink`, `AnswerShippingQuery`, and `AnswerPreCheckoutQuery`. Payment live testing requires an explicit payment-capable test environment and is manual-only:
+Payments and Stars support `SendInvoice`, `CreateInvoiceLink`, `AnswerShippingQuery`, `AnswerPreCheckoutQuery`, `SendPaidMedia`, `GetStarTransactions`, and `RefundStarPayment`. Payment and Stars live testing requires an explicit payment-capable test environment and is manual-only:
 
 ```go
 invoice, err := b.SendInvoice(ctx, aigram.SendInvoiceParams{
@@ -668,9 +668,22 @@ if err != nil {
     return err
 }
 fmt.Println("pre-checkout confirmed:", confirmed)
+
+paid, err := b.SendPaidMedia(ctx, aigram.SendPaidMediaParams{
+    ChatID:    aigram.ChatIDInt(123456789),
+    StarCount: 5,
+    Media: []aigram.InputPaidMedia{
+        aigram.PaidPhoto(aigram.FileID("paid_photo_file_id")),
+    },
+    Payload: "opaque-paid-media-payload",
+})
+if err != nil {
+    return err
+}
+fmt.Println("paid media:", paid.MessageID)
 ```
 
-Reply markup currently supports inline keyboards, reply keyboards, keyboard removal, and force reply for send methods. Edit methods intentionally accept only inline keyboard markup. `AnswerCallbackQuery` can acknowledge callback taps with a toast or alert. `editMessageMedia`, WebApp/LoginUrl buttons, paid media, broader Stars flows, and a keyboard builder DSL will be added separately later.
+Reply markup currently supports inline keyboards, reply keyboards, keyboard removal, and force reply for send methods. Edit methods intentionally accept only inline keyboard markup. `AnswerCallbackQuery` can acknowledge callback taps with a toast or alert. `editMessageMedia`, WebApp/LoginUrl buttons, gifts/business gifts, advanced Stars flows, and a keyboard builder DSL will be added separately later.
 
 Protect handlers with access control middleware:
 
@@ -1101,7 +1114,7 @@ if err != nil {
 fmt.Println(ok)
 ```
 
-Webhook management is JSON-only for now. Webhook certificate upload, full thumbnail coverage, editMessageMedia, WebApp/LoginUrl buttons, paid media, broader Stars/payment flows, FSM, scenes, storage, dependency injection, and full Bot API coverage are not implemented yet.
+Webhook management is JSON-only for now. Webhook certificate upload, full thumbnail coverage, editMessageMedia, WebApp/LoginUrl buttons, gifts/business gifts, advanced Stars/payment flows, FSM, scenes, storage, dependency injection, and full Bot API coverage are not implemented yet.
 
 
 ## Examples

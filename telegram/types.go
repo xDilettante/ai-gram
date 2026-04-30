@@ -14,6 +14,7 @@ type Update struct {
 	MessageReactionCount *MessageReactionCountUpdated `json:"message_reaction_count,omitempty"`
 	ShippingQuery        *ShippingQuery               `json:"shipping_query,omitempty"`
 	PreCheckoutQuery     *PreCheckoutQuery            `json:"pre_checkout_query,omitempty"`
+	PurchasedPaidMedia   *PaidMediaPurchased          `json:"purchased_paid_media,omitempty"`
 }
 
 // Message represents a Telegram message with the minimal fields needed by update handlers.
@@ -48,6 +49,7 @@ type Message struct {
 	Invoice           *Invoice           `json:"invoice,omitempty"`
 	SuccessfulPayment *SuccessfulPayment `json:"successful_payment,omitempty"`
 	RefundedPayment   *RefundedPayment   `json:"refunded_payment,omitempty"`
+	PaidMedia         *PaidMediaInfo     `json:"paid_media,omitempty"`
 
 	ForumTopicCreated         *ForumTopicCreated         `json:"forum_topic_created,omitempty"`
 	ForumTopicEdited          *ForumTopicEdited          `json:"forum_topic_edited,omitempty"`
