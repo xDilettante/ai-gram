@@ -114,6 +114,24 @@ type GetChatAdministratorsParams = bot.GetChatAdministratorsParams
 // GetChatMemberCountParams contains supported parameters for getChatMemberCount.
 type GetChatMemberCountParams = bot.GetChatMemberCountParams
 
+// SetMyCommandsParams contains supported parameters for setMyCommands.
+type SetMyCommandsParams = bot.SetMyCommandsParams
+
+// DeleteMyCommandsParams contains supported parameters for deleteMyCommands.
+type DeleteMyCommandsParams = bot.DeleteMyCommandsParams
+
+// GetMyCommandsParams contains supported parameters for getMyCommands.
+type GetMyCommandsParams = bot.GetMyCommandsParams
+
+// SetChatMenuButtonParams contains supported parameters for setChatMenuButton.
+type SetChatMenuButtonParams = bot.SetChatMenuButtonParams
+
+// GetChatMenuButtonParams contains supported parameters for getChatMenuButton.
+type GetChatMenuButtonParams = bot.GetChatMenuButtonParams
+
+// SetMyDefaultAdministratorRightsParams contains supported parameters for setMyDefaultAdministratorRights.
+type SetMyDefaultAdministratorRightsParams = bot.SetMyDefaultAdministratorRightsParams
+
 // EditMessageResult contains the result returned by edit message methods.
 type EditMessageResult = bot.EditMessageResult
 

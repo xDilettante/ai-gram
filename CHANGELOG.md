@@ -13,6 +13,7 @@
 - `SendSticker`.
 - `SendAnimation`.
 - `SendVideoNote`.
+- Bot commands and menu methods: `SetMyCommands`, `DeleteMyCommands`, `GetMyCommands`, `SetChatMenuButton`, `GetChatMenuButton`, and `SetMyDefaultAdministratorRights`.
 
 ## v0.1.1 - 2026-04-30
 

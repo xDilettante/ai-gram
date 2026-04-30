@@ -107,6 +107,18 @@ This document maps the current `ai-gram` implementation to Telegram Bot API area
 | `(*bot.Bot).RestrictChatMember` | `restrictChatMember` | unit/httptest | Destructive/admin method; zero `telegram.ChatPermissions` is valid and restricts all supported actions. |
 | `telegram.ChatPermissions` | moderation permissions object | unit through method payload tests | Minimal supported permission fields for restriction payloads. |
 
+### Bot commands/menu
+
+| Public Go API | Telegram Bot API method | Tests | Notes |
+| --- | --- | --- | --- |
+| `(*bot.Bot).SetMyCommands` | `setMyCommands` | unit/httptest | Supports command lists, scope objects, and language code. Changes bot-level command state, so no automatic live smoke. |
+| `(*bot.Bot).DeleteMyCommands` | `deleteMyCommands` | unit/httptest | Deletes commands for a scope/language. Changes bot-level command state, so no automatic live smoke. |
+| `(*bot.Bot).GetMyCommands` | `getMyCommands` | unit/httptest | Decodes command lists for a scope/language. |
+| `(*bot.Bot).SetChatMenuButton` | `setChatMenuButton` | unit/httptest | Supports commands/default/web_app menu buttons; changes menu state, so no automatic live smoke. |
+| `(*bot.Bot).GetChatMenuButton` | `getChatMenuButton` | unit/httptest | Decodes polymorphic commands/default/web_app menu buttons. |
+| `(*bot.Bot).SetMyDefaultAdministratorRights` | `setMyDefaultAdministratorRights` | unit/httptest | Sets or clears default administrator rights requested by the bot; no automatic live smoke. |
+| `telegram.BotCommandScope`, `telegram.MenuButton`, `telegram.ChatAdministratorRights` | related Bot API objects | unit through method payload tests | Hand-written minimal object coverage for command scopes, menu buttons, Web App info, and admin rights. |
+
 ### Access/example infrastructure
 
 | Public Go API / artifact | Tests | Notes |
@@ -179,16 +191,14 @@ This document maps the current `ai-gram` implementation to Telegram Bot API area
 
 ### WebApp/LoginUrl
 
-- WebApp button fields
+- WebApp/LoginUrl fields outside the implemented menu button support
 - LoginUrl button fields and validation
 - web app data helpers
 
-### Bot commands/menu
+### Bot profile methods
 
-- bot command scope types
-- `setMyCommands`, `getMyCommands`, `deleteMyCommands`
-- menu button methods
 - bot name/description/short description methods
+- profile photo methods
 
 ### Forum topics
 
