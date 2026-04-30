@@ -15,6 +15,7 @@
 - `SendVideoNote`.
 - `SendMediaGroup`.
 - Bot commands and menu methods: `SetMyCommands`, `DeleteMyCommands`, `GetMyCommands`, `SetChatMenuButton`, `GetChatMenuButton`, and `SetMyDefaultAdministratorRights`.
+- Chat invite link methods: `ExportChatInviteLink`, `CreateChatInviteLink`, `EditChatInviteLink`, and `RevokeChatInviteLink`.
 - Targeted `SendMediaGroup` live smoke script with generated upload fallback.
 
 ## v0.1.1 - 2026-04-30

@@ -135,6 +135,18 @@ type GetChatMenuButtonParams = bot.GetChatMenuButtonParams
 // SetMyDefaultAdministratorRightsParams contains supported parameters for setMyDefaultAdministratorRights.
 type SetMyDefaultAdministratorRightsParams = bot.SetMyDefaultAdministratorRightsParams
 
+// ExportChatInviteLinkParams contains supported parameters for exportChatInviteLink.
+type ExportChatInviteLinkParams = bot.ExportChatInviteLinkParams
+
+// CreateChatInviteLinkParams contains supported parameters for createChatInviteLink.
+type CreateChatInviteLinkParams = bot.CreateChatInviteLinkParams
+
+// EditChatInviteLinkParams contains supported parameters for editChatInviteLink.
+type EditChatInviteLinkParams = bot.EditChatInviteLinkParams
+
+// RevokeChatInviteLinkParams contains supported parameters for revokeChatInviteLink.
+type RevokeChatInviteLinkParams = bot.RevokeChatInviteLinkParams
+
 // EditMessageResult contains the result returned by edit message methods.
 type EditMessageResult = bot.EditMessageResult
 

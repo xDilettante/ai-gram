@@ -319,6 +319,20 @@ Manual checklist for a dedicated test environment only:
 
 Treat Telegram permission errors in chats where the bot is not an admin as expected Bot API behavior, not as a library bug.
 
+## Invite link methods checklist
+
+`ExportChatInviteLink`, `CreateChatInviteLink`, `EditChatInviteLink`, and `RevokeChatInviteLink` require bot admin rights and create or revoke real chat invite links. They are intentionally not part of automatic live smoke.
+
+Manual checklist for a dedicated test environment only:
+
+- Create a dedicated test group or channel.
+- Add the bot as an admin with invite-user rights.
+- Use only test invite links and avoid production groups/channels.
+- Prefer `CreateChatInviteLink` for a named temporary test link, then `EditChatInviteLink` if needed.
+- Revoke every created test link with `RevokeChatInviteLink` after testing.
+- Treat Telegram permission errors in non-admin chats as expected Bot API behavior, not as a library bug.
+- Do not paste bot tokens, token-bearing URLs, full invite links, or private group content into logs or reports.
+
 ## Media upload/download checklist
 
 Upload a local file as a document:

@@ -120,6 +120,16 @@ This document maps the current `ai-gram` implementation to Telegram Bot API area
 | `(*bot.Bot).SetMyDefaultAdministratorRights` | `setMyDefaultAdministratorRights` | unit/httptest | Sets or clears default administrator rights requested by the bot; no automatic live smoke. |
 | `telegram.BotCommandScope`, `telegram.MenuButton`, `telegram.ChatAdministratorRights` | related Bot API objects | unit through method payload tests | Hand-written minimal object coverage for command scopes, menu buttons, Web App info, and admin rights. |
 
+### Invite links
+
+| Public Go API | Telegram Bot API method | Tests | Notes |
+| --- | --- | --- | --- |
+| `(*bot.Bot).ExportChatInviteLink` | `exportChatInviteLink` | unit/httptest | Admin-required method that generates a new primary invite link and revokes the previous primary link. Not auto-smoked. |
+| `(*bot.Bot).CreateChatInviteLink` | `createChatInviteLink` | unit/httptest | Creates a real additional invite link; supports name, expire date, member limit, and join-request flag. Not auto-smoked. |
+| `(*bot.Bot).EditChatInviteLink` | `editChatInviteLink` | unit/httptest | Edits a non-primary invite link created by the bot. Not auto-smoked. |
+| `(*bot.Bot).RevokeChatInviteLink` | `revokeChatInviteLink` | unit/httptest | Revokes a real invite link created by the bot. Not auto-smoked. |
+| `telegram.ChatInviteLink` | invite link object | unit through method result tests | Minimal invite link metadata with creator, primary/revoked flags, limits, expiry, and pending join request count. |
+
 ### Access/example infrastructure
 
 | Public Go API / artifact | Tests | Notes |
@@ -155,7 +165,6 @@ This document maps the current `ai-gram` implementation to Telegram Bot API area
 
 ### Invite links
 
-- create/edit/revoke chat invite link methods
 - subscription invite link methods
 
 ### Join requests
@@ -260,6 +269,7 @@ These still require real credentials and may notify users, but they are not dest
 - `UnbanChatMember`
 - `RestrictChatMember`
 - some chat/member info methods depending on chat type and bot permissions
+- chat invite link methods (`ExportChatInviteLink`, `CreateChatInviteLink`, `EditChatInviteLink`, `RevokeChatInviteLink`)
 
 ### Destructive
 
@@ -269,6 +279,7 @@ These still require real credentials and may notify users, but they are not dest
 - `BanChatMember`
 - `UnbanChatMember`
 - `RestrictChatMember`
+- invite link methods when used outside isolated test chats, because they create or revoke real access links
 - future moderation/admin methods
 
 ### Requires upload/multipart
