@@ -2,6 +2,8 @@
 
 This document maps the current `ai-gram` implementation to Telegram Bot API areas. It is a project inventory, not a generated copy of the full upstream Bot API specification. Telegram adds methods over time, so expansion work should still be checked against the official Bot API docs before implementation.
 
+> **Bot API 9.6 target:** The current coverage target is 100% Telegram Bot API 9.6. Track the local-only full coverage workstream in [`docs/BOT_API_9_6_COVERAGE_PLAN.md`](BOT_API_9_6_COVERAGE_PLAN.md). Not all Bot API 9.6 areas are implemented yet. Push, tag, and GitHub Release suggestions are frozen until the full 9.6 plan is complete.
+
 ## Implemented
 
 ### Core

@@ -85,44 +85,40 @@ Milestone outcome:
 - v0.2.0 was released as the coherent expanded API milestone.
 - Chat management, forum topics, reactions, and inline mode are now planned for v0.3 instead of extending the v0.2 boundary.
 
-## v0.3 Group/chat administration and advanced interaction surfaces
+## vNext Bot API 9.6 full coverage workstream
 
-Focus: extend the v0.2 group/admin foundation into practical chat administration and advanced interaction surfaces while keeping live verification safe and explicit. See [`docs/V0_3_PLAN.md`](V0_3_PLAN.md) for the detailed plan.
+Strategic change: the small v0.3 release plan is superseded. The current goal is full Telegram Bot API 9.6 method, type, and update coverage before the next push, tag, or GitHub Release. See [`docs/BOT_API_9_6_COVERAGE_PLAN.md`](BOT_API_9_6_COVERAGE_PLAN.md) for the source-of-truth local plan.
 
-Planned slices:
+Repository policy for this workstream:
 
-- Chat management methods:
-  - `SetChatTitle`
-  - `SetChatDescription`
-  - `SetChatPhoto`
-  - `DeleteChatPhoto`
-  - `LeaveChat`
-- Forum topics:
-  - `CreateForumTopic`
-  - `EditForumTopic`
-  - `CloseForumTopic`
-  - `ReopenForumTopic`
-  - `DeleteForumTopic`
-  - `UnpinAllForumTopicMessages`
-- Reactions:
-  - `SetMessageReaction`
-  - reaction type/update support as needed
-- Inline mode basics:
-  - `AnswerInlineQuery`
-  - minimal `InlineQuery` update/type support
-  - minimal `InlineQueryResult` variants
+- `v0.2.0` remains the latest public release.
+- Continue local-only development with verified local commits.
+- Do not suggest pushing main after each local commit.
+- Do not create tags or GitHub Releases until full Bot API 9.6 coverage is complete.
+- Do not run `git push` unless the user explicitly asks.
 
-Recommended order:
+Recommended local-only implementation order:
 
 1. Chat management
 2. Forum topics
 3. Reactions
 4. Inline mode basics
+5. Sticker set management
+6. Payments, Stars, and paid media
+7. WebApp and prepared buttons
+8. Managed Bots 9.6
+9. Poll 9.6 updates
+10. Business APIs
+11. Games and Passport
+12. Batch methods
+13. Remaining message/edit methods
+14. Final full coverage audit against official Bot API 9.6
 
 Live smoke policy:
 
 - Safe/read-only flows may be live-smoked.
 - Admin/state-changing flows require a dedicated test chat and explicit user confirmation.
+- Payments, Passport, Business, Managed Bots, gifts, and Stars flows require explicit confirmation.
 - Destructive/admin flows must not be auto-smoked.
 
 ## Later

@@ -5,6 +5,7 @@
 ### Planning
 
 - Added v0.3 plan for chat management, forum topics, reactions, and inline mode basics.
+- Added full Telegram Bot API 9.6 coverage plan and local-only push/tag/release freeze policy.
 
 ## v0.2.0 - 2026-04-30
 

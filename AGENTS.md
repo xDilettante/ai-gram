@@ -97,6 +97,20 @@ Existing Russian private Telegram/operator notifications in scripts are допу
 
 Комментарии в коде нужны только там, где они объясняют смысл, контракт, ограничение или нетривиальное решение. Не комментируй очевидное.
 
+
+## Release and push policy
+
+Until Telegram Bot API 9.6 coverage is complete:
+
+- Do not suggest pushing main after every local commit.
+- Do not suggest creating tags.
+- Do not suggest GitHub Releases.
+- Do not run `git push` unless the user explicitly asks.
+- Do not run `git push --tags`.
+- Do not create releases.
+- Continue local commits only.
+- Final reports may say: "local commit created; push intentionally skipped by project policy".
+
 ## 4. Базовые технические требования
 
 Используй Go.

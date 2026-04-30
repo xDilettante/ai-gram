@@ -2,7 +2,7 @@
 
 `ai-gram` is a Go library project for working with the Telegram Bot API.
 
-The project is in an early architecture stage. It provides practical incoming update types, a typed HTTP Bot API core, selected public Bot API methods, media sending by file_id, URL, or multipart upload, file download support, webhook management methods, a managed long polling runner, an inbound webhook HTTP handler, a small update dispatcher/router, helper middleware, examples, and manual smoke tooling. It does not yet implement FSM, scenes, storage, full thumbnail coverage for every media method, or full Bot API coverage.
+The latest public release is `v0.2.0`. Local development is now focused on reaching full Telegram Bot API 9.6 coverage before the next push, tag, or GitHub Release. The library provides practical incoming update types, a typed HTTP Bot API core, selected public Bot API methods, media sending by file_id, URL, or multipart upload, file download support, webhook management methods, a managed long polling runner, an inbound webhook HTTP handler, a small update dispatcher/router, helper middleware, examples, and manual smoke tooling. It does not yet implement FSM, scenes, storage, full thumbnail coverage for every media method, or full Bot API 9.6 coverage.
 
 ## Status
 
@@ -16,6 +16,8 @@ The project is in an early architecture stage. It provides practical incoming up
 - Long polling transport: managed runner is available. Webhook transport: inbound HTTP handler is available.
 - Telegram Bot API method coverage: `GetMe`, `SendMessage`, `SendPhoto`, `SendDocument`, `SendVideo`, `SendAudio`, `SendVoice`, `SendContact`, `SendLocation`, `SendVenue`, `SendPoll`, `StopPoll`, `SendDice`, `SendSticker`, `SendAnimation`, `SendVideoNote`, `SendMediaGroup`, `SetMyCommands`, `DeleteMyCommands`, `GetMyCommands`, `SetChatMenuButton`, `GetChatMenuButton`, `SetMyDefaultAdministratorRights`, `AnswerCallbackQuery`, `EditMessageText`, `EditMessageCaption`, `EditMessageReplyMarkup`, `DeleteMessage`, `ForwardMessage`, `CopyMessage`, `SendChatAction`, `PinChatMessage`, `UnpinChatMessage`, `UnpinAllChatMessages`, `GetChat`, `GetChatMember`, `GetChatAdministrators`, `GetChatMemberCount`, `ExportChatInviteLink`, `CreateChatInviteLink`, `EditChatInviteLink`, `RevokeChatInviteLink`, `ApproveChatJoinRequest`, `DeclineChatJoinRequest`, `PromoteChatMember`, `SetChatAdministratorCustomTitle`, `SetChatPermissions`, `BanChatMember`, `UnbanChatMember`, `RestrictChatMember`, reply markup for supported send and edit methods, the manual `GetUpdates` API call, `GetFile`, `DownloadFile`, multipart upload for media send methods, and JSON-only webhook management methods (`SetWebhook`, `DeleteWebhook`, `GetWebhookInfo`) are implemented. The rest of the Bot API is not implemented yet.
 - Public API stability: not guaranteed before the first stable release.
+- Latest public release: `v0.2.0`.
+- Current local strategy: full Telegram Bot API 9.6 coverage before the next push/tag/release.
 
 ## Planned architecture
 
@@ -41,10 +43,10 @@ For public GitHub module usage, install from the canonical module path:
 go get github.com/xDilettante/ai-gram@latest
 ```
 
-`v0.1.0` was the first milestone tag. Use `v0.1.1` or newer for the canonical public module path:
+`v0.1.0` was the first milestone tag. Use `v0.2.0` for the latest public release:
 
 ```bash
-go get github.com/xDilettante/ai-gram@v0.1.1
+go get github.com/xDilettante/ai-gram@v0.2.0
 ```
 
 ## Usage examples
@@ -924,6 +926,7 @@ Coverage and planning documents:
 - [`docs/releases/v0.1.1.md`](docs/releases/v0.1.1.md) — GitHub-release-ready notes for the canonical module path patch release.
 - [`docs/releases/v0.1.0.md`](docs/releases/v0.1.0.md) — historical first milestone notes.
 - [`docs/API_COVERAGE.md`](docs/API_COVERAGE.md) — implemented methods, missing Bot API areas, risk classification, and v0.1 recommendation.
+- [`docs/BOT_API_9_6_COVERAGE_PLAN.md`](docs/BOT_API_9_6_COVERAGE_PLAN.md) — local-only full Telegram Bot API 9.6 coverage plan and freeze policy.
 - [`docs/V0_2_CHECKPOINT.md`](docs/V0_2_CHECKPOINT.md) — v0.2 coverage checkpoint and release recommendation.
 - [`docs/V0_3_PLAN.md`](docs/V0_3_PLAN.md) — planned v0.3 scope for chat management, forum topics, reactions, and inline mode basics.
 - [`docs/ROADMAP.md`](docs/ROADMAP.md) — stabilization and expansion roadmap.
