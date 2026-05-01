@@ -651,6 +651,45 @@ type UserChatBoosts = telegram.UserChatBoosts
 // CallbackQuery represents an incoming callback query.
 type CallbackQuery = telegram.CallbackQuery
 
+// MessageOrigin marks Telegram message origin objects.
+type MessageOrigin = telegram.MessageOrigin
+
+// MessageOriginUser describes a message originally sent by a known user.
+type MessageOriginUser = telegram.MessageOriginUser
+
+// MessageOriginHiddenUser describes a message originally sent by an unknown user.
+type MessageOriginHiddenUser = telegram.MessageOriginHiddenUser
+
+// MessageOriginChat describes a message originally sent on behalf of a chat.
+type MessageOriginChat = telegram.MessageOriginChat
+
+// MessageOriginChannel describes a message originally sent to a channel chat.
+type MessageOriginChannel = telegram.MessageOriginChannel
+
+// ExternalReplyInfo describes a message being replied to from another chat or topic.
+type ExternalReplyInfo = telegram.ExternalReplyInfo
+
+// TextQuote contains information about the quoted part of a replied-to message.
+type TextQuote = telegram.TextQuote
+
+// InaccessibleMessage describes a message that is inaccessible to the bot.
+type InaccessibleMessage = telegram.InaccessibleMessage
+
+// MaybeInaccessibleMessage describes a message that may be inaccessible to the bot.
+type MaybeInaccessibleMessage = telegram.MaybeInaccessibleMessage
+
+// DirectMessagesTopic describes a topic of a channel direct messages chat.
+type DirectMessagesTopic = telegram.DirectMessagesTopic
+
+// SuggestedPostInfo contains metadata about a suggested post message.
+type SuggestedPostInfo = telegram.SuggestedPostInfo
+
+// Giveaway represents a scheduled giveaway message.
+type Giveaway = telegram.Giveaway
+
+// GiveawayWinners represents a completed giveaway with public winners.
+type GiveawayWinners = telegram.GiveawayWinners
+
 // InlineQuery represents an incoming inline query.
 type InlineQuery = telegram.InlineQuery
 
@@ -752,6 +791,15 @@ type ReplyMarkup = telegram.ReplyMarkup
 
 // ReplyParameters describes the message being replied to.
 type ReplyParameters = telegram.ReplyParameters
+
+// ReplyChatID marks chat identifiers accepted by ReplyParameters.ChatID.
+type ReplyChatID = telegram.ReplyChatID
+
+// ReplyChatIDInt identifies a chat by its numeric identifier.
+type ReplyChatIDInt = telegram.ReplyChatIDInt
+
+// ReplyChatIDUsername identifies a channel by its @username.
+type ReplyChatIDUsername = telegram.ReplyChatIDUsername
 
 // ChatPermissions describes actions a user is allowed to take in a chat.
 type ChatPermissions = telegram.ChatPermissions

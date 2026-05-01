@@ -56,6 +56,21 @@ func TestSendMessageSendsReplyParameters(t *testing.T) {
 		if got := reply["poll_option_id"]; got != "option-a" {
 			t.Fatalf("unexpected poll_option_id: %#v", got)
 		}
+		if got := reply["chat_id"]; got != float64(777) {
+			t.Fatalf("unexpected reply chat_id: %#v", got)
+		}
+		if got := reply["quote"]; got != "quoted" {
+			t.Fatalf("unexpected quote: %#v", got)
+		}
+		if got := reply["quote_parse_mode"]; got != "HTML" {
+			t.Fatalf("unexpected quote_parse_mode: %#v", got)
+		}
+		if got := reply["quote_position"]; got != float64(3) {
+			t.Fatalf("unexpected quote_position: %#v", got)
+		}
+		if got := reply["checklist_task_id"]; got != float64(9) {
+			t.Fatalf("unexpected checklist_task_id: %#v", got)
+		}
 		w.Header().Set("Content-Type", "application/json")
 		_, _ = w.Write([]byte(`{"ok":true,"result":{"message_id":2,"chat":{"id":12345,"type":"private"},"date":100,"text":"hello"}}`))
 	}))
@@ -65,10 +80,35 @@ func TestSendMessageSendsReplyParameters(t *testing.T) {
 	_, err := bot.SendMessage(context.Background(), SendMessageParams{
 		ChatID:          ChatIDInt(12345),
 		Text:            "hello",
-		ReplyParameters: &telegram.ReplyParameters{MessageID: 42, AllowSendingWithoutReply: true, PollOptionID: "option-a"},
+		ReplyParameters: &telegram.ReplyParameters{MessageID: 42, ChatID: telegram.ReplyChatIDInt(777), AllowSendingWithoutReply: true, Quote: "quoted", QuoteParseMode: "HTML", QuotePosition: 3, ChecklistTaskID: 9, PollOptionID: "option-a"},
 	})
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
+	}
+}
+
+func TestReplyParametersMarshalUsernameChatAndQuoteEntities(t *testing.T) {
+	reply := telegram.ReplyParameters{
+		MessageID:     42,
+		ChatID:        telegram.ReplyChatIDUsername("@channel"),
+		Quote:         "quoted",
+		QuoteEntities: []telegram.MessageEntity{{Type: telegram.EntityBold, Offset: 0, Length: 6}},
+	}
+
+	data, err := json.Marshal(reply)
+	if err != nil {
+		t.Fatalf("marshal reply parameters: %v", err)
+	}
+
+	var payload map[string]any
+	if err := json.Unmarshal(data, &payload); err != nil {
+		t.Fatalf("decode reply parameters: %v", err)
+	}
+	if payload["chat_id"] != "@channel" {
+		t.Fatalf("unexpected chat_id: %#v", payload["chat_id"])
+	}
+	if entities, ok := payload["quote_entities"].([]any); !ok || len(entities) != 1 {
+		t.Fatalf("unexpected quote_entities: %#v", payload["quote_entities"])
 	}
 }
 
@@ -248,6 +288,30 @@ func TestSendReplyParameterValidation(t *testing.T) {
 			name: "send photo negative reply message",
 			call: func(bot *Bot) (*telegram.Message, error) {
 				return bot.SendPhoto(context.Background(), SendPhotoParams{ChatID: ChatIDInt(12345), Photo: FileID("photo"), ReplyParameters: &telegram.ReplyParameters{MessageID: -1}})
+			},
+		},
+		{
+			name: "send message invalid reply chat id",
+			call: func(bot *Bot) (*telegram.Message, error) {
+				return bot.SendMessage(context.Background(), SendMessageParams{ChatID: ChatIDInt(12345), Text: "hello", ReplyParameters: &telegram.ReplyParameters{MessageID: 1, ChatID: telegram.ReplyChatIDInt(0)}})
+			},
+		},
+		{
+			name: "send message quote parse conflict",
+			call: func(bot *Bot) (*telegram.Message, error) {
+				return bot.SendMessage(context.Background(), SendMessageParams{ChatID: ChatIDInt(12345), Text: "hello", ReplyParameters: &telegram.ReplyParameters{MessageID: 1, QuoteParseMode: "HTML", QuoteEntities: []telegram.MessageEntity{{Type: telegram.EntityBold, Offset: 0, Length: 1}}}})
+			},
+		},
+		{
+			name: "send message negative quote position",
+			call: func(bot *Bot) (*telegram.Message, error) {
+				return bot.SendMessage(context.Background(), SendMessageParams{ChatID: ChatIDInt(12345), Text: "hello", ReplyParameters: &telegram.ReplyParameters{MessageID: 1, QuotePosition: -1}})
+			},
+		},
+		{
+			name: "send message negative checklist task",
+			call: func(bot *Bot) (*telegram.Message, error) {
+				return bot.SendMessage(context.Background(), SendMessageParams{ChatID: ChatIDInt(12345), Text: "hello", ReplyParameters: &telegram.ReplyParameters{MessageID: 1, ChecklistTaskID: -1}})
 			},
 		},
 		{

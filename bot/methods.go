@@ -106,5 +106,27 @@ func validateReplyParameters(reply *telegram.ReplyParameters) error {
 	if reply.MessageID <= 0 {
 		return stderrors.New("reply_parameters.message_id must be greater than zero")
 	}
+	switch chatID := reply.ChatID.(type) {
+	case nil:
+	case telegram.ReplyChatIDInt:
+		if chatID == 0 {
+			return stderrors.New("reply_parameters.chat_id must not be zero")
+		}
+	case telegram.ReplyChatIDUsername:
+		if string(chatID) == "" {
+			return stderrors.New("reply_parameters.chat_id username is required")
+		}
+	default:
+		return stderrors.New("reply_parameters.chat_id has unsupported type")
+	}
+	if reply.QuoteParseMode != "" && len(reply.QuoteEntities) > 0 {
+		return stderrors.New("reply_parameters quote_parse_mode and quote_entities are mutually exclusive")
+	}
+	if reply.QuotePosition < 0 {
+		return stderrors.New("reply_parameters.quote_position must not be negative")
+	}
+	if reply.ChecklistTaskID < 0 {
+		return stderrors.New("reply_parameters.checklist_task_id must not be negative")
+	}
 	return nil
 }

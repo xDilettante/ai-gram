@@ -27,29 +27,52 @@ type Update struct {
 	RemovedChatBoost        *ChatBoostRemoved            `json:"removed_chat_boost,omitempty"`
 }
 
-// Message represents a Telegram message with the minimal fields needed by update handlers.
+// Message represents a Telegram message.
 type Message struct {
-	MessageID            int64  `json:"message_id"`
-	MessageThreadID      int64  `json:"message_thread_id,omitempty"`
-	From                 *User  `json:"from,omitempty"`
-	SenderBusinessBot    *User  `json:"sender_business_bot,omitempty"`
-	Chat                 Chat   `json:"chat"`
-	Date                 int64  `json:"date"`
-	BusinessConnectionID string `json:"business_connection_id,omitempty"`
-	IsFromOffline        bool   `json:"is_from_offline,omitempty"`
-	SenderTag            string `json:"sender_tag,omitempty"`
+	MessageID            int64                `json:"message_id"`
+	MessageThreadID      int64                `json:"message_thread_id,omitempty"`
+	DirectMessagesTopic  *DirectMessagesTopic `json:"direct_messages_topic,omitempty"`
+	From                 *User                `json:"from,omitempty"`
+	SenderChat           *Chat                `json:"sender_chat,omitempty"`
+	SenderBoostCount     int                  `json:"sender_boost_count,omitempty"`
+	SenderBusinessBot    *User                `json:"sender_business_bot,omitempty"`
+	SenderTag            string               `json:"sender_tag,omitempty"`
+	Chat                 Chat                 `json:"chat"`
+	Date                 int64                `json:"date"`
+	BusinessConnectionID string               `json:"business_connection_id,omitempty"`
+	ForwardOrigin        MessageOrigin        `json:"forward_origin,omitempty"`
+	IsTopicMessage       bool                 `json:"is_topic_message,omitempty"`
+	IsAutomaticForward   bool                 `json:"is_automatic_forward,omitempty"`
+	ReplyToMessage       *Message             `json:"reply_to_message,omitempty"`
+	ExternalReply        *ExternalReplyInfo   `json:"external_reply,omitempty"`
+	Quote                *TextQuote           `json:"quote,omitempty"`
+	ReplyToStory         *Story               `json:"reply_to_story,omitempty"`
+	ViaBot               *User                `json:"via_bot,omitempty"`
+	EditDate             int64                `json:"edit_date,omitempty"`
+	HasProtectedContent  bool                 `json:"has_protected_content,omitempty"`
+	IsFromOffline        bool                 `json:"is_from_offline,omitempty"`
+	IsPaidPost           bool                 `json:"is_paid_post,omitempty"`
+	MediaGroupID         string               `json:"media_group_id,omitempty"`
+	AuthorSignature      string               `json:"author_signature,omitempty"`
+	PaidStarCount        int                  `json:"paid_star_count,omitempty"`
 
-	Text     string          `json:"text,omitempty"`
-	Entities []MessageEntity `json:"entities,omitempty"`
+	Text               string              `json:"text,omitempty"`
+	Entities           []MessageEntity     `json:"entities,omitempty"`
+	LinkPreviewOptions *LinkPreviewOptions `json:"link_preview_options,omitempty"`
+	SuggestedPostInfo  *SuggestedPostInfo  `json:"suggested_post_info,omitempty"`
+	EffectID           string              `json:"effect_id,omitempty"`
 
-	Caption         string          `json:"caption,omitempty"`
-	CaptionEntities []MessageEntity `json:"caption_entities,omitempty"`
+	Caption               string          `json:"caption,omitempty"`
+	CaptionEntities       []MessageEntity `json:"caption_entities,omitempty"`
+	ShowCaptionAboveMedia bool            `json:"show_caption_above_media,omitempty"`
+	HasMediaSpoiler       bool            `json:"has_media_spoiler,omitempty"`
 
 	Animation *Animation  `json:"animation,omitempty"`
 	Audio     *Audio      `json:"audio,omitempty"`
 	Document  *Document   `json:"document,omitempty"`
 	Photo     []PhotoSize `json:"photo,omitempty"`
 	Sticker   *Sticker    `json:"sticker,omitempty"`
+	Story     *Story      `json:"story,omitempty"`
 	Video     *Video      `json:"video,omitempty"`
 	VideoNote *VideoNote  `json:"video_note,omitempty"`
 	Voice     *Voice      `json:"voice,omitempty"`
@@ -77,6 +100,7 @@ type Message struct {
 	GeneralForumTopicHidden   *GeneralForumTopicHidden   `json:"general_forum_topic_hidden,omitempty"`
 	GeneralForumTopicUnhidden *GeneralForumTopicUnhidden `json:"general_forum_topic_unhidden,omitempty"`
 
+	PinnedMessage               *MaybeInaccessibleMessage    `json:"pinned_message,omitempty"`
 	ManagedBotCreated           *ManagedBotCreated           `json:"managed_bot_created,omitempty"`
 	PollOptionAdded             *PollOptionAdded             `json:"poll_option_added,omitempty"`
 	PollOptionDeleted           *PollOptionDeleted           `json:"poll_option_deleted,omitempty"`
@@ -92,6 +116,7 @@ type Message struct {
 	ReplyToPollOptionID         string                       `json:"reply_to_poll_option_id,omitempty"`
 	WebAppData                  *WebAppData                  `json:"web_app_data,omitempty"`
 	WriteAccessAllowed          *WriteAccessAllowed          `json:"write_access_allowed,omitempty"`
+	ReplyMarkup                 *InlineKeyboardMarkup        `json:"reply_markup,omitempty"`
 }
 
 // ForumTopic represents a forum topic in a Telegram supergroup.
@@ -303,10 +328,30 @@ type MessageEntity struct {
 
 // ReplyParameters describes the message being replied to.
 type ReplyParameters struct {
-	MessageID                int64  `json:"message_id"`
-	AllowSendingWithoutReply bool   `json:"allow_sending_without_reply,omitempty"`
-	PollOptionID             string `json:"poll_option_id,omitempty"`
+	MessageID                int64           `json:"message_id"`
+	ChatID                   ReplyChatID     `json:"chat_id,omitempty"`
+	AllowSendingWithoutReply bool            `json:"allow_sending_without_reply,omitempty"`
+	Quote                    string          `json:"quote,omitempty"`
+	QuoteParseMode           string          `json:"quote_parse_mode,omitempty"`
+	QuoteEntities            []MessageEntity `json:"quote_entities,omitempty"`
+	QuotePosition            int             `json:"quote_position,omitempty"`
+	ChecklistTaskID          int64           `json:"checklist_task_id,omitempty"`
+	PollOptionID             string          `json:"poll_option_id,omitempty"`
 }
+
+// ReplyChatID marks chat identifiers accepted by ReplyParameters.ChatID.
+type ReplyChatID interface {
+	replyChatID()
+}
+
+// ReplyChatIDInt identifies a chat by its numeric identifier.
+type ReplyChatIDInt int64
+
+// ReplyChatIDUsername identifies a channel by its @username.
+type ReplyChatIDUsername string
+
+func (ReplyChatIDInt) replyChatID()      {}
+func (ReplyChatIDUsername) replyChatID() {}
 
 // InputPollOption describes one poll option to send.
 type InputPollOption struct {
@@ -357,11 +402,20 @@ type PollAnswer struct {
 	OptionPersistentIDs []string `json:"option_persistent_ids,omitempty"`
 }
 
-// MaybeInaccessibleMessage describes a message that may be inaccessible to the bot.
-type MaybeInaccessibleMessage struct {
+// InaccessibleMessage describes a message that is inaccessible to the bot.
+type InaccessibleMessage struct {
 	MessageID int64 `json:"message_id"`
 	Chat      Chat  `json:"chat"`
 	Date      int64 `json:"date"`
+}
+
+// MaybeInaccessibleMessage describes a message that may be inaccessible to the bot.
+type MaybeInaccessibleMessage struct {
+	MessageID           int64                `json:"message_id"`
+	Chat                Chat                 `json:"chat"`
+	Date                int64                `json:"date"`
+	Message             *Message             `json:"-"`
+	InaccessibleMessage *InaccessibleMessage `json:"-"`
 }
 
 // PollOptionAdded describes a service message about an option added to a poll.
@@ -611,13 +665,14 @@ type Venue struct {
 
 // CallbackQuery represents an incoming callback query from an inline keyboard.
 type CallbackQuery struct {
-	ID              string   `json:"id"`
-	From            User     `json:"from"`
-	Message         *Message `json:"message,omitempty"`
-	InlineMessageID string   `json:"inline_message_id,omitempty"`
-	ChatInstance    string   `json:"chat_instance,omitempty"`
-	Data            string   `json:"data,omitempty"`
-	GameShortName   string   `json:"game_short_name,omitempty"`
+	ID              string                    `json:"id"`
+	From            User                      `json:"from"`
+	Message         *Message                  `json:"message,omitempty"`
+	MaybeMessage    *MaybeInaccessibleMessage `json:"-"`
+	InlineMessageID string                    `json:"inline_message_id,omitempty"`
+	ChatInstance    string                    `json:"chat_instance,omitempty"`
+	Data            string                    `json:"data,omitempty"`
+	GameShortName   string                    `json:"game_short_name,omitempty"`
 }
 
 // File represents a Telegram file metadata object.

@@ -65,7 +65,9 @@ This document maps the current `ai-gram` implementation to Telegram Bot API area
 | `(*bot.Bot).SendVideoNote` | `sendVideoNote` | unit/httptest, optional live v0.2 smoke | Supports `FileID`, `FileUpload`, thumbnail file ref/upload, duration/length, reply markup, thread/reply params, and optional `business_connection_id`. HTTP URL is intentionally rejected for video notes. |
 | `(*bot.Bot).SendMediaGroup` | `sendMediaGroup` | unit/httptest, live generated-upload smoke | Supports `InputMediaPhoto`, `InputMediaVideo`, `InputMediaAudio`, `InputMediaDocument`, JSON file IDs/URLs, multipart uploads, thumbnail/cover uploads where supported, thread/reply params, and optional `business_connection_id`. Does not support reply markup because Telegram does not accept it for media groups; `InputMediaAnimation` remains rejected for media groups. |
 | `telegram.InputPollOption` | `sendPoll` options | unit/httptest | Entity-aware structured poll options serialize through the official `options` field while legacy `[]string` options remain supported for compatibility. |
-| `telegram.ReplyParameters` | send/copy reply payload | unit | Supports `message_id`, `allow_sending_without_reply`, and Bot API 9.6 `poll_option_id`. |
+| `telegram.ReplyParameters` | send/copy reply payload | unit | Supports `message_id`, cross-chat `chat_id`, `allow_sending_without_reply`, quote fields, Bot API 9.6 `checklist_task_id`, and `poll_option_id`. |
+| `telegram.MessageOrigin*`, `ExternalReplyInfo`, `TextQuote` | message reply/forward metadata | unit | Decodes `forward_origin`, `external_reply`, `quote`, `reply_to_message`, `reply_to_story`, direct-message topic, suggested-post, caption/media, star, and sender metadata fields. |
+| `telegram.MaybeInaccessibleMessage`, `InaccessibleMessage` | inaccessible message references | unit | Decodes accessible and inaccessible pinned/callback messages while preserving the legacy `CallbackQuery.Message` pointer for accessible messages. |
 | `telegram.ReplyMarkup` implementations | send/edit reply markup | unit, live examples | Inline keyboard, reply keyboard, remove keyboard, force reply. Edit methods accept inline keyboard only. |
 
 ### Media/files
@@ -146,7 +148,7 @@ This document maps the current `ai-gram` implementation to Telegram Bot API area
 | --- | --- | --- | --- |
 | `telegram.BusinessConnection` | `business_connection` update / `BusinessConnection` | unit | Decodes business account connection updates, `BusinessBotRights`, and `EffectiveUser` without inventing an effective chat. |
 | `telegram.BusinessMessagesDeleted` | `deleted_business_messages` update / `BusinessMessagesDeleted` | unit | Decodes deleted business message notifications and supports `EffectiveChat`. |
-| `telegram.Message.BusinessConnectionID`, `SenderBusinessBot`, `IsFromOffline` | business message fields | unit | Decodes business-related message metadata for `business_message` and `edited_business_message` updates. |
+| `telegram.Message.BusinessConnectionID`, `SenderBusinessBot`, `IsFromOffline`, `SenderTag`, `SenderChat`, `SenderBoostCount` | business/sender message fields | unit | Decodes business and sender-related message metadata for regular and business message updates. |
 | `dispatch.BusinessConnection`, `dispatch.BusinessMessage`, `dispatch.EditedBusinessMessage`, `dispatch.DeletedBusinessMessages` | dispatch predicates/helpers | unit | Includes handler registration helpers for all foundation business update types. |
 | `(*bot.Bot).GetBusinessConnection` | `getBusinessConnection` | unit/httptest | Fetches a typed business connection by ID. Manual-only live smoke. |
 | `(*bot.Bot).DeleteBusinessMessages` | `deleteBusinessMessages` | unit/httptest | Deletes 1-100 messages on behalf of a business account. Manual-only live smoke. |
@@ -376,10 +378,9 @@ Stage 88 performed a full official-doc comparison against the Telegram Bot API d
 ### Missing type and field groups from the Stage 88 audit
 
 - `ChatFullInfo`, fuller `User`/`Chat` metadata, channel post updates, and remaining chat metadata fields.
-- Reply/forward metadata: `MessageOrigin*`, `ExternalReplyInfo`, `TextQuote`, `MaybeInaccessibleMessage`, `InaccessibleMessage`, and the remaining `ReplyParameters` quote/cross-chat/checklist fields.
 - Reply markup completion: `LoginUrl`, `SwitchInlineQueryChosenChat`, `CopyTextButton`, `KeyboardButtonPollType`, request-poll, pay, icon, and style fields.
 - Service-message completeness for giveaways, chat backgrounds, video chats, proximity alerts, auto-delete timer changes, shared users/chats, paid/direct message price changes, and related message fields.
-- `VideoQuality`, video cover/start metadata, `PreparedInlineMessage`, and direct-message/suggested-post metadata fields.
+- `VideoQuality`, video cover/start metadata, `PreparedInlineMessage`, and remaining direct-message metadata fields.
 
 ### Intentional architecture differences to keep documented
 

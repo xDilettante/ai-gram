@@ -188,6 +188,8 @@ Expected safe markers include `AIGRAM_V02_SMOKE_SEND_CONTACT_OK`, `AIGRAM_V02_SM
 
 Advanced Poll 9.6 fields (`correct_option_ids`, structured `InputPollOption` values, revoting/options controls, poll descriptions, poll-option replies, and poll option service messages) are not automatically live-smoked. Test them only in a dedicated chat with disposable poll messages, verify `poll_answer` and poll option service updates from safe logs, and avoid logging private vote contents beyond option IDs/counts.
 
+Reply/message metadata fields (`forward_origin`, `external_reply`, `quote`, `reply_to_story`, `pinned_message`, inaccessible callback messages, and quote-aware `ReplyParameters`) are covered primarily by unit fixtures. If a manual check is ever needed, use only disposable messages and log field presence/type labels plus redacted IDs; do not log private message text, quotes, external reply payloads, or callback data.
+
 Checklist and message draft flows are manual-only. Use only a dedicated test chat/private chat and a disposable business connection where required, send or edit only test checklist messages/drafts, and log only safe metadata such as method name, chat ID, message ID or draft ID, task counts, and boolean result. Do not log checklist or draft text payloads.
 
 ## SendMediaGroup smoke

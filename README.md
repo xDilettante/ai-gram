@@ -8,7 +8,7 @@ The latest public release is `v0.2.0`. Local development is now focused on reach
 
 - Minimal Go module: present.
 - Root facade package `aigram`: present.
-- Base Telegram data types: include practical incoming message fields for text entities, captions, media, contacts, locations, venues, and callback queries.
+- Base Telegram data types: include practical incoming message fields for text entities, captions, media, contacts, locations, venues, reply/forward metadata, external replies, quotes, inaccessible callback/pinned messages, and callback queries.
 - Bot client package: present with token validation, private token storage, token-safe string output, an internal HTTP call core, JSON/multipart calls, and typed method wrappers.
 - Typed Telegram API errors: scaffolded.
 - Dispatcher/router: supports predicates, message/command/callback routes, middleware, fallback, and error handling.
@@ -227,6 +227,8 @@ if err != nil {
 }
 fmt.Println(diceMessage.MessageID)
 ```
+
+Reply and message metadata such as `MessageOrigin`, `ExternalReplyInfo`, `TextQuote`, `MaybeInaccessibleMessage`, and quote-aware `ReplyParameters` are decoded or serialized as typed objects. `CallbackQuery.Message` remains available for accessible messages; use `CallbackQuery.MaybeMessage` when an inline keyboard callback may reference an inaccessible message.
 
 Business checklists and private-chat message drafts are supported through typed wrappers. These flows mutate user-visible state and should be tested only with an explicit business/private-chat setup:
 
@@ -1372,7 +1374,7 @@ if err != nil {
 fmt.Println(ok)
 ```
 
-Webhook management is JSON-only for now. Webhook certificate upload, `ChatFullInfo`, channel post and standalone poll updates, prepared inline messages, complete reply markup fields such as `LoginUrl`, full message/service-message field coverage, FSM, scenes, storage, dependency injection, and full Bot API coverage are not implemented yet. The Stage 88 audit tracks the exact remaining Bot API 9.6 gaps.
+Webhook management is JSON-only for now. Webhook certificate upload, `ChatFullInfo`, channel post and standalone poll updates, prepared inline messages, complete reply markup fields such as `LoginUrl`, full service-message field coverage, FSM, scenes, storage, dependency injection, and full Bot API coverage are not implemented yet. The Stage 88 audit tracks the exact remaining Bot API 9.6 gaps.
 
 
 ## Examples

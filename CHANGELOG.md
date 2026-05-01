@@ -4,6 +4,7 @@
 
 ### Added
 
+- Reply and message metadata types: `MessageOrigin` variants, `ExternalReplyInfo`, `TextQuote`, `MaybeInaccessibleMessage`, `InaccessibleMessage`, and expanded `ReplyParameters`.
 - Checklist, message draft, and structured poll option support: `SendChecklist`, `EditMessageChecklist`, `SendMessageDraft`, `InputChecklist`, `Checklist`, and `InputPollOption`.
 - Chat subscription invite link methods: `CreateChatSubscriptionInviteLink` and `EditChatSubscriptionInviteLink`.
 - Chat member update, chat boost, and sender-chat moderation support: `ChatMemberUpdated`, `ChatBoostUpdated`, `ChatBoostRemoved`, `GetUserChatBoosts`, `SetChatMemberTag`, `BanChatSenderChat`, and `UnbanChatSenderChat`.

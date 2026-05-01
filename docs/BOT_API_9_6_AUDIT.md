@@ -2,7 +2,7 @@
 
 ## Source of truth
 
-- [Official Telegram Bot API documentation](https://core.telegram.org/bots/api), fetched for the original audit on 2026-04-30 and rechecked for Stages 89-93 on 2026-05-01.
+- [Official Telegram Bot API documentation](https://core.telegram.org/bots/api), fetched for the original audit on 2026-04-30 and rechecked for Stages 89-94 on 2026-05-01.
 - [Official Telegram Bot API changelog](https://core.telegram.org/bots/api-changelog), especially the April 3, 2026 Bot API 9.6 entry.
 
 The audit compares official method/type headings and high-impact object fields against the current local implementation. Stage notes below are updated as follow-up slices are implemented locally.
@@ -11,7 +11,7 @@ The audit compares official method/type headings and high-impact object fields a
 
 **Full coverage not yet reached.**
 
-The current repository covers the large local Stage 66-93 workstream, including forum topics, reactions, inline mode, payments, paid media, Stars/gifts, subscription invite links, Managed Bots 9.6, Poll 9.6, WebApp/Mini App, Business API foundation/account/story/suggested posts, games, Passport, lifecycle/profile read APIs, verification/user status APIs, and chat member/boost updates, checklists, message drafts, and structured poll options. The remaining gaps are concentrated in prepared inline/business follow-ups and broad incoming message/type completeness.
+The current repository covers the large local Stage 66-94 workstream, including forum topics, reactions, inline mode, payments, paid media, Stars/gifts, subscription invite links, Managed Bots 9.6, Poll 9.6, WebApp/Mini App, Business API foundation/account/story/suggested posts, games, Passport, lifecycle/profile read APIs, verification/user status APIs, and chat member/boost updates, checklists, message drafts, structured poll options, and reply/message metadata. The remaining gaps are concentrated in prepared inline/business follow-ups, reply markup, ChatFullInfo/video metadata, and service-message completeness.
 
 ## Implemented areas
 
@@ -29,13 +29,14 @@ The current repository covers the large local Stage 66-93 workstream, including 
 - Lifecycle/profile read APIs: `logOut`, `close`, `getUserProfilePhotos`, `getUserProfileAudios`, and `getForumTopicIconStickers`.
 - Verification/status APIs: `setUserEmojiStatus`, `verifyUser`, `verifyChat`, `removeUserVerification`, and `removeChatVerification`.
 - Checklist/message draft APIs: `sendChecklist`, `editMessageChecklist`, `sendMessageDraft`, checklist message/service types, and manual-only safety documentation.
+- Reply/message metadata: `MessageOrigin` variants, `ExternalReplyInfo`, `TextQuote`, `InaccessibleMessage`, `MaybeInaccessibleMessage`, `ReplyParameters` quote/cross-chat/checklist fields, and high-impact `Message` metadata such as `forward_origin`, `reply_to_message`, `external_reply`, `quote`, `reply_to_story`, `direct_messages_topic`, `suggested_post_info`, `pinned_message`, sender metadata, caption/media flags, star/effect fields, and `reply_markup`.
 - Unit/httptest coverage for implemented method families and token/payload redaction checks in sensitive areas.
 
 ## Missing methods
 
 | Official method name | Area | Risk level | Suggested implementation stage |
 | --- | --- | --- | --- |
-| `repostStory` | Business stories | state-changing/business | Stage 94: business story completion |
+| `repostStory` | Business stories | state-changing/business | Stage 96: business story completion |
 | `savePreparedInlineMessage` | Mini App / inline prepared messages | state-changing/sensitive identifier | Stage 95: prepared inline messages |
 
 ## Missing types and fields
@@ -48,18 +49,13 @@ The current repository covers the large local Stage 66-93 workstream, including 
 | `channel_post`, `edited_channel_post`, `poll` | `Update` | Missing update entry points still block channel posts and standalone poll updates. Stage 91 added chat member and chat boost updates. | Stage 96 |
 | concrete `ChatMember*` variant structs | Chat member types | Stage 91 keeps the existing flat `ChatMember` struct and extends it with official 9.6 fields instead of introducing a breaking polymorphic API. Dedicated concrete variants remain a possible future refinement. | Stage 96 |
 | `ChatBoostAdded`, `ChatBackground`, `BackgroundFill*`, `BackgroundType*` | `Message` service messages | Needed to decode chat boost and background service messages. Stage 91 covered boost update objects but not these message service fields. | Stage 96 |
-| `MessageOrigin*`, `ExternalReplyInfo`, `TextQuote`, `MaybeInaccessibleMessage`, `InaccessibleMessage` | `Message` reply/forward fields | Current message decoding lacks official forward/reply metadata such as `forward_origin`, `external_reply`, `quote`, and inaccessible pinned messages. | Stage 96: message field completeness |
-| `DirectMessagesTopic`, `SuggestedPostInfo` | `Message` | Required for channel direct messages and suggested post metadata. | Stage 94 / Stage 96 |
-| `Message.direct_messages_topic`, `sender_chat`, `sender_boost_count`, `sender_tag`, `forward_origin`, `is_topic_message`, `is_automatic_forward`, `reply_to_message`, `external_reply`, `quote`, `reply_to_story`, `via_bot`, `edit_date`, `has_protected_content`, `is_paid_post`, `media_group_id`, `author_signature`, `paid_star_count`, `link_preview_options`, `suggested_post_info`, `effect_id`, `story`, `show_caption_above_media`, `has_media_spoiler`, `reply_markup` | `Message` | High-impact official message fields are not decoded yet; several affect business/direct messages, captions, message effects, stars, and replies. | Stage 96 |
-| `ReplyParameters.chat_id`, `quote`, `quote_parse_mode`, `quote_entities`, `quote_position`, `checklist_task_id` | `ReplyParameters` | Current reply parameter support is partial and misses quote/cross-chat/checklist reply fields. | Stage 96 |
 | `KeyboardButton.icon_custom_emoji_id`, `style`, `request_poll`; `KeyboardButtonPollType` | Reply keyboard | Bot API 9.4/9.6 keyboard support is incomplete for custom emoji/style and poll request buttons. | Stage 95 |
 | `InlineKeyboardButton.icon_custom_emoji_id`, `style`, `login_url`, `switch_inline_query*`, `copy_text`, `pay`; `LoginUrl`, `SwitchInlineQueryChosenChat`, `CopyTextButton` | Inline keyboard | Current inline keyboard support lacks several official button modes. | Stage 95 |
 | `Message.users_shared`, `chat_shared`; `SharedUser`, `UsersShared`, `ChatShared` | Request keyboard service messages | Required to decode user/chat sharing responses from keyboard request buttons. | Stage 95 |
 | `Video.cover`, `start_timestamp`, `qualities`; `VideoQuality` | `Video` | Official video metadata includes cover/start and alternative qualities. | Stage 96 |
-| `Message.story` and incoming story/direct-message fields | `Message` / business stories | Business story methods and basic `Story`/story-area types exist, but incoming story message metadata is not fully decoded. | Stage 94 / Stage 96 |
-| `Giveaway*` types and `Message.giveaway*` fields | Giveaway service messages | Giveaway messages/service states are not decoded. | Stage 97: giveaway/background service messages |
+| `Message.giveaway*` service fields | Giveaway service messages | `Giveaway` and `GiveawayWinners` types exist for external replies, but message-level giveaway service fields are still pending. | Stage 97: giveaway/background service messages |
 | `VideoChat*`, `ProximityAlertTriggered`, `MessageAutoDeleteTimerChanged` | Service messages | Legacy service-message coverage remains incomplete. | Stage 97 |
-| `PaidMessagePriceChanged`, `DirectMessagePriceChanged`, `paid_star_count`, `is_paid_post` | Paid/direct message service fields | Needed for paid message and channel direct-message service state. | Stage 96 / Stage 97 |
+| `PaidMessagePriceChanged`, `DirectMessagePriceChanged` | Paid/direct message service fields | Message `paid_star_count` and `is_paid_post` are decoded; service-message objects for price changes remain pending. | Stage 97 |
 | `PreparedInlineMessage` | `savePreparedInlineMessage` result | Required result type for the missing Mini App prepared inline method. | Stage 95 |
 | `InputFile` official object | Upload parameters | The library intentionally uses `FileRef`/`FileUpload`; this is a naming/architecture mismatch to document, not necessarily a missing public type. | Needs verification |
 
@@ -99,8 +95,8 @@ These areas must remain manual-only and require explicit user confirmation plus 
 3. **Stage 91 completed:** chat boosts, member updates, and sender-chat moderation - `getUserChatBoosts`, `setChatMemberTag`, `banChatSenderChat`, `unbanChatSenderChat`, chat boost/member update types.
 4. **Stage 92 completed:** subscription invite links - `createChatSubscriptionInviteLink`, `editChatSubscriptionInviteLink`, invite link price/subscription fields.
 5. **Stage 93 completed:** checklists, message drafts, and structured poll options - `sendChecklist`, `editMessageChecklist`, `sendMessageDraft`, `InputPollOption`, checklist message/service types.
-6. **Stage 94: business/direct-message story completion** - `repostStory`, direct message topic fields, incoming story metadata.
+6. **Stage 94 completed:** reply and message metadata types - `MessageOrigin*`, `ExternalReplyInfo`, `TextQuote`, `MaybeInaccessibleMessage`, `InaccessibleMessage`, `ReplyParameters` quote/cross-chat/checklist fields, and high-impact message metadata fields.
 7. **Stage 95: prepared inline messages and reply-markup completion** - `savePreparedInlineMessage`, `PreparedInlineMessage`, LoginUrl/switch-inline/copy/pay/request-poll/icon/style button fields.
-8. **Stage 96: message field completeness pass** - forward/reply origins, quote/external reply, `ReplyParameters` completion, video quality/cover/start metadata, paid/direct message metadata.
-9. **Stage 97: service-message completeness pass** - giveaways, chat backgrounds, video chats, proximity alerts, auto-delete timers, shared users/chats, and remaining service messages.
+8. **Stage 96: business/direct-message story completion and media metadata** - `repostStory`, video quality/cover/start metadata, and remaining direct-message/chat metadata.
+9. **Stage 97: service-message completeness pass** - giveaways, chat backgrounds, video chats, proximity alerts, auto-delete timers, shared users/chats, price-change service messages, and remaining service messages.
 10. **Final audit after Stage 97** - rerun official method/type/field comparison and only then reconsider push/tag/release readiness.
