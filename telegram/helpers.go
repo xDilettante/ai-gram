@@ -73,6 +73,12 @@ func (u *Update) EffectiveMessage() *Message {
 	if u.EditedMessage != nil {
 		return u.EditedMessage
 	}
+	if u.ChannelPost != nil {
+		return u.ChannelPost
+	}
+	if u.EditedChannelPost != nil {
+		return u.EditedChannelPost
+	}
 	if u.BusinessMessage != nil {
 		return u.BusinessMessage
 	}

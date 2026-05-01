@@ -11,7 +11,7 @@ The audit compares official method/type headings and high-impact object fields a
 
 **Full coverage not yet reached.**
 
-The current repository covers the large local Stage 66-96 workstream, including forum topics, reactions, inline mode, payments, paid media, Stars/gifts, subscription invite links, Managed Bots 9.6, Poll 9.6, WebApp/Mini App, Business API foundation/account/story/suggested posts/repost, games, Passport, lifecycle/profile read APIs, verification/user status APIs, chat member/boost updates, checklists, message drafts, structured poll options, reply/message metadata, prepared inline messages, reply markup completion, service-message metadata, and video metadata completion. The remaining gaps are concentrated in ChatFullInfo/full user-chat metadata and update shape parity.
+The current repository covers the large local Stage 66-97 workstream, including forum topics, reactions, inline mode, payments, paid media, Stars/gifts, subscription invite links, Managed Bots 9.6, Poll 9.6, WebApp/Mini App, Business API foundation/account/story/suggested posts/repost, games, Passport, lifecycle/profile read APIs, verification/user status APIs, chat member/boost updates, checklists, message drafts, structured poll options, reply/message metadata, prepared inline messages, reply markup completion, service-message metadata, video metadata completion, ChatFullInfo/full user-chat metadata, and channel post/standalone poll update parity. The remaining gaps are concentrated in final verification and intentionally documented architecture differences.
 
 ## Implemented areas
 
@@ -35,22 +35,18 @@ The current repository covers the large local Stage 66-96 workstream, including 
 
 ## Missing methods
 
-No Stage 88 missing method groups are currently tracked after Stage 96. Remaining work is concentrated in result/update shape parity and final official-doc verification.
+No Stage 88 missing method groups are currently tracked after Stage 97. Remaining work is concentrated in final official-doc verification and intentional architecture differences.
 
 ## Missing types and fields
 
 | Official name | Parent type | Why it matters | Suggested stage |
 | --- | --- | --- | --- |
-| `ChatFullInfo` | `getChat` result | Official `getChat` returns the extended chat object; the current method returns minimal `Chat`, so many current chat metadata fields are unavailable. Stage 89 kept the existing signature and documented the transition strategy instead of making an incidental breaking change. | Stage 97 |
-| `User.language_code`, `is_premium`, `added_to_attachment_menu`, `can_join_groups`, `can_read_all_group_messages`, `supports_inline_queries`, `can_connect_to_business`, `has_main_web_app`, `has_topics_enabled`, `allows_users_to_create_topics` | `User` | Returned by `getMe`/user payloads and newer topic/business/profile capability checks. | Stage 97 |
-| `Chat.is_forum`, `Chat.is_direct_messages` | `Chat` | Indicates forum and channel direct messages chats in lightweight chat payloads. | Stage 97 |
-| `channel_post`, `edited_channel_post`, `poll` | `Update` | Missing update entry points still block channel posts and standalone poll updates. Stage 91 added chat member and chat boost updates. | Stage 97 |
-| concrete `ChatMember*` variant structs | Chat member types | Stage 91 keeps the existing flat `ChatMember` struct and extends it with official 9.6 fields instead of introducing a breaking polymorphic API. Dedicated concrete variants remain a possible future refinement. | Stage 97 |
+| concrete `ChatMember*` variant structs | Chat member types | Stage 91/97 keep the existing flat `ChatMember` struct and extend it with official 9.6 fields instead of introducing a breaking polymorphic API. Dedicated concrete variants remain a possible future refinement, not a blocking decode gap. | Future refinement |
 | `InputFile` official object | Upload parameters | The library intentionally uses `FileRef`/`FileUpload`; this is a naming/architecture mismatch to document, not necessarily a missing public type. | Needs verification |
 
 ## Potential mismatches / needs verification
 
-- `getChat` currently returns `*telegram.Chat`; official docs return `ChatFullInfo`. Adding `ChatFullInfo` may require either a breaking signature change before stable release or a compatible new method/result strategy.
+- `GetChat` remains backward-compatible and returns `*telegram.Chat`; `GetChatFullInfo` now calls the same official `getChat` method and decodes the full `ChatFullInfo` result.
 - `MessageId` is represented idiomatically as `telegram.MessageID`; this is acceptable but should be documented as a naming difference.
 - `InputFile` is represented by `bot.FileID`, `bot.FileURL`, and `bot.FileUpload`; this is an intentional architecture difference, but future audit should ensure every official upload field is mapped.
 - `SetWebhook` is JSON-only and does not support certificate upload; official `setWebhook` accepts an `InputFile` certificate.
@@ -77,7 +73,7 @@ These areas must remain manual-only and require explicit user confirmation plus 
 
 ## Recommended next stages
 
-1. **Stage 89 completed:** lifecycle and profile read APIs - `logOut`, `close`, `getUserProfilePhotos`, `getUserProfileAudios`, `getForumTopicIconStickers`; `ChatFullInfo` remains a documented getChat strategy mismatch.
+1. **Stage 89 completed:** lifecycle and profile read APIs - `logOut`, `close`, `getUserProfilePhotos`, `getUserProfileAudios`, `getForumTopicIconStickers`.
 2. **Stage 90 completed:** verification and user status APIs - `setUserEmojiStatus`, `verifyUser`, `verifyChat`, `removeUserVerification`, `removeChatVerification`.
 3. **Stage 91 completed:** chat boosts, member updates, and sender-chat moderation - `getUserChatBoosts`, `setChatMemberTag`, `banChatSenderChat`, `unbanChatSenderChat`, chat boost/member update types.
 4. **Stage 92 completed:** subscription invite links - `createChatSubscriptionInviteLink`, `editChatSubscriptionInviteLink`, invite link price/subscription fields.
@@ -85,5 +81,5 @@ These areas must remain manual-only and require explicit user confirmation plus 
 6. **Stage 94 completed:** reply and message metadata types - `MessageOrigin*`, `ExternalReplyInfo`, `TextQuote`, `MaybeInaccessibleMessage`, `InaccessibleMessage`, `ReplyParameters` quote/cross-chat/checklist fields, and high-impact message metadata fields.
 7. **Stage 95 completed:** prepared inline messages and reply-markup completion - `savePreparedInlineMessage`, `PreparedInlineMessage`, LoginUrl/switch-inline/copy/pay/request-poll/icon/style button fields.
 8. **Stage 96 completed:** service/direct-message/story/media metadata - `repostStory`, video quality/cover/start metadata, shared user/chat service messages, chat backgrounds, video chats, proximity alerts, auto-delete timers, giveaway service messages, and paid/direct message price changes.
-9. **Stage 97: ChatFullInfo/update shape strategy** - decide compatible `getChat` result strategy, channel post updates, standalone poll updates, fuller `User`/`Chat` metadata, and optional concrete chat member variants.
+9. **Stage 97 completed:** ChatFullInfo/update shape strategy - `GetChatFullInfo`, fuller `User`/`Chat` metadata, channel post updates, standalone poll updates, and compatible flat `ChatMember` strategy.
 10. **Final audit after Stage 97** - rerun official method/type/field comparison and only then reconsider push/tag/release readiness.

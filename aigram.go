@@ -618,6 +618,33 @@ type User = telegram.User
 // Chat represents a Telegram chat.
 type Chat = telegram.Chat
 
+// ChatFullInfo contains full information about a chat returned by getChat.
+type ChatFullInfo = telegram.ChatFullInfo
+
+// ChatPhoto represents a Telegram chat photo.
+type ChatPhoto = telegram.ChatPhoto
+
+// Birthdate describes the birthdate of a user.
+type Birthdate = telegram.Birthdate
+
+// BusinessIntro contains start page settings of a Telegram Business account.
+type BusinessIntro = telegram.BusinessIntro
+
+// BusinessLocation contains the location of a Telegram Business account.
+type BusinessLocation = telegram.BusinessLocation
+
+// BusinessOpeningHours describes the opening hours of a business.
+type BusinessOpeningHours = telegram.BusinessOpeningHours
+
+// BusinessOpeningHoursInterval describes one business opening interval.
+type BusinessOpeningHoursInterval = telegram.BusinessOpeningHoursInterval
+
+// ChatLocation represents a location to which a chat is connected.
+type ChatLocation = telegram.ChatLocation
+
+// UserRating describes a user's Telegram Stars purchase reliability rating.
+type UserRating = telegram.UserRating
+
 // ChatMemberStatus identifies a user's membership state in a chat.
 type ChatMemberStatus = telegram.ChatMemberStatus
 

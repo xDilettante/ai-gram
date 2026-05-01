@@ -46,6 +46,37 @@ func TestGetChatSendsPayloadAndDecodesResult(t *testing.T) {
 	}
 }
 
+func TestGetChatFullInfoSendsPayloadAndDecodesResult(t *testing.T) {
+	const token = "123:secret"
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodPost {
+			t.Fatalf("unexpected method: %s", r.Method)
+		}
+		if r.URL.Path != "/bot"+token+"/getChat" {
+			t.Fatalf("unexpected path: %q", r.URL.Path)
+		}
+		var payload map[string]any
+		if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
+			t.Fatalf("decode payload: %v", err)
+		}
+		if payload["chat_id"] != float64(12345) {
+			t.Fatalf("unexpected payload: %#v", payload)
+		}
+		w.Header().Set("Content-Type", "application/json")
+		_, _ = w.Write([]byte(`{"ok":true,"result":{"id":12345,"type":"supergroup","title":"Full chat","is_forum":true,"accent_color_id":7,"max_reaction_count":10,"available_reactions":[{"type":"emoji","emoji":"👍"}],"accepted_gift_types":{"unlimited_gifts":true,"limited_gifts":true,"unique_gifts":true,"premium_subscription":true,"gifts_from_channels":true},"permissions":{"can_send_messages":true},"paid_message_star_count":5}}`))
+	}))
+	defer server.Close()
+
+	bot := newTestBot(t, token, server.URL, server.Client())
+	chat, err := bot.GetChatFullInfo(context.Background(), GetChatParams{ChatID: ChatIDInt(12345)})
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if chat.ID != 12345 || chat.Type != "supergroup" || chat.Title != "Full chat" || !chat.IsForum || chat.AccentColorID != 7 || chat.MaxReactionCount != 10 || len(chat.AvailableReactions) != 1 || chat.Permissions == nil || !chat.Permissions.CanSendMessages || !chat.AcceptedGiftTypes.GiftsFromChannels || chat.PaidMessageStarCount != 5 {
+		t.Fatalf("unexpected chat full info: %#v", chat)
+	}
+}
+
 func TestGetChatValidation(t *testing.T) {
 	const token = "123:secret"
 	bot := newTestBot(t, token, "https://example.test", nil)
@@ -55,6 +86,15 @@ func TestGetChatValidation(t *testing.T) {
 	}
 	if chat != nil {
 		t.Fatalf("expected nil chat, got %#v", chat)
+	}
+	assertNoToken(t, err, token)
+
+	fullInfo, err := bot.GetChatFullInfo(context.Background(), GetChatParams{})
+	if err == nil {
+		t.Fatal("expected full info error")
+	}
+	if fullInfo != nil {
+		t.Fatalf("expected nil chat full info, got %#v", fullInfo)
 	}
 	assertNoToken(t, err, token)
 }
@@ -204,6 +244,9 @@ func TestChatInfoMethodsReturnAPIError(t *testing.T) {
 		{name: "get chat", method: "getChat", call: func(bot *Bot) (any, error) {
 			return bot.GetChat(context.Background(), GetChatParams{ChatID: ChatIDInt(123)})
 		}},
+		{name: "get chat full info", method: "getChat", call: func(bot *Bot) (any, error) {
+			return bot.GetChatFullInfo(context.Background(), GetChatParams{ChatID: ChatIDInt(123)})
+		}},
 		{name: "get chat member", method: "getChatMember", call: func(bot *Bot) (any, error) {
 			return bot.GetChatMember(context.Background(), GetChatMemberParams{ChatID: ChatIDInt(123), UserID: 1})
 		}},
@@ -248,6 +291,9 @@ func TestChatInfoMethodsResponseAndContextErrors(t *testing.T) {
 	}{
 		{name: "get chat", method: "getChat", call: func(ctx context.Context, bot *Bot) (any, error) {
 			return bot.GetChat(ctx, GetChatParams{ChatID: ChatIDInt(123)})
+		}},
+		{name: "get chat full info", method: "getChat", call: func(ctx context.Context, bot *Bot) (any, error) {
+			return bot.GetChatFullInfo(ctx, GetChatParams{ChatID: ChatIDInt(123)})
 		}},
 		{name: "get chat member", method: "getChatMember", call: func(ctx context.Context, bot *Bot) (any, error) {
 			return bot.GetChatMember(ctx, GetChatMemberParams{ChatID: ChatIDInt(123), UserID: 1})

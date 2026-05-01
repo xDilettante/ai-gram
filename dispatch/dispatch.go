@@ -148,6 +148,26 @@ func (d *Dispatcher) OnMessageFunc(handler HandlerFunc) error {
 	return d.OnMessage(handler)
 }
 
+// OnChannelPost registers a handler for channel post updates.
+func (d *Dispatcher) OnChannelPost(handler Handler) error {
+	return d.Handle(ChannelPost(), handler)
+}
+
+// OnChannelPostFunc registers a function handler for channel post updates.
+func (d *Dispatcher) OnChannelPostFunc(handler HandlerFunc) error {
+	return d.OnChannelPost(handler)
+}
+
+// OnEditedChannelPost registers a handler for edited channel post updates.
+func (d *Dispatcher) OnEditedChannelPost(handler Handler) error {
+	return d.Handle(EditedChannelPost(), handler)
+}
+
+// OnEditedChannelPostFunc registers a function handler for edited channel post updates.
+func (d *Dispatcher) OnEditedChannelPostFunc(handler HandlerFunc) error {
+	return d.OnEditedChannelPost(handler)
+}
+
 // OnCommand registers a handler for a slash command.
 func (d *Dispatcher) OnCommand(command string, handler Handler) error {
 	if !validCommand(command) {
@@ -296,6 +316,16 @@ func (d *Dispatcher) OnPollAnswerFunc(handler HandlerFunc) error {
 	return d.OnPollAnswer(handler)
 }
 
+// OnPoll registers a handler for standalone poll updates.
+func (d *Dispatcher) OnPoll(handler Handler) error {
+	return d.Handle(Poll(), handler)
+}
+
+// OnPollFunc registers a function handler for standalone poll updates.
+func (d *Dispatcher) OnPollFunc(handler HandlerFunc) error {
+	return d.OnPoll(handler)
+}
+
 // OnChatJoinRequest registers a handler for chat join request updates.
 func (d *Dispatcher) OnChatJoinRequest(handler Handler) error {
 	return d.Handle(ChatJoinRequest(), handler)
@@ -376,6 +406,16 @@ func Message() Predicate {
 	return func(update telegram.Update) bool { return update.Message != nil }
 }
 
+// ChannelPost matches updates with a channel post.
+func ChannelPost() Predicate {
+	return func(update telegram.Update) bool { return update.ChannelPost != nil }
+}
+
+// EditedChannelPost matches updates with an edited channel post.
+func EditedChannelPost() Predicate {
+	return func(update telegram.Update) bool { return update.EditedChannelPost != nil }
+}
+
 // Command matches updates with the given slash command.
 func Command(command string) Predicate {
 	return func(update telegram.Update) bool {
@@ -448,6 +488,11 @@ func DeletedBusinessMessages() Predicate {
 // PollAnswer matches updates with a poll answer.
 func PollAnswer() Predicate {
 	return func(update telegram.Update) bool { return update.PollAnswer != nil }
+}
+
+// Poll matches standalone poll state updates.
+func Poll() Predicate {
+	return func(update telegram.Update) bool { return update.Poll != nil }
 }
 
 // ChatJoinRequest matches updates with a chat join request.

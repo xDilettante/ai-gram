@@ -24,19 +24,18 @@ This plan is a working checklist derived from the official documentation and cha
 
 Stage 88 compared the current local implementation with the official Telegram Bot API documentation and the April 3, 2026 Bot API 9.6 changelog. Full coverage is **not yet reached**. The precise missing method/type/field checklist now lives in [`docs/BOT_API_9_6_AUDIT.md`](BOT_API_9_6_AUDIT.md).
 
-Top pending method groups after Stage 96:
+Top pending method groups after Stage 97:
 
-- No Stage 88 missing method groups are currently tracked; remaining work is result/update shape parity and final audit verification.
+- No Stage 88 missing method groups are currently tracked; remaining work is final audit verification and intentionally documented architecture differences.
 
 Top pending type/field groups:
 
-- `ChatFullInfo`, full `User`/`Chat` metadata, channel post update fields, and standalone poll update fields;
 - optional concrete chat member variants as a possible compatibility-preserving refinement.
 
 
 ## Stage 89 result
 
-Stage 89 implemented lifecycle/profile read APIs: `logOut`, `close`, `getUserProfilePhotos`, `getUserProfileAudios`, and `getForumTopicIconStickers`. `ChatFullInfo` is still intentionally documented as a `getChat` result strategy mismatch; the current `GetChat` public signature remains `*telegram.Chat` to avoid an incidental API break in this narrow slice.
+Stage 89 implemented lifecycle/profile read APIs: `logOut`, `close`, `getUserProfilePhotos`, `getUserProfileAudios`, and `getForumTopicIconStickers`. Stage 97 resolved the `getChat` result mismatch compatibly by keeping `GetChat` as `*telegram.Chat` and adding `GetChatFullInfo` for the official full result.
 
 ## Stage 90 result
 
@@ -394,7 +393,7 @@ Stage 81 implements the Business API foundation. Stage 82 adds business read, ac
 - [x] `TransferGift`
 - [x] `GetMyStarBalance`
 - [x] `EditUserStarSubscription`
-- [ ] `ChatFullInfo` business intro/location/hours metadata coverage
+- [x] `ChatFullInfo` business intro/location/hours metadata coverage
 
 ### Games
 
@@ -441,11 +440,15 @@ Notes:
 
 Stage 96 implemented service/direct-message/story/media metadata completion: `RepostStory`, video cover/start/quality metadata, `SendVideo` thumbnail/cover/start/caption-placement serialization, shared user/chat service messages, chat backgrounds, video chat service messages, proximity alerts, auto-delete timer changes, giveaway service fields, and paid/direct message price-change service fields. `RepostStory` remains manual-only because it mutates business story state; service-message and media metadata coverage is verified through unit fixtures.
 
+## Stage 97 result
+
+Stage 97 implemented `ChatFullInfo` and `GetChatFullInfo`, completed official Bot API 9.6 `User` and lightweight `Chat` metadata fields, and added `Update.channel_post`, `Update.edited_channel_post`, `Update.poll`, effective helper support, and dispatch predicates/handler helpers. `GetChat` remains backward-compatible and returns `*telegram.Chat`; `GetChatFullInfo` decodes the official full `getChat` result. The flat `telegram.ChatMember` shape remains the compatibility strategy for official chat member variants.
+
 ## Implementation strategy
 
 Recommended local-only stages after the Stage 88 audit:
 
-1. Stage 89 completed: lifecycle/profile read APIs (`logOut`, `close`, profile photos/audios, forum topic icon stickers); `ChatFullInfo` remains pending as a documented `getChat` strategy mismatch.
+1. Stage 89 completed: lifecycle/profile read APIs (`logOut`, `close`, profile photos/audios, forum topic icon stickers).
 2. Stage 90 completed: verification and user status APIs.
 3. Stage 91 completed: chat boosts, chat-member updates/tags, and sender-chat moderation.
 4. Stage 92 completed: subscription invite links.
@@ -453,7 +456,7 @@ Recommended local-only stages after the Stage 88 audit:
 6. Stage 94 completed: reply and message metadata types.
 7. Stage 95 completed: prepared inline messages and reply-markup completion.
 8. Stage 96 completed: service/direct-message/story/media metadata gaps.
-9. Stage 97: `ChatFullInfo`, full user/chat metadata, channel post/standalone poll update shape, and optional chat member variant strategy.
+9. Stage 97 completed: `ChatFullInfo`, full user/chat metadata, channel post/standalone poll update shape, and compatible flat chat member variant strategy.
 10. Final official-doc audit and release-readiness review after the missing checklist is empty.
 
 Each stage should:

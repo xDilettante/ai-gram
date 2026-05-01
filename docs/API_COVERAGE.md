@@ -32,7 +32,8 @@ This document maps the current `ai-gram` implementation to Telegram Bot API area
 | --- | --- | --- | --- |
 | `(*bot.Bot).GetUpdates` | `getUpdates` | unit/httptest | Manual one-shot updates call. |
 | `transport/longpoll.Runner` | `getUpdates` loop | unit, live via examples/scripts | Managed offset advancement, backoff, context cancellation, handler error reporting. |
-| `telegram.Update`, `telegram.Message`, helpers | n/a | unit | Practical incoming update/message/callback/media decoding and helper methods. |
+| `telegram.Update`, `telegram.Message`, helpers | n/a | unit | Practical incoming update/message/callback/media decoding and helper methods, including `channel_post`, `edited_channel_post`, and standalone `poll` updates. |
+| `dispatch.ChannelPost`, `EditedChannelPost`, `Poll` | n/a | unit | Predicate and handler registration helpers for channel post and standalone poll updates. |
 | Service/direct-message metadata on `telegram.Message` | n/a | unit | Decodes shared user/chat responses, chat background and boost service messages, video chat service messages, proximity alerts, auto-delete timer changes, giveaway service messages, paid/direct message price changes, connected websites, and ownership/chat creation service metadata. |
 | `dispatch.Dispatcher` | n/a | unit, live via examples | Predicate routing for messages, commands, callbacks, middleware, fallback, error handling. |
 
@@ -237,7 +238,9 @@ This document maps the current `ai-gram` implementation to Telegram Bot API area
 
 | Public Go API | Telegram Bot API method | Tests | Notes |
 | --- | --- | --- | --- |
-| `(*bot.Bot).GetChat` | `getChat` | unit/httptest, live example access panel | Minimal `telegram.Chat` fields plus optional description/invite/pinned message. |
+| `(*bot.Bot).GetChat` | `getChat` | unit/httptest, live example access panel | Backward-compatible minimal `telegram.Chat` decode with official lightweight `is_forum` and `is_direct_messages` metadata. |
+| `(*bot.Bot).GetChatFullInfo` | `getChat` | unit/httptest | Compatible full-result method returning `telegram.ChatFullInfo` for the official Bot API 9.6 `getChat` shape. |
+| `telegram.User`, `telegram.Chat`, `telegram.ChatFullInfo` | `User`, `Chat`, `ChatFullInfo` | unit | Decodes Bot API 9.6 user capability metadata, lightweight chat metadata, and representative full chat profile/business/reaction/gift/rating metadata. |
 | `(*bot.Bot).GetChatMember` | `getChatMember` | unit/httptest | `telegram.ChatMember` includes official status/user, admin, member tag, and restricted-permission fields in the current flat API shape. |
 | `(*bot.Bot).GetChatAdministrators` | `getChatAdministrators` | unit/httptest | Returns `[]telegram.ChatMember` with the same flat field coverage as `GetChatMember`. |
 | `(*bot.Bot).GetChatMemberCount` | `getChatMemberCount` | unit/httptest, optional live example | Safe read method; availability depends on chat permissions. |
@@ -377,12 +380,11 @@ Stage 88 performed a full official-doc comparison against the Telegram Bot API d
 
 ### Missing methods from the Stage 88 audit
 
-No Stage 88 missing method groups are currently tracked after Stage 96. Remaining work is concentrated in result/update shape parity and final official-doc verification.
+No Stage 88 missing method groups are currently tracked after Stage 97. Remaining work is concentrated in final official-doc verification and intentionally documented architecture differences.
 
 ### Missing type and field groups from the Stage 88 audit
 
-- `ChatFullInfo`, fuller `User`/`Chat` metadata, channel post updates, standalone poll updates, and remaining chat metadata fields.
-- Optional concrete chat member variant structs remain a possible future refinement; Stage 91 keeps the current flat `ChatMember` compatibility shape.
+- Optional concrete chat member variant structs remain a possible future refinement; Stage 91/97 keep the current flat `ChatMember` compatibility shape while decoding official 9.6 fields.
 
 ### Intentional architecture differences to keep documented
 

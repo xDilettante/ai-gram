@@ -108,6 +108,47 @@ func TestOnMessageMatchesOnlyMessageUpdates(t *testing.T) {
 	}
 }
 
+func TestChannelPostRoutes(t *testing.T) {
+	dispatcher := New()
+	var channelCalls int
+	var editedCalls int
+	must(t, dispatcher.OnChannelPostFunc(func(ctx context.Context, update telegram.Update) error {
+		channelCalls++
+		if update.ChannelPost == nil || update.ChannelPost.MessageID != 10 {
+			t.Fatalf("unexpected channel post update: %+v", update)
+		}
+		return nil
+	}))
+	must(t, dispatcher.OnEditedChannelPostFunc(func(ctx context.Context, update telegram.Update) error {
+		editedCalls++
+		if update.EditedChannelPost == nil || update.EditedChannelPost.MessageID != 11 {
+			t.Fatalf("unexpected edited channel post update: %+v", update)
+		}
+		return nil
+	}))
+
+	channelPost := telegram.Update{UpdateID: 10, ChannelPost: &telegram.Message{MessageID: 10, Chat: telegram.Chat{ID: -100, Type: "channel"}}}
+	editedChannelPost := telegram.Update{UpdateID: 11, EditedChannelPost: &telegram.Message{MessageID: 11, Chat: telegram.Chat{ID: -100, Type: "channel"}}}
+	if err := dispatcher.HandleUpdate(context.Background(), channelPost); err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if err := dispatcher.HandleUpdate(context.Background(), editedChannelPost); err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if err := dispatcher.HandleUpdate(context.Background(), messageUpdate("hello")); err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if channelCalls != 1 || editedCalls != 1 {
+		t.Fatalf("unexpected calls: channel=%d edited=%d", channelCalls, editedCalls)
+	}
+	if !ChannelPost()(channelPost) || ChannelPost()(messageUpdate("hello")) {
+		t.Fatal("channel post predicate mismatch")
+	}
+	if !EditedChannelPost()(editedChannelPost) || EditedChannelPost()(messageUpdate("hello")) {
+		t.Fatal("edited channel post predicate mismatch")
+	}
+}
+
 func TestOnCommandMatching(t *testing.T) {
 	tests := []struct {
 		name string
@@ -942,6 +983,35 @@ func TestPollAnswerRoute(t *testing.T) {
 	}
 	if PollAnswer()(messageUpdate("hello")) {
 		t.Fatal("poll answer predicate should not match message updates")
+	}
+}
+
+func TestPollRoute(t *testing.T) {
+	dispatcher := New()
+	var calls int
+	must(t, dispatcher.OnPollFunc(func(ctx context.Context, update telegram.Update) error {
+		calls++
+		if update.Poll == nil || update.Poll.ID != "poll-id" {
+			t.Fatalf("unexpected poll update: %+v", update)
+		}
+		return nil
+	}))
+
+	poll := telegram.Update{UpdateID: 601, Poll: &telegram.Poll{ID: "poll-id", Question: "Question?"}}
+	if err := dispatcher.HandleUpdate(context.Background(), poll); err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if err := dispatcher.HandleUpdate(context.Background(), messageUpdate("hello")); err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if calls != 1 {
+		t.Fatalf("unexpected calls: %d", calls)
+	}
+	if !Poll()(poll) {
+		t.Fatal("poll predicate should match")
+	}
+	if Poll()(messageUpdate("hello")) {
+		t.Fatal("poll predicate should not match message updates")
 	}
 }
 

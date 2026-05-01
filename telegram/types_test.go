@@ -365,6 +365,176 @@ func TestUpdateHelpers(t *testing.T) {
 	if user := update.EffectiveUser(); user == nil || user.ID != 6 {
 		t.Fatalf("unexpected chosen inline result effective user: %+v", user)
 	}
+
+	channelPost := &Message{MessageID: 13, Chat: Chat{ID: -100, Type: "channel"}, Text: "post"}
+	update = &Update{ChannelPost: channelPost}
+	if update.EffectiveMessage() != channelPost {
+		t.Fatal("expected channel post as effective message")
+	}
+	if chat := update.EffectiveChat(); chat == nil || chat.ID != -100 {
+		t.Fatalf("unexpected channel post effective chat: %+v", chat)
+	}
+	if user := update.EffectiveUser(); user != nil {
+		t.Fatalf("channel post should not invent effective user: %+v", user)
+	}
+
+	editedChannelPost := &Message{MessageID: 14, Chat: Chat{ID: -101, Type: "channel"}, Text: "edited"}
+	update = &Update{EditedChannelPost: editedChannelPost}
+	if update.EffectiveMessage() != editedChannelPost {
+		t.Fatal("expected edited channel post as effective message")
+	}
+	if chat := update.EffectiveChat(); chat == nil || chat.ID != -101 {
+		t.Fatalf("unexpected edited channel post effective chat: %+v", chat)
+	}
+}
+
+func TestUserAndChatMetadataDecode(t *testing.T) {
+	var user User
+	if err := json.Unmarshal([]byte(`{
+		"id": 42,
+		"is_bot": true,
+		"first_name": "Bot",
+		"language_code": "en",
+		"is_premium": true,
+		"added_to_attachment_menu": true,
+		"can_join_groups": true,
+		"can_read_all_group_messages": true,
+		"supports_inline_queries": true,
+		"can_connect_to_business": true,
+		"has_main_web_app": true,
+		"has_topics_enabled": true,
+		"allows_users_to_create_topics": true,
+		"can_manage_bots": true
+	}`), &user); err != nil {
+		t.Fatalf("decode user: %v", err)
+	}
+	if user.ID != 42 || !user.IsBot || user.LanguageCode != "en" || !user.IsPremium || !user.AddedToAttachmentMenu || !user.CanJoinGroups || !user.CanReadAllGroupMessages || !user.SupportsInlineQueries || !user.CanConnectToBusiness || !user.HasMainWebApp || !user.HasTopicsEnabled || !user.AllowsUsersToCreateTopics || !user.CanManageBots {
+		t.Fatalf("unexpected user metadata: %+v", user)
+	}
+
+	var chat Chat
+	if err := json.Unmarshal([]byte(`{"id":-100,"type":"supergroup","title":"Forum","is_forum":true,"is_direct_messages":true}`), &chat); err != nil {
+		t.Fatalf("decode chat: %v", err)
+	}
+	if chat.ID != -100 || chat.Type != "supergroup" || chat.Title != "Forum" || !chat.IsForum || !chat.IsDirectMessages {
+		t.Fatalf("unexpected chat metadata: %+v", chat)
+	}
+}
+
+func TestChatFullInfoDecode(t *testing.T) {
+	var info ChatFullInfo
+	if err := json.Unmarshal([]byte(`{
+		"id": -100,
+		"type": "supergroup",
+		"title": "Full Chat",
+		"username": "fullchat",
+		"is_forum": true,
+		"is_direct_messages": true,
+		"accent_color_id": 7,
+		"max_reaction_count": 11,
+		"photo": {
+			"small_file_id": "small",
+			"small_file_unique_id": "small-uniq",
+			"big_file_id": "big",
+			"big_file_unique_id": "big-uniq"
+		},
+		"active_usernames": ["fullchat", "fullchat2"],
+		"birthdate": {"day": 1, "month": 2, "year": 2000},
+		"business_intro": {"title": "Intro", "message": "Welcome"},
+		"business_location": {"address": "Main street", "location": {"longitude": 37.6, "latitude": 55.7}},
+		"business_opening_hours": {"time_zone_name": "Europe/Moscow", "opening_hours": [{"opening_minute": 60, "closing_minute": 120}]},
+		"personal_chat": {"id": -200, "type": "channel", "title": "Personal"},
+		"parent_chat": {"id": -201, "type": "channel", "title": "Parent"},
+		"available_reactions": [{"type": "emoji", "emoji": "👍"}, {"type": "custom_emoji", "custom_emoji_id": "custom"}],
+		"background_custom_emoji_id": "bg",
+		"profile_accent_color_id": 8,
+		"profile_background_custom_emoji_id": "profile-bg",
+		"emoji_status_custom_emoji_id": "status",
+		"emoji_status_expiration_date": 1893456000,
+		"bio": "bio",
+		"has_private_forwards": true,
+		"has_restricted_voice_and_video_messages": true,
+		"join_to_send_messages": true,
+		"join_by_request": true,
+		"description": "description",
+		"invite_link": "https://t.me/+redacted",
+		"pinned_message": {"message_id": 9, "chat": {"id": -100, "type": "supergroup"}, "date": 1, "text": "Pinned"},
+		"permissions": {"can_send_messages": true, "can_edit_tag": true},
+		"accepted_gift_types": {"unlimited_gifts": true, "limited_gifts": true, "unique_gifts": true, "premium_subscription": true, "gifts_from_channels": true},
+		"can_send_paid_media": true,
+		"slow_mode_delay": 10,
+		"unrestrict_boost_count": 2,
+		"message_auto_delete_time": 86400,
+		"has_aggressive_anti_spam_enabled": true,
+		"has_hidden_members": true,
+		"has_protected_content": true,
+		"has_visible_history": true,
+		"sticker_set_name": "stickers",
+		"can_set_sticker_set": true,
+		"custom_emoji_sticker_set_name": "emoji",
+		"linked_chat_id": -300,
+		"location": {"location": {"longitude": 37.7, "latitude": 55.8}, "address": "Address"},
+		"rating": {"level": 3, "rating": 100, "current_level_rating": 50, "next_level_rating": 150},
+		"first_profile_audio": {"file_id": "audio", "file_unique_id": "audio-uniq", "duration": 12},
+		"unique_gift_colors": {
+			"model_custom_emoji_id": "model",
+			"symbol_custom_emoji_id": "symbol",
+			"light_theme_main_color": 1,
+			"light_theme_other_colors": [2, 3],
+			"dark_theme_main_color": 4,
+			"dark_theme_other_colors": [5, 6]
+		},
+		"paid_message_star_count": 15
+	}`), &info); err != nil {
+		t.Fatalf("decode chat full info: %v", err)
+	}
+	if info.ID != -100 || info.Type != "supergroup" || info.Title != "Full Chat" || !info.IsForum || !info.IsDirectMessages || info.AccentColorID != 7 || info.MaxReactionCount != 11 {
+		t.Fatalf("unexpected core chat full info: %+v", info)
+	}
+	if info.Photo == nil || info.Photo.SmallFileID != "small" || len(info.ActiveUsernames) != 2 || info.Birthdate == nil || info.Birthdate.Year != 2000 {
+		t.Fatalf("unexpected profile chat full info: %+v", info)
+	}
+	if info.BusinessIntro == nil || info.BusinessIntro.Title != "Intro" || info.BusinessLocation == nil || info.BusinessLocation.Address != "Main street" || info.BusinessOpeningHours == nil || len(info.BusinessOpeningHours.OpeningHours) != 1 {
+		t.Fatalf("unexpected business chat full info: %+v", info)
+	}
+	if info.PersonalChat == nil || info.PersonalChat.ID != -200 || info.ParentChat == nil || info.ParentChat.ID != -201 {
+		t.Fatalf("unexpected related chats: %+v", info)
+	}
+	if len(info.AvailableReactions) != 2 {
+		t.Fatalf("unexpected available reactions: %+v", info.AvailableReactions)
+	}
+	if info.PinnedMessage == nil || info.PinnedMessage.MessageID != 9 || info.Permissions == nil || !info.Permissions.CanEditTag || !info.AcceptedGiftTypes.GiftsFromChannels {
+		t.Fatalf("unexpected permissions or pinned message: %+v", info)
+	}
+	if info.Location == nil || info.Location.Address != "Address" || info.Rating == nil || info.Rating.Level != 3 || info.FirstProfileAudio == nil || info.FirstProfileAudio.FileID != "audio" || info.UniqueGiftColors == nil || info.PaidMessageStarCount != 15 {
+		t.Fatalf("unexpected remaining chat full info fields: %+v", info)
+	}
+}
+
+func TestUpdateDecodesChannelPostsAndPoll(t *testing.T) {
+	var channelPost Update
+	if err := json.Unmarshal([]byte(`{"update_id":1,"channel_post":{"message_id":10,"chat":{"id":-100,"type":"channel","title":"Channel"},"date":1,"text":"post"}}`), &channelPost); err != nil {
+		t.Fatalf("decode channel post update: %v", err)
+	}
+	if channelPost.ChannelPost == nil || channelPost.ChannelPost.Chat.Type != "channel" || channelPost.ChannelPost.Text != "post" {
+		t.Fatalf("unexpected channel post update: %+v", channelPost)
+	}
+
+	var editedChannelPost Update
+	if err := json.Unmarshal([]byte(`{"update_id":2,"edited_channel_post":{"message_id":11,"chat":{"id":-100,"type":"channel","title":"Channel"},"date":1,"edit_date":2,"text":"edited"}}`), &editedChannelPost); err != nil {
+		t.Fatalf("decode edited channel post update: %v", err)
+	}
+	if editedChannelPost.EditedChannelPost == nil || editedChannelPost.EditedChannelPost.EditDate != 2 || editedChannelPost.EditedChannelPost.Text != "edited" {
+		t.Fatalf("unexpected edited channel post update: %+v", editedChannelPost)
+	}
+
+	var pollUpdate Update
+	if err := json.Unmarshal([]byte(`{"update_id":3,"poll":{"id":"poll-id","question":"Question?","options":[{"text":"A","voter_count":1}],"total_voter_count":1,"is_closed":false,"is_anonymous":true,"type":"regular","allows_multiple_answers":false}}`), &pollUpdate); err != nil {
+		t.Fatalf("decode poll update: %v", err)
+	}
+	if pollUpdate.Poll == nil || pollUpdate.Poll.ID != "poll-id" || pollUpdate.Poll.Question != "Question?" {
+		t.Fatalf("unexpected poll update: %+v", pollUpdate)
+	}
 }
 
 func TestPaymentMessageDecoding(t *testing.T) {

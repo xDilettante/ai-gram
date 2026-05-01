@@ -6,6 +6,8 @@ type Update struct {
 	UpdateID                int64                        `json:"update_id"`
 	Message                 *Message                     `json:"message,omitempty"`
 	EditedMessage           *Message                     `json:"edited_message,omitempty"`
+	ChannelPost             *Message                     `json:"channel_post,omitempty"`
+	EditedChannelPost       *Message                     `json:"edited_channel_post,omitempty"`
 	BusinessConnection      *BusinessConnection          `json:"business_connection,omitempty"`
 	BusinessMessage         *Message                     `json:"business_message,omitempty"`
 	EditedBusinessMessage   *Message                     `json:"edited_business_message,omitempty"`
@@ -19,6 +21,7 @@ type Update struct {
 	ShippingQuery           *ShippingQuery               `json:"shipping_query,omitempty"`
 	PreCheckoutQuery        *PreCheckoutQuery            `json:"pre_checkout_query,omitempty"`
 	PurchasedPaidMedia      *PaidMediaPurchased          `json:"purchased_paid_media,omitempty"`
+	Poll                    *Poll                        `json:"poll,omitempty"`
 	ManagedBot              *ManagedBotUpdated           `json:"managed_bot,omitempty"`
 	PollAnswer              *PollAnswer                  `json:"poll_answer,omitempty"`
 	MyChatMember            *ChatMemberUpdated           `json:"my_chat_member,omitempty"`
@@ -189,25 +192,37 @@ type MessageID struct {
 
 // User represents a Telegram user or bot account.
 type User struct {
-	ID            int64  `json:"id"`
-	IsBot         bool   `json:"is_bot"`
-	FirstName     string `json:"first_name"`
-	LastName      string `json:"last_name,omitempty"`
-	Username      string `json:"username,omitempty"`
-	CanManageBots bool   `json:"can_manage_bots,omitempty"`
+	ID                        int64  `json:"id"`
+	IsBot                     bool   `json:"is_bot"`
+	FirstName                 string `json:"first_name"`
+	LastName                  string `json:"last_name,omitempty"`
+	Username                  string `json:"username,omitempty"`
+	LanguageCode              string `json:"language_code,omitempty"`
+	IsPremium                 bool   `json:"is_premium,omitempty"`
+	AddedToAttachmentMenu     bool   `json:"added_to_attachment_menu,omitempty"`
+	CanJoinGroups             bool   `json:"can_join_groups,omitempty"`
+	CanReadAllGroupMessages   bool   `json:"can_read_all_group_messages,omitempty"`
+	SupportsInlineQueries     bool   `json:"supports_inline_queries,omitempty"`
+	CanConnectToBusiness      bool   `json:"can_connect_to_business,omitempty"`
+	HasMainWebApp             bool   `json:"has_main_web_app,omitempty"`
+	HasTopicsEnabled          bool   `json:"has_topics_enabled,omitempty"`
+	AllowsUsersToCreateTopics bool   `json:"allows_users_to_create_topics,omitempty"`
+	CanManageBots             bool   `json:"can_manage_bots,omitempty"`
 }
 
 // Chat represents a Telegram chat.
 type Chat struct {
-	ID            int64    `json:"id"`
-	Type          string   `json:"type"`
-	Title         string   `json:"title,omitempty"`
-	Username      string   `json:"username,omitempty"`
-	FirstName     string   `json:"first_name,omitempty"`
-	LastName      string   `json:"last_name,omitempty"`
-	Description   string   `json:"description,omitempty"`
-	InviteLink    string   `json:"invite_link,omitempty"`
-	PinnedMessage *Message `json:"pinned_message,omitempty"`
+	ID               int64    `json:"id"`
+	Type             string   `json:"type"`
+	Title            string   `json:"title,omitempty"`
+	Username         string   `json:"username,omitempty"`
+	FirstName        string   `json:"first_name,omitempty"`
+	LastName         string   `json:"last_name,omitempty"`
+	IsForum          bool     `json:"is_forum,omitempty"`
+	IsDirectMessages bool     `json:"is_direct_messages,omitempty"`
+	Description      string   `json:"description,omitempty"`
+	InviteLink       string   `json:"invite_link,omitempty"`
+	PinnedMessage    *Message `json:"pinned_message,omitempty"`
 }
 
 // ChatInviteLink describes a Telegram chat invite link.

@@ -4,6 +4,7 @@
 
 ### Added
 
+- ChatFullInfo, GetChatFullInfo, fuller User/Chat metadata, and channel post/standalone poll update shapes.
 - Service/direct-message/story/media metadata completion: `RepostStory`, video cover/start/quality metadata, shared user/chat service messages, chat backgrounds, video chats, proximity alerts, auto-delete timers, giveaway service messages, and paid/direct message price-change service fields.
 - Prepared inline messages and reply markup completion: `SavePreparedInlineMessage`, `PreparedInlineMessage`, `LoginUrl`, `SwitchInlineQueryChosenChat`, `CopyTextButton`, `KeyboardButtonPollType`, request-poll buttons, pay buttons, and icon/style button fields.
 - Reply and message metadata types: `MessageOrigin` variants, `ExternalReplyInfo`, `TextQuote`, `MaybeInaccessibleMessage`, `InaccessibleMessage`, and expanded `ReplyParameters`.

@@ -42,6 +42,20 @@ func (b *Bot) GetChat(ctx context.Context, params GetChatParams) (*telegram.Chat
 	return &chat, nil
 }
 
+// GetChatFullInfo returns full information about a chat.
+func (b *Bot) GetChatFullInfo(ctx context.Context, params GetChatParams) (*telegram.ChatFullInfo, error) {
+	if err := params.validate(); err != nil {
+		return nil, err
+	}
+
+	var chat telegram.ChatFullInfo
+	if err := b.call(ctx, "getChat", params, &chat); err != nil {
+		return nil, err
+	}
+
+	return &chat, nil
+}
+
 // GetChatMember returns information about a chat member.
 func (b *Bot) GetChatMember(ctx context.Context, params GetChatMemberParams) (*telegram.ChatMember, error) {
 	if err := params.validate(); err != nil {
