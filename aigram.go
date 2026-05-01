@@ -510,8 +510,14 @@ type ExportChatInviteLinkParams = bot.ExportChatInviteLinkParams
 // CreateChatInviteLinkParams contains supported parameters for createChatInviteLink.
 type CreateChatInviteLinkParams = bot.CreateChatInviteLinkParams
 
+// CreateChatSubscriptionInviteLinkParams contains supported parameters for createChatSubscriptionInviteLink.
+type CreateChatSubscriptionInviteLinkParams = bot.CreateChatSubscriptionInviteLinkParams
+
 // EditChatInviteLinkParams contains supported parameters for editChatInviteLink.
 type EditChatInviteLinkParams = bot.EditChatInviteLinkParams
+
+// EditChatSubscriptionInviteLinkParams contains supported parameters for editChatSubscriptionInviteLink.
+type EditChatSubscriptionInviteLinkParams = bot.EditChatSubscriptionInviteLinkParams
 
 // RevokeChatInviteLinkParams contains supported parameters for revokeChatInviteLink.
 type RevokeChatInviteLinkParams = bot.RevokeChatInviteLinkParams

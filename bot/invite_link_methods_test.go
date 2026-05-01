@@ -9,6 +9,7 @@ import (
 	"testing"
 
 	apierrors "github.com/xDilettante/ai-gram/errors"
+	"github.com/xDilettante/ai-gram/telegram"
 )
 
 func TestExportChatInviteLinkSendsPayloadAndDecodesResult(t *testing.T) {
@@ -80,6 +81,42 @@ func TestCreateChatInviteLinkSendsPayloadAndDecodesResult(t *testing.T) {
 	}
 }
 
+func TestCreateChatSubscriptionInviteLinkSendsPayloadAndDecodesResult(t *testing.T) {
+	const token = "123:secret"
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path != "/bot"+token+"/createChatSubscriptionInviteLink" {
+			t.Fatalf("unexpected path: %q", r.URL.Path)
+		}
+		var payload map[string]any
+		if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
+			t.Fatalf("decode payload: %v", err)
+		}
+		if payload["chat_id"] != float64(12345) ||
+			payload["name"] != "subscription link" ||
+			payload["subscription_period"] != float64(2592000) ||
+			payload["subscription_price"] != float64(100) {
+			t.Fatalf("unexpected payload: %#v", payload)
+		}
+		w.Header().Set("Content-Type", "application/json")
+		_, _ = w.Write([]byte(`{"ok":true,"result":{"invite_link":"https://t.me/+redacted","creator":{"id":1,"is_bot":true,"first_name":"Bot"},"creates_join_request":false,"is_primary":false,"is_revoked":false,"name":"subscription link","subscription_period":2592000,"subscription_price":100}}`))
+	}))
+	defer server.Close()
+
+	bot := newTestBot(t, token, server.URL, server.Client())
+	inviteLink, err := bot.CreateChatSubscriptionInviteLink(context.Background(), CreateChatSubscriptionInviteLinkParams{
+		ChatID:             ChatIDInt(12345),
+		Name:               "subscription link",
+		SubscriptionPeriod: 2592000,
+		SubscriptionPrice:  100,
+	})
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if inviteLink.InviteLink == "" || inviteLink.Name != "subscription link" || inviteLink.SubscriptionPeriod != 2592000 || inviteLink.SubscriptionPrice != 100 {
+		t.Fatalf("unexpected invite link: %#v", inviteLink)
+	}
+}
+
 func TestEditChatInviteLinkSendsPayloadAndDecodesResult(t *testing.T) {
 	const token = "123:secret"
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -120,6 +157,40 @@ func TestEditChatInviteLinkSendsPayloadAndDecodesResult(t *testing.T) {
 	}
 }
 
+func TestEditChatSubscriptionInviteLinkSendsPayloadAndDecodesResult(t *testing.T) {
+	const token = "123:secret"
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path != "/bot"+token+"/editChatSubscriptionInviteLink" {
+			t.Fatalf("unexpected path: %q", r.URL.Path)
+		}
+		var payload map[string]any
+		if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
+			t.Fatalf("decode payload: %v", err)
+		}
+		if payload["chat_id"] != float64(12345) ||
+			payload["invite_link"] != "https://t.me/+redacted" ||
+			payload["name"] != "edited subscription link" {
+			t.Fatalf("unexpected payload: %#v", payload)
+		}
+		w.Header().Set("Content-Type", "application/json")
+		_, _ = w.Write([]byte(`{"ok":true,"result":{"invite_link":"https://t.me/+redacted","creator":{"id":1,"is_bot":true,"first_name":"Bot"},"creates_join_request":false,"is_primary":false,"is_revoked":false,"name":"edited subscription link","subscription_period":2592000,"subscription_price":100}}`))
+	}))
+	defer server.Close()
+
+	bot := newTestBot(t, token, server.URL, server.Client())
+	inviteLink, err := bot.EditChatSubscriptionInviteLink(context.Background(), EditChatSubscriptionInviteLinkParams{
+		ChatID:     ChatIDInt(12345),
+		InviteLink: "https://t.me/+redacted",
+		Name:       "edited subscription link",
+	})
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if inviteLink.InviteLink == "" || inviteLink.Name != "edited subscription link" || inviteLink.SubscriptionPeriod != 2592000 || inviteLink.SubscriptionPrice != 100 {
+		t.Fatalf("unexpected invite link: %#v", inviteLink)
+	}
+}
+
 func TestRevokeChatInviteLinkSendsPayloadAndDecodesResult(t *testing.T) {
 	const token = "123:secret"
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -148,6 +219,16 @@ func TestRevokeChatInviteLinkSendsPayloadAndDecodesResult(t *testing.T) {
 	}
 	if inviteLink.InviteLink == "" || !inviteLink.IsRevoked || inviteLink.IsPrimary || inviteLink.CreatesJoinRequest {
 		t.Fatalf("unexpected invite link: %#v", inviteLink)
+	}
+}
+
+func TestChatInviteLinkDecodesSubscriptionFields(t *testing.T) {
+	var inviteLink telegram.ChatInviteLink
+	if err := json.Unmarshal([]byte(`{"invite_link":"https://t.me/+redacted","creator":{"id":1,"is_bot":true,"first_name":"Bot"},"creates_join_request":false,"is_primary":false,"is_revoked":false,"subscription_period":2592000,"subscription_price":250}`), &inviteLink); err != nil {
+		t.Fatalf("decode invite link: %v", err)
+	}
+	if inviteLink.SubscriptionPeriod != 2592000 || inviteLink.SubscriptionPrice != 250 {
+		t.Fatalf("unexpected subscription fields: %#v", inviteLink)
 	}
 }
 
@@ -187,6 +268,29 @@ func TestInviteLinkMethodsValidation(t *testing.T) {
 		})
 	}
 
+	createSubscriptionTests := []struct {
+		name   string
+		params CreateChatSubscriptionInviteLinkParams
+	}{
+		{name: "empty chat", params: CreateChatSubscriptionInviteLinkParams{SubscriptionPeriod: 2592000, SubscriptionPrice: 100}},
+		{name: "zero subscription period", params: CreateChatSubscriptionInviteLinkParams{ChatID: ChatIDInt(123), SubscriptionPrice: 100}},
+		{name: "negative subscription period", params: CreateChatSubscriptionInviteLinkParams{ChatID: ChatIDInt(123), SubscriptionPeriod: -1, SubscriptionPrice: 100}},
+		{name: "zero subscription price", params: CreateChatSubscriptionInviteLinkParams{ChatID: ChatIDInt(123), SubscriptionPeriod: 2592000}},
+		{name: "negative subscription price", params: CreateChatSubscriptionInviteLinkParams{ChatID: ChatIDInt(123), SubscriptionPeriod: 2592000, SubscriptionPrice: -1}},
+	}
+	for _, tt := range createSubscriptionTests {
+		t.Run("create subscription "+tt.name, func(t *testing.T) {
+			inviteLink, err := bot.CreateChatSubscriptionInviteLink(context.Background(), tt.params)
+			if err == nil {
+				t.Fatal("expected error")
+			}
+			if inviteLink != nil {
+				t.Fatalf("expected nil invite link, got %#v", inviteLink)
+			}
+			assertNoToken(t, err, token)
+		})
+	}
+
 	editTests := []struct {
 		name   string
 		params EditChatInviteLinkParams
@@ -199,6 +303,26 @@ func TestInviteLinkMethodsValidation(t *testing.T) {
 	for _, tt := range editTests {
 		t.Run("edit "+tt.name, func(t *testing.T) {
 			inviteLink, err := bot.EditChatInviteLink(context.Background(), tt.params)
+			if err == nil {
+				t.Fatal("expected error")
+			}
+			if inviteLink != nil {
+				t.Fatalf("expected nil invite link, got %#v", inviteLink)
+			}
+			assertNoToken(t, err, token)
+		})
+	}
+
+	editSubscriptionTests := []struct {
+		name   string
+		params EditChatSubscriptionInviteLinkParams
+	}{
+		{name: "empty chat", params: EditChatSubscriptionInviteLinkParams{InviteLink: "https://t.me/+redacted"}},
+		{name: "empty invite link", params: EditChatSubscriptionInviteLinkParams{ChatID: ChatIDInt(123)}},
+	}
+	for _, tt := range editSubscriptionTests {
+		t.Run("edit subscription "+tt.name, func(t *testing.T) {
+			inviteLink, err := bot.EditChatSubscriptionInviteLink(context.Background(), tt.params)
 			if err == nil {
 				t.Fatal("expected error")
 			}
@@ -243,8 +367,14 @@ func TestInviteLinkMethodsReturnAPIError(t *testing.T) {
 		{name: "create", method: "createChatInviteLink", call: func(bot *Bot) (any, error) {
 			return bot.CreateChatInviteLink(context.Background(), CreateChatInviteLinkParams{ChatID: ChatIDInt(123)})
 		}},
+		{name: "create subscription", method: "createChatSubscriptionInviteLink", call: func(bot *Bot) (any, error) {
+			return bot.CreateChatSubscriptionInviteLink(context.Background(), CreateChatSubscriptionInviteLinkParams{ChatID: ChatIDInt(123), SubscriptionPeriod: 2592000, SubscriptionPrice: 100})
+		}},
 		{name: "edit", method: "editChatInviteLink", call: func(bot *Bot) (any, error) {
 			return bot.EditChatInviteLink(context.Background(), EditChatInviteLinkParams{ChatID: ChatIDInt(123), InviteLink: "https://t.me/+redacted"})
+		}},
+		{name: "edit subscription", method: "editChatSubscriptionInviteLink", call: func(bot *Bot) (any, error) {
+			return bot.EditChatSubscriptionInviteLink(context.Background(), EditChatSubscriptionInviteLinkParams{ChatID: ChatIDInt(123), InviteLink: "https://t.me/+redacted"})
 		}},
 		{name: "revoke", method: "revokeChatInviteLink", call: func(bot *Bot) (any, error) {
 			return bot.RevokeChatInviteLink(context.Background(), RevokeChatInviteLinkParams{ChatID: ChatIDInt(123), InviteLink: "https://t.me/+redacted"})
@@ -288,8 +418,14 @@ func TestInviteLinkMethodsResponseAndContextErrors(t *testing.T) {
 		{name: "create", method: "createChatInviteLink", call: func(ctx context.Context, bot *Bot) (any, error) {
 			return bot.CreateChatInviteLink(ctx, CreateChatInviteLinkParams{ChatID: ChatIDInt(123)})
 		}},
+		{name: "create subscription", method: "createChatSubscriptionInviteLink", call: func(ctx context.Context, bot *Bot) (any, error) {
+			return bot.CreateChatSubscriptionInviteLink(ctx, CreateChatSubscriptionInviteLinkParams{ChatID: ChatIDInt(123), SubscriptionPeriod: 2592000, SubscriptionPrice: 100})
+		}},
 		{name: "edit", method: "editChatInviteLink", call: func(ctx context.Context, bot *Bot) (any, error) {
 			return bot.EditChatInviteLink(ctx, EditChatInviteLinkParams{ChatID: ChatIDInt(123), InviteLink: "https://t.me/+redacted"})
+		}},
+		{name: "edit subscription", method: "editChatSubscriptionInviteLink", call: func(ctx context.Context, bot *Bot) (any, error) {
+			return bot.EditChatSubscriptionInviteLink(ctx, EditChatSubscriptionInviteLinkParams{ChatID: ChatIDInt(123), InviteLink: "https://t.me/+redacted"})
 		}},
 		{name: "revoke", method: "revokeChatInviteLink", call: func(ctx context.Context, bot *Bot) (any, error) {
 			return bot.RevokeChatInviteLink(ctx, RevokeChatInviteLinkParams{ChatID: ChatIDInt(123), InviteLink: "https://t.me/+redacted"})

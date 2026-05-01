@@ -24,9 +24,8 @@ This plan is a working checklist derived from the official documentation and cha
 
 Stage 88 compared the current local implementation with the official Telegram Bot API documentation and the April 3, 2026 Bot API 9.6 changelog. Full coverage is **not yet reached**. The precise missing method/type/field checklist now lives in [`docs/BOT_API_9_6_AUDIT.md`](BOT_API_9_6_AUDIT.md).
 
-Top pending method groups after Stage 91:
+Top pending method groups after Stage 92:
 
-- subscription invite links: `createChatSubscriptionInviteLink`, `editChatSubscriptionInviteLink`;
 - checklists/drafts: `sendChecklist`, `editMessageChecklist`, `sendMessageDraft`;
 - Business/Mini App follow-ups: `repostStory`, `savePreparedInlineMessage`.
 
@@ -50,6 +49,10 @@ Stage 90 implemented verification and user status APIs: `setUserEmojiStatus`, `v
 ## Stage 91 result
 
 Stage 91 implemented chat member updates, chat boost updates, `getUserChatBoosts`, `setChatMemberTag`, `banChatSenderChat`, and `unbanChatSenderChat`. It extends the existing flat `telegram.ChatMember` struct with official tag/admin/restricted fields and keeps live checks manual-only.
+
+## Stage 92 result
+
+Stage 92 implemented Stars subscription invite links: `createChatSubscriptionInviteLink`, `editChatSubscriptionInviteLink`, and `ChatInviteLink.subscription_period` / `ChatInviteLink.subscription_price`. These methods are payment-related and state-changing, so live checks remain manual-only.
 
 ## Current implemented baseline
 
@@ -125,6 +128,8 @@ Stage 91 implemented chat member updates, chat boost updates, `getUserChatBoosts
 - `ExportChatInviteLink`.
 - `CreateChatInviteLink`.
 - `EditChatInviteLink`.
+- `CreateChatSubscriptionInviteLink`.
+- `EditChatSubscriptionInviteLink`.
 - `RevokeChatInviteLink`.
 - `ApproveChatJoinRequest`.
 - `DeclineChatJoinRequest`.
@@ -422,7 +427,7 @@ Recommended local-only stages after the Stage 88 audit:
 1. Stage 89 completed: lifecycle/profile read APIs (`logOut`, `close`, profile photos/audios, forum topic icon stickers); `ChatFullInfo` remains pending as a documented `getChat` strategy mismatch.
 2. Stage 90 completed: verification and user status APIs.
 3. Stage 91 completed: chat boosts, chat-member updates/tags, and sender-chat moderation.
-4. Stage 92: subscription invite links.
+4. Stage 92 completed: subscription invite links.
 5. Stage 93: checklists, message drafts, and structured poll options.
 6. Stage 94: business/direct-message story completion.
 7. Stage 95: prepared inline messages and reply-markup completion.

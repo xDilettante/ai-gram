@@ -162,6 +162,8 @@ type ChatInviteLink struct {
 	ExpireDate              int64  `json:"expire_date,omitempty"`
 	MemberLimit             int    `json:"member_limit,omitempty"`
 	PendingJoinRequestCount int    `json:"pending_join_request_count,omitempty"`
+	SubscriptionPeriod      int    `json:"subscription_period,omitempty"`
+	SubscriptionPrice       int    `json:"subscription_price,omitempty"`
 }
 
 // ChatJoinRequest describes a request to join a chat.

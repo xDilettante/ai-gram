@@ -2,7 +2,7 @@
 
 ## Source of truth
 
-- [Official Telegram Bot API documentation](https://core.telegram.org/bots/api), fetched for the original audit on 2026-04-30 and rechecked for Stage 89 on 2026-05-01.
+- [Official Telegram Bot API documentation](https://core.telegram.org/bots/api), fetched for the original audit on 2026-04-30 and rechecked for Stages 89-92 on 2026-05-01.
 - [Official Telegram Bot API changelog](https://core.telegram.org/bots/api-changelog), especially the April 3, 2026 Bot API 9.6 entry.
 
 The audit compares official method/type headings and high-impact object fields against the current local implementation. It is intentionally documentation-only: no new Bot API methods are implemented in this stage.
@@ -11,7 +11,7 @@ The audit compares official method/type headings and high-impact object fields a
 
 **Full coverage not yet reached.**
 
-The current repository covers the large local Stage 66-91 workstream, including forum topics, reactions, inline mode, payments, paid media, Stars/gifts, Managed Bots 9.6, Poll 9.6, WebApp/Mini App, Business API foundation/account/story/suggested posts, games, Passport, lifecycle/profile read APIs, verification/user status APIs, and chat member/boost updates. The remaining gaps are concentrated in checklist/message-draft APIs, subscription invite links, prepared inline/business follow-ups, and broad incoming message/type completeness.
+The current repository covers the large local Stage 66-92 workstream, including forum topics, reactions, inline mode, payments, paid media, Stars/gifts, subscription invite links, Managed Bots 9.6, Poll 9.6, WebApp/Mini App, Business API foundation/account/story/suggested posts, games, Passport, lifecycle/profile read APIs, verification/user status APIs, and chat member/boost updates. The remaining gaps are concentrated in checklist/message-draft APIs, prepared inline/business follow-ups, and broad incoming message/type completeness.
 
 ## Implemented areas
 
@@ -21,7 +21,7 @@ The current repository covers the large local Stage 66-91 workstream, including 
 - Updates via `getUpdates`, managed long polling, inbound webhook handler, and JSON webhook management.
 - Send/media methods for text, media, animation/sticker/video note, media groups, contact/location/venue, poll/dice/game, invoice, paid media, gifts, and business-enabled sends currently implemented.
 - Edit/delete/forward/copy/batch methods, including `EditMessageMedia`, live-location edit/stop, batch forward/copy/delete, and business connection fields where currently supported.
-- Chat management, moderation, admin methods, invite links, join requests, forum topics, reactions, commands/menu, bot profile/metadata, sticker set management.
+- Chat management, moderation, admin methods, regular and subscription invite links, join requests, forum topics, reactions, commands/menu, bot profile/metadata, sticker set management.
 - Inline mode query/result/input-content coverage for the implemented inline result families.
 - Payments/invoices, paid media, Stars transaction/refund basics, gifts, business gifts, and Premium subscription gift methods implemented in the recent local stages.
 - Managed Bots 9.6 types/methods and Poll 9.6 fields/service messages.
@@ -34,8 +34,6 @@ The current repository covers the large local Stage 66-91 workstream, including 
 
 | Official method name | Area | Risk level | Suggested implementation stage |
 | --- | --- | --- | --- |
-| `createChatSubscriptionInviteLink` | Paid subscription invite links | state-changing/payment-related | Stage 92: subscription invite links |
-| `editChatSubscriptionInviteLink` | Paid subscription invite links | state-changing/payment-related | Stage 92: subscription invite links |
 | `sendChecklist` | Checklists | state-changing/send | Stage 93: checklists and drafts |
 | `editMessageChecklist` | Checklists | state-changing/edit | Stage 93: checklists and drafts |
 | `sendMessageDraft` | Message drafts | state-changing/send | Stage 93: checklists and drafts |
@@ -105,7 +103,7 @@ These areas must remain manual-only and require explicit user confirmation plus 
 1. **Stage 89 completed:** lifecycle and profile read APIs - `logOut`, `close`, `getUserProfilePhotos`, `getUserProfileAudios`, `getForumTopicIconStickers`; `ChatFullInfo` remains a documented getChat strategy mismatch.
 2. **Stage 90 completed:** verification and user status APIs - `setUserEmojiStatus`, `verifyUser`, `verifyChat`, `removeUserVerification`, `removeChatVerification`.
 3. **Stage 91: chat boosts, member updates, and sender-chat moderation** - completed locally: `getUserChatBoosts`, `setChatMemberTag`, `banChatSenderChat`, `unbanChatSenderChat`, chat boost/member update types.
-4. **Stage 92: subscription invite links** - `createChatSubscriptionInviteLink`, `editChatSubscriptionInviteLink`, invite link price/subscription fields audit.
+4. **Stage 92 completed:** subscription invite links - `createChatSubscriptionInviteLink`, `editChatSubscriptionInviteLink`, invite link price/subscription fields.
 5. **Stage 93: checklists, message drafts, and structured poll options** - `sendChecklist`, `editMessageChecklist`, `sendMessageDraft`, `InputPollOption`, checklist message/service types.
 6. **Stage 94: business/direct-message story completion** - `repostStory`, direct message topic fields, incoming story metadata.
 7. **Stage 95: prepared inline messages and reply-markup completion** - `savePreparedInlineMessage`, `PreparedInlineMessage`, LoginUrl/switch-inline/copy/pay/request-poll/icon/style button fields.

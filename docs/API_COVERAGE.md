@@ -331,8 +331,10 @@ This document maps the current `ai-gram` implementation to Telegram Bot API area
 | `(*bot.Bot).ExportChatInviteLink` | `exportChatInviteLink` | unit/httptest | Admin-required method that generates a new primary invite link and revokes the previous primary link. Not auto-smoked. |
 | `(*bot.Bot).CreateChatInviteLink` | `createChatInviteLink` | unit/httptest | Creates a real additional invite link; supports name, expire date, member limit, and join-request flag. Not auto-smoked. |
 | `(*bot.Bot).EditChatInviteLink` | `editChatInviteLink` | unit/httptest | Edits a non-primary invite link created by the bot. Not auto-smoked. |
+| `(*bot.Bot).CreateChatSubscriptionInviteLink` | `createChatSubscriptionInviteLink` | unit/httptest | Creates a Stars subscription invite link for a channel; supports name, subscription period, and subscription price. Manual-only. |
+| `(*bot.Bot).EditChatSubscriptionInviteLink` | `editChatSubscriptionInviteLink` | unit/httptest | Edits a Stars subscription invite link name. Manual-only. |
 | `(*bot.Bot).RevokeChatInviteLink` | `revokeChatInviteLink` | unit/httptest | Revokes a real invite link created by the bot. Not auto-smoked. |
-| `telegram.ChatInviteLink` | invite link object | unit through method result tests | Minimal invite link metadata with creator, primary/revoked flags, limits, expiry, and pending join request count. |
+| `telegram.ChatInviteLink` | invite link object | unit through method result tests | Minimal invite link metadata with creator, primary/revoked flags, limits, expiry, pending join request count, subscription period, and subscription price. |
 
 ### Chat join requests
 
@@ -364,7 +366,6 @@ Stage 88 performed a full official-doc comparison against the Telegram Bot API d
 
 ### Missing methods from the Stage 88 audit
 
-- Subscription invite links: `createChatSubscriptionInviteLink`, `editChatSubscriptionInviteLink`.
 - Checklists and drafts: `sendChecklist`, `editMessageChecklist`, `sendMessageDraft`.
 - Business/Mini App follow-ups: `repostStory`, `savePreparedInlineMessage`.
 

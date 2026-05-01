@@ -442,7 +442,7 @@ Manual checklist:
 
 ## Invite link methods checklist
 
-`ExportChatInviteLink`, `CreateChatInviteLink`, `EditChatInviteLink`, and `RevokeChatInviteLink` require bot admin rights and create or revoke real chat invite links. They are intentionally not part of automatic live smoke.
+`ExportChatInviteLink`, `CreateChatInviteLink`, `EditChatInviteLink`, `CreateChatSubscriptionInviteLink`, `EditChatSubscriptionInviteLink`, and `RevokeChatInviteLink` require bot admin rights and create or revoke real chat invite links. Subscription invite links are Stars/payment-related channel access links. They are intentionally not part of automatic live smoke.
 
 Manual checklist for a dedicated test environment only:
 
@@ -450,6 +450,7 @@ Manual checklist for a dedicated test environment only:
 - Add the bot as an admin with invite-user rights.
 - Use only test invite links and avoid production groups/channels.
 - Prefer `CreateChatInviteLink` for a named temporary test link, then `EditChatInviteLink` if needed.
+- For subscription links, use only a disposable test channel, set the official 30-day `subscription_period` value, and keep the Stars `subscription_price` low.
 - Revoke every created test link with `RevokeChatInviteLink` after testing.
 - Treat Telegram permission errors in non-admin chats as expected Bot API behavior, not as a library bug.
 - Do not paste bot tokens, token-bearing URLs, full invite links, or private group content into logs or reports.
