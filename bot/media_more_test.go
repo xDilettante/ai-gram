@@ -32,11 +32,15 @@ func TestSendVideoJSONAndURL(t *testing.T) {
 		case 1:
 			assertJSONValue(t, payload, "chat_id", float64(12345))
 			assertJSONValue(t, payload, "video", "video-file-id")
+			assertJSONValue(t, payload, "thumbnail", "https://example.com/thumb.jpg")
+			assertJSONValue(t, payload, "cover", "https://example.com/cover.jpg")
+			assertJSONValue(t, payload, "start_timestamp", float64(5))
 			assertJSONValue(t, payload, "duration", float64(30))
 			assertJSONValue(t, payload, "width", float64(640))
 			assertJSONValue(t, payload, "height", float64(480))
 			assertJSONValue(t, payload, "caption", "caption")
 			assertJSONValue(t, payload, "parse_mode", "HTML")
+			assertJSONValue(t, payload, "show_caption_above_media", true)
 			assertJSONValue(t, payload, "supports_streaming", true)
 			assertJSONValue(t, payload, "has_spoiler", true)
 			assertJSONValue(t, payload, "disable_notification", true)
@@ -53,17 +57,21 @@ func TestSendVideoJSONAndURL(t *testing.T) {
 
 	bot := newTestBot(t, token, server.URL, server.Client())
 	message, err := bot.SendVideo(context.Background(), SendVideoParams{
-		ChatID:              ChatIDInt(12345),
-		Video:               FileID("video-file-id"),
-		Duration:            30,
-		Width:               640,
-		Height:              480,
-		Caption:             "caption",
-		ParseMode:           "HTML",
-		SupportsStreaming:   true,
-		HasSpoiler:          true,
-		DisableNotification: true,
-		ProtectContent:      true,
+		ChatID:                ChatIDInt(12345),
+		Video:                 FileID("video-file-id"),
+		Thumbnail:             FileURL("https://example.com/thumb.jpg"),
+		Cover:                 FileURL("https://example.com/cover.jpg"),
+		StartTimestamp:        5,
+		Duration:              30,
+		Width:                 640,
+		Height:                480,
+		Caption:               "caption",
+		ParseMode:             "HTML",
+		ShowCaptionAboveMedia: true,
+		SupportsStreaming:     true,
+		HasSpoiler:            true,
+		DisableNotification:   true,
+		ProtectContent:        true,
 	})
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
@@ -95,9 +103,13 @@ func TestSendVideoMultipartUpload(t *testing.T) {
 		}
 		assertMultipartValue(t, r, "chat_id", "12345")
 		assertMultipartValue(t, r, "video", "attach://video")
+		assertMultipartValue(t, r, "thumbnail", "https://example.com/thumb.jpg")
+		assertMultipartValue(t, r, "cover", "attach://cover")
+		assertMultipartValue(t, r, "start_timestamp", "5")
 		assertMultipartValue(t, r, "duration", "30")
 		assertMultipartValue(t, r, "width", "640")
 		assertMultipartValue(t, r, "height", "480")
+		assertMultipartValue(t, r, "show_caption_above_media", "true")
 		assertMultipartValue(t, r, "supports_streaming", "true")
 		assertMultipartValue(t, r, "has_spoiler", "true")
 		var entities []telegram.MessageEntity
@@ -114,6 +126,10 @@ func TestSendVideoMultipartUpload(t *testing.T) {
 		if string(content) != "video-data" {
 			t.Fatalf("unexpected file content: %q", content)
 		}
+		content, header = readMultipartFile(t, r, "cover")
+		if header.Filename != "cover.jpg" || string(content) != "cover-data" {
+			t.Fatalf("unexpected cover file: %q %q", header.Filename, content)
+		}
 		w.Header().Set("Content-Type", "application/json")
 		_, _ = w.Write([]byte(`{"ok":true,"result":{"message_id":21,"chat":{"id":12345,"type":"private"},"date":100,"video":{"file_id":"uploaded-video","file_unique_id":"video-unique","width":640,"height":480,"duration":30}}}`))
 	}))
@@ -121,14 +137,18 @@ func TestSendVideoMultipartUpload(t *testing.T) {
 
 	bot := newTestBot(t, token, server.URL, server.Client())
 	message, err := bot.SendVideo(context.Background(), SendVideoParams{
-		ChatID:            ChatIDInt(12345),
-		Video:             FileUpload(UploadFile{Name: "video.mp4", Reader: strings.NewReader("video-data"), ContentType: "video/mp4"}),
-		Duration:          30,
-		Width:             640,
-		Height:            480,
-		CaptionEntities:   []telegram.MessageEntity{{Type: telegram.EntityBold, Offset: 0, Length: 5}},
-		SupportsStreaming: true,
-		HasSpoiler:        true,
+		ChatID:                ChatIDInt(12345),
+		Video:                 FileUpload(UploadFile{Name: "video.mp4", Reader: strings.NewReader("video-data"), ContentType: "video/mp4"}),
+		Thumbnail:             FileURL("https://example.com/thumb.jpg"),
+		Cover:                 FileUpload(UploadFile{Name: "cover.jpg", Reader: strings.NewReader("cover-data"), ContentType: "image/jpeg"}),
+		StartTimestamp:        5,
+		Duration:              30,
+		Width:                 640,
+		Height:                480,
+		CaptionEntities:       []telegram.MessageEntity{{Type: telegram.EntityBold, Offset: 0, Length: 5}},
+		ShowCaptionAboveMedia: true,
+		SupportsStreaming:     true,
+		HasSpoiler:            true,
 	})
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
@@ -150,6 +170,9 @@ func TestSendVideoValidation(t *testing.T) {
 		{name: "negative duration", params: SendVideoParams{ChatID: ChatIDInt(12345), Video: FileID("video"), Duration: -1}},
 		{name: "negative width", params: SendVideoParams{ChatID: ChatIDInt(12345), Video: FileID("video"), Width: -1}},
 		{name: "negative height", params: SendVideoParams{ChatID: ChatIDInt(12345), Video: FileID("video"), Height: -1}},
+		{name: "negative start timestamp", params: SendVideoParams{ChatID: ChatIDInt(12345), Video: FileID("video"), StartTimestamp: -1}},
+		{name: "invalid thumbnail", params: SendVideoParams{ChatID: ChatIDInt(12345), Video: FileID("video"), Thumbnail: FileUpload(UploadFile{Name: "thumb.jpg"})}},
+		{name: "invalid cover", params: SendVideoParams{ChatID: ChatIDInt(12345), Video: FileID("video"), Cover: FileUpload(UploadFile{Name: "cover.jpg"})}},
 		{name: "parse mode and entities", params: SendVideoParams{ChatID: ChatIDInt(12345), Video: FileID("video"), ParseMode: "HTML", CaptionEntities: []telegram.MessageEntity{{Type: telegram.EntityBold, Offset: 0, Length: 1}}}},
 	}
 	for _, tt := range tests {

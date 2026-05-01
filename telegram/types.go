@@ -84,6 +84,19 @@ type Message struct {
 	Poll     *Poll     `json:"poll,omitempty"`
 	Venue    *Venue    `json:"venue,omitempty"`
 
+	NewChatMembers        []User            `json:"new_chat_members,omitempty"`
+	LeftChatMember        *User             `json:"left_chat_member,omitempty"`
+	ChatOwnerLeft         *ChatOwnerLeft    `json:"chat_owner_left,omitempty"`
+	ChatOwnerChanged      *ChatOwnerChanged `json:"chat_owner_changed,omitempty"`
+	NewChatTitle          string            `json:"new_chat_title,omitempty"`
+	NewChatPhoto          []PhotoSize       `json:"new_chat_photo,omitempty"`
+	DeleteChatPhoto       bool              `json:"delete_chat_photo,omitempty"`
+	GroupChatCreated      bool              `json:"group_chat_created,omitempty"`
+	SupergroupChatCreated bool              `json:"supergroup_chat_created,omitempty"`
+	ChannelChatCreated    bool              `json:"channel_chat_created,omitempty"`
+	MigrateToChatID       int64             `json:"migrate_to_chat_id,omitempty"`
+	MigrateFromChatID     int64             `json:"migrate_from_chat_id,omitempty"`
+
 	Invoice           *Invoice           `json:"invoice,omitempty"`
 	SuccessfulPayment *SuccessfulPayment `json:"successful_payment,omitempty"`
 	RefundedPayment   *RefundedPayment   `json:"refunded_payment,omitempty"`
@@ -93,6 +106,10 @@ type Message struct {
 	UniqueGift        *UniqueGiftInfo    `json:"unique_gift,omitempty"`
 	GiftUpgradeSent   *GiftInfo          `json:"gift_upgrade_sent,omitempty"`
 
+	UsersShared      *UsersShared `json:"users_shared,omitempty"`
+	ChatShared       *ChatShared  `json:"chat_shared,omitempty"`
+	ConnectedWebsite string       `json:"connected_website,omitempty"`
+
 	ForumTopicCreated         *ForumTopicCreated         `json:"forum_topic_created,omitempty"`
 	ForumTopicEdited          *ForumTopicEdited          `json:"forum_topic_edited,omitempty"`
 	ForumTopicClosed          *ForumTopicClosed          `json:"forum_topic_closed,omitempty"`
@@ -100,23 +117,36 @@ type Message struct {
 	GeneralForumTopicHidden   *GeneralForumTopicHidden   `json:"general_forum_topic_hidden,omitempty"`
 	GeneralForumTopicUnhidden *GeneralForumTopicUnhidden `json:"general_forum_topic_unhidden,omitempty"`
 
-	PinnedMessage               *MaybeInaccessibleMessage    `json:"pinned_message,omitempty"`
-	ManagedBotCreated           *ManagedBotCreated           `json:"managed_bot_created,omitempty"`
-	PollOptionAdded             *PollOptionAdded             `json:"poll_option_added,omitempty"`
-	PollOptionDeleted           *PollOptionDeleted           `json:"poll_option_deleted,omitempty"`
-	Checklist                   *Checklist                   `json:"checklist,omitempty"`
-	ChecklistTasksDone          *ChecklistTasksDone          `json:"checklist_tasks_done,omitempty"`
-	ChecklistTasksAdded         *ChecklistTasksAdded         `json:"checklist_tasks_added,omitempty"`
-	SuggestedPostApproved       *SuggestedPostApproved       `json:"suggested_post_approved,omitempty"`
-	SuggestedPostApprovalFailed *SuggestedPostApprovalFailed `json:"suggested_post_approval_failed,omitempty"`
-	SuggestedPostDeclined       *SuggestedPostDeclined       `json:"suggested_post_declined,omitempty"`
-	SuggestedPostPaid           *SuggestedPostPaid           `json:"suggested_post_paid,omitempty"`
-	SuggestedPostRefunded       *SuggestedPostRefunded       `json:"suggested_post_refunded,omitempty"`
-	ReplyToChecklistTaskID      int64                        `json:"reply_to_checklist_task_id,omitempty"`
-	ReplyToPollOptionID         string                       `json:"reply_to_poll_option_id,omitempty"`
-	WebAppData                  *WebAppData                  `json:"web_app_data,omitempty"`
-	WriteAccessAllowed          *WriteAccessAllowed          `json:"write_access_allowed,omitempty"`
-	ReplyMarkup                 *InlineKeyboardMarkup        `json:"reply_markup,omitempty"`
+	PinnedMessage                 *MaybeInaccessibleMessage      `json:"pinned_message,omitempty"`
+	ManagedBotCreated             *ManagedBotCreated             `json:"managed_bot_created,omitempty"`
+	PollOptionAdded               *PollOptionAdded               `json:"poll_option_added,omitempty"`
+	PollOptionDeleted             *PollOptionDeleted             `json:"poll_option_deleted,omitempty"`
+	Checklist                     *Checklist                     `json:"checklist,omitempty"`
+	ChecklistTasksDone            *ChecklistTasksDone            `json:"checklist_tasks_done,omitempty"`
+	ChecklistTasksAdded           *ChecklistTasksAdded           `json:"checklist_tasks_added,omitempty"`
+	ProximityAlertTriggered       *ProximityAlertTriggered       `json:"proximity_alert_triggered,omitempty"`
+	BoostAdded                    *ChatBoostAdded                `json:"boost_added,omitempty"`
+	ChatBackgroundSet             *ChatBackground                `json:"chat_background_set,omitempty"`
+	MessageAutoDeleteTimerChanged *MessageAutoDeleteTimerChanged `json:"message_auto_delete_timer_changed,omitempty"`
+	GiveawayCreated               *GiveawayCreated               `json:"giveaway_created,omitempty"`
+	GiveawayWinners               *GiveawayWinners               `json:"giveaway_winners,omitempty"`
+	GiveawayCompleted             *GiveawayCompleted             `json:"giveaway_completed,omitempty"`
+	PaidMessagePriceChanged       *PaidMessagePriceChanged       `json:"paid_message_price_changed,omitempty"`
+	DirectMessagePriceChanged     *DirectMessagePriceChanged     `json:"direct_message_price_changed,omitempty"`
+	SuggestedPostApproved         *SuggestedPostApproved         `json:"suggested_post_approved,omitempty"`
+	SuggestedPostApprovalFailed   *SuggestedPostApprovalFailed   `json:"suggested_post_approval_failed,omitempty"`
+	SuggestedPostDeclined         *SuggestedPostDeclined         `json:"suggested_post_declined,omitempty"`
+	SuggestedPostPaid             *SuggestedPostPaid             `json:"suggested_post_paid,omitempty"`
+	SuggestedPostRefunded         *SuggestedPostRefunded         `json:"suggested_post_refunded,omitempty"`
+	VideoChatScheduled            *VideoChatScheduled            `json:"video_chat_scheduled,omitempty"`
+	VideoChatStarted              *VideoChatStarted              `json:"video_chat_started,omitempty"`
+	VideoChatEnded                *VideoChatEnded                `json:"video_chat_ended,omitempty"`
+	VideoChatParticipantsInvited  *VideoChatParticipantsInvited  `json:"video_chat_participants_invited,omitempty"`
+	ReplyToChecklistTaskID        int64                          `json:"reply_to_checklist_task_id,omitempty"`
+	ReplyToPollOptionID           string                         `json:"reply_to_poll_option_id,omitempty"`
+	WebAppData                    *WebAppData                    `json:"web_app_data,omitempty"`
+	WriteAccessAllowed            *WriteAccessAllowed            `json:"write_access_allowed,omitempty"`
+	ReplyMarkup                   *InlineKeyboardMarkup          `json:"reply_markup,omitempty"`
 }
 
 // ForumTopic represents a forum topic in a Telegram supergroup.
@@ -584,15 +614,28 @@ type Document struct {
 
 // Video represents an incoming video file.
 type Video struct {
-	FileID       string     `json:"file_id"`
-	FileUniqueID string     `json:"file_unique_id"`
-	Width        int        `json:"width"`
-	Height       int        `json:"height"`
-	Duration     int        `json:"duration"`
-	Thumbnail    *PhotoSize `json:"thumbnail,omitempty"`
-	FileName     string     `json:"file_name,omitempty"`
-	MimeType     string     `json:"mime_type,omitempty"`
-	FileSize     int64      `json:"file_size,omitempty"`
+	FileID         string         `json:"file_id"`
+	FileUniqueID   string         `json:"file_unique_id"`
+	Width          int            `json:"width"`
+	Height         int            `json:"height"`
+	Duration       int            `json:"duration"`
+	Thumbnail      *PhotoSize     `json:"thumbnail,omitempty"`
+	Cover          []PhotoSize    `json:"cover,omitempty"`
+	StartTimestamp int            `json:"start_timestamp,omitempty"`
+	Qualities      []VideoQuality `json:"qualities,omitempty"`
+	FileName       string         `json:"file_name,omitempty"`
+	MimeType       string         `json:"mime_type,omitempty"`
+	FileSize       int64          `json:"file_size,omitempty"`
+}
+
+// VideoQuality represents a specific available quality of a video.
+type VideoQuality struct {
+	FileID       string `json:"file_id"`
+	FileUniqueID string `json:"file_unique_id"`
+	Width        int    `json:"width"`
+	Height       int    `json:"height"`
+	Codec        string `json:"codec"`
+	FileSize     int64  `json:"file_size,omitempty"`
 }
 
 // Voice represents an incoming voice message.

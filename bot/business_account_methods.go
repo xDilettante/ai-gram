@@ -120,6 +120,16 @@ type DeleteStoryParams struct {
 	StoryID              int64  `json:"story_id"`
 }
 
+// RepostStoryParams contains supported parameters for repostStory.
+type RepostStoryParams struct {
+	BusinessConnectionID string `json:"business_connection_id"`
+	FromChatID           int64  `json:"from_chat_id"`
+	FromStoryID          int64  `json:"from_story_id"`
+	ActivePeriod         int    `json:"active_period"`
+	PostToChatPage       bool   `json:"post_to_chat_page,omitempty"`
+	ProtectContent       bool   `json:"protect_content,omitempty"`
+}
+
 // ApproveSuggestedPostParams contains supported parameters for approveSuggestedPost.
 type ApproveSuggestedPostParams struct {
 	ChatID    ChatID `json:"chat_id"`
@@ -264,6 +274,18 @@ func (b *Bot) DeleteStory(ctx context.Context, params DeleteStoryParams) (bool, 
 		return false, err
 	}
 	return result, nil
+}
+
+// RepostStory reposts a story on behalf of a business account.
+func (b *Bot) RepostStory(ctx context.Context, params RepostStoryParams) (*telegram.Story, error) {
+	if err := params.validate(); err != nil {
+		return nil, err
+	}
+	var story telegram.Story
+	if err := b.call(ctx, "repostStory", params, &story); err != nil {
+		return nil, err
+	}
+	return &story, nil
 }
 
 // ApproveSuggestedPost approves a suggested post in a direct messages chat.
@@ -413,6 +435,19 @@ func (params DeleteStoryParams) validate() error {
 		return stderrors.New("story_id must be greater than zero")
 	}
 	return nil
+}
+
+func (params RepostStoryParams) validate() error {
+	if err := validateBusinessConnectionID(params.BusinessConnectionID); err != nil {
+		return err
+	}
+	if params.FromChatID == 0 {
+		return stderrors.New("from_chat_id is required")
+	}
+	if params.FromStoryID <= 0 {
+		return stderrors.New("from_story_id must be greater than zero")
+	}
+	return validateStoryActivePeriod(params.ActivePeriod)
 }
 
 func (params ApproveSuggestedPostParams) validate() error {

@@ -190,6 +190,8 @@ Advanced Poll 9.6 fields (`correct_option_ids`, structured `InputPollOption` val
 
 Reply/message metadata fields (`forward_origin`, `external_reply`, `quote`, `reply_to_story`, `pinned_message`, inaccessible callback messages, and quote-aware `ReplyParameters`) are covered primarily by unit fixtures. If a manual check is ever needed, use only disposable messages and log field presence/type labels plus redacted IDs; do not log private message text, quotes, external reply payloads, or callback data.
 
+Service/direct/media metadata fields (`users_shared`, `chat_shared`, chat backgrounds, video chat service messages, proximity alerts, auto-delete timers, giveaway service fields, paid/direct message price changes, and video cover/quality metadata) are covered primarily by unit fixtures. If a manual check is ever needed, use only disposable messages or synthetic updates and log field presence/type labels plus redacted message IDs; do not log private message text, shared user/chat details, invite links, payment payloads, or reusable media file IDs.
+
 Checklist and message draft flows are manual-only. Use only a dedicated test chat/private chat and a disposable business connection where required, send or edit only test checklist messages/drafts, and log only safe metadata such as method name, chat ID, message ID or draft ID, task counts, and boolean result. Do not log checklist or draft text payloads.
 
 ## SendMediaGroup smoke
@@ -610,15 +612,15 @@ Business API checks require a configured Telegram business account connection. T
 Manual checklist:
 
 - Use a dedicated business test setup, test bot, and disposable test messages; do not use production business chats without explicit confirmation.
-- Confirm the bot has the required business bot rights before testing read, delete, profile, gift settings, story, and suggested post flows.
+- Confirm the bot has the required business bot rights before testing read, delete, profile, gift settings, story/repost, and suggested post flows.
 - Fetch only expected test `business_connection_id` metadata with `GetBusinessConnection`.
 - Mark only disposable test messages as read with `ReadBusinessMessage`; delete only disposable test messages with `DeleteBusinessMessages`.
 - Send or edit only disposable test business messages by setting `BusinessConnectionID` on supported send/edit params; restore or delete visible test messages after the check.
 - Change only dedicated test business account name/bio/username/photo/gift settings and restore previous values after testing.
-- Post/edit/delete only disposable test stories; use only test story assets.
+- Post/edit/delete/repost only disposable test stories; use only test story assets and source stories from the dedicated test setup.
 - Approve or decline only disposable suggested posts in dedicated direct messages chats.
 - Verify business connection/message/suggested-post update decoding using safe metadata only.
-- Log only safe markers: method name, redacted business connection ID, chat ID, message/story count, boolean result, and update ID.
+- Log only safe markers: method name, redacted business connection ID, chat ID, message/story count, source story ID in redacted/test form, boolean result, and update ID.
 - Do not log bot tokens, token-bearing URLs, raw business message/edit payloads, private user text, or production business identifiers.
 
 ## Payments, paid media, and Stars checklist

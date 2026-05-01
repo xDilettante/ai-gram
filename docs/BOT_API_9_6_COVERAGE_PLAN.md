@@ -24,15 +24,14 @@ This plan is a working checklist derived from the official documentation and cha
 
 Stage 88 compared the current local implementation with the official Telegram Bot API documentation and the April 3, 2026 Bot API 9.6 changelog. Full coverage is **not yet reached**. The precise missing method/type/field checklist now lives in [`docs/BOT_API_9_6_AUDIT.md`](BOT_API_9_6_AUDIT.md).
 
-Top pending method groups after Stage 95:
+Top pending method groups after Stage 96:
 
-- Business/Mini App follow-ups: `repostStory`.
+- No Stage 88 missing method groups are currently tracked; remaining work is result/update shape parity and final audit verification.
 
 Top pending type/field groups:
 
-- `ChatFullInfo`, full `User`/`Chat` metadata, and channel post update fields;
-- optional concrete chat member variants plus background/service-message types;
-- video quality/cover/start metadata and remaining direct-message metadata.
+- `ChatFullInfo`, full `User`/`Chat` metadata, channel post update fields, and standalone poll update fields;
+- optional concrete chat member variants as a possible compatibility-preserving refinement.
 
 
 ## Stage 89 result
@@ -437,6 +436,11 @@ Notes:
 - [x] verification/status methods
 - [x] chat boost/member update methods and sender-chat moderation
 
+
+## Stage 96 result
+
+Stage 96 implemented service/direct-message/story/media metadata completion: `RepostStory`, video cover/start/quality metadata, `SendVideo` thumbnail/cover/start/caption-placement serialization, shared user/chat service messages, chat backgrounds, video chat service messages, proximity alerts, auto-delete timer changes, giveaway service fields, and paid/direct message price-change service fields. `RepostStory` remains manual-only because it mutates business story state; service-message and media metadata coverage is verified through unit fixtures.
+
 ## Implementation strategy
 
 Recommended local-only stages after the Stage 88 audit:
@@ -448,8 +452,8 @@ Recommended local-only stages after the Stage 88 audit:
 5. Stage 93 completed: checklists, message drafts, and structured poll options.
 6. Stage 94 completed: reply and message metadata types.
 7. Stage 95 completed: prepared inline messages and reply-markup completion.
-8. Stage 96: business/direct-message story completion (`repostStory`) plus remaining message/service metadata.
-9. Stage 97: `ChatFullInfo`/video metadata and service-message completeness.
+8. Stage 96 completed: service/direct-message/story/media metadata gaps.
+9. Stage 97: `ChatFullInfo`, full user/chat metadata, channel post/standalone poll update shape, and optional chat member variant strategy.
 10. Final official-doc audit and release-readiness review after the missing checklist is empty.
 
 Each stage should:

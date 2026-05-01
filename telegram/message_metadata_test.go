@@ -188,3 +188,159 @@ func TestExternalReplyInfoDecodesGiveawayPayloads(t *testing.T) {
 		t.Fatalf("unexpected giveaway winners: %#v", info.GiveawayWinners)
 	}
 }
+
+func TestMessageDecodesServiceDirectStoryAndMediaMetadata(t *testing.T) {
+	var message Message
+	body := []byte(`{
+		"message_id":201,
+		"chat":{"id":123,"type":"private"},
+		"date":2000,
+		"new_chat_members":[{"id":2,"is_bot":false,"first_name":"New"}],
+		"left_chat_member":{"id":3,"is_bot":false,"first_name":"Left"},
+		"chat_owner_left":{"new_owner":{"id":4,"is_bot":false,"first_name":"Return"}},
+		"chat_owner_changed":{"new_owner":{"id":5,"is_bot":false,"first_name":"Owner"}},
+		"new_chat_title":"New title",
+		"new_chat_photo":[{"file_id":"photo","file_unique_id":"photo-u","width":10,"height":10}],
+		"delete_chat_photo":true,
+		"group_chat_created":true,
+		"supergroup_chat_created":true,
+		"channel_chat_created":true,
+		"migrate_to_chat_id":-1001,
+		"migrate_from_chat_id":-1000,
+		"users_shared":{"request_id":7,"users":[{"user_id":1234567890123,"first_name":"Ada","username":"ada","photo":[{"file_id":"u-photo","file_unique_id":"u-photo-u","width":20,"height":20}]}]},
+		"chat_shared":{"request_id":8,"chat_id":-1001234567890,"title":"Shared","username":"shared","photo":[{"file_id":"c-photo","file_unique_id":"c-photo-u","width":30,"height":30}]},
+		"connected_website":"example.test",
+		"proximity_alert_triggered":{"traveler":{"id":9,"is_bot":false,"first_name":"Traveler"},"watcher":{"id":10,"is_bot":false,"first_name":"Watcher"},"distance":42},
+		"message_auto_delete_timer_changed":{"message_auto_delete_time":86400},
+		"boost_added":{"boost_count":2},
+		"chat_background_set":{"type":{"type":"fill","fill":{"type":"solid","color":1122867},"dark_theme_dimming":15}},
+		"direct_message_price_changed":{"are_direct_messages_enabled":true,"direct_message_star_count":5},
+		"giveaway_created":{"prize_star_count":100},
+		"giveaway_winners":{"chat":{"id":-100,"type":"supergroup","title":"Group"},"giveaway_message_id":55,"winners_selection_date":3000,"winner_count":1,"winners":[{"id":11,"is_bot":false,"first_name":"Winner"}],"prize_star_count":100},
+		"giveaway_completed":{"winner_count":3,"unclaimed_prize_count":1,"is_star_giveaway":true},
+		"paid_message_price_changed":{"paid_message_star_count":9},
+		"video_chat_scheduled":{"start_date":4000},
+		"video_chat_started":{},
+		"video_chat_ended":{"duration":3600},
+		"video_chat_participants_invited":{"users":[{"id":12,"is_bot":false,"first_name":"Guest"}]},
+		"video":{"file_id":"video","file_unique_id":"video-u","width":640,"height":360,"duration":30,"cover":[{"file_id":"cover","file_unique_id":"cover-u","width":320,"height":180}],"start_timestamp":5,"qualities":[{"file_id":"q","file_unique_id":"q-u","width":1280,"height":720,"codec":"h264","file_size":1234}],"file_name":"clip.mp4","mime_type":"video/mp4"}
+	}`)
+	if err := json.Unmarshal(body, &message); err != nil {
+		t.Fatalf("decode message: %v", err)
+	}
+	if len(message.NewChatMembers) != 1 || message.LeftChatMember == nil || message.ChatOwnerLeft == nil || message.ChatOwnerChanged == nil {
+		t.Fatalf("unexpected chat membership service fields: %#v", message)
+	}
+	if message.NewChatTitle != "New title" || len(message.NewChatPhoto) != 1 || !message.DeleteChatPhoto || !message.GroupChatCreated || !message.SupergroupChatCreated || !message.ChannelChatCreated {
+		t.Fatalf("unexpected chat service fields: %#v", message)
+	}
+	if message.MigrateToChatID != -1001 || message.MigrateFromChatID != -1000 {
+		t.Fatalf("unexpected migration ids: %#v", message)
+	}
+	if message.UsersShared == nil || len(message.UsersShared.Users) != 1 || message.UsersShared.Users[0].UserID != 1234567890123 {
+		t.Fatalf("unexpected users_shared: %#v", message.UsersShared)
+	}
+	if message.ChatShared == nil || message.ChatShared.ChatID != -1001234567890 || message.ConnectedWebsite != "example.test" {
+		t.Fatalf("unexpected shared chat/website: %#v", message)
+	}
+	if message.ProximityAlertTriggered == nil || message.ProximityAlertTriggered.Distance != 42 || message.MessageAutoDeleteTimerChanged.MessageAutoDeleteTime != 86400 || message.BoostAdded.BoostCount != 2 {
+		t.Fatalf("unexpected proximity/auto-delete/boost fields: %#v", message)
+	}
+	background, ok := message.ChatBackgroundSet.Type.(BackgroundTypeFill)
+	if message.ChatBackgroundSet == nil || !ok {
+		t.Fatalf("unexpected chat background: %#v", message.ChatBackgroundSet)
+	}
+	fill, ok := background.Fill.(BackgroundFillSolid)
+	if !ok || fill.Color != 1122867 || background.DarkThemeDimming != 15 {
+		t.Fatalf("unexpected background fill: %#v", background.Fill)
+	}
+	if message.DirectMessagePriceChanged == nil || !message.DirectMessagePriceChanged.AreDirectMessagesEnabled || message.DirectMessagePriceChanged.DirectMessageStarCount != 5 {
+		t.Fatalf("unexpected direct message price: %#v", message.DirectMessagePriceChanged)
+	}
+	if message.GiveawayCreated == nil || message.GiveawayCreated.PrizeStarCount != 100 || message.GiveawayWinners == nil || len(message.GiveawayWinners.Winners) != 1 || message.GiveawayCompleted == nil || !message.GiveawayCompleted.IsStarGiveaway {
+		t.Fatalf("unexpected giveaway service fields: %#v", message)
+	}
+	if message.PaidMessagePriceChanged == nil || message.PaidMessagePriceChanged.PaidMessageStarCount != 9 {
+		t.Fatalf("unexpected paid message price: %#v", message.PaidMessagePriceChanged)
+	}
+	if message.VideoChatScheduled == nil || message.VideoChatScheduled.StartDate != 4000 || message.VideoChatStarted == nil || message.VideoChatEnded.Duration != 3600 || len(message.VideoChatParticipantsInvited.Users) != 1 {
+		t.Fatalf("unexpected video chat fields: %#v", message)
+	}
+	if message.Video == nil || message.Video.StartTimestamp != 5 || len(message.Video.Cover) != 1 || len(message.Video.Qualities) != 1 || message.Video.Qualities[0].Codec != "h264" {
+		t.Fatalf("unexpected video metadata: %#v", message.Video)
+	}
+}
+
+func TestChatBackgroundUnknownTypeFails(t *testing.T) {
+	var background ChatBackground
+	if err := json.Unmarshal([]byte(`{"type":{"type":"unknown"}}`), &background); err == nil {
+		t.Fatal("expected unsupported background type error")
+	}
+}
+
+func TestBackgroundTypesDecodeVariants(t *testing.T) {
+	tests := []struct {
+		name string
+		body string
+		want any
+	}{
+		{
+			name: "wallpaper",
+			body: `{"type":{"type":"wallpaper","document":{"file_id":"doc","file_unique_id":"doc-u"},"dark_theme_dimming":20,"is_blurred":true,"is_moving":true}}`,
+			want: BackgroundTypeWallpaper{},
+		},
+		{
+			name: "pattern gradient",
+			body: `{"type":{"type":"pattern","document":{"file_id":"doc","file_unique_id":"doc-u"},"fill":{"type":"gradient","top_color":1,"bottom_color":2,"rotation_angle":45},"intensity":50,"is_inverted":true,"is_moving":true}}`,
+			want: BackgroundTypePattern{},
+		},
+		{
+			name: "chat theme",
+			body: `{"type":{"type":"chat_theme","theme_name":"day"}}`,
+			want: BackgroundTypeChatTheme{},
+		},
+		{
+			name: "freeform gradient",
+			body: `{"type":{"type":"fill","fill":{"type":"freeform_gradient","colors":[1,2,3]},"dark_theme_dimming":10}}`,
+			want: BackgroundTypeFill{},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			var background ChatBackground
+			if err := json.Unmarshal([]byte(tt.body), &background); err != nil {
+				t.Fatalf("decode background: %v", err)
+			}
+			switch tt.want.(type) {
+			case BackgroundTypeWallpaper:
+				value, ok := background.Type.(BackgroundTypeWallpaper)
+				if !ok || !value.IsBlurred || !value.IsMoving || value.DarkThemeDimming != 20 {
+					t.Fatalf("unexpected wallpaper: %#v", background.Type)
+				}
+			case BackgroundTypePattern:
+				value, ok := background.Type.(BackgroundTypePattern)
+				if !ok || value.Intensity != 50 || !value.IsInverted || !value.IsMoving {
+					t.Fatalf("unexpected pattern: %#v", background.Type)
+				}
+				fill, ok := value.Fill.(BackgroundFillGradient)
+				if !ok || fill.TopColor != 1 || fill.BottomColor != 2 || fill.RotationAngle != 45 {
+					t.Fatalf("unexpected pattern fill: %#v", value.Fill)
+				}
+			case BackgroundTypeChatTheme:
+				value, ok := background.Type.(BackgroundTypeChatTheme)
+				if !ok || value.ThemeName != "day" {
+					t.Fatalf("unexpected chat theme: %#v", background.Type)
+				}
+			case BackgroundTypeFill:
+				value, ok := background.Type.(BackgroundTypeFill)
+				if !ok || value.DarkThemeDimming != 10 {
+					t.Fatalf("unexpected fill background: %#v", background.Type)
+				}
+				fill, ok := value.Fill.(BackgroundFillFreeformGradient)
+				if !ok || len(fill.Colors) != 3 {
+					t.Fatalf("unexpected freeform fill: %#v", value.Fill)
+				}
+			}
+		})
+	}
+}

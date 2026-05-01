@@ -222,6 +222,9 @@ type EditStoryParams = bot.EditStoryParams
 // DeleteStoryParams contains supported parameters for deleteStory.
 type DeleteStoryParams = bot.DeleteStoryParams
 
+// RepostStoryParams contains supported parameters for repostStory.
+type RepostStoryParams = bot.RepostStoryParams
+
 // ApproveSuggestedPostParams contains supported parameters for approveSuggestedPost.
 type ApproveSuggestedPostParams = bot.ApproveSuggestedPostParams
 
@@ -681,14 +684,92 @@ type MaybeInaccessibleMessage = telegram.MaybeInaccessibleMessage
 // DirectMessagesTopic describes a topic of a channel direct messages chat.
 type DirectMessagesTopic = telegram.DirectMessagesTopic
 
+// UsersShared contains users shared through a reply keyboard button.
+type UsersShared = telegram.UsersShared
+
+// SharedUser contains information about one user shared with the bot.
+type SharedUser = telegram.SharedUser
+
+// ChatShared contains a chat shared through a reply keyboard button.
+type ChatShared = telegram.ChatShared
+
+// ProximityAlertTriggered describes a proximity alert service message.
+type ProximityAlertTriggered = telegram.ProximityAlertTriggered
+
+// MessageAutoDeleteTimerChanged describes changed chat auto-delete settings.
+type MessageAutoDeleteTimerChanged = telegram.MessageAutoDeleteTimerChanged
+
+// ChatBoostAdded describes a chat boost service message.
+type ChatBoostAdded = telegram.ChatBoostAdded
+
+// ChatBackground represents a chat background service message payload.
+type ChatBackground = telegram.ChatBackground
+
+// BackgroundType marks chat background type objects.
+type BackgroundType = telegram.BackgroundType
+
+// BackgroundTypeFill describes a background filled by a gradient or solid color.
+type BackgroundTypeFill = telegram.BackgroundTypeFill
+
+// BackgroundTypeWallpaper describes a wallpaper background.
+type BackgroundTypeWallpaper = telegram.BackgroundTypeWallpaper
+
+// BackgroundTypePattern describes a patterned background.
+type BackgroundTypePattern = telegram.BackgroundTypePattern
+
+// BackgroundTypeChatTheme describes a built-in chat theme background.
+type BackgroundTypeChatTheme = telegram.BackgroundTypeChatTheme
+
+// BackgroundFill marks chat background fill objects.
+type BackgroundFill = telegram.BackgroundFill
+
+// BackgroundFillSolid describes a solid color background fill.
+type BackgroundFillSolid = telegram.BackgroundFillSolid
+
+// BackgroundFillGradient describes a two-color gradient background fill.
+type BackgroundFillGradient = telegram.BackgroundFillGradient
+
+// BackgroundFillFreeformGradient describes a freeform gradient background fill.
+type BackgroundFillFreeformGradient = telegram.BackgroundFillFreeformGradient
+
+// ChatOwnerLeft describes a service message about the chat owner leaving.
+type ChatOwnerLeft = telegram.ChatOwnerLeft
+
+// ChatOwnerChanged describes a service message about ownership transfer.
+type ChatOwnerChanged = telegram.ChatOwnerChanged
+
 // SuggestedPostInfo contains metadata about a suggested post message.
 type SuggestedPostInfo = telegram.SuggestedPostInfo
+
+// GiveawayCreated describes a scheduled giveaway creation service message.
+type GiveawayCreated = telegram.GiveawayCreated
 
 // Giveaway represents a scheduled giveaway message.
 type Giveaway = telegram.Giveaway
 
 // GiveawayWinners represents a completed giveaway with public winners.
 type GiveawayWinners = telegram.GiveawayWinners
+
+// GiveawayCompleted describes a completed giveaway service message.
+type GiveawayCompleted = telegram.GiveawayCompleted
+
+// PaidMessagePriceChanged describes a paid-message price change service message.
+type PaidMessagePriceChanged = telegram.PaidMessagePriceChanged
+
+// DirectMessagePriceChanged describes a direct-message price change service message.
+type DirectMessagePriceChanged = telegram.DirectMessagePriceChanged
+
+// VideoChatScheduled describes a scheduled video chat service message.
+type VideoChatScheduled = telegram.VideoChatScheduled
+
+// VideoChatStarted describes a started video chat service message.
+type VideoChatStarted = telegram.VideoChatStarted
+
+// VideoChatEnded describes an ended video chat service message.
+type VideoChatEnded = telegram.VideoChatEnded
+
+// VideoChatParticipantsInvited describes users invited to a video chat.
+type VideoChatParticipantsInvited = telegram.VideoChatParticipantsInvited
 
 // InlineQuery represents an incoming inline query.
 type InlineQuery = telegram.InlineQuery

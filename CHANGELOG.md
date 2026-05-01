@@ -4,6 +4,7 @@
 
 ### Added
 
+- Service/direct-message/story/media metadata completion: `RepostStory`, video cover/start/quality metadata, shared user/chat service messages, chat backgrounds, video chats, proximity alerts, auto-delete timers, giveaway service messages, and paid/direct message price-change service fields.
 - Prepared inline messages and reply markup completion: `SavePreparedInlineMessage`, `PreparedInlineMessage`, `LoginUrl`, `SwitchInlineQueryChosenChat`, `CopyTextButton`, `KeyboardButtonPollType`, request-poll buttons, pay buttons, and icon/style button fields.
 - Reply and message metadata types: `MessageOrigin` variants, `ExternalReplyInfo`, `TextQuote`, `MaybeInaccessibleMessage`, `InaccessibleMessage`, and expanded `ReplyParameters`.
 - Checklist, message draft, and structured poll option support: `SendChecklist`, `EditMessageChecklist`, `SendMessageDraft`, `InputChecklist`, `Checklist`, and `InputPollOption`.
@@ -47,6 +48,7 @@
 
 ### Added
 
+- Service/direct-message/story/media metadata completion: `RepostStory`, video cover/start/quality metadata, shared user/chat service messages, chat backgrounds, video chats, proximity alerts, auto-delete timers, giveaway service messages, and paid/direct message price-change service fields.
 #### Send methods
 
 - `SendContact`.
@@ -97,6 +99,7 @@ First working `ai-gram` milestone: an early but verifiable Go library for the Te
 
 ### Added
 
+- Service/direct-message/story/media metadata completion: `RepostStory`, video cover/start/quality metadata, shared user/chat service messages, chat backgrounds, video chats, proximity alerts, auto-delete timers, giveaway service messages, and paid/direct message price-change service fields.
 #### Core
 
 - Bot construction/config through `aigram.New`, `aigram.NewBot`, and `bot.New`.

@@ -11,7 +11,7 @@ The audit compares official method/type headings and high-impact object fields a
 
 **Full coverage not yet reached.**
 
-The current repository covers the large local Stage 66-95 workstream, including forum topics, reactions, inline mode, payments, paid media, Stars/gifts, subscription invite links, Managed Bots 9.6, Poll 9.6, WebApp/Mini App, Business API foundation/account/story/suggested posts, games, Passport, lifecycle/profile read APIs, verification/user status APIs, chat member/boost updates, checklists, message drafts, structured poll options, reply/message metadata, prepared inline messages, and reply markup completion. The remaining gaps are concentrated in business follow-ups, ChatFullInfo/video metadata, and service-message completeness.
+The current repository covers the large local Stage 66-96 workstream, including forum topics, reactions, inline mode, payments, paid media, Stars/gifts, subscription invite links, Managed Bots 9.6, Poll 9.6, WebApp/Mini App, Business API foundation/account/story/suggested posts/repost, games, Passport, lifecycle/profile read APIs, verification/user status APIs, chat member/boost updates, checklists, message drafts, structured poll options, reply/message metadata, prepared inline messages, reply markup completion, service-message metadata, and video metadata completion. The remaining gaps are concentrated in ChatFullInfo/full user-chat metadata and update shape parity.
 
 ## Implemented areas
 
@@ -35,25 +35,17 @@ The current repository covers the large local Stage 66-95 workstream, including 
 
 ## Missing methods
 
-| Official method name | Area | Risk level | Suggested implementation stage |
-| --- | --- | --- | --- |
-| `repostStory` | Business stories | state-changing/business | Stage 96: business story completion |
+No Stage 88 missing method groups are currently tracked after Stage 96. Remaining work is concentrated in result/update shape parity and final official-doc verification.
 
 ## Missing types and fields
 
 | Official name | Parent type | Why it matters | Suggested stage |
 | --- | --- | --- | --- |
-| `ChatFullInfo` | `getChat` result | Official `getChat` returns the extended chat object; the current method returns minimal `Chat`, so many current chat metadata fields are unavailable. Stage 89 kept the existing signature and documented the transition strategy instead of making an incidental breaking change. | Stage 96 |
-| `User.language_code`, `is_premium`, `added_to_attachment_menu`, `can_join_groups`, `can_read_all_group_messages`, `supports_inline_queries`, `can_connect_to_business`, `has_main_web_app`, `has_topics_enabled`, `allows_users_to_create_topics` | `User` | Returned by `getMe`/user payloads and newer topic/business/profile capability checks. | Stage 96 |
-| `Chat.is_forum`, `Chat.is_direct_messages` | `Chat` | Indicates forum and channel direct messages chats in lightweight chat payloads. | Stage 96 |
-| `channel_post`, `edited_channel_post`, `poll` | `Update` | Missing update entry points still block channel posts and standalone poll updates. Stage 91 added chat member and chat boost updates. | Stage 96 |
-| concrete `ChatMember*` variant structs | Chat member types | Stage 91 keeps the existing flat `ChatMember` struct and extends it with official 9.6 fields instead of introducing a breaking polymorphic API. Dedicated concrete variants remain a possible future refinement. | Stage 96 |
-| `ChatBoostAdded`, `ChatBackground`, `BackgroundFill*`, `BackgroundType*` | `Message` service messages | Needed to decode chat boost and background service messages. Stage 91 covered boost update objects but not these message service fields. | Stage 96 |
-| `Message.users_shared`, `chat_shared`; `SharedUser`, `UsersShared`, `ChatShared` | Request keyboard service messages | Required to decode user/chat sharing responses from keyboard request buttons. | Stage 97 |
-| `Video.cover`, `start_timestamp`, `qualities`; `VideoQuality` | `Video` | Official video metadata includes cover/start and alternative qualities. | Stage 96 |
-| `Message.giveaway*` service fields | Giveaway service messages | `Giveaway` and `GiveawayWinners` types exist for external replies, but message-level giveaway service fields are still pending. | Stage 97: giveaway/background service messages |
-| `VideoChat*`, `ProximityAlertTriggered`, `MessageAutoDeleteTimerChanged` | Service messages | Legacy service-message coverage remains incomplete. | Stage 97 |
-| `PaidMessagePriceChanged`, `DirectMessagePriceChanged` | Paid/direct message service fields | Message `paid_star_count` and `is_paid_post` are decoded; service-message objects for price changes remain pending. | Stage 97 |
+| `ChatFullInfo` | `getChat` result | Official `getChat` returns the extended chat object; the current method returns minimal `Chat`, so many current chat metadata fields are unavailable. Stage 89 kept the existing signature and documented the transition strategy instead of making an incidental breaking change. | Stage 97 |
+| `User.language_code`, `is_premium`, `added_to_attachment_menu`, `can_join_groups`, `can_read_all_group_messages`, `supports_inline_queries`, `can_connect_to_business`, `has_main_web_app`, `has_topics_enabled`, `allows_users_to_create_topics` | `User` | Returned by `getMe`/user payloads and newer topic/business/profile capability checks. | Stage 97 |
+| `Chat.is_forum`, `Chat.is_direct_messages` | `Chat` | Indicates forum and channel direct messages chats in lightweight chat payloads. | Stage 97 |
+| `channel_post`, `edited_channel_post`, `poll` | `Update` | Missing update entry points still block channel posts and standalone poll updates. Stage 91 added chat member and chat boost updates. | Stage 97 |
+| concrete `ChatMember*` variant structs | Chat member types | Stage 91 keeps the existing flat `ChatMember` struct and extends it with official 9.6 fields instead of introducing a breaking polymorphic API. Dedicated concrete variants remain a possible future refinement. | Stage 97 |
 | `InputFile` official object | Upload parameters | The library intentionally uses `FileRef`/`FileUpload`; this is a naming/architecture mismatch to document, not necessarily a missing public type. | Needs verification |
 
 ## Potential mismatches / needs verification
@@ -65,7 +57,6 @@ The current repository covers the large local Stage 66-95 workstream, including 
 - `sendPoll` still exposes the legacy singular `correct_option_id` for backward compatibility while official 9.6 replaced it with `correct_option_ids`; validation should continue rejecting ambiguous use.
 - `SendPollParams` keeps legacy `Options []string` while adding `OptionObjects []telegram.InputPollOption`; validation rejects ambiguous use and serializes both shapes through the official `options` field.
 - `ReactionType` and other polymorphic decoders should be rechecked when unknown official variants appear; current tests generally fail safely on unknown types.
-- Business story/account methods exist, but `repostStory` and some incoming story/direct-message fields remain pending.
 - Several validation rules intentionally avoid hardcoding Telegram upper limits; this is safer for forward compatibility but should be reviewed for methods with official hard limits.
 
 ## Manual-only live smoke areas
@@ -93,6 +84,6 @@ These areas must remain manual-only and require explicit user confirmation plus 
 5. **Stage 93 completed:** checklists, message drafts, and structured poll options - `sendChecklist`, `editMessageChecklist`, `sendMessageDraft`, `InputPollOption`, checklist message/service types.
 6. **Stage 94 completed:** reply and message metadata types - `MessageOrigin*`, `ExternalReplyInfo`, `TextQuote`, `MaybeInaccessibleMessage`, `InaccessibleMessage`, `ReplyParameters` quote/cross-chat/checklist fields, and high-impact message metadata fields.
 7. **Stage 95 completed:** prepared inline messages and reply-markup completion - `savePreparedInlineMessage`, `PreparedInlineMessage`, LoginUrl/switch-inline/copy/pay/request-poll/icon/style button fields.
-8. **Stage 96: business/direct-message story completion and media metadata** - `repostStory`, video quality/cover/start metadata, and remaining direct-message/chat metadata.
-9. **Stage 97: service-message completeness pass** - giveaways, chat backgrounds, video chats, proximity alerts, auto-delete timers, shared users/chats, price-change service messages, and remaining service messages.
+8. **Stage 96 completed:** service/direct-message/story/media metadata - `repostStory`, video quality/cover/start metadata, shared user/chat service messages, chat backgrounds, video chats, proximity alerts, auto-delete timers, giveaway service messages, and paid/direct message price changes.
+9. **Stage 97: ChatFullInfo/update shape strategy** - decide compatible `getChat` result strategy, channel post updates, standalone poll updates, fuller `User`/`Chat` metadata, and optional concrete chat member variants.
 10. **Final audit after Stage 97** - rerun official method/type/field comparison and only then reconsider push/tag/release readiness.

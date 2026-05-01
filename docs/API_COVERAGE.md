@@ -33,6 +33,7 @@ This document maps the current `ai-gram` implementation to Telegram Bot API area
 | `(*bot.Bot).GetUpdates` | `getUpdates` | unit/httptest | Manual one-shot updates call. |
 | `transport/longpoll.Runner` | `getUpdates` loop | unit, live via examples/scripts | Managed offset advancement, backoff, context cancellation, handler error reporting. |
 | `telegram.Update`, `telegram.Message`, helpers | n/a | unit | Practical incoming update/message/callback/media decoding and helper methods. |
+| Service/direct-message metadata on `telegram.Message` | n/a | unit | Decodes shared user/chat responses, chat background and boost service messages, video chat service messages, proximity alerts, auto-delete timer changes, giveaway service messages, paid/direct message price changes, connected websites, and ownership/chat creation service metadata. |
 | `dispatch.Dispatcher` | n/a | unit, live via examples | Predicate routing for messages, commands, callbacks, middleware, fallback, error handling. |
 
 ### Webhook
@@ -51,7 +52,7 @@ This document maps the current `ai-gram` implementation to Telegram Bot API area
 | `(*bot.Bot).SendMessage` | `sendMessage` | unit/httptest, live examples | Supports text, parse mode/entities conflict validation, reply markup, `message_thread_id`, `reply_parameters`, and optional `business_connection_id`. |
 | `(*bot.Bot).SendPhoto` | `sendPhoto` | unit/httptest, live examples | Supports `FileID`, `FileURL`, `FileUpload`, caption, reply markup, thread/reply params, and optional `business_connection_id`. |
 | `(*bot.Bot).SendDocument` | `sendDocument` | unit/httptest, live examples | Supports `FileID`, `FileURL`, `FileUpload`, caption, reply markup, thread/reply params, and optional `business_connection_id`. |
-| `(*bot.Bot).SendVideo` | `sendVideo` | unit/httptest | Supports `FileID`, `FileURL`, `FileUpload`, caption, duration, dimensions, streaming, thread/reply params, and optional `business_connection_id`. |
+| `(*bot.Bot).SendVideo` | `sendVideo` | unit/httptest | Supports `FileID`, `FileURL`, `FileUpload`, thumbnail/cover refs or uploads, caption, duration, dimensions, start timestamp, streaming, spoiler/caption placement, thread/reply params, and optional `business_connection_id`. |
 | `(*bot.Bot).SendAudio` | `sendAudio` | unit/httptest | Supports `FileID`, `FileURL`, `FileUpload`, caption, duration, performer/title, thread/reply params, and optional `business_connection_id`. |
 | `(*bot.Bot).SendVoice` | `sendVoice` | unit/httptest | Supports `FileID`, `FileURL`, `FileUpload`, caption, duration, thread/reply params, and optional `business_connection_id`. |
 | `(*bot.Bot).SendContact` | `sendContact` | unit/httptest, live v0.2 smoke | Supports contact phone/name/vCard fields, reply markup, `message_thread_id`, `reply_parameters`, and optional `business_connection_id`. |
@@ -78,6 +79,7 @@ This document maps the current `ai-gram` implementation to Telegram Bot API area
 | `(*bot.Bot).GetFile` | `getFile` | unit/httptest, live media script | Gets `file_path` for later download. |
 | `(*bot.Bot).DownloadFile` | file download endpoint | unit/httptest, live media script | Streams to caller-provided writer and does not expose token-bearing download URLs. |
 | multipart helpers | n/a | unit/httptest | Covers media uploads and JSON string fields such as reply parameters. |
+| `telegram.Video`, `telegram.VideoQuality` | incoming video metadata | unit | Decodes thumbnail, cover sizes, start timestamp, file metadata, and alternative video quality descriptors. |
 
 
 ### Sticker set management
@@ -161,7 +163,7 @@ This document maps the current `ai-gram` implementation to Telegram Bot API area
 | `(*bot.Bot).SetBusinessAccountName`, `SetBusinessAccountUsername`, `SetBusinessAccountBio` | business account profile methods | unit/httptest | Changes business account name, username, and bio. Manual-only live smoke. |
 | `(*bot.Bot).SetBusinessAccountProfilePhoto`, `RemoveBusinessAccountProfilePhoto` | business account profile photo methods | unit/httptest, multipart | Uses `InputProfilePhoto` upload payloads for profile photo changes. Manual-only live smoke. |
 | `telegram.AcceptedGiftTypes`, `(*bot.Bot).SetBusinessAccountGiftSettings` | `setBusinessAccountGiftSettings` | unit/httptest | Changes business account gift privacy settings. Manual-only live smoke. |
-| `bot.InputStoryContent*`, `telegram.Story`, `telegram.StoryArea*`, `PostStory`, `EditStory`, `DeleteStory` | business story methods/types | unit/httptest, multipart | Supports photo/video story content uploads and story area payloads. Manual-only live smoke. |
+| `bot.InputStoryContent*`, `telegram.Story`, `telegram.StoryArea*`, `PostStory`, `EditStory`, `DeleteStory`, `RepostStory` | business story methods/types | unit/httptest, multipart/JSON | Supports photo/video story content uploads, story area payloads, deletion, and reposting from source stories. Manual-only live smoke. |
 | `ApproveSuggestedPost`, `DeclineSuggestedPost`, `telegram.SuggestedPost*` | suggested post methods/types | unit/httptest | Approves/declines suggested posts and decodes suggested post service messages. Manual-only live smoke. |
 
 ### Payments and invoices
@@ -375,13 +377,12 @@ Stage 88 performed a full official-doc comparison against the Telegram Bot API d
 
 ### Missing methods from the Stage 88 audit
 
-- Business/Mini App follow-ups: `repostStory`.
+No Stage 88 missing method groups are currently tracked after Stage 96. Remaining work is concentrated in result/update shape parity and final official-doc verification.
 
 ### Missing type and field groups from the Stage 88 audit
 
-- `ChatFullInfo`, fuller `User`/`Chat` metadata, channel post updates, and remaining chat metadata fields.
-- Service-message completeness for giveaways, chat backgrounds, video chats, proximity alerts, auto-delete timer changes, shared users/chats, paid/direct message price changes, and related message fields.
-- `VideoQuality`, video cover/start metadata, and remaining direct-message metadata fields.
+- `ChatFullInfo`, fuller `User`/`Chat` metadata, channel post updates, standalone poll updates, and remaining chat metadata fields.
+- Optional concrete chat member variant structs remain a possible future refinement; Stage 91 keeps the current flat `ChatMember` compatibility shape.
 
 ### Intentional architecture differences to keep documented
 

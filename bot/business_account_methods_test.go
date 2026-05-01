@@ -255,6 +255,47 @@ func TestPostAndEditStorySendMultipartAndDecodeStory(t *testing.T) {
 	}
 }
 
+func TestRepostStorySendsJSONAndDecodesStory(t *testing.T) {
+	const token = "123:secret"
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodPost {
+			t.Fatalf("unexpected method: %s", r.Method)
+		}
+		if r.URL.Path != "/bot"+token+"/repostStory" {
+			t.Fatalf("unexpected path: %q", r.URL.Path)
+		}
+		if got := r.Header.Get("Content-Type"); got != "application/json" {
+			t.Fatalf("unexpected content type: %q", got)
+		}
+		var payload map[string]any
+		if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
+			t.Fatalf("decode payload: %v", err)
+		}
+		if payload["business_connection_id"] != "bc-1" || payload["from_chat_id"] != float64(123) || payload["from_story_id"] != float64(7) || payload["active_period"] != float64(86400) || payload["post_to_chat_page"] != true || payload["protect_content"] != true {
+			t.Fatalf("unexpected payload: %#v", payload)
+		}
+		w.Header().Set("Content-Type", "application/json")
+		_, _ = w.Write([]byte(`{"ok":true,"result":{"chat":{"id":123,"type":"private"},"id":9}}`))
+	}))
+	defer server.Close()
+
+	bot := newTestBot(t, token, server.URL, server.Client())
+	story, err := bot.RepostStory(context.Background(), RepostStoryParams{
+		BusinessConnectionID: "bc-1",
+		FromChatID:           123,
+		FromStoryID:          7,
+		ActivePeriod:         86400,
+		PostToChatPage:       true,
+		ProtectContent:       true,
+	})
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if story == nil || story.ID != 9 || story.Chat.ID != 123 {
+		t.Fatalf("unexpected story: %+v", story)
+	}
+}
+
 func TestBusinessAccountMethodsValidation(t *testing.T) {
 	const token = "123:secret"
 	bot := newTestBot(t, token, "https://example.test", nil)
@@ -326,6 +367,22 @@ func TestBusinessAccountMethodsValidation(t *testing.T) {
 			_, err := bot.DeleteStory(context.Background(), DeleteStoryParams{BusinessConnectionID: "bc"})
 			return err
 		}},
+		{name: "repost missing connection", call: func(bot *Bot) error {
+			_, err := bot.RepostStory(context.Background(), RepostStoryParams{FromChatID: 1, FromStoryID: 1, ActivePeriod: 86400})
+			return err
+		}},
+		{name: "repost missing source chat", call: func(bot *Bot) error {
+			_, err := bot.RepostStory(context.Background(), RepostStoryParams{BusinessConnectionID: "bc", FromStoryID: 1, ActivePeriod: 86400})
+			return err
+		}},
+		{name: "repost invalid story", call: func(bot *Bot) error {
+			_, err := bot.RepostStory(context.Background(), RepostStoryParams{BusinessConnectionID: "bc", FromChatID: 1, ActivePeriod: 86400})
+			return err
+		}},
+		{name: "repost invalid active period", call: func(bot *Bot) error {
+			_, err := bot.RepostStory(context.Background(), RepostStoryParams{BusinessConnectionID: "bc", FromChatID: 1, FromStoryID: 1, ActivePeriod: 1})
+			return err
+		}},
 		{name: "approve invalid chat", call: func(bot *Bot) error {
 			_, err := bot.ApproveSuggestedPost(context.Background(), ApproveSuggestedPostParams{MessageID: 1})
 			return err
@@ -367,6 +424,10 @@ func TestBusinessAccountMethodsReturnAPIError(t *testing.T) {
 		}},
 		{name: "post story", method: "postStory", call: func(bot *Bot) error {
 			_, err := bot.PostStory(context.Background(), PostStoryParams{BusinessConnectionID: "bc", Content: StoryPhoto(FileUpload(UploadFile{Name: "s.jpg", Reader: strings.NewReader("s")})), ActivePeriod: 86400})
+			return err
+		}},
+		{name: "repost story", method: "repostStory", call: func(bot *Bot) error {
+			_, err := bot.RepostStory(context.Background(), RepostStoryParams{BusinessConnectionID: "bc", FromChatID: 1, FromStoryID: 1, ActivePeriod: 86400})
 			return err
 		}},
 		{name: "approve", method: "approveSuggestedPost", call: func(bot *Bot) error {
@@ -415,6 +476,10 @@ func TestBusinessAccountMethodsResponseAndContextErrors(t *testing.T) {
 		}},
 		{name: "post story", method: "postStory", call: func(ctx context.Context, bot *Bot) error {
 			_, err := bot.PostStory(ctx, PostStoryParams{BusinessConnectionID: "bc", Content: StoryPhoto(FileUpload(UploadFile{Name: "s.jpg", Reader: strings.NewReader("s")})), ActivePeriod: 86400})
+			return err
+		}},
+		{name: "repost story", method: "repostStory", call: func(ctx context.Context, bot *Bot) error {
+			_, err := bot.RepostStory(ctx, RepostStoryParams{BusinessConnectionID: "bc", FromChatID: 1, FromStoryID: 1, ActivePeriod: 86400})
 			return err
 		}},
 	}

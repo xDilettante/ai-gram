@@ -98,22 +98,26 @@ type SendDocumentParams struct {
 
 // SendVideoParams contains supported parameters for sendVideo.
 type SendVideoParams struct {
-	BusinessConnectionID string                    `json:"business_connection_id,omitempty"`
-	ChatID               ChatID                    `json:"chat_id"`
-	MessageThreadID      int64                     `json:"message_thread_id,omitempty"`
-	Video                FileRef                   `json:"video"`
-	Duration             int                       `json:"duration,omitempty"`
-	Width                int                       `json:"width,omitempty"`
-	Height               int                       `json:"height,omitempty"`
-	Caption              string                    `json:"caption,omitempty"`
-	ParseMode            string                    `json:"parse_mode,omitempty"`
-	CaptionEntities      []telegram.MessageEntity  `json:"caption_entities,omitempty"`
-	SupportsStreaming    bool                      `json:"supports_streaming,omitempty"`
-	HasSpoiler           bool                      `json:"has_spoiler,omitempty"`
-	DisableNotification  bool                      `json:"disable_notification,omitempty"`
-	ProtectContent       bool                      `json:"protect_content,omitempty"`
-	ReplyParameters      *telegram.ReplyParameters `json:"reply_parameters,omitempty"`
-	ReplyMarkup          telegram.ReplyMarkup      `json:"reply_markup,omitempty"`
+	BusinessConnectionID  string                    `json:"business_connection_id,omitempty"`
+	ChatID                ChatID                    `json:"chat_id"`
+	MessageThreadID       int64                     `json:"message_thread_id,omitempty"`
+	Video                 FileRef                   `json:"video"`
+	Thumbnail             FileRef                   `json:"-"`
+	Cover                 FileRef                   `json:"-"`
+	StartTimestamp        int                       `json:"start_timestamp,omitempty"`
+	Duration              int                       `json:"duration,omitempty"`
+	Width                 int                       `json:"width,omitempty"`
+	Height                int                       `json:"height,omitempty"`
+	Caption               string                    `json:"caption,omitempty"`
+	ParseMode             string                    `json:"parse_mode,omitempty"`
+	CaptionEntities       []telegram.MessageEntity  `json:"caption_entities,omitempty"`
+	ShowCaptionAboveMedia bool                      `json:"show_caption_above_media,omitempty"`
+	SupportsStreaming     bool                      `json:"supports_streaming,omitempty"`
+	HasSpoiler            bool                      `json:"has_spoiler,omitempty"`
+	DisableNotification   bool                      `json:"disable_notification,omitempty"`
+	ProtectContent        bool                      `json:"protect_content,omitempty"`
+	ReplyParameters       *telegram.ReplyParameters `json:"reply_parameters,omitempty"`
+	ReplyMarkup           telegram.ReplyMarkup      `json:"reply_markup,omitempty"`
 }
 
 // SendAudioParams contains supported parameters for sendAudio.
@@ -207,7 +211,7 @@ func (b *Bot) SendVideo(ctx context.Context, params SendVideoParams) (*telegram.
 	}
 
 	var message telegram.Message
-	if params.Video.isUpload() {
+	if params.requiresMultipart() {
 		fields, files, err := params.multipart()
 		if err != nil {
 			return nil, err
@@ -218,7 +222,7 @@ func (b *Bot) SendVideo(ctx context.Context, params SendVideoParams) (*telegram.
 		return &message, nil
 	}
 
-	if err := b.call(ctx, "sendVideo", params, &message); err != nil {
+	if err := b.call(ctx, "sendVideo", params.payload(), &message); err != nil {
 		return nil, err
 	}
 
@@ -354,6 +358,15 @@ func (params SendVideoParams) validate() error {
 	if err := params.Video.validate("video"); err != nil {
 		return err
 	}
+	if err := validateOptionalFileRef(params.Thumbnail, "thumbnail"); err != nil {
+		return err
+	}
+	if err := validateOptionalFileRef(params.Cover, "cover"); err != nil {
+		return err
+	}
+	if params.StartTimestamp < 0 {
+		return stderrors.New("start_timestamp must not be negative")
+	}
 	if params.Duration < 0 {
 		return stderrors.New("duration must not be negative")
 	}
@@ -376,19 +389,91 @@ func (params SendVideoParams) validate() error {
 	return nil
 }
 
+type sendVideoPayload struct {
+	BusinessConnectionID  string                    `json:"business_connection_id,omitempty"`
+	ChatID                ChatID                    `json:"chat_id"`
+	MessageThreadID       int64                     `json:"message_thread_id,omitempty"`
+	Video                 FileRef                   `json:"video"`
+	Thumbnail             *FileRef                  `json:"thumbnail,omitempty"`
+	Cover                 *FileRef                  `json:"cover,omitempty"`
+	StartTimestamp        int                       `json:"start_timestamp,omitempty"`
+	Duration              int                       `json:"duration,omitempty"`
+	Width                 int                       `json:"width,omitempty"`
+	Height                int                       `json:"height,omitempty"`
+	Caption               string                    `json:"caption,omitempty"`
+	ParseMode             string                    `json:"parse_mode,omitempty"`
+	CaptionEntities       []telegram.MessageEntity  `json:"caption_entities,omitempty"`
+	ShowCaptionAboveMedia bool                      `json:"show_caption_above_media,omitempty"`
+	SupportsStreaming     bool                      `json:"supports_streaming,omitempty"`
+	HasSpoiler            bool                      `json:"has_spoiler,omitempty"`
+	DisableNotification   bool                      `json:"disable_notification,omitempty"`
+	ProtectContent        bool                      `json:"protect_content,omitempty"`
+	ReplyParameters       *telegram.ReplyParameters `json:"reply_parameters,omitempty"`
+	ReplyMarkup           telegram.ReplyMarkup      `json:"reply_markup,omitempty"`
+}
+
+func (params SendVideoParams) payload() sendVideoPayload {
+	payload := sendVideoPayload{
+		BusinessConnectionID:  params.BusinessConnectionID,
+		ChatID:                params.ChatID,
+		MessageThreadID:       params.MessageThreadID,
+		Video:                 params.Video,
+		StartTimestamp:        params.StartTimestamp,
+		Duration:              params.Duration,
+		Width:                 params.Width,
+		Height:                params.Height,
+		Caption:               params.Caption,
+		ParseMode:             params.ParseMode,
+		CaptionEntities:       params.CaptionEntities,
+		ShowCaptionAboveMedia: params.ShowCaptionAboveMedia,
+		SupportsStreaming:     params.SupportsStreaming,
+		HasSpoiler:            params.HasSpoiler,
+		DisableNotification:   params.DisableNotification,
+		ProtectContent:        params.ProtectContent,
+		ReplyParameters:       params.ReplyParameters,
+		ReplyMarkup:           params.ReplyMarkup,
+	}
+	if params.Thumbnail.isSet() {
+		payload.Thumbnail = &params.Thumbnail
+	}
+	if params.Cover.isSet() {
+		payload.Cover = &params.Cover
+	}
+	return payload
+}
+
+func (params SendVideoParams) requiresMultipart() bool {
+	return params.Video.isUpload() || params.Thumbnail.isUpload() || params.Cover.isUpload()
+}
+
 func (params SendVideoParams) multipart() (map[string]string, map[string]UploadFile, error) {
 	fields, err := baseMediaFields(params.ChatID, params.MessageThreadID, params.Caption, params.ParseMode, params.CaptionEntities, params.DisableNotification, params.ProtectContent, params.ReplyParameters, params.ReplyMarkup)
 	if err != nil {
 		return nil, nil, err
 	}
 	stringField(fields, "business_connection_id", params.BusinessConnectionID)
-	fields["video"] = "attach://video"
+	files := make(map[string]UploadFile)
+	if err := fileRefMultipartField(fields, files, "video", params.Video); err != nil {
+		return nil, nil, err
+	}
+	if params.Thumbnail.isSet() {
+		if err := fileRefMultipartField(fields, files, "thumbnail", params.Thumbnail); err != nil {
+			return nil, nil, err
+		}
+	}
+	if params.Cover.isSet() {
+		if err := fileRefMultipartField(fields, files, "cover", params.Cover); err != nil {
+			return nil, nil, err
+		}
+	}
+	intField(fields, "start_timestamp", params.StartTimestamp)
 	intField(fields, "duration", params.Duration)
 	intField(fields, "width", params.Width)
 	intField(fields, "height", params.Height)
+	boolField(fields, "show_caption_above_media", params.ShowCaptionAboveMedia)
 	boolField(fields, "supports_streaming", params.SupportsStreaming)
 	boolField(fields, "has_spoiler", params.HasSpoiler)
-	return fields, map[string]UploadFile{"video": params.Video.upload}, nil
+	return fields, files, nil
 }
 
 func (params SendAudioParams) validate() error {
