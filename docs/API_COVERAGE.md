@@ -57,13 +57,14 @@ This document maps the current `ai-gram` implementation to Telegram Bot API area
 | `(*bot.Bot).SendContact` | `sendContact` | unit/httptest, live v0.2 smoke | Supports contact phone/name/vCard fields, reply markup, `message_thread_id`, `reply_parameters`, and optional `business_connection_id`. |
 | `(*bot.Bot).SendLocation` | `sendLocation` | unit/httptest, live v0.2 smoke | Supports latitude/longitude, live-location optional fields, reply markup, thread/reply params, and optional `business_connection_id`. |
 | `(*bot.Bot).SendVenue` | `sendVenue` | unit/httptest, live v0.2 smoke | Supports venue coordinates, title/address, Foursquare/Google place fields, reply markup, thread/reply params, and optional `business_connection_id`. |
-| `(*bot.Bot).SendPoll` | `sendPoll` | unit/httptest, live v0.2 smoke | Supports question/options, quiz fields, Bot API 9.6 `correct_option_ids`, revoting/options controls, poll description formatting, reply markup, thread/reply params, and optional `business_connection_id`. |
+| `(*bot.Bot).SendPoll` | `sendPoll` | unit/httptest, live v0.2 smoke | Supports legacy string options and structured `telegram.InputPollOption` values, quiz fields, Bot API 9.6 `correct_option_ids`, revoting/options controls, question/description formatting, reply markup, thread/reply params, and optional `business_connection_id`. |
 | `(*bot.Bot).SendDice` | `sendDice` | unit/httptest, live v0.2 smoke | Supports known Telegram dice emoji, reply markup, thread/reply params, and optional `business_connection_id`. |
 | `(*bot.Bot).SendGame` | `sendGame` | unit/httptest | Sends BotFather-configured games with inline keyboard, reply params, `message_thread_id`, `allow_paid_broadcast`, `message_effect_id`, and optional `business_connection_id`. Manual-only live smoke. |
 | `(*bot.Bot).SendSticker` | `sendSticker` | unit/httptest, optional live v0.2 smoke | Supports `FileID`, `FileURL`, `FileUpload`, emoji, reply markup, thread/reply params, and optional `business_connection_id`. |
 | `(*bot.Bot).SendAnimation` | `sendAnimation` | unit/httptest, optional live v0.2 smoke | Supports `FileID`, `FileURL`, `FileUpload`, caption fields, thumbnail file ref/upload, spoiler, reply markup, thread/reply params, and optional `business_connection_id`. |
 | `(*bot.Bot).SendVideoNote` | `sendVideoNote` | unit/httptest, optional live v0.2 smoke | Supports `FileID`, `FileUpload`, thumbnail file ref/upload, duration/length, reply markup, thread/reply params, and optional `business_connection_id`. HTTP URL is intentionally rejected for video notes. |
 | `(*bot.Bot).SendMediaGroup` | `sendMediaGroup` | unit/httptest, live generated-upload smoke | Supports `InputMediaPhoto`, `InputMediaVideo`, `InputMediaAudio`, `InputMediaDocument`, JSON file IDs/URLs, multipart uploads, thumbnail/cover uploads where supported, thread/reply params, and optional `business_connection_id`. Does not support reply markup because Telegram does not accept it for media groups; `InputMediaAnimation` remains rejected for media groups. |
+| `telegram.InputPollOption` | `sendPoll` options | unit/httptest | Entity-aware structured poll options serialize through the official `options` field while legacy `[]string` options remain supported for compatibility. |
 | `telegram.ReplyParameters` | send/copy reply payload | unit | Supports `message_id`, `allow_sending_without_reply`, and Bot API 9.6 `poll_option_id`. |
 | `telegram.ReplyMarkup` implementations | send/edit reply markup | unit, live examples | Inline keyboard, reply keyboard, remove keyboard, force reply. Edit methods accept inline keyboard only. |
 
@@ -149,7 +150,11 @@ This document maps the current `ai-gram` implementation to Telegram Bot API area
 | `dispatch.BusinessConnection`, `dispatch.BusinessMessage`, `dispatch.EditedBusinessMessage`, `dispatch.DeletedBusinessMessages` | dispatch predicates/helpers | unit | Includes handler registration helpers for all foundation business update types. |
 | `(*bot.Bot).GetBusinessConnection` | `getBusinessConnection` | unit/httptest | Fetches a typed business connection by ID. Manual-only live smoke. |
 | `(*bot.Bot).DeleteBusinessMessages` | `deleteBusinessMessages` | unit/httptest | Deletes 1-100 messages on behalf of a business account. Manual-only live smoke. |
-| `BusinessConnectionID` on supported send/edit methods | `business_connection_id` request fields | unit/httptest | Implemented for current `sendMessage`, media send, contact/location/venue, poll/dice, paid media, media group, chat action, pin/unpin, edit text/caption/reply markup/media/live-location, `stopMessageLiveLocation`, and `stopPoll` params. Manual-only live smoke. |
+| `BusinessConnectionID` on supported send/edit methods | `business_connection_id` request fields | unit/httptest | Implemented for current `sendMessage`, media send, contact/location/venue, poll/dice, paid media, media group, chat action, pin/unpin, edit text/caption/reply markup/media/live-location, `stopMessageLiveLocation`, and `StopPoll` params. Manual-only live smoke. |
+| `telegram.Checklist`, `ChecklistTask`, `InputChecklist`, `InputChecklistTask`, `ChecklistTasksDone`, `ChecklistTasksAdded` | checklist objects and service messages | unit | Decodes checklist messages/service messages and validates outgoing checklist payloads. Manual-only live smoke. |
+| `(*bot.Bot).SendChecklist` | `sendChecklist` | unit/httptest | Sends a business checklist with `business_connection_id`, integer chat target, reply parameters, and inline keyboard. Manual-only live smoke. |
+| `(*bot.Bot).EditMessageChecklist` | `editMessageChecklist` | unit/httptest | Edits a business checklist message and returns the updated message. Manual-only live smoke. |
+| `(*bot.Bot).SendMessageDraft` | `sendMessageDraft` | unit/httptest | Sends a private-chat message draft by `draft_id` and text formatting fields. Manual-only live smoke. |
 | `(*bot.Bot).ReadBusinessMessage` | `readBusinessMessage` | unit/httptest | Marks a business message as read. Manual-only live smoke. |
 | `(*bot.Bot).SetBusinessAccountName`, `SetBusinessAccountUsername`, `SetBusinessAccountBio` | business account profile methods | unit/httptest | Changes business account name, username, and bio. Manual-only live smoke. |
 | `(*bot.Bot).SetBusinessAccountProfilePhoto`, `RemoveBusinessAccountProfilePhoto` | business account profile photo methods | unit/httptest, multipart | Uses `InputProfilePhoto` upload payloads for profile photo changes. Manual-only live smoke. |
@@ -366,17 +371,15 @@ Stage 88 performed a full official-doc comparison against the Telegram Bot API d
 
 ### Missing methods from the Stage 88 audit
 
-- Checklists and drafts: `sendChecklist`, `editMessageChecklist`, `sendMessageDraft`.
 - Business/Mini App follow-ups: `repostStory`, `savePreparedInlineMessage`.
 
 ### Missing type and field groups from the Stage 88 audit
 
 - `ChatFullInfo`, fuller `User`/`Chat` metadata, channel post updates, and remaining chat metadata fields.
-- `Checklist*` and `InputChecklist*` types plus checklist message/service fields.
 - Reply/forward metadata: `MessageOrigin*`, `ExternalReplyInfo`, `TextQuote`, `MaybeInaccessibleMessage`, `InaccessibleMessage`, and the remaining `ReplyParameters` quote/cross-chat/checklist fields.
 - Reply markup completion: `LoginUrl`, `SwitchInlineQueryChosenChat`, `CopyTextButton`, `KeyboardButtonPollType`, request-poll, pay, icon, and style fields.
 - Service-message completeness for giveaways, chat backgrounds, video chats, proximity alerts, auto-delete timer changes, shared users/chats, paid/direct message price changes, and related message fields.
-- `InputPollOption`, `Poll.question_entities`, `VideoQuality`, video cover/start metadata, `PreparedInlineMessage`, and direct-message/suggested-post metadata fields.
+- `VideoQuality`, video cover/start metadata, `PreparedInlineMessage`, and direct-message/suggested-post metadata fields.
 
 ### Intentional architecture differences to keep documented
 

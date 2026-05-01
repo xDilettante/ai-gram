@@ -80,11 +80,15 @@ type Message struct {
 	ManagedBotCreated           *ManagedBotCreated           `json:"managed_bot_created,omitempty"`
 	PollOptionAdded             *PollOptionAdded             `json:"poll_option_added,omitempty"`
 	PollOptionDeleted           *PollOptionDeleted           `json:"poll_option_deleted,omitempty"`
+	Checklist                   *Checklist                   `json:"checklist,omitempty"`
+	ChecklistTasksDone          *ChecklistTasksDone          `json:"checklist_tasks_done,omitempty"`
+	ChecklistTasksAdded         *ChecklistTasksAdded         `json:"checklist_tasks_added,omitempty"`
 	SuggestedPostApproved       *SuggestedPostApproved       `json:"suggested_post_approved,omitempty"`
 	SuggestedPostApprovalFailed *SuggestedPostApprovalFailed `json:"suggested_post_approval_failed,omitempty"`
 	SuggestedPostDeclined       *SuggestedPostDeclined       `json:"suggested_post_declined,omitempty"`
 	SuggestedPostPaid           *SuggestedPostPaid           `json:"suggested_post_paid,omitempty"`
 	SuggestedPostRefunded       *SuggestedPostRefunded       `json:"suggested_post_refunded,omitempty"`
+	ReplyToChecklistTaskID      int64                        `json:"reply_to_checklist_task_id,omitempty"`
 	ReplyToPollOptionID         string                       `json:"reply_to_poll_option_id,omitempty"`
 	WebAppData                  *WebAppData                  `json:"web_app_data,omitempty"`
 	WriteAccessAllowed          *WriteAccessAllowed          `json:"write_access_allowed,omitempty"`
@@ -304,6 +308,13 @@ type ReplyParameters struct {
 	PollOptionID             string `json:"poll_option_id,omitempty"`
 }
 
+// InputPollOption describes one poll option to send.
+type InputPollOption struct {
+	Text          string          `json:"text"`
+	TextParseMode string          `json:"text_parse_mode,omitempty"`
+	TextEntities  []MessageEntity `json:"text_entities,omitempty"`
+}
+
 // PollOption describes one answer option in a Telegram poll.
 type PollOption struct {
 	PersistentID string          `json:"persistent_id,omitempty"`
@@ -319,6 +330,7 @@ type PollOption struct {
 type Poll struct {
 	ID                    string          `json:"id"`
 	Question              string          `json:"question"`
+	QuestionEntities      []MessageEntity `json:"question_entities,omitempty"`
 	Options               []PollOption    `json:"options"`
 	TotalVoterCount       int             `json:"total_voter_count"`
 	IsClosed              bool            `json:"is_closed"`
@@ -366,6 +378,56 @@ type PollOptionDeleted struct {
 	OptionPersistentID string                    `json:"option_persistent_id"`
 	OptionText         string                    `json:"option_text"`
 	OptionTextEntities []MessageEntity           `json:"option_text_entities,omitempty"`
+}
+
+// ChecklistTask describes a task in a checklist.
+type ChecklistTask struct {
+	ID              int64           `json:"id"`
+	Text            string          `json:"text"`
+	TextEntities    []MessageEntity `json:"text_entities,omitempty"`
+	CompletedByUser *User           `json:"completed_by_user,omitempty"`
+	CompletedByChat *Chat           `json:"completed_by_chat,omitempty"`
+	CompletionDate  int64           `json:"completion_date,omitempty"`
+}
+
+// Checklist describes a Telegram checklist.
+type Checklist struct {
+	Title                    string          `json:"title"`
+	TitleEntities            []MessageEntity `json:"title_entities,omitempty"`
+	Tasks                    []ChecklistTask `json:"tasks"`
+	OthersCanAddTasks        bool            `json:"others_can_add_tasks,omitempty"`
+	OthersCanMarkTasksAsDone bool            `json:"others_can_mark_tasks_as_done,omitempty"`
+}
+
+// InputChecklistTask describes a checklist task to create.
+type InputChecklistTask struct {
+	ID           int64           `json:"id"`
+	Text         string          `json:"text"`
+	ParseMode    string          `json:"parse_mode,omitempty"`
+	TextEntities []MessageEntity `json:"text_entities,omitempty"`
+}
+
+// InputChecklist describes a checklist to create.
+type InputChecklist struct {
+	Title                    string               `json:"title"`
+	ParseMode                string               `json:"parse_mode,omitempty"`
+	TitleEntities            []MessageEntity      `json:"title_entities,omitempty"`
+	Tasks                    []InputChecklistTask `json:"tasks"`
+	OthersCanAddTasks        bool                 `json:"others_can_add_tasks,omitempty"`
+	OthersCanMarkTasksAsDone bool                 `json:"others_can_mark_tasks_as_done,omitempty"`
+}
+
+// ChecklistTasksDone describes a service message about checklist tasks marked done or not done.
+type ChecklistTasksDone struct {
+	ChecklistMessage       *Message `json:"checklist_message,omitempty"`
+	MarkedAsDoneTaskIDs    []int64  `json:"marked_as_done_task_ids,omitempty"`
+	MarkedAsNotDoneTaskIDs []int64  `json:"marked_as_not_done_task_ids,omitempty"`
+}
+
+// ChecklistTasksAdded describes a service message about tasks added to a checklist.
+type ChecklistTasksAdded struct {
+	ChecklistMessage *Message        `json:"checklist_message,omitempty"`
+	Tasks            []ChecklistTask `json:"tasks"`
 }
 
 // Dice describes a Telegram dice message result.

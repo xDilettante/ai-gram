@@ -24,17 +24,15 @@ This plan is a working checklist derived from the official documentation and cha
 
 Stage 88 compared the current local implementation with the official Telegram Bot API documentation and the April 3, 2026 Bot API 9.6 changelog. Full coverage is **not yet reached**. The precise missing method/type/field checklist now lives in [`docs/BOT_API_9_6_AUDIT.md`](BOT_API_9_6_AUDIT.md).
 
-Top pending method groups after Stage 92:
+Top pending method groups after Stage 93:
 
-- checklists/drafts: `sendChecklist`, `editMessageChecklist`, `sendMessageDraft`;
 - Business/Mini App follow-ups: `repostStory`, `savePreparedInlineMessage`.
 
 Top pending type/field groups:
 
 - `ChatFullInfo`, full `User`/`Chat` metadata, and channel post update fields;
 - optional concrete chat member variants plus background/giveaway/service-message types;
-- checklist types and `InputPollOption`;
-- reply/forward metadata (`MessageOrigin*`, `ExternalReplyInfo`, `TextQuote`, `ReplyParameters` quote/cross-chat fields);
+- reply/forward metadata (`MessageOrigin*`, `ExternalReplyInfo`, `TextQuote`, `ReplyParameters` quote/cross-chat/checklist fields);
 - reply markup completion (`LoginUrl`, switch-inline, copy-text, pay, request-poll, icon/style fields).
 
 
@@ -53,6 +51,10 @@ Stage 91 implemented chat member updates, chat boost updates, `getUserChatBoosts
 ## Stage 92 result
 
 Stage 92 implemented Stars subscription invite links: `createChatSubscriptionInviteLink`, `editChatSubscriptionInviteLink`, and `ChatInviteLink.subscription_period` / `ChatInviteLink.subscription_price`. These methods are payment-related and state-changing, so live checks remain manual-only.
+
+## Stage 93 result
+
+Stage 93 implemented structured poll options (`InputPollOption` and `Poll.question_entities`), checklist message/service types, `sendChecklist`, `editMessageChecklist`, and `sendMessageDraft`. Checklist and draft flows mutate user-visible state, so live checks remain manual-only.
 
 ## Current implemented baseline
 
@@ -318,7 +320,7 @@ Stage 78 implements Managed Bots 9.6 support. Token-returning methods are sensit
 - [x] `PollOptionDeleted` and `Message.poll_option_deleted`
 - [x] `ReplyParameters.poll_option_id`
 - [x] `Message.reply_to_poll_option_id`
-- [ ] `InputPollOption` and `Poll.question_entities` entity-aware poll option/question coverage
+- [x] `InputPollOption` and `Poll.question_entities` entity-aware poll option/question coverage
 - [x] audit all poll-related fields against official Bot API 9.6 docs for this slice
 
 ### Bot profile and metadata
@@ -363,7 +365,7 @@ Stage 81 implements the Business API foundation. Stage 82 adds business read, ac
 - [x] `business_connection_id` on current send methods: `SendMessage`, `SendPhoto`, `SendDocument`, `SendVideo`, `SendAudio`, `SendVoice`, `SendAnimation`, `SendVideoNote`, `SendSticker`, `SendPaidMedia`, `SendMediaGroup`, `SendContact`, `SendLocation`, `SendVenue`, `SendPoll`, and `SendDice`
 - [x] `business_connection_id` on current chat action/pin methods: `SendChatAction`, `PinChatMessage`, and `UnpinChatMessage`
 - [x] `business_connection_id` on current edit/stop methods: `EditMessageText`, `EditMessageCaption`, `EditMessageReplyMarkup`, `EditMessageMedia`, `EditMessageLiveLocation`, `StopMessageLiveLocation`, and `StopPoll`
-- [ ] `SendChecklist`, `EditMessageChecklist`, and `SendMessageDraft`
+- [x] `SendChecklist`, `EditMessageChecklist`, and `SendMessageDraft`
 - [x] `GetBusinessAccountStarBalance`
 - [x] `TransferBusinessAccountStars`
 - [x] `Gift`, `Gifts`, `GiftInfo`, `UniqueGift`, `UniqueGiftInfo`, `OwnedGift`, and `OwnedGifts` types
@@ -412,9 +414,9 @@ Notes:
 - [x] `EditMessageMedia`
 - [x] `EditMessageLiveLocation`
 - [x] `StopMessageLiveLocation`
-- [ ] `SendChecklist`
-- [ ] `EditMessageChecklist`
-- [ ] `SendMessageDraft`
+- [x] `SendChecklist`
+- [x] `EditMessageChecklist`
+- [x] `SendMessageDraft`
 - [x] `logOut` and `close`
 - [x] `GetUserProfilePhotos`, `GetUserProfileAudios`, and `GetForumTopicIconStickers`
 - [x] verification/status methods
@@ -428,7 +430,8 @@ Recommended local-only stages after the Stage 88 audit:
 2. Stage 90 completed: verification and user status APIs.
 3. Stage 91 completed: chat boosts, chat-member updates/tags, and sender-chat moderation.
 4. Stage 92 completed: subscription invite links.
-5. Stage 93: checklists, message drafts, and structured poll options.
+5. Stage 93 completed: checklists, message drafts, and structured poll options.
+6. Stage 94: business/direct-message story completion and prepared inline follow-ups.
 6. Stage 94: business/direct-message story completion.
 7. Stage 95: prepared inline messages and reply-markup completion.
 8. Stage 96: message field completeness.

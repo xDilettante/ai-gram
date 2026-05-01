@@ -54,6 +54,24 @@ type SendVenueParams = bot.SendVenueParams
 // SendPollParams contains supported parameters for sendPoll.
 type SendPollParams = bot.SendPollParams
 
+// SendChecklistParams contains supported parameters for sendChecklist.
+type SendChecklistParams = bot.SendChecklistParams
+
+// EditMessageChecklistParams contains supported parameters for editMessageChecklist.
+type EditMessageChecklistParams = bot.EditMessageChecklistParams
+
+// SendMessageDraftParams contains supported parameters for sendMessageDraft.
+type SendMessageDraftParams = bot.SendMessageDraftParams
+
+// InputPollOption describes one poll option to send.
+type InputPollOption = telegram.InputPollOption
+
+// InputChecklist describes a checklist to create.
+type InputChecklist = telegram.InputChecklist
+
+// InputChecklistTask describes a checklist task to create.
+type InputChecklistTask = telegram.InputChecklistTask
+
 // StopPollParams contains supported parameters for stopPoll.
 type StopPollParams = bot.StopPollParams
 

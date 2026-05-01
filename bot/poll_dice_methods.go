@@ -2,6 +2,7 @@ package bot
 
 import (
 	"context"
+	"encoding/json"
 	stderrors "errors"
 
 	"github.com/xDilettante/ai-gram/telegram"
@@ -9,33 +10,108 @@ import (
 
 // SendPollParams contains supported parameters for sendPoll.
 type SendPollParams struct {
-	BusinessConnectionID   string                    `json:"business_connection_id,omitempty"`
-	ChatID                 ChatID                    `json:"chat_id"`
-	MessageThreadID        int64                     `json:"message_thread_id,omitempty"`
-	Question               string                    `json:"question"`
-	Options                []string                  `json:"options"`
-	IsAnonymous            *bool                     `json:"is_anonymous,omitempty"`
-	Type                   string                    `json:"type,omitempty"`
-	AllowsMultipleAnswers  bool                      `json:"allows_multiple_answers,omitempty"`
-	AllowsRevoting         bool                      `json:"allows_revoting,omitempty"`
-	ShuffleOptions         bool                      `json:"shuffle_options,omitempty"`
-	AllowAddingOptions     bool                      `json:"allow_adding_options,omitempty"`
-	HideResultsUntilCloses bool                      `json:"hide_results_until_closes,omitempty"`
-	CorrectOptionID        *int                      `json:"correct_option_id,omitempty"`
-	CorrectOptionIDs       []int                     `json:"correct_option_ids,omitempty"`
-	Explanation            string                    `json:"explanation,omitempty"`
-	ExplanationParseMode   string                    `json:"explanation_parse_mode,omitempty"`
-	ExplanationEntities    []telegram.MessageEntity  `json:"explanation_entities,omitempty"`
-	Description            string                    `json:"description,omitempty"`
-	DescriptionParseMode   string                    `json:"description_parse_mode,omitempty"`
-	DescriptionEntities    []telegram.MessageEntity  `json:"description_entities,omitempty"`
-	OpenPeriod             int                       `json:"open_period,omitempty"`
-	CloseDate              int64                     `json:"close_date,omitempty"`
-	IsClosed               bool                      `json:"is_closed,omitempty"`
-	DisableNotification    bool                      `json:"disable_notification,omitempty"`
-	ProtectContent         bool                      `json:"protect_content,omitempty"`
-	ReplyParameters        *telegram.ReplyParameters `json:"reply_parameters,omitempty"`
-	ReplyMarkup            telegram.ReplyMarkup      `json:"reply_markup,omitempty"`
+	BusinessConnectionID   string                     `json:"business_connection_id,omitempty"`
+	ChatID                 ChatID                     `json:"chat_id"`
+	MessageThreadID        int64                      `json:"message_thread_id,omitempty"`
+	Question               string                     `json:"question"`
+	QuestionParseMode      string                     `json:"question_parse_mode,omitempty"`
+	QuestionEntities       []telegram.MessageEntity   `json:"question_entities,omitempty"`
+	Options                []string                   `json:"options"`
+	OptionObjects          []telegram.InputPollOption `json:"-"`
+	IsAnonymous            *bool                      `json:"is_anonymous,omitempty"`
+	Type                   string                     `json:"type,omitempty"`
+	AllowsMultipleAnswers  bool                       `json:"allows_multiple_answers,omitempty"`
+	AllowsRevoting         bool                       `json:"allows_revoting,omitempty"`
+	ShuffleOptions         bool                       `json:"shuffle_options,omitempty"`
+	AllowAddingOptions     bool                       `json:"allow_adding_options,omitempty"`
+	HideResultsUntilCloses bool                       `json:"hide_results_until_closes,omitempty"`
+	CorrectOptionID        *int                       `json:"correct_option_id,omitempty"`
+	CorrectOptionIDs       []int                      `json:"correct_option_ids,omitempty"`
+	Explanation            string                     `json:"explanation,omitempty"`
+	ExplanationParseMode   string                     `json:"explanation_parse_mode,omitempty"`
+	ExplanationEntities    []telegram.MessageEntity   `json:"explanation_entities,omitempty"`
+	Description            string                     `json:"description,omitempty"`
+	DescriptionParseMode   string                     `json:"description_parse_mode,omitempty"`
+	DescriptionEntities    []telegram.MessageEntity   `json:"description_entities,omitempty"`
+	OpenPeriod             int                        `json:"open_period,omitempty"`
+	CloseDate              int64                      `json:"close_date,omitempty"`
+	IsClosed               bool                       `json:"is_closed,omitempty"`
+	DisableNotification    bool                       `json:"disable_notification,omitempty"`
+	ProtectContent         bool                       `json:"protect_content,omitempty"`
+	ReplyParameters        *telegram.ReplyParameters  `json:"reply_parameters,omitempty"`
+	ReplyMarkup            telegram.ReplyMarkup       `json:"reply_markup,omitempty"`
+}
+
+// MarshalJSON serializes either legacy string poll options or structured InputPollOption values as "options".
+func (params SendPollParams) MarshalJSON() ([]byte, error) {
+	type sendPollParamsJSON struct {
+		BusinessConnectionID   string                    `json:"business_connection_id,omitempty"`
+		ChatID                 ChatID                    `json:"chat_id"`
+		MessageThreadID        int64                     `json:"message_thread_id,omitempty"`
+		Question               string                    `json:"question"`
+		QuestionParseMode      string                    `json:"question_parse_mode,omitempty"`
+		QuestionEntities       []telegram.MessageEntity  `json:"question_entities,omitempty"`
+		Options                any                       `json:"options"`
+		IsAnonymous            *bool                     `json:"is_anonymous,omitempty"`
+		Type                   string                    `json:"type,omitempty"`
+		AllowsMultipleAnswers  bool                      `json:"allows_multiple_answers,omitempty"`
+		AllowsRevoting         bool                      `json:"allows_revoting,omitempty"`
+		ShuffleOptions         bool                      `json:"shuffle_options,omitempty"`
+		AllowAddingOptions     bool                      `json:"allow_adding_options,omitempty"`
+		HideResultsUntilCloses bool                      `json:"hide_results_until_closes,omitempty"`
+		CorrectOptionID        *int                      `json:"correct_option_id,omitempty"`
+		CorrectOptionIDs       []int                     `json:"correct_option_ids,omitempty"`
+		Explanation            string                    `json:"explanation,omitempty"`
+		ExplanationParseMode   string                    `json:"explanation_parse_mode,omitempty"`
+		ExplanationEntities    []telegram.MessageEntity  `json:"explanation_entities,omitempty"`
+		Description            string                    `json:"description,omitempty"`
+		DescriptionParseMode   string                    `json:"description_parse_mode,omitempty"`
+		DescriptionEntities    []telegram.MessageEntity  `json:"description_entities,omitempty"`
+		OpenPeriod             int                       `json:"open_period,omitempty"`
+		CloseDate              int64                     `json:"close_date,omitempty"`
+		IsClosed               bool                      `json:"is_closed,omitempty"`
+		DisableNotification    bool                      `json:"disable_notification,omitempty"`
+		ProtectContent         bool                      `json:"protect_content,omitempty"`
+		ReplyParameters        *telegram.ReplyParameters `json:"reply_parameters,omitempty"`
+		ReplyMarkup            telegram.ReplyMarkup      `json:"reply_markup,omitempty"`
+	}
+
+	options := any(params.Options)
+	if len(params.OptionObjects) > 0 {
+		options = params.OptionObjects
+	}
+
+	return json.Marshal(sendPollParamsJSON{
+		BusinessConnectionID:   params.BusinessConnectionID,
+		ChatID:                 params.ChatID,
+		MessageThreadID:        params.MessageThreadID,
+		Question:               params.Question,
+		QuestionParseMode:      params.QuestionParseMode,
+		QuestionEntities:       params.QuestionEntities,
+		Options:                options,
+		IsAnonymous:            params.IsAnonymous,
+		Type:                   params.Type,
+		AllowsMultipleAnswers:  params.AllowsMultipleAnswers,
+		AllowsRevoting:         params.AllowsRevoting,
+		ShuffleOptions:         params.ShuffleOptions,
+		AllowAddingOptions:     params.AllowAddingOptions,
+		HideResultsUntilCloses: params.HideResultsUntilCloses,
+		CorrectOptionID:        params.CorrectOptionID,
+		CorrectOptionIDs:       params.CorrectOptionIDs,
+		Explanation:            params.Explanation,
+		ExplanationParseMode:   params.ExplanationParseMode,
+		ExplanationEntities:    params.ExplanationEntities,
+		Description:            params.Description,
+		DescriptionParseMode:   params.DescriptionParseMode,
+		DescriptionEntities:    params.DescriptionEntities,
+		OpenPeriod:             params.OpenPeriod,
+		CloseDate:              params.CloseDate,
+		IsClosed:               params.IsClosed,
+		DisableNotification:    params.DisableNotification,
+		ProtectContent:         params.ProtectContent,
+		ReplyParameters:        params.ReplyParameters,
+		ReplyMarkup:            params.ReplyMarkup,
+	})
 }
 
 // StopPollParams contains supported parameters for stopPoll.
@@ -110,7 +186,19 @@ func (params SendPollParams) validate() error {
 	if params.Question == "" {
 		return stderrors.New("question is required")
 	}
-	if len(params.Options) < 2 {
+	optionCount := len(params.Options)
+	if len(params.OptionObjects) > 0 {
+		if len(params.Options) > 0 {
+			return stderrors.New("options and option_objects cannot both be set")
+		}
+		optionCount = len(params.OptionObjects)
+		for _, option := range params.OptionObjects {
+			if err := validateInputPollOption(option); err != nil {
+				return err
+			}
+		}
+	}
+	if optionCount < 2 {
 		return stderrors.New("options must contain at least two items")
 	}
 	for _, option := range params.Options {
@@ -121,11 +209,11 @@ func (params SendPollParams) validate() error {
 	if params.CorrectOptionID != nil && len(params.CorrectOptionIDs) > 0 {
 		return stderrors.New("correct_option_id and correct_option_ids cannot both be set")
 	}
-	if params.CorrectOptionID != nil && (*params.CorrectOptionID < 0 || *params.CorrectOptionID >= len(params.Options)) {
+	if params.CorrectOptionID != nil && (*params.CorrectOptionID < 0 || *params.CorrectOptionID >= optionCount) {
 		return stderrors.New("correct_option_id must reference an existing option")
 	}
 	for _, id := range params.CorrectOptionIDs {
-		if id < 0 || id >= len(params.Options) {
+		if id < 0 || id >= optionCount {
 			return stderrors.New("correct_option_ids must reference existing options")
 		}
 	}
@@ -134,6 +222,9 @@ func (params SendPollParams) validate() error {
 	}
 	if params.CloseDate < 0 {
 		return stderrors.New("close_date must not be negative")
+	}
+	if err := validateEntityFormatting(params.QuestionParseMode, params.QuestionEntities); err != nil {
+		return err
 	}
 	if err := validateEntityFormatting(params.ExplanationParseMode, params.ExplanationEntities); err != nil {
 		return err
@@ -145,6 +236,17 @@ func (params SendPollParams) validate() error {
 		return err
 	}
 	if err := telegram.ValidateReplyMarkup(params.ReplyMarkup); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func validateInputPollOption(option telegram.InputPollOption) error {
+	if option.Text == "" {
+		return stderrors.New("options.text is required")
+	}
+	if err := validateEntityFormatting(option.TextParseMode, option.TextEntities); err != nil {
 		return err
 	}
 

@@ -35,6 +35,9 @@ func TestSendPollSendsPayloadAndDecodesMessage(t *testing.T) {
 		if got := payload["question"]; got != "Pick one" {
 			t.Fatalf("unexpected question: %#v", got)
 		}
+		if got := payload["question_parse_mode"]; got != "HTML" {
+			t.Fatalf("unexpected question_parse_mode: %#v", got)
+		}
 		options, ok := payload["options"].([]any)
 		if !ok || len(options) != 2 || options[0] != "A" || options[1] != "B" {
 			t.Fatalf("unexpected options: %#v", payload["options"])
@@ -104,7 +107,7 @@ func TestSendPollSendsPayloadAndDecodesMessage(t *testing.T) {
 		}
 
 		w.Header().Set("Content-Type", "application/json")
-		_, _ = w.Write([]byte(`{"ok":true,"result":{"message_id":10,"chat":{"id":12345,"type":"private"},"date":100,"poll":{"id":"poll-id","question":"Pick one","options":[{"persistent_id":"a","text":"A","voter_count":1},{"persistent_id":"b","text":"B","voter_count":0}],"total_voter_count":1,"is_closed":false,"is_anonymous":false,"type":"quiz","allows_multiple_answers":true,"allows_revoting":true,"correct_option_ids":[1],"description":"Details","description_entities":[{"type":"bold","offset":0,"length":7}],"explanation":"Because","open_period":60,"close_date":1234567890}}}`))
+		_, _ = w.Write([]byte(`{"ok":true,"result":{"message_id":10,"chat":{"id":12345,"type":"private"},"date":100,"poll":{"id":"poll-id","question":"Pick one","question_entities":[{"type":"custom_emoji","offset":0,"length":1,"custom_emoji_id":"emoji-id"}],"options":[{"persistent_id":"a","text":"A","voter_count":1},{"persistent_id":"b","text":"B","voter_count":0}],"total_voter_count":1,"is_closed":false,"is_anonymous":false,"type":"quiz","allows_multiple_answers":true,"allows_revoting":true,"correct_option_ids":[1],"description":"Details","description_entities":[{"type":"bold","offset":0,"length":7}],"explanation":"Because","open_period":60,"close_date":1234567890}}}`))
 	}))
 	defer server.Close()
 
@@ -113,6 +116,7 @@ func TestSendPollSendsPayloadAndDecodesMessage(t *testing.T) {
 		ChatID:                 ChatIDInt(12345),
 		MessageThreadID:        7,
 		Question:               "Pick one",
+		QuestionParseMode:      "HTML",
 		Options:                []string{"A", "B"},
 		IsAnonymous:            &isAnonymous,
 		Type:                   "quiz",
@@ -143,6 +147,63 @@ func TestSendPollSendsPayloadAndDecodesMessage(t *testing.T) {
 	if !message.Poll.AllowsRevoting || message.Poll.Description != "Details" || len(message.Poll.DescriptionEntities) != 1 || message.Poll.Options[0].PersistentID != "a" {
 		t.Fatalf("unexpected decoded poll 9.6 fields: %+v", message.Poll)
 	}
+	if len(message.Poll.QuestionEntities) != 1 || message.Poll.QuestionEntities[0].Type != telegram.EntityCustomEmoji {
+		t.Fatalf("unexpected question entities: %+v", message.Poll.QuestionEntities)
+	}
+}
+
+func TestSendPollStructuredOptions(t *testing.T) {
+	const token = "123:secret"
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path != "/bot"+token+"/sendPoll" {
+			t.Fatalf("unexpected path: %q", r.URL.Path)
+		}
+		var payload map[string]any
+		if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
+			t.Fatalf("decode payload: %v", err)
+		}
+		options, ok := payload["options"].([]any)
+		if !ok || len(options) != 2 {
+			t.Fatalf("unexpected options: %#v", payload["options"])
+		}
+		first, ok := options[0].(map[string]any)
+		if !ok || first["text"] != "A" || first["text_parse_mode"] != "HTML" {
+			t.Fatalf("unexpected first option: %#v", options[0])
+		}
+		second, ok := options[1].(map[string]any)
+		if !ok || second["text"] != "B" {
+			t.Fatalf("unexpected second option: %#v", options[1])
+		}
+		entities, ok := second["text_entities"].([]any)
+		if !ok || len(entities) != 1 {
+			t.Fatalf("unexpected option entities: %#v", second["text_entities"])
+		}
+		correctOptionIDs, ok := payload["correct_option_ids"].([]any)
+		if !ok || len(correctOptionIDs) != 1 || correctOptionIDs[0] != float64(1) {
+			t.Fatalf("unexpected correct_option_ids: %#v", payload["correct_option_ids"])
+		}
+		w.Header().Set("Content-Type", "application/json")
+		_, _ = w.Write([]byte(`{"ok":true,"result":{"message_id":10,"chat":{"id":12345,"type":"private"},"date":100,"poll":{"id":"poll-id","question":"Pick one","options":[{"text":"A","voter_count":0},{"text":"B","voter_count":0}],"total_voter_count":0,"is_closed":false,"is_anonymous":true,"type":"quiz"}}}`))
+	}))
+	defer server.Close()
+
+	bot := newTestBot(t, token, server.URL, server.Client())
+	message, err := bot.SendPoll(context.Background(), SendPollParams{
+		ChatID:   ChatIDInt(12345),
+		Question: "Pick one",
+		OptionObjects: []telegram.InputPollOption{
+			{Text: "A", TextParseMode: "HTML"},
+			{Text: "B", TextEntities: []telegram.MessageEntity{{Type: telegram.EntityCustomEmoji, Offset: 0, Length: 1, CustomEmojiID: "emoji-id"}}},
+		},
+		Type:             "quiz",
+		CorrectOptionIDs: []int{1},
+	})
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if message == nil || message.Poll == nil || message.Poll.ID != "poll-id" {
+		t.Fatalf("unexpected message: %+v", message)
+	}
 }
 
 func TestSendPollValidation(t *testing.T) {
@@ -156,6 +217,29 @@ func TestSendPollValidation(t *testing.T) {
 		{name: "empty question", mutate: func(p *SendPollParams) { p.Question = "" }},
 		{name: "too few options", mutate: func(p *SendPollParams) { p.Options = []string{"A"} }},
 		{name: "empty option", mutate: func(p *SendPollParams) { p.Options = []string{"A", ""} }},
+		{name: "options and option objects", mutate: func(p *SendPollParams) {
+			p.OptionObjects = []telegram.InputPollOption{{Text: "A"}, {Text: "B"}}
+		}},
+		{name: "empty structured option", mutate: func(p *SendPollParams) {
+			p.Options = nil
+			p.OptionObjects = []telegram.InputPollOption{{Text: "A"}, {}}
+		}},
+		{name: "structured option parse mode and entities", mutate: func(p *SendPollParams) {
+			p.Options = nil
+			p.OptionObjects = []telegram.InputPollOption{
+				{Text: "A"},
+				{Text: "B", TextParseMode: "HTML", TextEntities: []telegram.MessageEntity{{Type: telegram.EntityBold, Offset: 0, Length: 1}}},
+			}
+		}},
+		{name: "question parse mode and entities", mutate: func(p *SendPollParams) {
+			p.QuestionParseMode = "HTML"
+			p.QuestionEntities = []telegram.MessageEntity{{Type: telegram.EntityCustomEmoji, Offset: 0, Length: 1, CustomEmojiID: "emoji-id"}}
+		}},
+		{name: "structured correct option out of range", mutate: func(p *SendPollParams) {
+			p.Options = nil
+			p.OptionObjects = []telegram.InputPollOption{{Text: "A"}, {Text: "B"}}
+			p.CorrectOptionIDs = []int{2}
+		}},
 		{name: "negative thread", mutate: func(p *SendPollParams) { p.MessageThreadID = -1 }},
 		{name: "negative open period", mutate: func(p *SendPollParams) { p.OpenPeriod = -1 }},
 		{name: "negative close date", mutate: func(p *SendPollParams) { p.CloseDate = -1 }},

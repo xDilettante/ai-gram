@@ -186,7 +186,9 @@ Optional media checks are skipped without failing when media env is absent:
 
 Expected safe markers include `AIGRAM_V02_SMOKE_SEND_CONTACT_OK`, `AIGRAM_V02_SMOKE_STOP_POLL_OK`, optional `AIGRAM_V02_SMOKE_SEND_*_SKIPPED`, and final `AIGRAM_V02_SMOKE_OK`. The script must not print bot tokens, token-bearing endpoints, full file IDs, or private message text.
 
-Advanced Poll 9.6 fields (`correct_option_ids`, revoting/options controls, poll descriptions, poll-option replies, and poll option service messages) are not automatically live-smoked. Test them only in a dedicated chat with disposable poll messages, verify `poll_answer` and poll option service updates from safe logs, and avoid logging private vote contents beyond option IDs/counts.
+Advanced Poll 9.6 fields (`correct_option_ids`, structured `InputPollOption` values, revoting/options controls, poll descriptions, poll-option replies, and poll option service messages) are not automatically live-smoked. Test them only in a dedicated chat with disposable poll messages, verify `poll_answer` and poll option service updates from safe logs, and avoid logging private vote contents beyond option IDs/counts.
+
+Checklist and message draft flows are manual-only. Use only a dedicated test chat/private chat and a disposable business connection where required, send or edit only test checklist messages/drafts, and log only safe metadata such as method name, chat ID, message ID or draft ID, task counts, and boolean result. Do not log checklist or draft text payloads.
 
 ## SendMediaGroup smoke
 
