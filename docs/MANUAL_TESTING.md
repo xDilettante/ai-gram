@@ -655,6 +655,16 @@ Managed Bots 9.6 live checks are manual-only because `GetManagedBotToken` and `R
 - If token replacement is tested, immediately update only the isolated test environment that depends on the old token.
 - Record only safe metadata: method name, user ID, prepared keyboard button ID, and token presence as a boolean.
 
+## Prepared inline and reply markup checklist
+
+Prepared inline messages and rich reply markup require explicit client/Mini App/inline setup and remain manual-only.
+
+- Use a dedicated test bot, test Mini App, and disposable test chat.
+- Save only disposable prepared inline messages with `SavePreparedInlineMessage`.
+- Test `LoginUrl`, switch-inline, copy-text, pay, request-poll, icon, and style buttons only with synthetic/test payloads.
+- Do not log button payloads, reusable prepared inline identifiers, LoginUrl query data, or private copied text.
+- Record only safe metadata: method names, button type labels, result ID presence, and boolean results.
+
 ## Inline mode checklist
 
 `AnswerInlineQuery`, `InlineQuery`, and `ChosenInlineResult` require inline mode to be enabled for the bot in BotFather. Inline mode sends selectable results into real chats, so it is intentionally not part of automatic live smoke.

@@ -4,6 +4,7 @@
 
 ### Added
 
+- Prepared inline messages and reply markup completion: `SavePreparedInlineMessage`, `PreparedInlineMessage`, `LoginUrl`, `SwitchInlineQueryChosenChat`, `CopyTextButton`, `KeyboardButtonPollType`, request-poll buttons, pay buttons, and icon/style button fields.
 - Reply and message metadata types: `MessageOrigin` variants, `ExternalReplyInfo`, `TextQuote`, `MaybeInaccessibleMessage`, `InaccessibleMessage`, and expanded `ReplyParameters`.
 - Checklist, message draft, and structured poll option support: `SendChecklist`, `EditMessageChecklist`, `SendMessageDraft`, `InputChecklist`, `Checklist`, and `InputPollOption`.
 - Chat subscription invite link methods: `CreateChatSubscriptionInviteLink` and `EditChatSubscriptionInviteLink`.

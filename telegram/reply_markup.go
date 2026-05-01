@@ -18,11 +18,41 @@ type InlineKeyboardMarkup struct {
 
 // InlineKeyboardButton represents one inline keyboard button.
 type InlineKeyboardButton struct {
-	Text         string        `json:"text"`
-	URL          string        `json:"url,omitempty"`
-	CallbackData string        `json:"callback_data,omitempty"`
-	WebApp       *WebAppInfo   `json:"web_app,omitempty"`
-	CallbackGame *CallbackGame `json:"callback_game,omitempty"`
+	Text                         string                       `json:"text"`
+	IconCustomEmojiID            string                       `json:"icon_custom_emoji_id,omitempty"`
+	Style                        string                       `json:"style,omitempty"`
+	URL                          string                       `json:"url,omitempty"`
+	CallbackData                 string                       `json:"callback_data,omitempty"`
+	WebApp                       *WebAppInfo                  `json:"web_app,omitempty"`
+	LoginURL                     *LoginUrl                    `json:"login_url,omitempty"`
+	SwitchInlineQuery            *string                      `json:"switch_inline_query,omitempty"`
+	SwitchInlineQueryCurrentChat *string                      `json:"switch_inline_query_current_chat,omitempty"`
+	SwitchInlineQueryChosenChat  *SwitchInlineQueryChosenChat `json:"switch_inline_query_chosen_chat,omitempty"`
+	CopyText                     *CopyTextButton              `json:"copy_text,omitempty"`
+	CallbackGame                 *CallbackGame                `json:"callback_game,omitempty"`
+	Pay                          bool                         `json:"pay,omitempty"`
+}
+
+// LoginUrl represents an automatic Telegram login URL for an inline keyboard button.
+type LoginUrl struct {
+	URL                string `json:"url"`
+	ForwardText        string `json:"forward_text,omitempty"`
+	BotUsername        string `json:"bot_username,omitempty"`
+	RequestWriteAccess bool   `json:"request_write_access,omitempty"`
+}
+
+// SwitchInlineQueryChosenChat describes chat filters for switching to inline mode.
+type SwitchInlineQueryChosenChat struct {
+	Query             string `json:"query,omitempty"`
+	AllowUserChats    bool   `json:"allow_user_chats,omitempty"`
+	AllowBotChats     bool   `json:"allow_bot_chats,omitempty"`
+	AllowGroupChats   bool   `json:"allow_group_chats,omitempty"`
+	AllowChannelChats bool   `json:"allow_channel_chats,omitempty"`
+}
+
+// CopyTextButton describes text copied to the clipboard by an inline keyboard button.
+type CopyTextButton struct {
+	Text string `json:"text"`
 }
 
 // ReplyKeyboardMarkup represents a custom reply keyboard.
@@ -71,12 +101,20 @@ type KeyboardButtonRequestManagedBot struct {
 // KeyboardButton represents one custom reply keyboard button.
 type KeyboardButton struct {
 	Text              string                           `json:"text"`
+	IconCustomEmojiID string                           `json:"icon_custom_emoji_id,omitempty"`
+	Style             string                           `json:"style,omitempty"`
 	RequestUsers      *KeyboardButtonRequestUsers      `json:"request_users,omitempty"`
 	RequestChat       *KeyboardButtonRequestChat       `json:"request_chat,omitempty"`
 	RequestManagedBot *KeyboardButtonRequestManagedBot `json:"request_managed_bot,omitempty"`
 	RequestContact    bool                             `json:"request_contact,omitempty"`
 	RequestLocation   bool                             `json:"request_location,omitempty"`
+	RequestPoll       *KeyboardButtonPollType          `json:"request_poll,omitempty"`
 	WebApp            *WebAppInfo                      `json:"web_app,omitempty"`
+}
+
+// KeyboardButtonPollType represents a poll type requested by a reply keyboard button.
+type KeyboardButtonPollType struct {
+	Type string `json:"type,omitempty"`
 }
 
 // ReplyKeyboardRemove requests removal of a custom reply keyboard.
@@ -117,9 +155,39 @@ func InlineButtonWebApp(text string, url string) InlineKeyboardButton {
 	return InlineKeyboardButton{Text: text, WebApp: &WebAppInfo{URL: url}}
 }
 
+// InlineButtonLoginURL creates an inline keyboard button with Telegram login authorization.
+func InlineButtonLoginURL(text string, rawURL string) InlineKeyboardButton {
+	return InlineKeyboardButton{Text: text, LoginURL: &LoginUrl{URL: rawURL}}
+}
+
+// InlineButtonSwitchInlineQuery creates an inline keyboard button that switches to inline mode.
+func InlineButtonSwitchInlineQuery(text string, query string) InlineKeyboardButton {
+	return InlineKeyboardButton{Text: text, SwitchInlineQuery: &query}
+}
+
+// InlineButtonSwitchInlineQueryCurrentChat creates an inline keyboard button that switches inline mode in the current chat.
+func InlineButtonSwitchInlineQueryCurrentChat(text string, query string) InlineKeyboardButton {
+	return InlineKeyboardButton{Text: text, SwitchInlineQueryCurrentChat: &query}
+}
+
+// InlineButtonSwitchInlineQueryChosenChat creates an inline keyboard button that switches inline mode in a chosen chat.
+func InlineButtonSwitchInlineQueryChosenChat(text string, options SwitchInlineQueryChosenChat) InlineKeyboardButton {
+	return InlineKeyboardButton{Text: text, SwitchInlineQueryChosenChat: &options}
+}
+
+// InlineButtonCopyText creates an inline keyboard button that copies text to the clipboard.
+func InlineButtonCopyText(text string, copyText string) InlineKeyboardButton {
+	return InlineKeyboardButton{Text: text, CopyText: &CopyTextButton{Text: copyText}}
+}
+
 // InlineButtonGame creates an inline keyboard button that launches a game.
 func InlineButtonGame(text string) InlineKeyboardButton {
 	return InlineKeyboardButton{Text: text, CallbackGame: &CallbackGame{}}
+}
+
+// InlineButtonPay creates an inline keyboard button that pays an invoice.
+func InlineButtonPay(text string) InlineKeyboardButton {
+	return InlineKeyboardButton{Text: text, Pay: true}
 }
 
 // NewReplyKeyboard creates a ReplyKeyboardMarkup from rows of buttons.
@@ -140,6 +208,11 @@ func KeyboardButtonContact(text string) KeyboardButton {
 // KeyboardButtonLocation creates a reply keyboard button that requests a location.
 func KeyboardButtonLocation(text string) KeyboardButton {
 	return KeyboardButton{Text: text, RequestLocation: true}
+}
+
+// KeyboardButtonPoll creates a reply keyboard button that requests a poll.
+func KeyboardButtonPoll(text string, pollType string) KeyboardButton {
+	return KeyboardButton{Text: text, RequestPoll: &KeyboardButtonPollType{Type: pollType}}
 }
 
 // KeyboardButtonUsers creates a reply keyboard button that requests users.
@@ -204,8 +277,8 @@ func validateInlineKeyboard(markup InlineKeyboardMarkup) error {
 			if err := validateInlineKeyboardButton(button); err != nil {
 				return err
 			}
-			if button.CallbackGame != nil && (rowIndex != 0 || buttonIndex != 0) {
-				return stderrors.New("inline keyboard callback_game button must be first")
+			if (button.CallbackGame != nil || button.Pay) && (rowIndex != 0 || buttonIndex != 0) {
+				return stderrors.New("inline keyboard callback_game and pay buttons must be first")
 			}
 		}
 	}
@@ -217,10 +290,13 @@ func validateInlineKeyboardButton(button InlineKeyboardButton) error {
 	if strings.TrimSpace(button.Text) == "" {
 		return stderrors.New("inline keyboard button text is required")
 	}
+	if err := validateButtonPresentation(button.IconCustomEmojiID, button.Style, "inline keyboard button"); err != nil {
+		return err
+	}
 	actions := 0
 	if button.URL != "" {
 		actions++
-		if err := validateHTTPURL(button.URL, "inline keyboard button URL"); err != nil {
+		if err := validateInlineKeyboardURL(button.URL, "inline keyboard button URL"); err != nil {
 			return err
 		}
 	}
@@ -236,7 +312,31 @@ func validateInlineKeyboardButton(button InlineKeyboardButton) error {
 			return err
 		}
 	}
+	if button.LoginURL != nil {
+		actions++
+		if err := validateLoginURL(*button.LoginURL); err != nil {
+			return err
+		}
+	}
+	if button.SwitchInlineQuery != nil {
+		actions++
+	}
+	if button.SwitchInlineQueryCurrentChat != nil {
+		actions++
+	}
+	if button.SwitchInlineQueryChosenChat != nil {
+		actions++
+	}
+	if button.CopyText != nil {
+		actions++
+		if strings.TrimSpace(button.CopyText.Text) == "" {
+			return stderrors.New("inline keyboard copy_text text is required")
+		}
+	}
 	if button.CallbackGame != nil {
+		actions++
+	}
+	if button.Pay {
 		actions++
 	}
 	if actions != 1 {
@@ -272,6 +372,9 @@ func ValidateKeyboardButton(button KeyboardButton) error {
 	if strings.TrimSpace(button.Text) == "" {
 		return stderrors.New("keyboard button text is required")
 	}
+	if err := validateButtonPresentation(button.IconCustomEmojiID, button.Style, "keyboard button"); err != nil {
+		return err
+	}
 
 	actions := keyboardButtonRequestActionCount(button)
 	if actions > 1 {
@@ -285,6 +388,9 @@ func ValidateKeyboardButton(button KeyboardButton) error {
 	}
 	if button.RequestManagedBot != nil {
 		return validateKeyboardButtonRequestManagedBot(*button.RequestManagedBot)
+	}
+	if button.RequestPoll != nil {
+		return validateKeyboardButtonPollType(*button.RequestPoll)
 	}
 	if button.WebApp != nil {
 		return validateWebAppInfo(*button.WebApp, "keyboard button web_app")
@@ -331,6 +437,9 @@ func keyboardButtonRequestActionCount(button KeyboardButton) int {
 	if button.RequestLocation {
 		actions++
 	}
+	if button.RequestPoll != nil {
+		actions++
+	}
 	if button.WebApp != nil {
 		actions++
 	}
@@ -356,6 +465,15 @@ func validateKeyboardButtonRequestChat(request KeyboardButtonRequestChat) error 
 
 func validateKeyboardButtonRequestManagedBot(request KeyboardButtonRequestManagedBot) error {
 	return validateRequestID(request.RequestID, "keyboard button request_managed_bot request_id")
+}
+
+func validateKeyboardButtonPollType(request KeyboardButtonPollType) error {
+	switch request.Type {
+	case "", "quiz", "regular":
+		return nil
+	default:
+		return stderrors.New("keyboard button request_poll type must be quiz or regular")
+	}
 }
 
 func validateRequestID(requestID int, field string) error {
@@ -400,6 +518,51 @@ func validateHTTPURL(rawURL string, field string) error {
 	}
 
 	return nil
+}
+
+func validateInlineKeyboardURL(rawURL string, field string) error {
+	parsed, err := url.Parse(rawURL)
+	if err != nil {
+		return stderrors.New(field + " must be a valid URL")
+	}
+	switch parsed.Scheme {
+	case "http", "https", "tg":
+	default:
+		return stderrors.New(field + " scheme must be http, https, or tg")
+	}
+	if parsed.Scheme != "tg" && parsed.Host == "" {
+		return stderrors.New(field + " host is required")
+	}
+	return nil
+}
+
+func validateLoginURL(loginURL LoginUrl) error {
+	if strings.TrimSpace(loginURL.URL) == "" {
+		return stderrors.New("inline keyboard login_url URL is required")
+	}
+	parsed, err := url.Parse(loginURL.URL)
+	if err != nil {
+		return stderrors.New("inline keyboard login_url URL must be a valid HTTPS URL")
+	}
+	if parsed.Scheme != "https" {
+		return stderrors.New("inline keyboard login_url URL scheme must be https")
+	}
+	if parsed.Host == "" {
+		return stderrors.New("inline keyboard login_url URL host is required")
+	}
+	return nil
+}
+
+func validateButtonPresentation(iconCustomEmojiID string, style string, field string) error {
+	if iconCustomEmojiID != "" && strings.TrimSpace(iconCustomEmojiID) == "" {
+		return stderrors.New(field + " icon_custom_emoji_id must not be blank")
+	}
+	switch style {
+	case "", "danger", "success", "primary":
+		return nil
+	default:
+		return stderrors.New(field + " style must be danger, success, or primary")
+	}
 }
 
 func validateWebAppInfo(info WebAppInfo, field string) error {

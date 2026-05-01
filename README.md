@@ -14,7 +14,7 @@ The latest public release is `v0.2.0`. Local development is now focused on reach
 - Dispatcher/router: supports predicates, message/command/callback routes, middleware, fallback, and error handling.
 - Middleware helpers: recover, timeout, hook-based observability, and reusable access control are available.
 - Long polling transport: managed runner is available. Webhook transport: inbound HTTP handler is available.
-- Telegram Bot API method coverage: `GetMe`, `LogOut`, `Close`, `GetUserProfilePhotos`, `GetUserProfileAudios`, `GetForumTopicIconStickers`, `SetUserEmojiStatus`, `VerifyUser`, `VerifyChat`, `RemoveUserVerification`, `RemoveChatVerification`, `GetUserChatBoosts`, `SetChatMemberTag`, `BanChatSenderChat`, `UnbanChatSenderChat`, `SendMessage`, `SendPhoto`, `SendDocument`, `SendVideo`, `SendAudio`, `SendVoice`, `SendContact`, `SendLocation`, `SendVenue`, `SendPoll`, `StopPoll`, `SendChecklist`, `EditMessageChecklist`, `SendMessageDraft`, `SendDice`, `SendGame`, `SetGameScore`, `GetGameHighScores`, `SetPassportDataErrors`, `SendSticker`, `SendAnimation`, `SendVideoNote`, `SendMediaGroup`, `GetStickerSet`, `GetCustomEmojiStickers`, `UploadStickerFile`, `CreateNewStickerSet`, `AddStickerToSet`, `SetStickerPositionInSet`, `DeleteStickerFromSet`, `ReplaceStickerInSet`, `SetStickerEmojiList`, `SetStickerKeywords`, `SetStickerMaskPosition`, `SetStickerSetTitle`, `SetStickerSetThumbnail`, `SetCustomEmojiStickerSetThumbnail`, `DeleteStickerSet`, `SetMyCommands`, `DeleteMyCommands`, `GetMyCommands`, `SetChatMenuButton`, `GetChatMenuButton`, `SetMyDefaultAdministratorRights`, `SetMyName`, `GetMyName`, `SetMyDescription`, `GetMyDescription`, `SetMyShortDescription`, `GetMyShortDescription`, `GetMyDefaultAdministratorRights`, `SetMyProfilePhoto`, `RemoveMyProfilePhoto`, `AnswerCallbackQuery`, `AnswerWebAppQuery`, `GetBusinessConnection`, `DeleteBusinessMessages`, `ReadBusinessMessage`, `SetBusinessAccountName`, `SetBusinessAccountUsername`, `SetBusinessAccountBio`, `SetBusinessAccountProfilePhoto`, `RemoveBusinessAccountProfilePhoto`, `SetBusinessAccountGiftSettings`, `PostStory`, `EditStory`, `DeleteStory`, `ApproveSuggestedPost`, `DeclineSuggestedPost`, `EditMessageText`, `EditMessageCaption`, `EditMessageReplyMarkup`, `EditMessageMedia`, `EditMessageLiveLocation`, `StopMessageLiveLocation`, `DeleteMessage`, `DeleteMessages`, `ForwardMessage`, `ForwardMessages`, `CopyMessage`, `CopyMessages`, `SendChatAction`, `PinChatMessage`, `UnpinChatMessage`, `UnpinAllChatMessages`, `GetChat`, `GetChatMember`, `GetChatAdministrators`, `GetChatMemberCount`, `SetChatTitle`, `SetChatDescription`, `SetChatPhoto`, `DeleteChatPhoto`, `LeaveChat`, `SetChatStickerSet`, `DeleteChatStickerSet`, `CreateForumTopic`, `EditForumTopic`, `CloseForumTopic`, `ReopenForumTopic`, `DeleteForumTopic`, `UnpinAllForumTopicMessages`, `EditGeneralForumTopic`, `CloseGeneralForumTopic`, `ReopenGeneralForumTopic`, `HideGeneralForumTopic`, `UnhideGeneralForumTopic`, `UnpinAllGeneralForumTopicMessages`, `SetMessageReaction`, `SendInvoice`, `CreateInvoiceLink`, `AnswerShippingQuery`, `AnswerPreCheckoutQuery`, `SendPaidMedia`, `GetAvailableGifts`, `SendGift`, `GiftPremiumSubscription`, `GetBusinessAccountStarBalance`, `TransferBusinessAccountStars`, `GetBusinessAccountGifts`, `GetUserGifts`, `GetChatGifts`, `ConvertGiftToStars`, `UpgradeGift`, `TransferGift`, `GetMyStarBalance`, `GetStarTransactions`, `RefundStarPayment`, `EditUserStarSubscription`, `SavePreparedKeyboardButton`, `GetManagedBotToken`, `ReplaceManagedBotToken`, `ExportChatInviteLink`, `CreateChatInviteLink`, `EditChatInviteLink`, `CreateChatSubscriptionInviteLink`, `EditChatSubscriptionInviteLink`, `RevokeChatInviteLink`, `ApproveChatJoinRequest`, `DeclineChatJoinRequest`, `PromoteChatMember`, `SetChatAdministratorCustomTitle`, `SetChatPermissions`, `BanChatMember`, `UnbanChatMember`, `RestrictChatMember`, reply markup for supported send and edit methods, the manual `GetUpdates` API call, `GetFile`, `DownloadFile`, multipart upload for media send methods, and JSON-only webhook management methods (`SetWebhook`, `DeleteWebhook`, `GetWebhookInfo`) are implemented. The rest of the Bot API is not implemented yet; see [`docs/BOT_API_9_6_AUDIT.md`](docs/BOT_API_9_6_AUDIT.md) for the precise Stage 88 gap list.
+- Telegram Bot API method coverage: `GetMe`, `LogOut`, `Close`, `GetUserProfilePhotos`, `GetUserProfileAudios`, `GetForumTopicIconStickers`, `SetUserEmojiStatus`, `VerifyUser`, `VerifyChat`, `RemoveUserVerification`, `RemoveChatVerification`, `GetUserChatBoosts`, `SetChatMemberTag`, `BanChatSenderChat`, `UnbanChatSenderChat`, `SendMessage`, `SendPhoto`, `SendDocument`, `SendVideo`, `SendAudio`, `SendVoice`, `SendContact`, `SendLocation`, `SendVenue`, `SendPoll`, `StopPoll`, `SendChecklist`, `EditMessageChecklist`, `SendMessageDraft`, `SendDice`, `SendGame`, `SetGameScore`, `GetGameHighScores`, `SetPassportDataErrors`, `SendSticker`, `SendAnimation`, `SendVideoNote`, `SendMediaGroup`, `GetStickerSet`, `GetCustomEmojiStickers`, `UploadStickerFile`, `CreateNewStickerSet`, `AddStickerToSet`, `SetStickerPositionInSet`, `DeleteStickerFromSet`, `ReplaceStickerInSet`, `SetStickerEmojiList`, `SetStickerKeywords`, `SetStickerMaskPosition`, `SetStickerSetTitle`, `SetStickerSetThumbnail`, `SetCustomEmojiStickerSetThumbnail`, `DeleteStickerSet`, `SetMyCommands`, `DeleteMyCommands`, `GetMyCommands`, `SetChatMenuButton`, `GetChatMenuButton`, `SetMyDefaultAdministratorRights`, `SetMyName`, `GetMyName`, `SetMyDescription`, `GetMyDescription`, `SetMyShortDescription`, `GetMyShortDescription`, `GetMyDefaultAdministratorRights`, `SetMyProfilePhoto`, `RemoveMyProfilePhoto`, `AnswerCallbackQuery`, `AnswerWebAppQuery`, `GetBusinessConnection`, `DeleteBusinessMessages`, `ReadBusinessMessage`, `SetBusinessAccountName`, `SetBusinessAccountUsername`, `SetBusinessAccountBio`, `SetBusinessAccountProfilePhoto`, `RemoveBusinessAccountProfilePhoto`, `SetBusinessAccountGiftSettings`, `PostStory`, `EditStory`, `DeleteStory`, `ApproveSuggestedPost`, `DeclineSuggestedPost`, `EditMessageText`, `EditMessageCaption`, `EditMessageReplyMarkup`, `EditMessageMedia`, `EditMessageLiveLocation`, `StopMessageLiveLocation`, `DeleteMessage`, `DeleteMessages`, `ForwardMessage`, `ForwardMessages`, `CopyMessage`, `CopyMessages`, `SendChatAction`, `PinChatMessage`, `UnpinChatMessage`, `UnpinAllChatMessages`, `GetChat`, `GetChatMember`, `GetChatAdministrators`, `GetChatMemberCount`, `SetChatTitle`, `SetChatDescription`, `SetChatPhoto`, `DeleteChatPhoto`, `LeaveChat`, `SetChatStickerSet`, `DeleteChatStickerSet`, `CreateForumTopic`, `EditForumTopic`, `CloseForumTopic`, `ReopenForumTopic`, `DeleteForumTopic`, `UnpinAllForumTopicMessages`, `EditGeneralForumTopic`, `CloseGeneralForumTopic`, `ReopenGeneralForumTopic`, `HideGeneralForumTopic`, `UnhideGeneralForumTopic`, `UnpinAllGeneralForumTopicMessages`, `SetMessageReaction`, `SendInvoice`, `CreateInvoiceLink`, `AnswerShippingQuery`, `AnswerPreCheckoutQuery`, `SendPaidMedia`, `GetAvailableGifts`, `SendGift`, `GiftPremiumSubscription`, `GetBusinessAccountStarBalance`, `TransferBusinessAccountStars`, `GetBusinessAccountGifts`, `GetUserGifts`, `GetChatGifts`, `ConvertGiftToStars`, `UpgradeGift`, `TransferGift`, `GetMyStarBalance`, `GetStarTransactions`, `RefundStarPayment`, `EditUserStarSubscription`, `SavePreparedKeyboardButton`, `SavePreparedInlineMessage`, `GetManagedBotToken`, `ReplaceManagedBotToken`, `ExportChatInviteLink`, `CreateChatInviteLink`, `EditChatInviteLink`, `CreateChatSubscriptionInviteLink`, `EditChatSubscriptionInviteLink`, `RevokeChatInviteLink`, `ApproveChatJoinRequest`, `DeclineChatJoinRequest`, `PromoteChatMember`, `SetChatAdministratorCustomTitle`, `SetChatPermissions`, `BanChatMember`, `UnbanChatMember`, `RestrictChatMember`, reply markup for supported send and edit methods, the manual `GetUpdates` API call, `GetFile`, `DownloadFile`, multipart upload for media send methods, and JSON-only webhook management methods (`SetWebhook`, `DeleteWebhook`, `GetWebhookInfo`) are implemented. The rest of the Bot API is not implemented yet; see [`docs/BOT_API_9_6_AUDIT.md`](docs/BOT_API_9_6_AUDIT.md) for the precise Stage 88 gap list.
 - Public API stability: not guaranteed before the first stable release.
 - Latest public release: `v0.2.0`.
 - Current local strategy: full Telegram Bot API 9.6 coverage before the next push/tag/release.
@@ -775,7 +775,7 @@ if err := d.OnInlineQueryFunc(func(ctx context.Context, update telegram.Update) 
 ```
 
 
-WebApp / Mini App support includes `AnswerWebAppQuery`, `SentWebAppMessage`, `web_app_data` messages, `write_access_allowed` service messages, and Web App buttons in inline/reply keyboards, menu buttons, and inline query results buttons. Mini App live testing requires explicit setup and is manual-only; do not log raw Web App payloads:
+WebApp / Mini App support includes `AnswerWebAppQuery`, `SentWebAppMessage`, `web_app_data` messages, `write_access_allowed` service messages, prepared inline messages, and Web App buttons in inline/reply keyboards, menu buttons, and inline query results buttons. Mini App live testing requires explicit setup and is manual-only; do not log raw Web App payloads:
 
 ```go
 sent, err := b.AnswerWebAppQuery(ctx, aigram.AnswerWebAppQueryParams{
@@ -790,6 +790,24 @@ if err != nil {
     return err
 }
 fmt.Println("inline message:", sent.InlineMessageID)
+```
+
+Prepared inline messages can be saved for Mini App users with `SavePreparedInlineMessage` and any supported `InlineQueryResult`:
+
+```go
+prepared, err := b.SavePreparedInlineMessage(ctx, aigram.SavePreparedInlineMessageParams{
+    UserID: 123456789,
+    Result: aigram.InlineArticle(
+        "prepared-article",
+        "Prepared response",
+        aigram.InputText("Prepared Mini App response"),
+    ),
+    AllowUserChats: true,
+})
+if err != nil {
+    return err
+}
+fmt.Println("prepared inline message:", prepared.ID)
 ```
 
 
@@ -943,7 +961,7 @@ if err != nil {
 _ = managedToken // Treat as secret; never print or log it.
 ```
 
-Reply markup currently supports inline keyboards, reply keyboards, Web App buttons, keyboard removal, and force reply for send methods. Edit methods intentionally accept only inline keyboard markup. `AnswerCallbackQuery` can acknowledge callback taps with a toast or alert. `editMessageMedia`, LoginUrl buttons, and a keyboard builder DSL will be added separately later.
+Reply markup supports inline keyboards, reply keyboards, Web App buttons, LoginUrl buttons, switch-inline buttons, copy-text buttons, pay buttons, request-poll reply buttons, button icon/style fields, keyboard removal, and force reply for send methods. Edit methods intentionally accept only inline keyboard markup. `AnswerCallbackQuery` can acknowledge callback taps with a toast or alert. A higher-level keyboard builder DSL may be added separately later.
 
 Protect handlers with access control middleware:
 
@@ -1374,7 +1392,7 @@ if err != nil {
 fmt.Println(ok)
 ```
 
-Webhook management is JSON-only for now. Webhook certificate upload, `ChatFullInfo`, channel post and standalone poll updates, prepared inline messages, complete reply markup fields such as `LoginUrl`, full service-message field coverage, FSM, scenes, storage, dependency injection, and full Bot API coverage are not implemented yet. The Stage 88 audit tracks the exact remaining Bot API 9.6 gaps.
+Webhook management is JSON-only for now. Webhook certificate upload, `ChatFullInfo`, channel post and standalone poll updates, full service-message field coverage, FSM, scenes, storage, dependency injection, and full Bot API coverage are not implemented yet. The Stage 88 audit tracks the exact remaining Bot API 9.6 gaps.
 
 
 ## Examples

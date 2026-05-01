@@ -24,15 +24,14 @@ This plan is a working checklist derived from the official documentation and cha
 
 Stage 88 compared the current local implementation with the official Telegram Bot API documentation and the April 3, 2026 Bot API 9.6 changelog. Full coverage is **not yet reached**. The precise missing method/type/field checklist now lives in [`docs/BOT_API_9_6_AUDIT.md`](BOT_API_9_6_AUDIT.md).
 
-Top pending method groups after Stage 94:
+Top pending method groups after Stage 95:
 
-- Business/Mini App follow-ups: `repostStory`, `savePreparedInlineMessage`.
+- Business/Mini App follow-ups: `repostStory`.
 
 Top pending type/field groups:
 
 - `ChatFullInfo`, full `User`/`Chat` metadata, and channel post update fields;
 - optional concrete chat member variants plus background/service-message types;
-- reply markup completion (`LoginUrl`, switch-inline, copy-text, pay, request-poll, icon/style fields);
 - video quality/cover/start metadata and remaining direct-message metadata.
 
 
@@ -190,6 +189,10 @@ Stage 93 implemented structured poll options (`InputPollOption` and `Poll.questi
 
 Stage 94 implemented reply and message metadata coverage: `MessageOrigin` variants, `ExternalReplyInfo`, `TextQuote`, `InaccessibleMessage`, `MaybeInaccessibleMessage`, `ReplyParameters` cross-chat/quote/checklist fields, and high-impact `Message` metadata fields such as `forward_origin`, `reply_to_message`, `external_reply`, `quote`, `reply_to_story`, `direct_messages_topic`, `suggested_post_info`, `pinned_message`, sender metadata, caption/media flags, and star/effect metadata. Callback queries now preserve the existing `Message` field for accessible messages and expose `MaybeMessage` for inaccessible callback messages.
 
+## Stage 95 result
+
+Stage 95 implemented prepared inline message and reply-markup completion coverage: `SavePreparedInlineMessage`, `PreparedInlineMessage`, `LoginUrl`, `SwitchInlineQueryChosenChat`, `CopyTextButton`, `KeyboardButtonPollType`, `KeyboardButton.request_poll`, `InlineKeyboardButton.pay`, and keyboard button `icon_custom_emoji_id`/`style` fields. Prepared inline and rich button flows remain manual-only for live testing.
+
 ### Reactions
 
 - [x] `SetMessageReaction`
@@ -274,7 +277,7 @@ Stage 72 implements the first inline foundation: incoming inline query updates, 
 
 ### WebApp, prepared buttons, and Mini App related coverage
 
-Stage 80 implements the remaining Bot API WebApp / Mini App support that belongs to the core Bot API surface. Mini App JavaScript methods such as `requestChat` live in the client-side WebApp API and are not Go Bot API methods.
+Stages 80 and 95 implement the remaining Bot API WebApp / Mini App support that belongs to the core Bot API surface. Mini App JavaScript methods such as `requestChat` live in the client-side WebApp API and are not Go Bot API methods.
 
 - [x] `AnswerWebAppQuery`
 - [x] `SentWebAppMessage`
@@ -287,6 +290,14 @@ Stage 80 implements the remaining Bot API WebApp / Mini App support that belongs
 - [x] `KeyboardButtonRequestUsers`
 - [x] `KeyboardButtonRequestChat`
 - [x] `KeyboardButtonRequestManagedBot`
+- [x] `KeyboardButtonPollType` / `KeyboardButton.request_poll`
+- [x] `LoginUrl` / `InlineKeyboardButton.login_url`
+- [x] `SwitchInlineQueryChosenChat` / switch-inline button fields
+- [x] `CopyTextButton` / `InlineKeyboardButton.copy_text`
+- [x] `InlineKeyboardButton.pay`
+- [x] button `icon_custom_emoji_id` and `style` fields
+- [x] `PreparedInlineMessage`
+- [x] `SavePreparedInlineMessage`
 
 ### Managed Bots, Bot API 9.6
 
@@ -436,7 +447,7 @@ Recommended local-only stages after the Stage 88 audit:
 4. Stage 92 completed: subscription invite links.
 5. Stage 93 completed: checklists, message drafts, and structured poll options.
 6. Stage 94 completed: reply and message metadata types.
-7. Stage 95: prepared inline messages and reply-markup completion.
+7. Stage 95 completed: prepared inline messages and reply-markup completion.
 8. Stage 96: business/direct-message story completion (`repostStory`) plus remaining message/service metadata.
 9. Stage 97: `ChatFullInfo`/video metadata and service-message completeness.
 10. Final official-doc audit and release-readiness review after the missing checklist is empty.

@@ -936,6 +936,9 @@ type EditUserStarSubscriptionParams = bot.EditUserStarSubscriptionParams
 // SavePreparedKeyboardButtonParams contains supported parameters for savePreparedKeyboardButton.
 type SavePreparedKeyboardButtonParams = bot.SavePreparedKeyboardButtonParams
 
+// SavePreparedInlineMessageParams contains supported parameters for savePreparedInlineMessage.
+type SavePreparedInlineMessageParams = bot.SavePreparedInlineMessageParams
+
 // GetManagedBotTokenParams contains supported parameters for getManagedBotToken.
 type GetManagedBotTokenParams = bot.GetManagedBotTokenParams
 
@@ -948,11 +951,23 @@ type InlineKeyboardMarkup = telegram.InlineKeyboardMarkup
 // InlineKeyboardButton represents one inline keyboard button.
 type InlineKeyboardButton = telegram.InlineKeyboardButton
 
+// LoginUrl represents an automatic Telegram login URL for an inline keyboard button.
+type LoginUrl = telegram.LoginUrl
+
+// SwitchInlineQueryChosenChat describes chat filters for switching to inline mode.
+type SwitchInlineQueryChosenChat = telegram.SwitchInlineQueryChosenChat
+
+// CopyTextButton describes text copied to the clipboard by an inline keyboard button.
+type CopyTextButton = telegram.CopyTextButton
+
 // ReplyKeyboardMarkup represents a custom reply keyboard.
 type ReplyKeyboardMarkup = telegram.ReplyKeyboardMarkup
 
 // KeyboardButton represents one custom reply keyboard button.
 type KeyboardButton = telegram.KeyboardButton
+
+// KeyboardButtonPollType represents a poll type requested by a reply keyboard button.
+type KeyboardButtonPollType = telegram.KeyboardButtonPollType
 
 // KeyboardButtonRequestUsers defines criteria for requesting users with a reply keyboard button.
 type KeyboardButtonRequestUsers = telegram.KeyboardButtonRequestUsers
@@ -965,6 +980,9 @@ type KeyboardButtonRequestManagedBot = telegram.KeyboardButtonRequestManagedBot
 
 // PreparedKeyboardButton describes a saved keyboard button for Mini App use.
 type PreparedKeyboardButton = telegram.PreparedKeyboardButton
+
+// PreparedInlineMessage describes an inline message saved for a Mini App user.
+type PreparedInlineMessage = telegram.PreparedInlineMessage
 
 // ReplyKeyboardRemove requests removal of a custom reply keyboard.
 type ReplyKeyboardRemove = telegram.ReplyKeyboardRemove
@@ -1280,6 +1298,36 @@ func InlineButtonWebApp(text string, url string) InlineKeyboardButton {
 	return telegram.InlineButtonWebApp(text, url)
 }
 
+// InlineButtonLoginURL creates an inline keyboard button with Telegram login authorization.
+func InlineButtonLoginURL(text string, rawURL string) InlineKeyboardButton {
+	return telegram.InlineButtonLoginURL(text, rawURL)
+}
+
+// InlineButtonSwitchInlineQuery creates an inline keyboard button that switches to inline mode.
+func InlineButtonSwitchInlineQuery(text string, query string) InlineKeyboardButton {
+	return telegram.InlineButtonSwitchInlineQuery(text, query)
+}
+
+// InlineButtonSwitchInlineQueryCurrentChat creates an inline keyboard button that switches inline mode in the current chat.
+func InlineButtonSwitchInlineQueryCurrentChat(text string, query string) InlineKeyboardButton {
+	return telegram.InlineButtonSwitchInlineQueryCurrentChat(text, query)
+}
+
+// InlineButtonSwitchInlineQueryChosenChat creates an inline keyboard button that switches inline mode in a chosen chat.
+func InlineButtonSwitchInlineQueryChosenChat(text string, options SwitchInlineQueryChosenChat) InlineKeyboardButton {
+	return telegram.InlineButtonSwitchInlineQueryChosenChat(text, options)
+}
+
+// InlineButtonCopyText creates an inline keyboard button that copies text to the clipboard.
+func InlineButtonCopyText(text string, copyText string) InlineKeyboardButton {
+	return telegram.InlineButtonCopyText(text, copyText)
+}
+
+// InlineButtonPay creates an inline keyboard button that pays an invoice.
+func InlineButtonPay(text string) InlineKeyboardButton {
+	return telegram.InlineButtonPay(text)
+}
+
 // NewReplyKeyboard creates a ReplyKeyboardMarkup from rows of buttons.
 func NewReplyKeyboard(rows ...[]KeyboardButton) ReplyKeyboardMarkup {
 	return telegram.NewReplyKeyboard(rows...)
@@ -1298,6 +1346,11 @@ func KeyboardButtonContact(text string) KeyboardButton {
 // KeyboardButtonLocation creates a reply keyboard button that requests a location.
 func KeyboardButtonLocation(text string) KeyboardButton {
 	return telegram.KeyboardButtonLocation(text)
+}
+
+// KeyboardButtonPoll creates a reply keyboard button that requests a poll.
+func KeyboardButtonPoll(text string, pollType string) KeyboardButton {
+	return telegram.KeyboardButtonPoll(text, pollType)
 }
 
 // KeyboardButtonUsers creates a reply keyboard button that requests users.

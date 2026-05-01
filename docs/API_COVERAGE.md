@@ -68,7 +68,7 @@ This document maps the current `ai-gram` implementation to Telegram Bot API area
 | `telegram.ReplyParameters` | send/copy reply payload | unit | Supports `message_id`, cross-chat `chat_id`, `allow_sending_without_reply`, quote fields, Bot API 9.6 `checklist_task_id`, and `poll_option_id`. |
 | `telegram.MessageOrigin*`, `ExternalReplyInfo`, `TextQuote` | message reply/forward metadata | unit | Decodes `forward_origin`, `external_reply`, `quote`, `reply_to_message`, `reply_to_story`, direct-message topic, suggested-post, caption/media, star, and sender metadata fields. |
 | `telegram.MaybeInaccessibleMessage`, `InaccessibleMessage` | inaccessible message references | unit | Decodes accessible and inaccessible pinned/callback messages while preserving the legacy `CallbackQuery.Message` pointer for accessible messages. |
-| `telegram.ReplyMarkup` implementations | send/edit reply markup | unit, live examples | Inline keyboard, reply keyboard, remove keyboard, force reply. Edit methods accept inline keyboard only. |
+| `telegram.ReplyMarkup` implementations | send/edit reply markup | unit, live examples | Inline keyboard, reply keyboard, remove keyboard, force reply. Inline buttons support URL, callback, Web App, LoginUrl, switch-inline, copy-text, game, pay, icon, and style fields. Reply keyboard buttons support request users/chat/managed bot/contact/location/poll, Web App, icon, and style fields. Edit methods accept inline keyboard only. |
 
 ### Media/files
 
@@ -202,12 +202,14 @@ This document maps the current `ai-gram` implementation to Telegram Bot API area
 | --- | --- | --- | --- |
 | `telegram.User.CanManageBots` | `User.can_manage_bots` | unit | Decodes Bot API 9.6 managed-bot capability returned by `getMe`. |
 | `telegram.KeyboardButtonRequestManagedBot`, `telegram.KeyboardButton.RequestManagedBot` | `KeyboardButton.request_managed_bot` | unit | Request keyboard support for managed bot creation. |
-| `telegram.KeyboardButtonRequestUsers`, `telegram.KeyboardButtonRequestChat` | `KeyboardButton.request_users`, `KeyboardButton.request_chat` | unit | Request keyboard support needed by prepared keyboard button validation. |
+| `telegram.KeyboardButtonRequestUsers`, `telegram.KeyboardButtonRequestChat`, `telegram.KeyboardButtonPollType` | `KeyboardButton.request_users`, `KeyboardButton.request_chat`, `KeyboardButton.request_poll` | unit | Request keyboard support needed by prepared keyboard button validation and poll request buttons. |
 | `telegram.ManagedBotCreated` | `Message.managed_bot_created` | unit | Decodes service messages for newly created managed bots. |
 | `telegram.ManagedBotUpdated` | `Update.managed_bot` | unit | Decodes managed bot creation/token/owner updates and supports `EffectiveUser` without inventing an effective chat. |
 | `dispatch.ManagedBot` | dispatch predicate/helper | unit | Includes `OnManagedBot` handler registration helpers. |
 | `telegram.PreparedKeyboardButton` | `PreparedKeyboardButton` | unit/httptest | Decodes saved Mini App keyboard button identifiers. |
 | `(*bot.Bot).SavePreparedKeyboardButton` | `savePreparedKeyboardButton` | unit/httptest | Stores request-users, request-chat, or request-managed-bot buttons for Mini App users. Manual-only live smoke. |
+| `telegram.PreparedInlineMessage` | `PreparedInlineMessage` | unit/httptest | Decodes saved Mini App prepared inline message identifiers and expiration time. |
+| `(*bot.Bot).SavePreparedInlineMessage` | `savePreparedInlineMessage` | unit/httptest | Stores inline query result payloads for Mini App users. Manual-only live smoke. |
 | `(*bot.Bot).GetManagedBotToken` | `getManagedBotToken` | unit/httptest | Returns a managed bot token; callers must treat the result as secret. Manual-only live smoke. |
 | `(*bot.Bot).ReplaceManagedBotToken` | `replaceManagedBotToken` | unit/httptest | Revokes and replaces a managed bot token; callers must treat the result as secret. Manual-only live smoke. |
 
@@ -373,14 +375,13 @@ Stage 88 performed a full official-doc comparison against the Telegram Bot API d
 
 ### Missing methods from the Stage 88 audit
 
-- Business/Mini App follow-ups: `repostStory`, `savePreparedInlineMessage`.
+- Business/Mini App follow-ups: `repostStory`.
 
 ### Missing type and field groups from the Stage 88 audit
 
 - `ChatFullInfo`, fuller `User`/`Chat` metadata, channel post updates, and remaining chat metadata fields.
-- Reply markup completion: `LoginUrl`, `SwitchInlineQueryChosenChat`, `CopyTextButton`, `KeyboardButtonPollType`, request-poll, pay, icon, and style fields.
 - Service-message completeness for giveaways, chat backgrounds, video chats, proximity alerts, auto-delete timer changes, shared users/chats, paid/direct message price changes, and related message fields.
-- `VideoQuality`, video cover/start metadata, `PreparedInlineMessage`, and remaining direct-message metadata fields.
+- `VideoQuality`, video cover/start metadata, and remaining direct-message metadata fields.
 
 ### Intentional architecture differences to keep documented
 
