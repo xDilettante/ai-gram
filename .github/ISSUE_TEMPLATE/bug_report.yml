@@ -1,0 +1,62 @@
+name: Bug report
+description: Report a reproducible ai-gram bug.
+title: "bug: "
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting a bug. Do not include bot tokens, webhook secrets, private chat IDs, payment payloads, Passport data, or token-bearing URLs.
+  - type: input
+    id: version
+    attributes:
+      label: ai-gram version or commit
+      description: Use a tag, pseudo-version, or commit hash.
+      placeholder: "v0.x.y or commit hash"
+    validations:
+      required: true
+  - type: input
+    id: go-version
+    attributes:
+      label: Go version
+      placeholder: "go version go1.26 linux/amd64"
+    validations:
+      required: true
+  - type: input
+    id: area
+    attributes:
+      label: Telegram Bot API area
+      description: Method, type, transport, dispatcher, middleware, or package area.
+      placeholder: "sendMessage, webhook, dispatch, payments, business, ..."
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+      description: What did you expect to happen?
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+      description: What happened instead?
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Minimal reproduction
+      description: Provide the smallest safe code snippet or test that reproduces the issue. Redact secrets.
+      render: go
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs or error output
+      description: Paste only redacted logs. Never include tokens, secrets, private payloads, or token-bearing URLs.
+      render: text
+    validations:
+      required: false

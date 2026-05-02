@@ -4,7 +4,7 @@ This document is archived.
 
 Stage 64 proposed a small v0.3 scope focused on chat management, forum topics, reactions, and inline mode basics. Stage 65 superseded that strategy.
 
-The active strategy is now full Telegram Bot API 9.6 coverage before the next push, tag, or GitHub Release. Use [`docs/BOT_API_9_6_COVERAGE_PLAN.md`](BOT_API_9_6_COVERAGE_PLAN.md) as the source-of-truth plan.
+The active strategy became full Telegram Bot API 9.6 coverage before the next tag or GitHub Release. Use [`docs/BOT_API_9_6_COVERAGE_PLAN.md`](BOT_API_9_6_COVERAGE_PLAN.md) as the source-of-truth plan.
 
 ## Superseded recommendation
 

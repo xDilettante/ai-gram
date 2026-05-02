@@ -4,6 +4,7 @@
 
 ### Added
 
+- Repository maturity pack: GitHub Actions CI, local coverage badge generation, architecture docs, public examples, contribution policy, security policy, issue forms, and PR template.
 - Bot API 9.6 release-readiness documentation and local verification plan.
 - SetWebhook certificate upload support for the official upload-only `certificate` InputFile parameter.
 - Final Bot API 9.6 coverage audit documentation and `Message.giveaway` decoding coverage.

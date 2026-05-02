@@ -92,7 +92,7 @@ The official docs describe concrete `ChatMember*` variants. `ai-gram` keeps a fl
 
 ## Release-readiness blockers
 
-No known Bot API 9.6 code coverage blockers remain after Stage 99. Stage 100 tracks local release-readiness verification and manual-only smoke planning in [`docs/maintainer/BOT_API_9_6_RELEASE_READINESS.md`](maintainer/BOT_API_9_6_RELEASE_READINESS.md). Sensitive and state-changing live smoke remains manual-only.
+No known Bot API 9.6 code coverage blockers remain after Stage 99. Stage 100 tracks release-readiness verification and manual-only smoke planning in [`docs/maintainer/BOT_API_9_6_RELEASE_READINESS.md`](maintainer/BOT_API_9_6_RELEASE_READINESS.md). Sensitive and state-changing live smoke remains manual-only.
 
 Soft follow-up, not a release blocker if documented:
 
@@ -117,4 +117,4 @@ Decode/serialization-only areas such as reply metadata, service messages, direct
 
 ## Recommended next step
 
-Local release-readiness documentation and manual-only smoke planning are complete. The next phase is publication preparation only after explicit user approval. Do not create a repository, push, tag, or create a GitHub Release automatically.
+Release-readiness documentation and manual-only smoke planning are complete. `main` was later published only after explicit user approval. The next publication phase is creating tags or GitHub Releases only after explicit maintainer approval.

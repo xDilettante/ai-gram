@@ -1,0 +1,23 @@
+name: Question
+description: Ask a usage or design question.
+title: "question: "
+labels: [question]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Please include enough context to answer without real tokens, private chat IDs, webhook secrets, or private payloads.
+  - type: textarea
+    id: question
+    attributes:
+      label: Question
+      description: What would you like to understand?
+    validations:
+      required: true
+  - type: textarea
+    id: context
+    attributes:
+      label: Context
+      description: Include relevant package, Bot API method, transport, or dispatcher details.
+    validations:
+      required: false

@@ -1,0 +1,39 @@
+name: Feature request
+description: Suggest a new feature or Bot API addition.
+title: "feat: "
+labels: [enhancement]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        For Telegram Bot API changes, include the official documentation link and avoid speculative fields.
+  - type: input
+    id: docs
+    attributes:
+      label: Official Bot API documentation link
+      description: Required for Telegram Bot API surface changes.
+      placeholder: "https://core.telegram.org/bots/api#..."
+    validations:
+      required: false
+  - type: textarea
+    id: use-case
+    attributes:
+      label: Use case
+      description: What are you trying to build?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed API shape
+      description: Describe the Go API, params, result type, or package behavior you expect.
+      render: go
+    validations:
+      required: false
+  - type: textarea
+    id: compatibility
+    attributes:
+      label: Compatibility concerns
+      description: Mention breaking-change risks, migration concerns, or interactions with existing packages.
+    validations:
+      required: false

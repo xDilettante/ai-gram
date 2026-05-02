@@ -39,6 +39,8 @@ Checklist:
 - The example deletes any active webhook before polling.
 - Send a text message to the bot.
 - The bot replies with `echo: <your text>`.
+- `/start` shows inline keyboard buttons.
+- Callback buttons answer the callback and demonstrate message editing or follow-up messages.
 - Stop with `Ctrl+C` and confirm graceful shutdown.
 
 ## Local Bot API connectivity
@@ -65,12 +67,12 @@ export AIGRAM_BOT_TOKEN='123456:replace_me'
 export AIGRAM_LISTEN_ADDR=':8080'
 export AIGRAM_WEBHOOK_URL='https://example.com/webhook'
 export AIGRAM_WEBHOOK_SECRET='replace_me_secret'
-go run ./examples/webhook_server
+go run ./examples/webhook_basic
 ```
 
 Checklist:
 
-- Your reverse proxy forwards the webhook URL to `/webhook` on the example server.
+- Your reverse proxy or tunnel forwards the webhook URL to `/webhook` on the example server.
 - `SetWebhook` succeeds.
 - `GetWebhookInfo` shows the expected webhook and no recent error.
 - Incoming messages reach the handler and receive replies.
@@ -109,7 +111,7 @@ go run ./examples/media_upload
 Checklist:
 
 - Uploads use multipart when a local path is provided.
-- Downloads use `GetFile` and the configured file base URL.
+- File download checks use `GetFile` and the configured file base URL.
 - Logs do not print the full bot token or token-bearing URLs.
 
 ## Sensitive and state-changing areas

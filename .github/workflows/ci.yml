@@ -1,0 +1,48 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test:
+    name: Go checks
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache: true
+
+      - name: Show Go version
+        run: go version
+
+      - name: Check formatting
+        run: test -z "$(gofmt -l $(git ls-files '*.go'))"
+
+      - name: Check shell scripts
+        run: bash -n scripts/*.sh
+
+      - name: Run tests
+        run: go test ./...
+
+      - name: Generate coverage summary
+        run: |
+          go test -coverprofile=coverage.out ./...
+          go tool cover -func=coverage.out
+
+      - name: Run vet
+        run: go vet ./...
+
+      - name: List packages
+        run: go list ./...
+
+      - name: Check diff whitespace
+        run: git diff --check

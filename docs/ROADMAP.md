@@ -87,24 +87,24 @@ Milestone outcome:
 
 ## vNext Bot API 9.6 full coverage workstream
 
-Strategic change: the small v0.3 release plan is superseded. Local code coverage for Telegram Bot API 9.6 is now complete with documented architecture differences. See [`docs/BOT_API_9_6_COVERAGE_PLAN.md`](BOT_API_9_6_COVERAGE_PLAN.md), [`docs/BOT_API_9_6_FINAL_AUDIT.md`](BOT_API_9_6_FINAL_AUDIT.md), and [`docs/maintainer/BOT_API_9_6_RELEASE_READINESS.md`](maintainer/BOT_API_9_6_RELEASE_READINESS.md).
+Strategic change: the small v0.3 release plan is superseded. Code coverage for Telegram Bot API 9.6 is now complete with documented architecture differences. See [`docs/BOT_API_9_6_COVERAGE_PLAN.md`](BOT_API_9_6_COVERAGE_PLAN.md), [`docs/BOT_API_9_6_FINAL_AUDIT.md`](BOT_API_9_6_FINAL_AUDIT.md), and [`docs/maintainer/BOT_API_9_6_RELEASE_READINESS.md`](maintainer/BOT_API_9_6_RELEASE_READINESS.md).
 
-Repository policy for this workstream:
+Repository status for this workstream:
 
-- `v0.2.0` remains the latest public release.
-- Continue local-only development with verified local commits.
-- Do not create a GitHub repository, push, tag, or create a GitHub Release until the user explicitly approves publication work.
-- Do not run `git push` unless the user explicitly asks.
+- The public repository is available at <https://github.com/xDilettante/ai-gram>.
+- `v0.2.0` remains the latest historical release tag from the earlier workstream; no new tags or GitHub Releases have been created for the current public repository yet.
+- Bot API 9.6 code coverage is complete on `main` with documented architecture differences.
+- Do not create new tags or GitHub Releases until the user explicitly approves release work.
 
-Stage 98/99 outcome: **Bot API 9.6 local code coverage is complete with documented architecture differences**. The final audit found wrappers for all 169 official Bot API methods and no missing fields in the audited high-impact object tables after adding `Message.giveaway`; Stage 99 resolved the final `setWebhook.certificate` upload blocker.
+Stage 98/99 outcome: **Bot API 9.6 code coverage is complete with documented architecture differences**. The final audit found wrappers for all 169 official Bot API methods and no missing fields in the audited high-impact object tables after adding `Message.giveaway`; Stage 99 resolved the final `setWebhook.certificate` upload blocker.
 
-Stage 100 outcome: local release-readiness verification and manual-only smoke planning are documented. No publication has been performed.
+Stage 100 outcome: local release-readiness verification and manual-only smoke planning are documented. Stage 105/109/111 published `main` only after explicit user approval; tags and GitHub Releases were intentionally not created.
 
 Next phase:
 
-1. Keep local verification green for any follow-up fixes.
+1. Keep CI and local verification green for any follow-up fixes.
 2. Keep sensitive/state-changing smoke manual-only and fixture-first by default.
-3. Wait for explicit user approval before any repository creation, push, tag, or GitHub Release work.
+3. Prepare release tags and GitHub Releases only after explicit user approval.
 
 Live smoke policy:
 

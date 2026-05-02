@@ -4,6 +4,7 @@ The `scripts/` directory contains helper scripts used by maintainers for local c
 
 ## Publicly useful helpers
 
+- `update_coverage_badge.sh` regenerates `docs/assets/coverage.svg` from `go test -coverprofile` without using external coverage services.
 - `remote_logs.sh` and related log helpers are useful when you intentionally run the webhook example on your own host.
 - `smoke_v02_send_methods.sh` and `smoke_media_group.sh` are targeted live smoke helpers, but they require a real bot token and a disposable test chat.
 

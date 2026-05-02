@@ -12,7 +12,7 @@ The audit compares official method/type headings and high-impact object fields a
 
 **Full coverage reached with documented architecture differences.**
 
-Stage 98 found wrappers for all 169 official methods and no missing fields in the audited `User`, `Chat`, `ChatFullInfo`, `Update`, `Message`, `ReplyParameters`, `CallbackQuery`, `Video`, sticker, and keyboard field tables after correcting `Message.giveaway`. Stage 99 resolved the remaining hard blocker by adding `setWebhook.certificate` multipart upload support. Stage 100 records local release-readiness verification and manual-only smoke planning. See [`docs/BOT_API_9_6_FINAL_AUDIT.md`](BOT_API_9_6_FINAL_AUDIT.md) and [`docs/maintainer/BOT_API_9_6_RELEASE_READINESS.md`](maintainer/BOT_API_9_6_RELEASE_READINESS.md) for the latest readiness status.
+Stage 98 found wrappers for all 169 official methods and no missing fields in the audited `User`, `Chat`, `ChatFullInfo`, `Update`, `Message`, `ReplyParameters`, `CallbackQuery`, `Video`, sticker, and keyboard field tables after correcting `Message.giveaway`. Stage 99 resolved the remaining hard blocker by adding `setWebhook.certificate` multipart upload support. Stage 100 records release-readiness verification and manual-only smoke planning. See [`docs/BOT_API_9_6_FINAL_AUDIT.md`](BOT_API_9_6_FINAL_AUDIT.md) and [`docs/maintainer/BOT_API_9_6_RELEASE_READINESS.md`](maintainer/BOT_API_9_6_RELEASE_READINESS.md) for the latest readiness status.
 
 ## Implemented areas
 
@@ -84,4 +84,4 @@ These areas must remain manual-only and require explicit user confirmation plus 
 9. **Stage 97 completed:** ChatFullInfo/update shape strategy - `GetChatFullInfo`, fuller `User`/`Chat` metadata, channel post updates, standalone poll updates, and compatible flat `ChatMember` strategy.
 10. **Stage 98 completed:** final official-doc audit found all 169 official method wrappers present, corrected `Message.giveaway`, and identified `setWebhook.certificate` upload as the remaining hard blocker.
 11. **Stage 99 completed:** implemented `SetWebhook` certificate upload / multipart support and reran a short final audit. No known Bot API 9.6 code coverage blockers remain.
-12. **Stage 100 completed:** local release-readiness verification and manual-only smoke planning. Repository creation, push, tag, and release remain frozen until the user explicitly asks later.
+12. **Stage 100 completed:** release-readiness verification and manual-only smoke planning. Later stages published `main` only after explicit approval; tags and GitHub Releases still require explicit maintainer approval.

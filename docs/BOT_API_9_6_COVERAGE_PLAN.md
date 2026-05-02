@@ -2,7 +2,7 @@
 
 ## Goal
 
-Maintain complete local Telegram Bot API 9.6 method, type, and update coverage with documented architecture differences before any user-approved publication work.
+Maintain complete Telegram Bot API 9.6 method, type, and update coverage with documented architecture differences while the public repository matures toward a future tagged release.
 
 ## Source of truth
 
@@ -13,11 +13,11 @@ This plan is a working checklist derived from the official documentation and cha
 
 ## Repository policy
 
-- `v0.2.0` remains the latest public release.
-- Local Bot API 9.6 code coverage is complete with documented architecture differences.
-- Repository creation, push, tag, and GitHub Release operations remain frozen until the user explicitly asks later.
+- The public repository exists at <https://github.com/xDilettante/ai-gram>.
+- Bot API 9.6 code coverage is complete with documented architecture differences.
+- New tags and GitHub Releases require explicit maintainer approval.
 - Local commits are still expected after verified local work.
-- Final user reports may say: "local commit created; push intentionally skipped by project policy".
+- Final user reports should state whether push was intentionally skipped by project policy.
 
 
 ## Stage 88 audit result
@@ -38,7 +38,7 @@ Top pending type/field groups:
 
 ## Stage 98/99 final audit result
 
-Stage 98 created [`docs/BOT_API_9_6_FINAL_AUDIT.md`](BOT_API_9_6_FINAL_AUDIT.md). The audit found all 169 official Bot API method wrappers present and no missing fields in the audited high-impact `User`, `Chat`, `ChatFullInfo`, `Update`, `Message`, `ReplyParameters`, `CallbackQuery`, `Video`, sticker, and keyboard field tables after adding `Message.giveaway`. Stage 99 added `SetWebhook` certificate upload support with `FileUpload`, JSON/multipart tests, secret redaction checks, and documentation updates. No known Bot API 9.6 code coverage blockers remain. Stage 100 added [`docs/maintainer/BOT_API_9_6_RELEASE_READINESS.md`](maintainer/BOT_API_9_6_RELEASE_READINESS.md) for local verification and manual-only smoke planning; repository creation, push, tag, and release remain frozen until the user explicitly asks later.
+Stage 98 created [`docs/BOT_API_9_6_FINAL_AUDIT.md`](BOT_API_9_6_FINAL_AUDIT.md). The audit found all 169 official Bot API method wrappers present and no missing fields in the audited high-impact `User`, `Chat`, `ChatFullInfo`, `Update`, `Message`, `ReplyParameters`, `CallbackQuery`, `Video`, sticker, and keyboard field tables after adding `Message.giveaway`. Stage 99 added `SetWebhook` certificate upload support with `FileUpload`, JSON/multipart tests, secret redaction checks, and documentation updates. No known Bot API 9.6 code coverage blockers remain. Stage 100 added [`docs/maintainer/BOT_API_9_6_RELEASE_READINESS.md`](maintainer/BOT_API_9_6_RELEASE_READINESS.md) for verification and manual-only smoke planning. Later stages published `main` only after explicit approval; tags and GitHub Releases still require explicit maintainer approval.
 
 ## Stage 89 result
 
@@ -360,7 +360,7 @@ Live smoke for this slice is manual-only because set/remove operations change re
 
 ### Business APIs
 
-Stage 81 implements the Business API foundation. Stage 82 adds business read, account profile, gift settings, story, and suggested post methods. Stage 83 adds gifts, business gifts, bot/business Star balances and transfers, Premium subscription gifts, and Stars subscription editing. Stage 84 adds `business_connection_id` support to currently implemented send/edit-style methods that expose it in official Bot API docs. Stage 85 adds `EditMessageMedia`, `EditMessageLiveLocation`, `StopMessageLiveLocation`, and `InputMediaAnimation`. Broader account metadata and other not-yet-implemented methods remain separate local-only slices.
+Stage 81 implements the Business API foundation. Stage 82 adds business read, account profile, gift settings, story, and suggested post methods. Stage 83 adds gifts, business gifts, bot/business Star balances and transfers, Premium subscription gifts, and Stars subscription editing. Stage 84 adds `business_connection_id` support to currently implemented send/edit-style methods that expose it in official Bot API docs. Stage 85 adds `EditMessageMedia`, `EditMessageLiveLocation`, `StopMessageLiveLocation`, and `InputMediaAnimation`. Broader account metadata and other not-yet-implemented methods were handled in later slices or documented as compatibility choices.
 
 - [x] `BusinessConnection`
 - [x] `BusinessBotRights`
@@ -453,7 +453,7 @@ Stage 97 implemented `ChatFullInfo` and `GetChatFullInfo`, completed official Bo
 
 ## Implementation strategy
 
-Recommended local-only stages after the Stage 98 audit:
+Completed implementation stages after the Stage 98 audit:
 
 1. Stage 89 completed: lifecycle/profile read APIs (`logOut`, `close`, profile photos/audios, forum topic icon stickers).
 2. Stage 90 completed: verification and user status APIs.
@@ -466,9 +466,9 @@ Recommended local-only stages after the Stage 98 audit:
 9. Stage 97 completed: `ChatFullInfo`, full user/chat metadata, channel post/standalone poll update shape, and compatible flat chat member variant strategy.
 10. Stage 98 completed: final official-doc audit and release-readiness blocker review.
 11. Stage 99 completed: `SetWebhook` certificate upload / multipart support and focused final audit.
-12. Stage 100 completed: local release-readiness verification and manual-only smoke planning.
+12. Stage 100 completed: release-readiness verification and manual-only smoke planning.
 
-Each stage should:
+Future API maintenance stages should:
 
 - re-check the relevant official Bot API 9.6 section;
 - add typed params, result types, and minimal Telegram data types;
@@ -476,7 +476,7 @@ Each stage should:
 - add httptest/unit coverage for success, validation, API errors, invalid JSON, HTTP errors, cancelled context, and token leakage;
 - update README, CHANGELOG, API coverage, and manual testing docs;
 - create a local commit after checks pass;
-- skip push/tag/release by policy.
+- skip push/tag/release unless the user explicitly approves that exact publication action.
 
 ## Live smoke policy
 

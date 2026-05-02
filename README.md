@@ -9,26 +9,33 @@
 </p>
 
 <p align="center">
+  <a href="https://github.com/xDilettante/ai-gram/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/xDilettante/ai-gram/actions/workflows/ci.yml/badge.svg?branch=main"></a>
   <img alt="Telegram Bot API 9.6" src="https://img.shields.io/badge/Telegram%20Bot%20API-9.6-26A5E4?style=for-the-badge&logo=telegram&logoColor=white">
   <img alt="Go library" src="https://img.shields.io/badge/Go-library-00ADD8?style=for-the-badge&logo=go&logoColor=white">
   <img alt="Tests: unit and httptest" src="https://img.shields.io/badge/tests-unit%20%2B%20httptest-22C55E?style=for-the-badge">
+  <img alt="Coverage" src="docs/assets/coverage.svg">
   <img alt="API coverage: complete" src="https://img.shields.io/badge/API%20coverage-complete-7C3AED?style=for-the-badge">
   <img alt="Docs: English" src="https://img.shields.io/badge/docs-English-111827?style=for-the-badge">
-  <img alt="License: MIT" src="https://img.shields.io/badge/license-MIT-F59E0B?style=for-the-badge">
+  <a href="LICENSE"><img alt="License: MIT" src="https://img.shields.io/badge/license-MIT-F59E0B?style=for-the-badge"></a>
+  <img alt="Stability: pre-1.0" src="https://img.shields.io/badge/stability-pre--1.0%20%2F%20beta-F97316?style=for-the-badge">
   <img alt="Built with ChatGPT and Codex" src="https://img.shields.io/badge/built%20with-ChatGPT%20%2B%20Codex-8B5CF6?style=for-the-badge">
 </p>
 
 <p align="center">
   <a href="#quick-start">Quick start</a> ·
+  <a href="docs/ARCHITECTURE.md">Architecture</a> ·
   <a href="docs/API_COVERAGE.md">API coverage</a> ·
   <a href="docs/MANUAL_TESTING.md">Manual testing</a> ·
-  <a href="docs/ROADMAP.md">Roadmap</a> ·
-  <a href="CHANGELOG.md">Changelog</a>
+  <a href="CONTRIBUTING.md">Contributing</a> ·
+  <a href="SECURITY.md">Security</a> ·
+  <a href="docs/ROADMAP.md">Roadmap</a>
 </p>
 
 `ai-gram` is a typed Go library for building Telegram Bot API clients, update transports, dispatchers, and middleware. It is designed as an AI-native open-source project: the implementation is built almost entirely with ChatGPT and Codex, while architecture, review, scope, and release decisions stay under human maintainer control.
 
 The library focuses on a clear public API, token-safe HTTP behavior, replaceable transports, and testable building blocks instead of framework magic. It is suitable for low-level Bot API calls as well as production bot foundations that need long polling, webhooks, routing, middleware, and typed Telegram data contracts.
+
+> **Compatibility:** Telegram Bot API 9.6 code coverage is complete with documented architecture differences. `ai-gram` is still a pre-v1 Go module, so public APIs may evolve before v1.0.
 
 ## Highlights
 
@@ -102,9 +109,10 @@ The project intentionally keeps AI-assisted development visible without turning 
 
 Runnable examples are under [`examples/`](examples/):
 
-- [`examples/echo_longpoll`](examples/echo_longpoll) — basic long polling echo bot.
+- [`examples/echo_longpoll`](examples/echo_longpoll) — long polling bot with commands, echo, inline keyboard, callbacks, and message editing.
+- [`examples/webhook_basic`](examples/webhook_basic) — minimal inbound webhook server skeleton.
 - [`examples/inline_longpoll`](examples/inline_longpoll) — inline keyboard callbacks and access-control demo.
-- [`examples/webhook_server`](examples/webhook_server) — inbound webhook server example.
+- [`examples/webhook_server`](examples/webhook_server) — extended webhook server example.
 - [`examples/media_upload`](examples/media_upload) — document upload and file download checks.
 - [`examples/local_api_server`](examples/local_api_server) — connectivity check for a local Telegram Bot API server.
 
@@ -112,11 +120,14 @@ Maintainer-only smoke examples are separated under [`examples/maintainer/`](exam
 
 ## Documentation
 
+- [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) — short package and update-flow architecture diagram.
 - [`docs/API_COVERAGE.md`](docs/API_COVERAGE.md) — Bot API method/type coverage inventory and architecture notes.
 - [`docs/BOT_API_9_6_FINAL_AUDIT.md`](docs/BOT_API_9_6_FINAL_AUDIT.md) — final coverage audit for the local workstream.
-- [`docs/BOT_API_9_6_COVERAGE_PLAN.md`](docs/BOT_API_9_6_COVERAGE_PLAN.md) — coverage plan and local-only freeze policy.
+- [`docs/BOT_API_9_6_COVERAGE_PLAN.md`](docs/BOT_API_9_6_COVERAGE_PLAN.md) — coverage plan and compatibility notes.
 - [`docs/MANUAL_TESTING.md`](docs/MANUAL_TESTING.md) — public manual testing guide.
 - [`docs/ROADMAP.md`](docs/ROADMAP.md) — stabilization and future work.
+- [`CONTRIBUTING.md`](CONTRIBUTING.md) — contribution guide and PR expectations.
+- [`SECURITY.md`](SECURITY.md) — security reporting policy.
 - [`CHANGELOG.md`](CHANGELOG.md) — project changelog.
 - [`LICENSE`](LICENSE) — MIT license.
 
@@ -126,16 +137,13 @@ Maintainer-only deploy, live-smoke, and release-readiness notes live under [`doc
 
 ```bash
 gofmt -w .
+bash -n scripts/*.sh
 go test ./...
 go vet ./...
+go list ./...
 git diff --check
 ```
 
-For script syntax checks:
-
-```bash
-bash -n scripts/*.sh
-```
 
 ## Safety notes
 

@@ -2,13 +2,11 @@
 
 ## Status
 
-Local code coverage for Telegram Bot API 9.6 is complete with documented architecture differences. No repository publication, push, tag, GitHub Release, or GitHub repository creation has been performed for this local-only workstream.
-
-The latest public release remains `v0.2.0` until the user explicitly approves publication work.
+Code coverage for Telegram Bot API 9.6 is complete with documented architecture differences. The public repository exists and `main` has been published only after explicit user approval. No new tags or GitHub Releases have been created for the current public repository yet.
 
 ## Verification
 
-Stage 100 local verification checks:
+Stage 100 verification checks:
 
 - `gofmt -w .`
 - `bash -n scripts/*.sh`
@@ -59,24 +57,23 @@ These are candidates for future manual or explicitly requested smoke checks. The
 
 ## Do-not-release gates
 
-Do not publish, tag, release, or create a repository while any of these are true:
+Do not tag or create a GitHub Release while any of these are true:
 
 - tests fail;
 - `go vet` fails;
 - docs claim unsupported behavior;
 - any token, secret, webhook URL, payment payload, business payload, Passport payload, managed bot token, or private message payload leak is found;
 - uncommitted changes remain after the intended local commit;
-- the user has not explicitly approved repository creation, push, tag, or GitHub Release.
+- the user has not explicitly approved the exact tag or GitHub Release action.
 
 ## Publication plan
 
-No automatic publication is allowed.
+No automatic tag or GitHub Release creation is allowed.
 
 If the user explicitly approves later:
 
-1. create or configure the GitHub repository;
-2. push `main`;
-3. create the local tag;
-4. push only that tag;
-5. verify public `go get`;
-6. create the GitHub Release.
+1. verify `main` is clean and green;
+2. create the local tag;
+3. push only that tag;
+4. verify public `go get`;
+5. create the GitHub Release.
