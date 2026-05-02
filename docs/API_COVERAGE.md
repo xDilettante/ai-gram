@@ -2,7 +2,7 @@
 
 This document maps the current `ai-gram` implementation to Telegram Bot API areas. It is a project inventory, not a generated copy of the full upstream Bot API specification. Telegram adds methods over time, so expansion work should still be checked against the official Bot API docs before implementation.
 
-> **Bot API 9.6 target:** Local code coverage for Telegram Bot API 9.6 is complete with documented architecture differences. Track the local-only coverage workstream in [`docs/BOT_API_9_6_COVERAGE_PLAN.md`](BOT_API_9_6_COVERAGE_PLAN.md) and release-readiness status in [`docs/maintainer/BOT_API_9_6_RELEASE_READINESS.md`](maintainer/BOT_API_9_6_RELEASE_READINESS.md). Repository creation, push, tag, and GitHub Release operations remain frozen until the user explicitly asks later.
+> **Bot API 9.6 target:** Local code coverage for Telegram Bot API 9.6 is complete with documented architecture differences. Track the local-only coverage workstream in [`docs/BOT_API_9_6_COVERAGE_PLAN.md`](BOT_API_9_6_COVERAGE_PLAN.md). Repository creation, push, tag, and GitHub Release operations remain frozen until the user explicitly asks later.
 
 > **Stage 100 readiness:** Stage 99 resolved the final `setWebhook.certificate` blocker. Stage 100 records local release-readiness verification and the manual-only smoke plan. All 169 official method wrappers are present; no known Bot API 9.6 code coverage blockers remain; sensitive/state-changing live smoke remains manual-only. See [`docs/BOT_API_9_6_FINAL_AUDIT.md`](BOT_API_9_6_FINAL_AUDIT.md) and [`docs/maintainer/BOT_API_9_6_RELEASE_READINESS.md`](maintainer/BOT_API_9_6_RELEASE_READINESS.md).
 
@@ -374,9 +374,9 @@ This document maps the current `ai-gram` implementation to Telegram Bot API area
 | `scripts/*.sh`, `deploy/systemd/*.tmpl` | `bash -n`, maintainer-only live/manual smoke | Discovery, auto SSH tunnel, deploy, logs, stop, notifications, separate Bot API host support. These are maintainer-oriented, not required for normal library use. |
 | `docs/MANUAL_TESTING.md`, `docs/maintainer/DEPLOY_TESTING.md` | review/manual | Public manual examples plus maintainer-only deploy/smoke harness documentation. |
 
-## Not implemented yet
+## Remaining notes and intentional differences
 
-Stage 98 performed the final official-doc comparison after Stage 97, and Stage 99 resolved the remaining `setWebhook.certificate` multipart upload blocker. No known Bot API 9.6 code coverage blockers remain. See [`docs/BOT_API_9_6_FINAL_AUDIT.md`](BOT_API_9_6_FINAL_AUDIT.md) for release-readiness status.
+Stage 98 performed the final official-doc comparison after Stage 97, and Stage 99 resolved the remaining `setWebhook.certificate` multipart upload blocker. No known Bot API 9.6 code coverage blockers remain. See [`docs/BOT_API_9_6_FINAL_AUDIT.md`](BOT_API_9_6_FINAL_AUDIT.md) for the final audit.
 
 ### Missing methods or method behavior from the Stage 99 focused audit
 

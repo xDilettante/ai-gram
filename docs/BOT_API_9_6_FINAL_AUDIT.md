@@ -117,4 +117,4 @@ Decode/serialization-only areas such as reply metadata, service messages, direct
 
 ## Recommended next step
 
-Stage 100: local release-readiness verification and manual-only smoke planning. No repository creation, push, tag, or GitHub Release is allowed unless the user explicitly asks later.
+Local release-readiness documentation and manual-only smoke planning are complete. The next phase is publication preparation only after explicit user approval. Do not create a repository, push, tag, or create a GitHub Release automatically.
