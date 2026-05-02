@@ -1,38 +1,33 @@
-# Manual smoke testing
+# Manual Testing
 
-## Overview
+This page is the public manual-testing guide for ai-gram users. It focuses on small local checks that are useful when trying the library with your own bot. Maintainer-only deploy, multi-bot, notification, and destructive live-smoke procedures live under [`docs/maintainer/`](maintainer/).
 
-This document describes manual smoke checks for ai-gram examples against either the official Telegram Bot API or a local Telegram Bot API server. The checks are intentionally manual: they require a real bot token and sometimes a chat with the bot, so they are not part of `go test ./...`.
-
-All examples read configuration from environment variables and never hardcode bot tokens.
-
-The deploy/smoke scripts can send actionable Telegram notifications with the selected bot `@username`, a `t.me` link, exact commands/buttons to press, and a short note about which safe logs Codex will verify.
-
-Smoke notifications prefer Telegram deep links such as `https://t.me/<bot>?start=access_panel` or `?start=smoke`. Telegram deep links can only pass a `/start` payload, so the target bot opens a control panel or smoke keyboard instead of receiving arbitrary commands from the notification bot.
-
-Use [`LIVE_SMOKE_MATRIX.md`](LIVE_SMOKE_MATRIX.md) to decide which flows are safe to run automatically or manually, and which destructive/admin flows require an explicit isolated test setup.
-
-Chat/update metadata coverage, including `GetChatFullInfo`, channel posts, edited channel posts, and standalone poll updates, is primarily verified with synthetic fixtures. Do not run a live check for these fields in Stage 98/99; if a future manual read check is needed, log only field presence and result counts, not private message text. Stage 99 implemented `setWebhook.certificate` upload support; certificate upload must be verified only with explicit confirmation and disposable test certificates, and logs must not include webhook URLs, secrets, or certificate contents.
+All examples read configuration from environment variables and never hardcode bot tokens. Do not commit real tokens, webhook secrets, private chat IDs, payment payloads, or message contents.
 
 ## Environment variables
 
+Start from the minimal public template:
+
+```bash
+cp .env.example .env.local
+```
+
+Common variables:
+
 | Variable | Purpose |
 | --- | --- |
-| `AIGRAM_BOT_TOKEN` | Telegram bot token. Required for all examples. |
-| `AIGRAM_BASE_URL` | Optional Bot API base URL, for example `http://127.0.0.1:8081` for a local Bot API server. |
-| `AIGRAM_FILE_BASE_URL` | Optional Bot API file base URL. Usually derived from `AIGRAM_BASE_URL` when using a local server. |
-| `AIGRAM_CHAT_ID` | Chat ID or username used by examples that proactively send media/messages. |
+| `AIGRAM_BOT_TOKEN` | Telegram bot token. Required for examples that call Telegram. |
+| `AIGRAM_CHAT_ID` | Chat ID or username for examples that send messages proactively. |
+| `AIGRAM_ADMIN_USER_IDS` | Optional comma-separated admin user IDs for protected examples. |
+| `AIGRAM_BASE_URL` | Optional custom Bot API base URL, for example a local Telegram Bot API server. |
+| `AIGRAM_FILE_BASE_URL` | Optional file base URL for a custom Bot API endpoint. |
 | `AIGRAM_LISTEN_ADDR` | HTTP listen address for webhook examples. Defaults to `:8080`. |
-| `AIGRAM_WEBHOOK_URL` | Webhook URL passed to Telegram in `SetWebhook`. |
-| `AIGRAM_WEBHOOK_SECRET` | Optional secret token used both in `SetWebhook` and `webhook.Config`. |
-| `AIGRAM_MEDIA_PATH` | Local file path for upload smoke testing. |
-| `AIGRAM_FILE_ID` | Existing Telegram `file_id` for download smoke testing. |
-| `AIGRAM_ACCESS_MODE` | Example access mode: `admin` (default), `public`, or `off`. |
-| `AIGRAM_ADMIN_USER_IDS` | Comma-separated admin user IDs. Falls back to numeric `AIGRAM_CHAT_ID` when empty. |
-| `AIGRAM_ALLOWED_USER_IDS` | Comma-separated user IDs allowed in admin mode. |
-| `AIGRAM_ALLOWED_CHAT_IDS` | Comma-separated chat IDs allowed in admin mode. |
+| `AIGRAM_WEBHOOK_URL` | Webhook URL passed to Telegram by the webhook example. |
+| `AIGRAM_WEBHOOK_SECRET` | Optional secret token used by both `SetWebhook` and the webhook handler. |
+| `AIGRAM_MEDIA_PATH` | Optional local file path for media upload checks. |
+| `AIGRAM_FILE_ID` | Optional Telegram `file_id` for file download checks. |
 
-## Long polling through api.telegram.org
+## Long polling echo bot
 
 ```bash
 export AIGRAM_BOT_TOKEN='123456:replace_me'
@@ -41,646 +36,101 @@ go run ./examples/echo_longpoll
 
 Checklist:
 
-- The example calls `DeleteWebhook(drop_pending_updates=true)` before starting polling.
+- The example deletes any active webhook before polling.
 - Send a text message to the bot.
 - The bot replies with `echo: <your text>`.
-- Stop the process with `Ctrl+C` and confirm graceful shutdown.
+- Stop with `Ctrl+C` and confirm graceful shutdown.
 
-## Long polling through a local Bot API server
+## Local Bot API connectivity
 
-Start your local Telegram Bot API server separately, then point ai-gram at it:
+If you run a local Telegram Bot API server, point ai-gram at it:
 
 ```bash
 export AIGRAM_BOT_TOKEN='123456:replace_me'
 export AIGRAM_BASE_URL='http://127.0.0.1:8081'
 go run ./examples/local_api_server
-
-go run ./examples/echo_longpoll
 ```
 
 Checklist:
 
-- `local_api_server` prints the bot username and webhook info.
-- `echo_longpoll` starts without printing the token.
-- Messages sent to the bot are echoed.
+- The example prints the bot username and webhook status.
+- It does not print the bot token or token-bearing URLs.
 
-## Webhook through a local Bot API server
+## Webhook server
 
-For a local Bot API server running in `--local` mode, Telegram Bot API can accept local HTTP webhook URLs. ai-gram allows HTTP webhook URLs when a custom `AIGRAM_BASE_URL` is configured.
-
-```bash
-export AIGRAM_BOT_TOKEN='123456:replace_me'
-export AIGRAM_BASE_URL='http://127.0.0.1:8081'
-export AIGRAM_LISTEN_ADDR='127.0.0.1:8080'
-export AIGRAM_WEBHOOK_URL='http://127.0.0.1:8080/webhook'
-export AIGRAM_WEBHOOK_SECRET='local_secret_123'
-go run ./examples/webhook_server
-```
-
-Checklist:
-
-- The server listens on `/webhook`.
-- `SetWebhook` succeeds.
-- Sending `/start` or a text message to the bot reaches the local handler.
-- `AIGRAM_WEBHOOK_SECRET` is the same value for `SetWebhook` and `webhook.Config`.
-
-## Webhook through a public HTTPS URL
-
-Official `api.telegram.org` requires a public HTTPS webhook URL.
+For official `api.telegram.org`, `AIGRAM_WEBHOOK_URL` must be a public HTTPS URL. A local Bot API server running in local mode may allow local HTTP URLs.
 
 ```bash
 export AIGRAM_BOT_TOKEN='123456:replace_me'
 export AIGRAM_LISTEN_ADDR=':8080'
 export AIGRAM_WEBHOOK_URL='https://example.com/webhook'
-export AIGRAM_WEBHOOK_SECRET='public_secret_123'
+export AIGRAM_WEBHOOK_SECRET='replace_me_secret'
 go run ./examples/webhook_server
 ```
 
 Checklist:
 
-- Your reverse proxy forwards `https://example.com/webhook` to the local `/webhook` handler.
+- Your reverse proxy forwards the webhook URL to `/webhook` on the example server.
 - `SetWebhook` succeeds.
-- `GetWebhookInfo` shows the expected URL and no recent error.
-- Incoming messages receive replies.
+- `GetWebhookInfo` shows the expected webhook and no recent error.
+- Incoming messages reach the handler and receive replies.
 
-
-## Smoke notification modes
-
-Deploy and smoke scripts support `AIGRAM_SMOKE_MODE`:
-
-- `targeted` is the default. The deploy script only reports that the webhook example was deployed; perform manual actions only when Codex sends a separate targeted notification.
-- `full` sends the full webhook regression checklist after deploy. Use it only when intentionally running a full manual regression.
-- `none` disables deploy manual-action prompts. Final Codex reports may still be sent through the global notification helper.
-
-When Codex asks for a targeted smoke, do only the listed steps, not the full checklist. Common targeted flows:
-
-- Reply smoke: send one ordinary text message.
-- Edit smoke: `/start` → `Edit message` → `Remove keyboard`.
-- Caption smoke: `/start` → `Caption demo` → `Edit caption` → `Delete media message`.
-- Delete smoke: `/start` → `Delete this message`.
-
-## Access control
-
-`examples/webhook_server` and `examples/inline_longpoll` are protected by access control middleware by default. This prevents random users who find a test bot username from running commands or pressing demo buttons.
-
-Configuration:
-
-```bash
-export AIGRAM_ACCESS_MODE=admin
-export AIGRAM_ADMIN_USER_IDS='123456789'
-export AIGRAM_ALLOWED_USER_IDS=''
-export AIGRAM_ALLOWED_CHAT_IDS=''
-```
-
-Rules:
-
-- `admin` is the default mode.
-- If `AIGRAM_ADMIN_USER_IDS` is empty, examples use numeric `AIGRAM_CHAT_ID` as both admin user/chat fallback for private smoke checks.
-- `public` and `off` let all updates pass. Use them only for local development or a short controlled smoke.
-- The examples do not disclose admin/allowed ID lists to denied users.
-
-Runtime commands:
-
-- `/access_status` — show current runtime mode.
-- `/access_open` — switch runtime mode to `public`.
-- `/access_close` — switch runtime mode back to `admin`.
-
-Deep-link panel:
-
-- Open `https://t.me/<bot_username>?start=access_panel`.
-- The bot shows an inline control panel with `Access status`, `Open access`, `Close access`, and `Start smoke`.
-- If the deep link does not work in your Telegram client, send `/start access_panel` manually.
-- Safe logs include `action=start_payload payload=access_panel`, `action=access_panel_shown ok=true`, `action=access_status ok=true`, and optional `action=access_mode_changed ok=true mode=...`.
-
-Only admin users can run `/access_*` commands. Even when access is open, a non-admin user cannot change the mode. In admin mode, unknown users receive `Access denied.` or are ignored depending on the update shape, and safe logs include `action=access_denied update_id=... chat_id=... from_user_id=...`.
-
-Manual check:
-
-- Start the bot as an admin and send `/access_status`; expect `Access mode: admin`.
-- Send `/start`; expect the normal demo keyboard.
-- Prefer the access panel deep link when it is available.
-- Optional: send `/access_open`, test from another account, then send `/access_close`.
-- Inspect logs with `./scripts/remote_logs.sh`; safe logs should include `action=access_status`, optional `action=access_mode_changed`, and no token, secret, or full message text.
-
-## v0.2 send methods smoke
-
-Use this script to verify the safe v0.2 send-method subset against a real bot without requiring user interaction:
-
-```bash
-export AIGRAM_BOT_TOKEN_MAIN='123456:replace_me'
-export AIGRAM_CHAT_ID='123456789'
-./scripts/smoke_v02_send_methods.sh
-```
-
-Required checks:
-
-- `SendContact` with a fake test contact.
-- `SendLocation` with neutral test coordinates.
-- `SendVenue` with neutral test coordinates.
-- `SendPoll`, followed by `StopPoll` for the sent poll message.
-- `SendDice` with `🎲`.
-
-Optional media checks are skipped without failing when media env is absent:
-
-- `AIGRAM_STICKER_FILE_ID` enables `SendSticker`.
-- `AIGRAM_ANIMATION_FILE_ID` or `AIGRAM_ANIMATION_PATH` enables `SendAnimation`.
-- `AIGRAM_VIDEO_NOTE_FILE_ID` or `AIGRAM_VIDEO_NOTE_PATH` enables `SendVideoNote`.
-
-Expected safe markers include `AIGRAM_V02_SMOKE_SEND_CONTACT_OK`, `AIGRAM_V02_SMOKE_STOP_POLL_OK`, optional `AIGRAM_V02_SMOKE_SEND_*_SKIPPED`, and final `AIGRAM_V02_SMOKE_OK`. The script must not print bot tokens, token-bearing endpoints, full file IDs, or private message text.
-
-Advanced Poll 9.6 fields (`correct_option_ids`, structured `InputPollOption` values, revoting/options controls, poll descriptions, poll-option replies, and poll option service messages) are not automatically live-smoked. Test them only in a dedicated chat with disposable poll messages, verify `poll_answer` and poll option service updates from safe logs, and avoid logging private vote contents beyond option IDs/counts.
-
-Reply/message metadata fields (`forward_origin`, `external_reply`, `quote`, `reply_to_story`, `pinned_message`, inaccessible callback messages, and quote-aware `ReplyParameters`) are covered primarily by unit fixtures. If a manual check is ever needed, use only disposable messages and log field presence/type labels plus redacted IDs; do not log private message text, quotes, external reply payloads, or callback data.
-
-Service/direct/media metadata fields (`users_shared`, `chat_shared`, chat backgrounds, video chat service messages, proximity alerts, auto-delete timers, giveaway service fields, paid/direct message price changes, and video cover/quality metadata) are covered primarily by unit fixtures. If a manual check is ever needed, use only disposable messages or synthetic updates and log field presence/type labels plus redacted message IDs; do not log private message text, shared user/chat details, invite links, payment payloads, or reusable media file IDs.
-
-Checklist and message draft flows are manual-only. Use only a dedicated test chat/private chat and a disposable business connection where required, send or edit only test checklist messages/drafts, and log only safe metadata such as method name, chat ID, message ID or draft ID, task counts, and boolean result. Do not log checklist or draft text payloads.
-
-## SendMediaGroup smoke
-
-Use this script to verify a real `SendMediaGroup` flow without requiring external media fixtures:
-
-```bash
-export AIGRAM_BOT_TOKEN_MAIN='123456:replace_me'
-export AIGRAM_CHAT_ID='123456789'
-./scripts/smoke_media_group.sh
-```
-
-Default behavior is self-contained: when no media-group file IDs or paths are configured, the smoke sends two generated small text documents as a media group through multipart upload.
-
-Optional inputs:
-
-- `AIGRAM_MEDIA_GROUP_CHAT_ID` overrides `AIGRAM_CHAT_ID`.
-- `AIGRAM_MEDIA_GROUP_FILE_ID_1` and `AIGRAM_MEDIA_GROUP_FILE_ID_2` enable FileID mode. These should be file IDs suitable for document media groups; the script must not print them fully.
-- `AIGRAM_MEDIA_GROUP_PATH_1` and `AIGRAM_MEDIA_GROUP_PATH_2` enable upload mode from local files. Output should use only safe basenames, not sensitive full paths.
-
-Expected safe markers:
-
-- `AIGRAM_MEDIA_GROUP_SMOKE_WAITING chat_id=... mode=...`
-- one of `AIGRAM_MEDIA_GROUP_FILE_ID_OK`, `AIGRAM_MEDIA_GROUP_UPLOAD_OK`, or `AIGRAM_MEDIA_GROUP_GENERATED_UPLOAD_OK`
-- final `AIGRAM_MEDIA_GROUP_OK`
-
-The smoke sends real test documents/messages to the configured chat, but it requires no user action and does not run destructive/admin checks.
-
-## Inline keyboard callback checklist
+## Inline keyboard example
 
 ```bash
 export AIGRAM_BOT_TOKEN='123456:replace_me'
+export AIGRAM_ADMIN_USER_IDS='123456789'
 go run ./examples/inline_longpoll
 ```
 
 Checklist:
 
 - Send `/start` to the bot.
-- Or open `https://t.me/<bot_username>?start=smoke` for examples that support deep-link smoke payloads.
-- The bot sends an inline keyboard with `Edit message` and `Remove keyboard`.
-- Press `Edit message`: the client shows a toast from `AnswerCallbackQuery`, and the original message text changes to `Message edited by ai-gram`.
-- Press `Remove keyboard`: the client shows a toast from `AnswerCallbackQuery`, and the inline keyboard disappears.
-- For the deployed webhook example, inspect safe logs with `./scripts/remote_logs.sh`; logs should include `update_id`, `update_type`, `chat_id`, `from_user_id`, `command`, `has_text`, `has_media`, and only known short `demo:*` callback data.
-- Successful webhook actions are logged explicitly as safe action lines, for example `action=answer_callback_query`, `action=edit_message_text`, `action=edit_message_reply_markup`, and `action=send_message`.
-
-## Webhook DeleteMessage and EditMessageCaption checklist
-
-The deployed `examples/webhook_server` also contains a live flow for deleting messages and editing media captions.
-
-To check `DeleteMessage` on the `/start` message:
-
-- Deploy or run `examples/webhook_server`.
-- Send `/start` to the webhook bot.
-- Press `Delete this message`.
-- The message with the inline keyboard should disappear.
-- Inspect safe logs with `./scripts/remote_logs.sh`; successful deletion is logged as `action=delete_message ok=true update_id=... chat_id=... message_id=...`.
-
-To check `EditMessageCaption` on a media message, no media env is required. If `AIGRAM_FILE_ID` or `AIGRAM_MEDIA_PATH` is set, the example uses it; otherwise it uploads a generated in-memory text document named `aigram-caption-demo.txt`.
-
-```bash
-export AIGRAM_FILE_ID='existing_document_file_id'
-# or:
-export AIGRAM_MEDIA_PATH='/path/to/file.pdf'
-```
-
-Checklist:
-
-- Deploy or run `examples/webhook_server`.
-- Send `/start` to the webhook bot.
-- Press `Caption demo`.
-- The bot sends a document with caption `Original caption from ai-gram` and inline buttons.
-- Press `Edit caption`; the media caption should change to `Caption edited by ai-gram`.
-- Press `Delete media message`; the media message should disappear.
-- Inspect safe logs with `./scripts/remote_logs.sh`; successful actions are logged as `action=send_media_caption_demo` with `source=generated_document`, `source=file_id`, or `source=media_path`, plus `action=edit_message_caption` and `action=delete_message`.
-
-## Webhook ForwardMessage and CopyMessage checklist
-
-The deployed `examples/webhook_server` contains a targeted flow for checking single-message forwarding and copying.
-
-Checklist:
-
-- Deploy or run `examples/webhook_server`.
-- Send `/start` to the webhook bot.
-- Press `Copy this message`; Telegram should create a copy of the current message in the same chat.
-- Press `Forward this message`; Telegram should create a forwarded message in the same chat.
-- Inspect safe logs with `./scripts/remote_logs.sh`; successful actions are logged as `action=copy_message ok=true update_id=... chat_id=... message_id=... copied_message_id=...` and `action=forward_message ok=true update_id=... chat_id=... message_id=... forwarded_message_id=...`.
-- Do not log or paste full message text; safe logs are enough for verification.
-
-## Batch message methods checklist
-
-`ForwardMessages`, `CopyMessages`, and `DeleteMessages` operate on up to 100 message IDs per call. `DeleteMessages` is destructive and is intentionally not part of automatic live smoke.
-
-Manual checklist:
-
-- Use a dedicated test chat.
-- Create disposable test messages for the batch operation.
-- Run only after explicit confirmation for the target chat.
-- Use `ForwardMessages` and `CopyMessages` only with messages intended for testing.
-- Use `DeleteMessages` only on disposable test messages created for the check.
-- Log only method names, chat ID, message ID count, first returned message ID for copy/forward, and boolean result for delete.
-- Do not paste bot tokens, token-bearing URLs, private message text, or full private chat content into logs or reports.
-
-## Bot profile and metadata checklist
-
-Bot profile and metadata methods change real bot state and are intentionally not part of automatic live smoke.
-
-Manual checklist:
-
-- Use a dedicated test bot, not a production bot.
-- Record the current bot name, description, short description, default administrator rights, and profile photo state before testing.
-- Use `GetMyName`, `GetMyDescription`, `GetMyShortDescription`, and `GetMyDefaultAdministratorRights` for read checks.
-- Call `SetMyName`, `SetMyDescription`, and `SetMyShortDescription` only with temporary test values and restore previous values afterwards.
-- Call `SetMyProfilePhoto` only with a disposable uploaded JPG or MPEG4 profile asset. Do not use file IDs or URLs; Bot API profile photos are upload-only.
-- Call `RemoveMyProfilePhoto` only if the test bot profile photo can be safely removed and restored.
-- Log only method names, language code, boolean results, and non-sensitive metadata field names.
-- Do not paste bot tokens, token-bearing URLs, private profile assets, or `.env.local` content into logs or reports.
-
-## Webhook SendChatAction and pin/unpin checklist
-
-The default webhook smoke checks `SendChatAction` in the echo handler without requiring extra chat permissions. Pin and unpin methods are not enabled in the default webhook example because they require suitable admin rights in groups/channels and can be noisy.
-
-Checklist for `SendChatAction`:
-
-- Deploy or run `examples/webhook_server`.
-- Send a regular text message to the webhook bot.
-- The bot should reply with `echo received`.
-- Inspect safe logs with `./scripts/remote_logs.sh`; successful chat action is logged as `action=send_chat_action ok=true update_id=... chat_id=... chat_action=typing`, followed by `action=send_message ok=true`.
-
-Manual note for pin/unpin:
-
-- Use a group/channel where the bot has permission to pin messages.
-- Call `PinChatMessage`, `UnpinChatMessage`, or `UnpinAllChatMessages` from a small local probe or future targeted example.
-- Do not treat pin/unpin failure in a private chat or insufficient-rights chat as a library error; check Telegram permissions first.
-
-
-## Webhook chat info checklist
-
-The webhook example includes an admin-only chat info action in the access panel. It uses `GetChat` and, when Telegram allows it for the current chat, `GetChatMemberCount`.
-
-Checklist:
-
-- Deploy or run `examples/webhook_server`.
-- Open the access panel via the targeted notification or send `/start access_panel`.
-- Press `Bot chat info`.
-- The bot should send a short safe summary with chat ID, chat type, optional title/username, and member count when available.
-- Inspect safe logs with `./scripts/remote_logs.sh`; successful `GetChat` is logged as `action=get_chat ok=true update_id=... chat_id=... chat_type=...`.
-- In groups/channels, `GetChatMember`, `GetChatAdministrators`, and member count behavior depends on Telegram access and bot permissions; permission errors are not library errors.
-
-## Moderation methods checklist
-
-`BanChatMember`, `UnbanChatMember`, and `RestrictChatMember` are destructive/admin methods. They are intentionally not part of the default live smoke flow and the smoke/deploy scripts do not call them automatically.
-
-Manual checklist for a dedicated test environment only:
-
-- Create a test group or supergroup.
-- Add the bot as an admin with the exact moderation rights you want to test.
-- Use only a dedicated test user account as the moderation target.
-- Run a small local probe with explicit `ChatID` and `UserID`; do not reuse production chats.
-- Start with `RestrictChatMember` and a short `UntilDate` if possible.
-- Use `UnbanChatMember` with `OnlyIfBanned: true` to restore the test user after a ban check.
-- Do not paste bot tokens, token-bearing URLs, or private group content into logs or reports.
-
-Treat Telegram permission errors in chats where the bot is not an admin as expected Bot API behavior, not as a library bug.
-
-## Chat member, chat boost, and sender-chat checklist
-
-`GetUserChatBoosts`, `SetChatMemberTag`, `BanChatSenderChat`, and `UnbanChatSenderChat` require suitable chat access and, for mutation methods, administrator rights. Chat member and chat boost updates are decoded by the library, but no automatic live smoke should subscribe to or mutate production chats.
-
-Manual checklist for a dedicated test environment only:
-
-- Create a dedicated test supergroup or channel and add the bot as an administrator with the exact rights needed for the check.
-- For chat member update routing, explicitly allow `my_chat_member` and `chat_member` updates in the test receiver and verify only safe metadata: update ID, chat ID, performer user ID, and old/new status.
-- For chat boost updates and `GetUserChatBoosts`, use only expected test accounts and log only boost counts/source type labels; do not log private boost payloads beyond structural metadata.
-- For `SetChatMemberTag`, use a regular test member and restore the previous tag; an empty tag clears the member tag.
-- For `BanChatSenderChat` and `UnbanChatSenderChat`, use a disposable test sender channel and restore it immediately with `UnbanChatSenderChat`.
-- Do not run sender-chat bans or tag changes against production chats.
-- Do not paste bot tokens, token-bearing URLs, private chat content, or private chat boost payloads into logs or reports.
-
-## Chat management methods checklist
-
-`SetChatTitle`, `SetChatDescription`, `SetChatPhoto`, `DeleteChatPhoto`, `LeaveChat`, `SetChatStickerSet`, and `DeleteChatStickerSet` require bot admin rights where applicable and change real chat state. They are intentionally not part of automatic live smoke.
-
-Manual checklist for a dedicated test environment only:
-
-- Create a dedicated test group or supergroup.
-- Add the bot as an admin with rights to change chat info; add sticker-set permissions when testing sticker-set methods.
-- Do not test these methods on production groups/channels.
-- Save the original title, description, photo, and sticker-set state before testing.
-- Revert title, description, photo, and sticker-set changes after testing.
-- Test `LeaveChat` only with a disposable group or bot instance that can be safely re-added.
-- Use `SetChatPhoto` only with explicit test image uploads; do not paste token-bearing URLs or private paths into logs.
-- Do not paste bot tokens, token-bearing URLs, private group content, or full file metadata into logs or reports.
-
-Treat Telegram permission errors in chats where the bot is not an admin or lacks change-info rights as expected Bot API behavior, not as a library bug.
-
-
-## Sticker set management checklist
-
-`GetStickerSet`, `GetCustomEmojiStickers`, `UploadStickerFile`, `CreateNewStickerSet`, `AddStickerToSet`, `ReplaceStickerInSet`, `SetStickerPositionInSet`, `DeleteStickerFromSet`, `SetStickerEmojiList`, `SetStickerKeywords`, `SetStickerMaskPosition`, `SetStickerSetTitle`, `SetStickerSetThumbnail`, `SetCustomEmojiStickerSetThumbnail`, and `DeleteStickerSet` are manual-only because they can mutate real sticker sets and uploaded sticker assets.
-
-Manual checklist for a dedicated test environment only:
-
-- Use a dedicated test bot/user account and a disposable test sticker set name owned by that user.
-- Do not test on production sticker sets.
-- Use explicit confirmation before creating, adding, replacing, moving, editing, or deleting stickers.
-- Use small disposable upload files for `UploadStickerFile` and `InputSticker` upload paths.
-- Redact full file IDs, token-bearing URLs, private paths, and sticker file metadata in logs and reports.
-- Clean up by deleting the test sticker set or restoring the previous title, thumbnail, emoji list, keywords, and mask position.
-- Treat Telegram ownership, format, and permission errors as expected Bot API behavior unless unit tests or payload checks show a library issue.
-
-## Admin management methods checklist
-
-`PromoteChatMember`, `SetChatAdministratorCustomTitle`, and `SetChatPermissions` require bot admin rights and change real chat or admin state. They are intentionally not part of automatic live smoke.
-
-Manual checklist for a dedicated test environment only:
-
-- Create a dedicated test group or supergroup.
-- Use only a dedicated test user account as the admin/permission target.
-- Add the bot as an admin with the needed rights, and verify the bot can change those rights before testing.
-- Do not test these methods on production groups/channels.
-- Check permissions before and after each method call.
-- Revert any promoted rights, custom titles, and default chat permission changes after testing.
-- Do not paste bot tokens, token-bearing URLs, private group content, or admin lists into logs or reports.
-
-Treat Telegram permission errors in chats where the bot is not an admin or lacks ownership-level rights as expected Bot API behavior, not as a library bug.
-
-## Forum topic methods checklist
-
-`CreateForumTopic`, `EditForumTopic`, `CloseForumTopic`, `ReopenForumTopic`, `DeleteForumTopic`, `UnpinAllForumTopicMessages`, `EditGeneralForumTopic`, `CloseGeneralForumTopic`, `ReopenGeneralForumTopic`, `HideGeneralForumTopic`, `UnhideGeneralForumTopic`, and `UnpinAllGeneralForumTopicMessages` require bot admin rights in a forum supergroup and change real forum topic state. They are intentionally not part of automatic live smoke.
-
-Manual checklist:
-
-- Create a dedicated test forum supergroup.
-- Add the bot as an admin with topic-management rights needed for the methods under test.
-- Do not run these checks on production groups.
-- Create only clearly named test topics.
-- Close, reopen, edit, unpin, and delete only test topics.
-- If testing General topic methods, record the initial state first and restore it after testing.
-- Do not paste bot tokens, token-bearing URLs, private group content, or full production identifiers into logs or reports.
-
-## Reaction methods checklist
-
-`SetMessageReaction` changes real message reaction state. `message_reaction` and `message_reaction_count` updates require allowed update configuration and, for many chats, bot administrator visibility. They are intentionally not part of automatic live smoke.
-
-Manual checklist:
-
-- Use a dedicated test chat and a clearly identified test message.
-- Run only after explicit confirmation for the target chat and message.
-- Set and clear only test reactions on test messages.
-- Do not run on production chats without explicit confirmation.
-- If testing updates, include `message_reaction` and `message_reaction_count` in allowed updates where needed.
-- Log only method names, chat ID, message ID, reaction type labels, boolean result, and update IDs.
-- Do not paste bot tokens, token-bearing URLs, private message text, or full private chat content into logs or reports.
-
-## Invite link methods checklist
-
-`ExportChatInviteLink`, `CreateChatInviteLink`, `EditChatInviteLink`, `CreateChatSubscriptionInviteLink`, `EditChatSubscriptionInviteLink`, and `RevokeChatInviteLink` require bot admin rights and create or revoke real chat invite links. Subscription invite links are Stars/payment-related channel access links. They are intentionally not part of automatic live smoke.
-
-Manual checklist for a dedicated test environment only:
-
-- Create a dedicated test group or channel.
-- Add the bot as an admin with invite-user rights.
-- Use only test invite links and avoid production groups/channels.
-- Prefer `CreateChatInviteLink` for a named temporary test link, then `EditChatInviteLink` if needed.
-- For subscription links, use only a disposable test channel, set the official 30-day `subscription_period` value, and keep the Stars `subscription_price` low.
-- Revoke every created test link with `RevokeChatInviteLink` after testing.
-- Treat Telegram permission errors in non-admin chats as expected Bot API behavior, not as a library bug.
-- Do not paste bot tokens, token-bearing URLs, full invite links, or private group content into logs or reports.
-
-## Chat join request methods checklist
-
-`ApproveChatJoinRequest` and `DeclineChatJoinRequest` require bot admin rights with invite-user permission and change real pending join request state. They are intentionally not part of automatic live smoke.
-
-Manual checklist for a dedicated test environment only:
-
-- Create a dedicated test group or channel.
-- Add the bot as an admin with invite-user rights.
-- Create an invite link with `CreatesJoinRequest: true`.
-- Use a dedicated test account to request to join through that link.
-- Approve or decline only that test account's join request.
-- Do not run this checklist on production groups/channels.
-- Do not paste bot tokens, token-bearing URLs, full invite links, user private content, or production group details into logs or reports.
-
-## Media upload/download checklist
-
-Upload a local file as a document:
+- The bot shows the demo inline keyboard.
+- Press demo buttons and confirm callback answers and message edits work.
+- Access-control examples stay admin-only unless you intentionally configure a public mode.
+
+## Media upload/download example
 
 ```bash
 export AIGRAM_BOT_TOKEN='123456:replace_me'
 export AIGRAM_CHAT_ID='123456789'
-export AIGRAM_MEDIA_PATH='/path/to/file.pdf'
+export AIGRAM_MEDIA_PATH='./testdata/example.txt'
 go run ./examples/media_upload
 ```
 
-Download an existing Telegram file by `file_id`:
+Optional download check:
 
 ```bash
-export AIGRAM_BOT_TOKEN='123456:replace_me'
 export AIGRAM_FILE_ID='existing_file_id'
 go run ./examples/media_upload
 ```
 
 Checklist:
 
-- Upload prints a message ID.
-- Download prints the downloaded byte count.
-- The library never prints a full token-bearing download URL.
-- For large files, use a streaming source/destination rather than keeping content in memory in your own application code.
+- Uploads use multipart when a local path is provided.
+- Downloads use `GetFile` and the configured file base URL.
+- Logs do not print the full bot token or token-bearing URLs.
 
-## Troubleshooting
+## Sensitive and state-changing areas
 
-- Long polling does not receive updates: check whether a webhook is still configured with `GetWebhookInfo`; long polling and webhooks are mutually exclusive, so call `DeleteWebhook` before polling.
-- Webhook updates do not arrive: verify the public/local URL, listen port, reverse proxy, secret token, and `GetWebhookInfo` last error fields.
-- Webhook returns 401: make sure `AIGRAM_WEBHOOK_SECRET` matches the secret sent in `SetWebhook` and configured in `webhook.Config`.
-- Media upload fails: check `AIGRAM_MEDIA_PATH`, file permissions, file size, and Telegram Bot API limits.
-- File download fails: check that `AIGRAM_FILE_ID` is valid and that `GetFile` returns a non-empty `file_path`.
-- Local Bot API server does not work: verify `AIGRAM_BASE_URL`, that the server process is reachable, and that the file base URL is correct for your local setup.
+The following areas should remain manual-only and should be tested only with dedicated test bots, disposable chats, or explicit maintainer approval:
 
-## Security notes
+- payments, Stars, gifts, and paid media;
+- business APIs and managed bot token methods;
+- passport data;
+- admin/destructive chat methods;
+- sticker set mutation;
+- games and inline mode features that require BotFather setup;
+- lifecycle `LogOut`/`Close`;
+- `SetWebhook` certificate upload.
 
-- Never commit a real bot token.
-- Do not log bot tokens.
-- Do not log full Bot API endpoint URLs because they contain the token.
-- Do not log full Telegram file download URLs because they contain the token.
-- Keep the webhook secret the same in `SetWebhook` and `webhook.Config`.
-- Call `DeleteWebhook` before starting long polling.
-- Official Telegram webhooks require a public HTTPS URL.
-- A local Telegram Bot API server in `--local` mode can accept HTTP/local webhook URLs when `AIGRAM_BASE_URL` points to that local server.
+Use unit tests and `httptest` coverage as the default verification for these areas. If you run live checks, log only safe metadata such as method names, result booleans, and redacted IDs.
 
+## Maintainer-only live smoke
 
+Maintainer smoke/deploy flows are intentionally separated from the public guide:
 
-## Lifecycle and profile read checklist
-
-`LogOut` and `Close` are lifecycle migration methods for local Bot API server workflows. Profile photos, profile audios, and forum topic icon stickers are read-only, but they are still kept out of automatic live smoke until a targeted safe script exists.
-
-Manual checklist:
-
-- Use a dedicated test bot and explicit confirmation before calling `LogOut` or `Close`.
-- Run `LogOut` only when intentionally moving a bot from the cloud Bot API server to a local Bot API server.
-- Run `Close` only when intentionally moving a bot between local Bot API servers, after deleting the webhook as required by Telegram.
-- Use `GetUserProfilePhotos` and `GetUserProfileAudios` only for expected test users and record counts/file metadata, not full private identifiers from production accounts.
-- Use `GetForumTopicIconStickers` as a safe metadata check and record only result counts or redacted custom emoji IDs.
-- Do not log bot tokens, token-bearing URLs, private profile media file IDs from production users, or unrelated user metadata.
-
-## Verification and user status checklist
-
-`SetUserEmojiStatus`, `VerifyUser`, `VerifyChat`, `RemoveUserVerification`, and `RemoveChatVerification` change real user/chat status or organization verification state. They are intentionally manual-only and must not be included in automatic live smoke.
-
-Manual checklist:
-
-- Use a dedicated test user/chat where possible and obtain explicit confirmation before changing status or verification.
-- Confirm the bot organization is allowed to verify users/chats before calling `VerifyUser` or `VerifyChat`.
-- Confirm Mini App emoji-status access was granted before calling `SetUserEmojiStatus`.
-- Restore test state after verification checks by calling the corresponding remove/clear method when appropriate.
-- Do not run on production users/chats automatically.
-- Do not log bot tokens, token-bearing URLs, production custom emoji IDs, or private verification descriptions.
-
-## WebApp / Mini App checklist
-
-`AnswerWebAppQuery`, `WebAppData`, and `WriteAccessAllowed` require a configured Telegram Mini App or Web App entry point. These flows can contain opaque user-provided payloads and are intentionally manual-only.
-
-Manual checklist:
-
-- Use a dedicated test bot, test Mini App, and test chat; do not use production Mini Apps without explicit confirmation.
-- Enable or configure the Mini App entry point in BotFather before the check.
-- Trigger only test Web App interactions and answer only the matching test `web_app_query_id`.
-- If testing `KeyboardButton.web_app`, `InlineKeyboardButton.web_app`, menu buttons, or inline query result buttons, use HTTPS test URLs only.
-- Verify `web_app_data` and `write_access_allowed` decoding from safe metadata.
-- Log only safe markers: update ID, action, result type, inline message ID presence, and redacted query IDs.
-- Do not log bot tokens, token-bearing URLs, raw `web_app_data`, private user input, or production Mini App payloads.
-
-## Edit media and live location checklist
-
-`EditMessageMedia`, `EditMessageLiveLocation`, and `StopMessageLiveLocation` mutate visible messages or live locations. They are intentionally not part of automatic live smoke.
-
-Manual checklist:
-
-- Use a dedicated test chat and disposable messages only; do not edit production messages.
-- Create a fresh test media message before `EditMessageMedia`; if testing uploads, use small disposable files.
-- For inline targets, use only file IDs or URLs; do not attempt multipart uploads for inline message edits.
-- Create a disposable live location before `EditMessageLiveLocation` and `StopMessageLiveLocation`; stop it after testing.
-- If testing business messages, use a dedicated business test connection and set `BusinessConnectionID`; do not log business payloads.
-- Log only safe markers: method name, chat ID, message ID or inline-target flag, media type or live-location action, and boolean/message result shape.
-- Do not log bot tokens, token-bearing URLs, raw business message payloads, or private message text.
-
-
-## Games checklist
-
-`SendGame`, `SetGameScore`, and `GetGameHighScores` require a game configured through BotFather. They are intentionally not part of automatic live smoke.
-
-Manual checklist:
-
-- Use a dedicated test bot with a BotFather-configured test game and a dedicated test chat.
-- Send only test game messages; do not use production game messages for library smoke.
-- Keep `callback_game` as the first button in the first inline keyboard row.
-- Update scores only for test users/messages and only after explicit confirmation.
-- If testing inline game messages, use a disposable inline result/message and log only whether the target was inline.
-- Log only safe markers: method name, chat ID, message ID or inline-target flag, test game short name, score, result shape, and high-score count.
-- Do not log bot tokens, token-bearing URLs, or private user data.
-
-## Passport checklist
-
-Telegram Passport checks are sensitive and intentionally not part of automatic live smoke. Decryption helpers are not implemented in the library.
-
-Manual checklist:
-
-- Use only dedicated Telegram Passport test data and explicit confirmation.
-- Decode only structural `Message.passport_data` fields needed to confirm type coverage.
-- Use `SetPassportDataErrors` only with disposable/synthetic test submissions.
-- Never log encrypted Passport element data, credential secrets, file hashes, user documents, or full private payloads.
-- Log only safe markers: method name, user ID, error source/type counts, and boolean result.
-- Do not add automatic live smoke for Passport flows.
-
-## Business API checklist
-
-Business API checks require a configured Telegram business account connection. They are intentionally manual-only because business messages can contain private payloads and account/profile/story/suggested-post/delete methods change real business account state.
-
-Manual checklist:
-
-- Use a dedicated business test setup, test bot, and disposable test messages; do not use production business chats without explicit confirmation.
-- Confirm the bot has the required business bot rights before testing read, delete, profile, gift settings, story/repost, and suggested post flows.
-- Fetch only expected test `business_connection_id` metadata with `GetBusinessConnection`.
-- Mark only disposable test messages as read with `ReadBusinessMessage`; delete only disposable test messages with `DeleteBusinessMessages`.
-- Send or edit only disposable test business messages by setting `BusinessConnectionID` on supported send/edit params; restore or delete visible test messages after the check.
-- Change only dedicated test business account name/bio/username/photo/gift settings and restore previous values after testing.
-- Post/edit/delete/repost only disposable test stories; use only test story assets and source stories from the dedicated test setup.
-- Approve or decline only disposable suggested posts in dedicated direct messages chats.
-- Verify business connection/message/suggested-post update decoding using safe metadata only.
-- Log only safe markers: method name, redacted business connection ID, chat ID, message/story count, source story ID in redacted/test form, boolean result, and update ID.
-- Do not log bot tokens, token-bearing URLs, raw business message/edit payloads, private user text, or production business identifiers.
-
-## Payments, paid media, and Stars checklist
-
-`SendInvoice`, `CreateInvoiceLink`, `AnswerShippingQuery`, `AnswerPreCheckoutQuery`, `SendPaidMedia`, `GetStarTransactions`, and `RefundStarPayment` require an explicit payment-capable test environment. They are intentionally not part of automatic live smoke.
-
-Manual checklist:
-
-- Use a dedicated test bot and payment test environment; do not use production payment flows without explicit confirmation.
-- For Stars/XTR flows, confirm the expected provider-token behavior before running a live check.
-- Send only test invoices to a dedicated test chat or test account.
-- If `is_flexible` is used, answer only the matching test `shipping_query` with test shipping options or a safe error message.
-- Validate every `pre_checkout_query` before delivering any goods or enabling any paid feature.
-- Log only safe markers: method name, redacted query IDs, currency, amount, boolean result, message ID, and whether an invoice link was created.
-- Do not log bot tokens, provider credentials, raw payment payloads, full invoice links from production flows, private user data, or provider charge IDs from real payments.
-- Reconcile and clean up any test artifacts according to the payment provider's test-mode guidance.
-- Send paid media only to a dedicated test chat and use test FileID/URL/upload media.
-- Query `GetStarTransactions` only for expected test windows and avoid copying raw transaction payloads into reports.
-- Use `RefundStarPayment` only for matching test Stars payments and record only redacted charge IDs.
-- Do not run paid media, Stars refunds, Premium subscription gifts, Stars subscription edits, gift sending, business gift conversion/upgrade/transfer, or business Stars transfer on production bots without explicit confirmation.
-- Use `GetAvailableGifts`, `GetMyStarBalance`, `GetBusinessAccountStarBalance`, `GetBusinessAccountGifts`, `GetUserGifts`, and `GetChatGifts` only against expected test accounts/chats; record counts and redacted IDs only.
-- Use `SendGift`, `GiftPremiumSubscription`, `TransferBusinessAccountStars`, `ConvertGiftToStars`, `UpgradeGift`, `TransferGift`, and `EditUserStarSubscription` only on disposable test value flows after explicit confirmation.
-- Never log full gift ownership IDs, payment payloads, charge IDs, business connection IDs, or private gift text.
-
-
-## Managed Bots 9.6 checklist
-
-Managed Bots 9.6 live checks are manual-only because `GetManagedBotToken` and `ReplaceManagedBotToken` return bot tokens that must be treated as secrets.
-
-- Use only a dedicated manager bot with managed-bot capability enabled.
-- Use a dedicated test managed bot/user; never run token replacement on production managed bots.
-- Do not print, paste, log, or include returned managed bot tokens in reports.
-- Use `SavePreparedKeyboardButton` only with test `request_users`, `request_chat`, or `request_managed_bot` buttons.
-- If token replacement is tested, immediately update only the isolated test environment that depends on the old token.
-- Record only safe metadata: method name, user ID, prepared keyboard button ID, and token presence as a boolean.
-
-## Prepared inline and reply markup checklist
-
-Prepared inline messages and rich reply markup require explicit client/Mini App/inline setup and remain manual-only.
-
-- Use a dedicated test bot, test Mini App, and disposable test chat.
-- Save only disposable prepared inline messages with `SavePreparedInlineMessage`.
-- Test `LoginUrl`, switch-inline, copy-text, pay, request-poll, icon, and style buttons only with synthetic/test payloads.
-- Do not log button payloads, reusable prepared inline identifiers, LoginUrl query data, or private copied text.
-- Record only safe metadata: method names, button type labels, result ID presence, and boolean results.
-
-## Inline mode checklist
-
-`AnswerInlineQuery`, `InlineQuery`, and `ChosenInlineResult` require inline mode to be enabled for the bot in BotFather. Inline mode sends selectable results into real chats, so it is intentionally not part of automatic live smoke.
-
-Manual checklist:
-
-- Use a dedicated test bot and test chat.
-- Enable inline mode in BotFather for that test bot before the check.
-- Send an `@bot query` from a test account.
-- Answer only with test results: article, location, venue, contact, game, media, or cached media inline result variants.
-- If testing custom input message content, use only test `InputTextMessageContent`, `InputLocationMessageContent`, `InputVenueMessageContent`, or `InputContactMessageContent` payloads.
-- Test `InputInvoiceMessageContent` only with explicit confirmation and a safe payments setup such as Telegram Stars/test-provider configuration.
-- If testing `chosen_inline_result`, enable inline feedback in BotFather where required.
-- Log only safe markers: update IDs, redacted inline query IDs, result counts, chosen result IDs, and boolean method results.
-- Do not paste bot tokens, token-bearing URLs, private message text, or production chat content into logs or reports.
+- [`docs/maintainer/LIVE_SMOKE_MATRIX.md`](maintainer/LIVE_SMOKE_MATRIX.md) classifies safe, sensitive, and destructive live checks.
+- [`docs/maintainer/DEPLOY_TESTING.md`](maintainer/DEPLOY_TESTING.md) documents the private deploy and multi-bot smoke harness.
+- [`docs/maintainer/ENV_SMOKE_TEMPLATE.md`](maintainer/ENV_SMOKE_TEMPLATE.md) lists the extended maintainer environment variables.

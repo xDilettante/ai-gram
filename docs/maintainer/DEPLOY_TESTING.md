@@ -6,11 +6,11 @@ This document describes a manual integration harness for ai-gram examples. It is
 
 The harness does not contain real tokens, IP addresses, domains, or secrets. Runtime configuration is read from `.env.local` and generated values are stored in `.deploy/generated.env`. Both files must stay uncommitted.
 
-Use [`LIVE_SMOKE_MATRIX.md`](LIVE_SMOKE_MATRIX.md) for the current safe/dangerous smoke classification and [`RELEASE_CHECKLIST.md`](RELEASE_CHECKLIST.md) before tagging a v0.1 release.
+Use [`LIVE_SMOKE_MATRIX.md`](LIVE_SMOKE_MATRIX.md) for the current safe/dangerous smoke classification and [`RELEASE_CHECKLIST.md`](RELEASE_CHECKLIST.md) before any publication step.
 
 ## Minimal `.env.local`
 
-Copy the template and fill the minimal values:
+Start from the public `.env.example` for a minimal smoke or copy selected variables from `ENV_SMOKE_TEMPLATE.md` for the full maintainer harness:
 
 ```bash
 cp .env.example .env.local
@@ -22,13 +22,13 @@ Recommended minimal configuration:
 ```bash
 AIGRAM_BOT_TOKEN="123456:REAL_TOKEN"
 AIGRAM_CHAT_ID="123456789"
-AIGRAM_DEPLOY_SSH_TARGET="vk1"
+AIGRAM_DEPLOY_SSH_TARGET="bot-host"
 ```
 
 `AIGRAM_DEPLOY_SSH_TARGET` should be an SSH alias from `~/.ssh/config`. Example:
 
 ```sshconfig
-Host vk1
+Host bot-host
     HostName example.invalid
     User deploy
     IdentityFile ~/.ssh/id_ed25519
@@ -323,7 +323,7 @@ For targeted checks, Codex or a script should send a separate targeted notificat
 
 If Codex asks for a targeted action, do only the listed steps, not the full checklist.
 
-Notifications are sent through `examples/notify_user`, which uses the ai-gram `SendMessage` method. Scripts do not print bot tokens or `/bot<TOKEN>/sendMessage` URLs.
+Notifications are sent through `examples/maintainer/notify_user`, which uses the ai-gram `SendMessage` method. Scripts do not print bot tokens or `/bot<TOKEN>/sendMessage` URLs.
 
 ## Actionable Telegram notifications
 

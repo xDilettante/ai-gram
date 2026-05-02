@@ -87,7 +87,7 @@ Milestone outcome:
 
 ## vNext Bot API 9.6 full coverage workstream
 
-Strategic change: the small v0.3 release plan is superseded. Local code coverage for Telegram Bot API 9.6 is now complete with documented architecture differences. See [`docs/BOT_API_9_6_COVERAGE_PLAN.md`](BOT_API_9_6_COVERAGE_PLAN.md), [`docs/BOT_API_9_6_FINAL_AUDIT.md`](BOT_API_9_6_FINAL_AUDIT.md), and [`docs/BOT_API_9_6_RELEASE_READINESS.md`](BOT_API_9_6_RELEASE_READINESS.md).
+Strategic change: the small v0.3 release plan is superseded. Local code coverage for Telegram Bot API 9.6 is now complete with documented architecture differences. See [`docs/BOT_API_9_6_COVERAGE_PLAN.md`](BOT_API_9_6_COVERAGE_PLAN.md), [`docs/BOT_API_9_6_FINAL_AUDIT.md`](BOT_API_9_6_FINAL_AUDIT.md), and [`docs/maintainer/BOT_API_9_6_RELEASE_READINESS.md`](maintainer/BOT_API_9_6_RELEASE_READINESS.md).
 
 Repository policy for this workstream:
 

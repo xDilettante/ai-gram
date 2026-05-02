@@ -2,9 +2,9 @@
 
 This document maps the current `ai-gram` implementation to Telegram Bot API areas. It is a project inventory, not a generated copy of the full upstream Bot API specification. Telegram adds methods over time, so expansion work should still be checked against the official Bot API docs before implementation.
 
-> **Bot API 9.6 target:** Local code coverage for Telegram Bot API 9.6 is complete with documented architecture differences. Track the local-only coverage workstream in [`docs/BOT_API_9_6_COVERAGE_PLAN.md`](BOT_API_9_6_COVERAGE_PLAN.md) and release-readiness status in [`docs/BOT_API_9_6_RELEASE_READINESS.md`](BOT_API_9_6_RELEASE_READINESS.md). Repository creation, push, tag, and GitHub Release operations remain frozen until the user explicitly asks later.
+> **Bot API 9.6 target:** Local code coverage for Telegram Bot API 9.6 is complete with documented architecture differences. Track the local-only coverage workstream in [`docs/BOT_API_9_6_COVERAGE_PLAN.md`](BOT_API_9_6_COVERAGE_PLAN.md) and release-readiness status in [`docs/maintainer/BOT_API_9_6_RELEASE_READINESS.md`](maintainer/BOT_API_9_6_RELEASE_READINESS.md). Repository creation, push, tag, and GitHub Release operations remain frozen until the user explicitly asks later.
 
-> **Stage 100 readiness:** Stage 99 resolved the final `setWebhook.certificate` blocker. Stage 100 records local release-readiness verification and the manual-only smoke plan. All 169 official method wrappers are present; no known Bot API 9.6 code coverage blockers remain; sensitive/state-changing live smoke remains manual-only. See [`docs/BOT_API_9_6_FINAL_AUDIT.md`](BOT_API_9_6_FINAL_AUDIT.md) and [`docs/BOT_API_9_6_RELEASE_READINESS.md`](BOT_API_9_6_RELEASE_READINESS.md).
+> **Stage 100 readiness:** Stage 99 resolved the final `setWebhook.certificate` blocker. Stage 100 records local release-readiness verification and the manual-only smoke plan. All 169 official method wrappers are present; no known Bot API 9.6 code coverage blockers remain; sensitive/state-changing live smoke remains manual-only. See [`docs/BOT_API_9_6_FINAL_AUDIT.md`](BOT_API_9_6_FINAL_AUDIT.md) and [`docs/maintainer/BOT_API_9_6_RELEASE_READINESS.md`](maintainer/BOT_API_9_6_RELEASE_READINESS.md).
 
 ## Implemented
 
@@ -369,10 +369,10 @@ This document maps the current `ai-gram` implementation to Telegram Bot API area
 | `examples/inline_longpoll` | compile via `go test ./...`, manual smoke | Inline callbacks, edit flow, access commands. |
 | `examples/webhook_server` | compile via `go test ./...`, live deploy smoke | Webhook, access panel, safe logs, callback/edit/delete/copy/forward/chat-info flows. |
 | `examples/media_upload` | compile via `go test ./...`, manual smoke | Upload/download smoke without committing tokens. |
-| `examples/media_group_smoke` | compile via `go test ./...`, live SendMediaGroup smoke | Self-contained generated upload fallback plus optional FileID/path modes without printing full file IDs or sensitive paths. |
+| `examples/maintainer/media_group_smoke` | compile via `go test ./...`, live SendMediaGroup smoke | Self-contained generated upload fallback plus optional FileID/path modes without printing full file IDs or sensitive paths. |
 | `examples/local_api_server` | compile via `go test ./...`, smoke scripts | Local Telegram Bot API server checks. |
-| `scripts/*.sh`, `deploy/systemd/*.tmpl` | `bash -n`, live/manual smoke | Discovery, auto SSH tunnel, deploy, logs, stop, notifications, separate Bot API host support. |
-| `docs/MANUAL_TESTING.md`, `docs/DEPLOY_TESTING.md` | review/manual | Manual smoke, deploy harness, TUN/Xray caveats, security notes. |
+| `scripts/*.sh`, `deploy/systemd/*.tmpl` | `bash -n`, maintainer-only live/manual smoke | Discovery, auto SSH tunnel, deploy, logs, stop, notifications, separate Bot API host support. These are maintainer-oriented, not required for normal library use. |
+| `docs/MANUAL_TESTING.md`, `docs/maintainer/DEPLOY_TESTING.md` | review/manual | Public manual examples plus maintainer-only deploy/smoke harness documentation. |
 
 ## Not implemented yet
 

@@ -40,6 +40,7 @@
 
 ### Documentation
 
+- Cleaned the public release surface by minimizing `.env.example` and separating maintainer-only smoke/deploy docs and examples.
 - Added Bot API 9.6 release-readiness documentation and manual-only smoke planning.
 - Added full Bot API 9.6 coverage audit documentation.
 - Added final Bot API 9.6 coverage audit documentation and release-readiness blockers.

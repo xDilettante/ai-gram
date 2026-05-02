@@ -38,7 +38,7 @@ Top pending type/field groups:
 
 ## Stage 98/99 final audit result
 
-Stage 98 created [`docs/BOT_API_9_6_FINAL_AUDIT.md`](BOT_API_9_6_FINAL_AUDIT.md). The audit found all 169 official Bot API method wrappers present and no missing fields in the audited high-impact `User`, `Chat`, `ChatFullInfo`, `Update`, `Message`, `ReplyParameters`, `CallbackQuery`, `Video`, sticker, and keyboard field tables after adding `Message.giveaway`. Stage 99 added `SetWebhook` certificate upload support with `FileUpload`, JSON/multipart tests, secret redaction checks, and documentation updates. No known Bot API 9.6 code coverage blockers remain. Stage 100 adds [`docs/BOT_API_9_6_RELEASE_READINESS.md`](BOT_API_9_6_RELEASE_READINESS.md) for local verification and manual-only smoke planning; repository creation, push, tag, and release remain frozen until the user explicitly asks later.
+Stage 98 created [`docs/BOT_API_9_6_FINAL_AUDIT.md`](BOT_API_9_6_FINAL_AUDIT.md). The audit found all 169 official Bot API method wrappers present and no missing fields in the audited high-impact `User`, `Chat`, `ChatFullInfo`, `Update`, `Message`, `ReplyParameters`, `CallbackQuery`, `Video`, sticker, and keyboard field tables after adding `Message.giveaway`. Stage 99 added `SetWebhook` certificate upload support with `FileUpload`, JSON/multipart tests, secret redaction checks, and documentation updates. No known Bot API 9.6 code coverage blockers remain. Stage 100 adds [`docs/maintainer/BOT_API_9_6_RELEASE_READINESS.md`](maintainer/BOT_API_9_6_RELEASE_READINESS.md) for local verification and manual-only smoke planning; repository creation, push, tag, and release remain frozen until the user explicitly asks later.
 
 ## Stage 89 result
 

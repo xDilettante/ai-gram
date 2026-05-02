@@ -92,7 +92,7 @@ The official docs describe concrete `ChatMember*` variants. `ai-gram` keeps a fl
 
 ## Release-readiness blockers
 
-No known Bot API 9.6 code coverage blockers remain after Stage 99. Stage 100 tracks local release-readiness verification and manual-only smoke planning in [`docs/BOT_API_9_6_RELEASE_READINESS.md`](BOT_API_9_6_RELEASE_READINESS.md). Sensitive and state-changing live smoke remains manual-only.
+No known Bot API 9.6 code coverage blockers remain after Stage 99. Stage 100 tracks local release-readiness verification and manual-only smoke planning in [`docs/maintainer/BOT_API_9_6_RELEASE_READINESS.md`](maintainer/BOT_API_9_6_RELEASE_READINESS.md). Sensitive and state-changing live smoke remains manual-only.
 
 Soft follow-up, not a release blocker if documented:
 

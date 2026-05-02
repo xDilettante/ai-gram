@@ -2,7 +2,7 @@
 
 `ai-gram` is a Go library project for working with the Telegram Bot API.
 
-The latest public release is `v0.2.0`. Local development has reached the local Bot API 9.6 code coverage target with documented architecture differences, and Stage 100 local release-readiness verification is tracked in `docs/BOT_API_9_6_RELEASE_READINESS.md`. The library provides practical incoming update types, a typed HTTP Bot API core, selected public Bot API methods, media sending by file_id, URL, or multipart upload, file download support, webhook management methods, a managed long polling runner, an inbound webhook HTTP handler, a small update dispatcher/router, helper middleware, examples, and manual smoke tooling. It does not yet implement FSM, scenes, or storage.
+The latest public release is `v0.2.0`. Local development has reached the local Bot API 9.6 code coverage target with documented architecture differences. The library provides practical incoming update types, a typed HTTP Bot API core, selected public Bot API methods, media sending by file_id, URL, or multipart upload, file download support, webhook management methods, a managed long polling runner, an inbound webhook HTTP handler, a small update dispatcher/router, helper middleware, and concise examples. It does not yet implement FSM, scenes, or storage.
 
 ## Status
 
@@ -1412,9 +1412,9 @@ Runnable examples are available under `examples/`:
 - `examples/inline_longpoll` — admin-only inline keyboard callbacks with `AnswerCallbackQuery` and runtime access commands.
 - `examples/webhook_server` — admin-only inbound webhook server with `SetWebhook`, safe action logs, callback edit/delete flows, and caption edit smoke.
 - `examples/media_upload` — document upload and file download smoke checks.
-- `examples/v02_send_methods` — safe v0.2 send-method live smoke helper for contact, location, venue, poll, dice, and optional media sends.
-- `examples/media_group_smoke` — targeted `SendMediaGroup` live smoke helper with generated upload fallback.
 - `examples/local_api_server` — connectivity check for a local Telegram Bot API server.
+
+Maintainer-only live smoke examples are separated under `examples/maintainer/`. They are not needed for normal library use.
 
 ## Manual testing
 
@@ -1429,24 +1429,12 @@ Coverage and planning documents:
 - [`docs/API_COVERAGE.md`](docs/API_COVERAGE.md) — implemented methods, missing Bot API areas, risk classification, and v0.1 recommendation.
 - [`docs/BOT_API_9_6_COVERAGE_PLAN.md`](docs/BOT_API_9_6_COVERAGE_PLAN.md) — local-only full Telegram Bot API 9.6 coverage plan and freeze policy.
 - [`docs/BOT_API_9_6_FINAL_AUDIT.md`](docs/BOT_API_9_6_FINAL_AUDIT.md) — final Bot API 9.6 coverage audit.
-- [`docs/BOT_API_9_6_RELEASE_READINESS.md`](docs/BOT_API_9_6_RELEASE_READINESS.md) — local release-readiness verification and manual-only smoke plan.
 - [`docs/V0_2_CHECKPOINT.md`](docs/V0_2_CHECKPOINT.md) — v0.2 coverage checkpoint and release recommendation.
 - [`docs/V0_3_PLAN.md`](docs/V0_3_PLAN.md) — superseded v0.3 planning notes; full Bot API 9.6 coverage is tracked in the coverage plan.
 - [`docs/ROADMAP.md`](docs/ROADMAP.md) — stabilization and expansion roadmap.
 - [`docs/MANUAL_TESTING.md`](docs/MANUAL_TESTING.md) — local/manual smoke checklist.
-- [`docs/DEPLOY_TESTING.md`](docs/DEPLOY_TESTING.md) — deploy/manual integration harness.
-- [`docs/LIVE_SMOKE_MATRIX.md`](docs/LIVE_SMOKE_MATRIX.md) — safe and dangerous live smoke flows.
-- [`docs/RELEASE_CHECKLIST.md`](docs/RELEASE_CHECKLIST.md) — pre-tag v0.1 release checklist.
 
-Deployment-oriented manual integration checks are described in [`docs/DEPLOY_TESTING.md`](docs/DEPLOY_TESTING.md). The deploy harness can start from a minimal `.env.local` with bot token, chat ID, and SSH alias, then write discovered values to ignored `.deploy/generated.env`. Smoke scripts can open a temporary SSH tunnel when a discovered local Bot API server listens only on a remote loopback; the Bot API server may live on a separate SSH target from the webhook deploy target. Remote logs are redacted before printing.
-
-The integration harness supports role-specific test bot tokens (`MAIN`, `LOCAL`, `WEBHOOK`, `NOTIFY`, and others) while preserving the legacy single-token `AIGRAM_BOT_TOKEN` mode. Set `AIGRAM_BOTAPI_SSH_TARGET` when the local Telegram Bot API server runs on a different SSH host than the webhook example.
-
-Manual smoke scripts can also send Telegram notifications with the target `@username`, `t.me` deep link, exact panel/button guidance, and what Codex will verify in safe logs. Webhook deploy notifications use `AIGRAM_SMOKE_MODE=targeted` by default, so deploys do not ask for a full checklist unless `AIGRAM_SMOKE_MODE=full` is explicitly set. See [`docs/DEPLOY_TESTING.md`](docs/DEPLOY_TESTING.md#telegram-notifications-during-smoke-checks).
-
-Use `./scripts/smoke_v02_send_methods.sh` for the targeted v0.2 send-method live smoke. It sends contact/location/venue/poll/dice test messages to the configured smoke chat; sticker, animation, and video note checks run only when the matching optional media environment variables are set.
-
-Use `./scripts/smoke_media_group.sh` for the targeted `SendMediaGroup` live smoke. By default it sends two generated small text documents as a media group, and optional file ID/path env variables can switch it to FileID or upload mode.
+Maintainer-only deploy, live-smoke, and release-readiness notes are separated under `docs/maintainer/`. They are useful for project maintainers but are not part of the normal user-facing quick start.
 
 ## Development checks
 

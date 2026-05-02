@@ -46,9 +46,9 @@ Do not release if any command fails or if `git status --short` contains unintend
   - `docs/API_COVERAGE.md`
   - `docs/ROADMAP.md`
   - `docs/MANUAL_TESTING.md`
-  - `docs/DEPLOY_TESTING.md`
-  - `docs/LIVE_SMOKE_MATRIX.md`
-  - `docs/RELEASE_CHECKLIST.md`
+  - `docs/maintainer/DEPLOY_TESTING.md`
+  - `docs/maintainer/LIVE_SMOKE_MATRIX.md`
+  - `docs/maintainer/RELEASE_CHECKLIST.md`
 - Manual testing docs describe access control/admin-only mode.
 - Deploy testing docs describe deep-link smoke panels, role-specific tokens, separate Bot API host support, and TUN/Xray/vk1 caveats.
 - Coverage docs classify destructive/admin methods and methods that should not be smoke-tested automatically.
@@ -64,7 +64,7 @@ Do not release if any command fails or if `git status --short` contains unintend
 
 ## Live smoke safe flows
 
-Use `docs/LIVE_SMOKE_MATRIX.md` as the source of truth. Recommended safe subset before `v0.1.0`:
+Use `docs/maintainer/LIVE_SMOKE_MATRIX.md` as the source of truth. Recommended safe subset before `v0.1.0`:
 
 - local Bot API smoke;
 - webhook `/start`;

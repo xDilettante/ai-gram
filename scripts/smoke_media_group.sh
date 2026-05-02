@@ -64,7 +64,7 @@ cleanup_output() {
 trap 'cleanup_output; cleanup_smoke_tunnels' EXIT INT TERM
 
 set +e
-run_sanitized go run ./examples/media_group_smoke | tee "${TMP_OUTPUT}"
+run_sanitized go run ./examples/maintainer/media_group_smoke | tee "${TMP_OUTPUT}"
 status=${PIPESTATUS[0]}
 set -e
 if [ "${status}" -ne 0 ]; then

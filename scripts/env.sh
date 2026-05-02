@@ -501,7 +501,7 @@ notify_user() {
   set +e
   (
     cd "${REPO_ROOT}"
-    run_sanitized go run ./examples/notify_user
+    run_sanitized go run ./examples/maintainer/notify_user
   )
   status=$?
   set -e
