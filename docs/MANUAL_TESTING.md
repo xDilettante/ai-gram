@@ -12,7 +12,7 @@ Smoke notifications prefer Telegram deep links such as `https://t.me/<bot>?start
 
 Use [`LIVE_SMOKE_MATRIX.md`](LIVE_SMOKE_MATRIX.md) to decide which flows are safe to run automatically or manually, and which destructive/admin flows require an explicit isolated test setup.
 
-Chat/update metadata coverage, including `GetChatFullInfo`, channel posts, edited channel posts, and standalone poll updates, is primarily verified with synthetic fixtures. Do not run a live check for these fields in Stage 98; if a future manual read check is needed, log only field presence and result counts, not private message text. Stage 98 also identified `setWebhook.certificate` upload as the remaining coverage blocker; certificate upload should be verified only after a dedicated implementation stage with disposable test certificates.
+Chat/update metadata coverage, including `GetChatFullInfo`, channel posts, edited channel posts, and standalone poll updates, is primarily verified with synthetic fixtures. Do not run a live check for these fields in Stage 98/99; if a future manual read check is needed, log only field presence and result counts, not private message text. Stage 99 implemented `setWebhook.certificate` upload support; certificate upload must be verified only with explicit confirmation and disposable test certificates, and logs must not include webhook URLs, secrets, or certificate contents.
 
 ## Environment variables
 

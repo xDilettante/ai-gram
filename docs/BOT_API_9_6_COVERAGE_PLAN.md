@@ -24,10 +24,10 @@ This plan is a working checklist derived from the official documentation and cha
 
 Stage 88 compared the current local implementation with the official Telegram Bot API documentation and the April 3, 2026 Bot API 9.6 changelog. Full coverage is **not yet reached**. The precise missing method/type/field checklist now lives in [`docs/BOT_API_9_6_AUDIT.md`](BOT_API_9_6_AUDIT.md).
 
-Top pending method groups after Stage 98:
+Top pending method groups after Stage 99:
 
 - No official method wrappers are missing (169/169 official methods are represented by exported `(*bot.Bot)` methods).
-- Hard behavior blocker: `setWebhook.certificate` upload/multipart support is still missing.
+- No known method behavior blockers remain after `setWebhook.certificate` upload/multipart support was implemented in Stage 99.
 
 Top pending type/field groups:
 
@@ -36,11 +36,9 @@ Top pending type/field groups:
 
 
 
-## Stage 98 final audit result
+## Stage 98/99 final audit result
 
-Stage 98 created [`docs/BOT_API_9_6_FINAL_AUDIT.md`](BOT_API_9_6_FINAL_AUDIT.md). The audit found all 169 official Bot API method wrappers present and no missing fields in the audited high-impact `User`, `Chat`, `ChatFullInfo`, `Update`, `Message`, `ReplyParameters`, `CallbackQuery`, `Video`, sticker, and keyboard field tables after adding `Message.giveaway`. Full coverage is **not yet reached** because `SetWebhook` does not support the official optional `certificate` `InputFile` multipart upload path.
-
-Recommended Stage 99: add `SetWebhook` certificate upload support with `FileRef`/`FileUpload`, JSON/multipart tests, secret redaction checks, and documentation updates; then rerun a short final audit before any push/tag/release discussion.
+Stage 98 created [`docs/BOT_API_9_6_FINAL_AUDIT.md`](BOT_API_9_6_FINAL_AUDIT.md). The audit found all 169 official Bot API method wrappers present and no missing fields in the audited high-impact `User`, `Chat`, `ChatFullInfo`, `Update`, `Message`, `ReplyParameters`, `CallbackQuery`, `Video`, sticker, and keyboard field tables after adding `Message.giveaway`. Stage 99 added `SetWebhook` certificate upload support with `FileUpload`, JSON/multipart tests, secret redaction checks, and documentation updates. No known Bot API 9.6 code coverage blockers remain; push/tag/release remain frozen until the user explicitly asks later.
 
 ## Stage 89 result
 
@@ -467,7 +465,7 @@ Recommended local-only stages after the Stage 98 audit:
 8. Stage 96 completed: service/direct-message/story/media metadata gaps.
 9. Stage 97 completed: `ChatFullInfo`, full user/chat metadata, channel post/standalone poll update shape, and compatible flat chat member variant strategy.
 10. Stage 98 completed: final official-doc audit and release-readiness blocker review.
-11. Stage 99 recommended: implement `SetWebhook` certificate upload / multipart support, then rerun a short final audit.
+11. Stage 99 completed: `SetWebhook` certificate upload / multipart support and focused final audit.
 
 Each stage should:
 

@@ -69,6 +69,65 @@ func TestSetWebhookSendsPayloadAndReturnsTrue(t *testing.T) {
 	}
 }
 
+func TestSetWebhookSendsMultipartCertificate(t *testing.T) {
+	const token = "123:secret"
+	const secret = "webhook_SECRET-123"
+
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodPost {
+			t.Fatalf("unexpected method: %s", r.Method)
+		}
+		if r.URL.Path != "/bot"+token+"/setWebhook" {
+			t.Fatalf("unexpected path: %q", r.URL.Path)
+		}
+		if got := r.Header.Get("Content-Type"); !strings.HasPrefix(got, "multipart/form-data") {
+			t.Fatalf("unexpected content type: %q", got)
+		}
+		if err := r.ParseMultipartForm(1 << 20); err != nil {
+			t.Fatalf("parse multipart: %v", err)
+		}
+
+		assertMultipartValue(t, r, "url", "https://example.com/telegram/webhook")
+		assertMultipartValue(t, r, "ip_address", "203.0.113.10")
+		assertMultipartValue(t, r, "max_connections", "40")
+		assertMultipartValue(t, r, "allowed_updates", `["message","callback_query"]`)
+		assertMultipartValue(t, r, "drop_pending_updates", "true")
+		assertMultipartValue(t, r, "secret_token", secret)
+
+		content, header := readMultipartFile(t, r, "certificate")
+		if header.Filename != "public-cert.pem" {
+			t.Fatalf("unexpected certificate filename: %q", header.Filename)
+		}
+		if header.Header.Get("Content-Type") != "application/x-pem-file" {
+			t.Fatalf("unexpected certificate content type: %q", header.Header.Get("Content-Type"))
+		}
+		if string(content) != "certificate-data" {
+			t.Fatalf("unexpected certificate content: %q", string(content))
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		_, _ = w.Write([]byte(`{"ok":true,"result":true}`))
+	}))
+	defer server.Close()
+
+	bot := newTestBot(t, token, server.URL, server.Client())
+	ok, err := bot.SetWebhook(context.Background(), SetWebhookParams{
+		URL:                "https://example.com/telegram/webhook",
+		Certificate:        FileUpload(UploadFile{Name: "public-cert.pem", Reader: strings.NewReader("certificate-data"), ContentType: "application/x-pem-file"}),
+		IPAddress:          "203.0.113.10",
+		MaxConnections:     40,
+		AllowedUpdates:     []string{"message", "callback_query"},
+		DropPendingUpdates: true,
+		SecretToken:        secret,
+	})
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if !ok {
+		t.Fatal("expected true result")
+	}
+}
+
 func TestSetWebhookValidation(t *testing.T) {
 	const secret = "bad secret"
 	tests := []struct {
@@ -86,6 +145,10 @@ func TestSetWebhookValidation(t *testing.T) {
 		{name: "max negative", params: SetWebhookParams{URL: "https://example.com/hook", MaxConnections: -1}, wantErr: true},
 		{name: "max too high", params: SetWebhookParams{URL: "https://example.com/hook", MaxConnections: 101}, wantErr: true},
 		{name: "invalid secret", params: SetWebhookParams{URL: "https://example.com/hook", SecretToken: secret}, wantErr: true},
+		{name: "certificate file id", params: SetWebhookParams{URL: "https://example.com/hook", Certificate: FileID("cert-file-id")}, wantErr: true},
+		{name: "certificate file url", params: SetWebhookParams{URL: "https://example.com/hook", Certificate: FileURL("https://example.com/cert.pem")}, wantErr: true},
+		{name: "certificate missing filename", params: SetWebhookParams{URL: "https://example.com/hook", Certificate: FileUpload(UploadFile{Reader: strings.NewReader("cert")})}, wantErr: true},
+		{name: "certificate missing reader", params: SetWebhookParams{URL: "https://example.com/hook", Certificate: FileUpload(UploadFile{Name: "cert.pem"})}, wantErr: true},
 	}
 
 	for _, tt := range tests {
@@ -133,15 +196,16 @@ func TestSetWebhookAllowsHTTPWithCustomBaseURL(t *testing.T) {
 func TestSetWebhookReturnsAPIErrorAndRedactsSecrets(t *testing.T) {
 	const token = "123:secret"
 	const secret = "webhook_SECRET-123"
+	const webhookURL = "https://example.com/hook"
 
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
-		_, _ = w.Write([]byte(`{"ok":false,"error_code":400,"description":"Bad token 123:secret and secret webhook_SECRET-123"}`))
+		_, _ = w.Write([]byte(`{"ok":false,"error_code":400,"description":"Bad token 123:secret, secret webhook_SECRET-123, url https://example.com/hook"}`))
 	}))
 	defer server.Close()
 
 	bot := newTestBot(t, token, server.URL, server.Client())
-	ok, err := bot.SetWebhook(context.Background(), SetWebhookParams{URL: "https://example.com/hook", SecretToken: secret})
+	ok, err := bot.SetWebhook(context.Background(), SetWebhookParams{URL: webhookURL, SecretToken: secret})
 	if err == nil {
 		t.Fatal("expected error")
 	}
@@ -158,6 +222,108 @@ func TestSetWebhookReturnsAPIErrorAndRedactsSecrets(t *testing.T) {
 	}
 	assertNoToken(t, err, token)
 	assertNoSecret(t, err, secret)
+	if strings.Contains(err.Error(), webhookURL) {
+		t.Fatalf("error leaked webhook URL: %q", err.Error())
+	}
+}
+
+func TestSetWebhookMultipartErrorsDoNotLeakSensitiveValues(t *testing.T) {
+	const token = "123:secret"
+	const secret = "webhook_SECRET-123"
+	const webhookURL = "https://example.com/hook"
+	certificate := FileUpload(UploadFile{Name: "public-cert.pem", Reader: strings.NewReader("certificate-data")})
+
+	t.Run("api error", func(t *testing.T) {
+		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			w.Header().Set("Content-Type", "application/json")
+			_, _ = w.Write([]byte(`{"ok":false,"error_code":400,"description":"Bad token 123:secret, secret webhook_SECRET-123, url https://example.com/hook"}`))
+		}))
+		defer server.Close()
+
+		bot := newTestBot(t, token, server.URL, server.Client())
+		ok, err := bot.SetWebhook(context.Background(), SetWebhookParams{URL: webhookURL, Certificate: certificate, SecretToken: secret})
+		if err == nil {
+			t.Fatal("expected error")
+		}
+		if ok {
+			t.Fatal("expected false result")
+		}
+		var apiErr *apierrors.APIError
+		if !stderrors.As(err, &apiErr) {
+			t.Fatalf("expected APIError, got %T", err)
+		}
+		assertNoToken(t, err, token)
+		assertNoSecret(t, err, secret)
+		if strings.Contains(err.Error(), webhookURL) || strings.Contains(err.Error(), "certificate-data") {
+			t.Fatalf("error leaked sensitive value: %q", err.Error())
+		}
+	})
+
+	t.Run("invalid json", func(t *testing.T) {
+		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			w.Header().Set("Content-Type", "application/json")
+			_, _ = w.Write([]byte(`not-json`))
+		}))
+		defer server.Close()
+
+		bot := newTestBot(t, token, server.URL, server.Client())
+		ok, err := bot.SetWebhook(context.Background(), SetWebhookParams{URL: webhookURL, Certificate: FileUpload(UploadFile{Name: "public-cert.pem", Reader: strings.NewReader("certificate-data")}), SecretToken: secret})
+		if err == nil {
+			t.Fatal("expected invalid JSON error")
+		}
+		if ok {
+			t.Fatal("expected false result")
+		}
+		assertNoToken(t, err, token)
+		assertNoSecret(t, err, secret)
+		if strings.Contains(err.Error(), webhookURL) || strings.Contains(err.Error(), "certificate-data") {
+			t.Fatalf("error leaked sensitive value: %q", err.Error())
+		}
+	})
+
+	t.Run("http status", func(t *testing.T) {
+		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			http.Error(w, "server error", http.StatusInternalServerError)
+		}))
+		defer server.Close()
+
+		bot := newTestBot(t, token, server.URL, server.Client())
+		ok, err := bot.SetWebhook(context.Background(), SetWebhookParams{URL: webhookURL, Certificate: FileUpload(UploadFile{Name: "public-cert.pem", Reader: strings.NewReader("certificate-data")}), SecretToken: secret})
+		if err == nil {
+			t.Fatal("expected HTTP status error")
+		}
+		if ok {
+			t.Fatal("expected false result")
+		}
+		assertNoToken(t, err, token)
+		assertNoSecret(t, err, secret)
+		if strings.Contains(err.Error(), webhookURL) || strings.Contains(err.Error(), "certificate-data") {
+			t.Fatalf("error leaked sensitive value: %q", err.Error())
+		}
+	})
+
+	t.Run("cancelled context", func(t *testing.T) {
+		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			t.Fatal("request should not reach server with canceled context")
+		}))
+		defer server.Close()
+
+		bot := newTestBot(t, token, server.URL, server.Client())
+		ctx, cancel := context.WithCancel(context.Background())
+		cancel()
+		ok, err := bot.SetWebhook(ctx, SetWebhookParams{URL: webhookURL, Certificate: FileUpload(UploadFile{Name: "public-cert.pem", Reader: strings.NewReader("certificate-data")}), SecretToken: secret})
+		if err == nil {
+			t.Fatal("expected context error")
+		}
+		if ok {
+			t.Fatal("expected false result")
+		}
+		assertNoToken(t, err, token)
+		assertNoSecret(t, err, secret)
+		if strings.Contains(err.Error(), webhookURL) || strings.Contains(err.Error(), "certificate-data") {
+			t.Fatalf("error leaked sensitive value: %q", err.Error())
+		}
+	})
 }
 
 func TestDeleteWebhookSendsPayloadAndReturnsTrue(t *testing.T) {

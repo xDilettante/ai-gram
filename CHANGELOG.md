@@ -4,6 +4,7 @@
 
 ### Added
 
+- SetWebhook certificate upload support for the official upload-only `certificate` InputFile parameter.
 - Final Bot API 9.6 coverage audit documentation and `Message.giveaway` decoding coverage.
 - ChatFullInfo, GetChatFullInfo, fuller User/Chat metadata, and channel post/standalone poll update shapes.
 - Service/direct-message/story/media metadata completion: `RepostStory`, video cover/start/quality metadata, shared user/chat service messages, chat backgrounds, video chats, proximity alerts, auto-delete timers, giveaway service messages, and paid/direct message price-change service fields.

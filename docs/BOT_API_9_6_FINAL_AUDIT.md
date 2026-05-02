@@ -2,32 +2,32 @@
 
 ## Result
 
-**Full coverage not reached.**
+**Full coverage reached with documented architecture differences.**
 
-The Stage 98 official-doc audit found that `ai-gram` now has wrappers for all 169 official Telegram Bot API 9.6 methods and representative typed coverage for the major object/update/message families, but one official behavior remains a release-readiness blocker: `setWebhook` does not yet support multipart certificate upload for the official `certificate` `InputFile` parameter.
+The Stage 98 official-doc audit found that `ai-gram` has wrappers for all 169 official Telegram Bot API 9.6 methods and representative typed coverage for the major object/update/message families. Stage 99 resolved the remaining hard blocker by adding multipart certificate upload for the official `setWebhook.certificate` `InputFile` parameter.
 
-A small decode gap found during the audit, `Message.giveaway`, was corrected in Stage 98. The remaining non-blocking differences are documented architecture choices or naming/package differences.
+A small decode gap found during the audit, `Message.giveaway`, was corrected in Stage 98. The remaining differences are documented architecture choices or naming/package differences.
 
 ## Source of truth
 
-- [Official Telegram Bot API documentation](https://core.telegram.org/bots/api), fetched during Stage 98 on 2026-05-02.
+- [Official Telegram Bot API documentation](https://core.telegram.org/bots/api), fetched during Stage 98 and rechecked for `setWebhook` during Stage 99 on 2026-05-02.
 - [Official Telegram Bot API changelog](https://core.telegram.org/bots/api-changelog), especially the April 3, 2026 Bot API 9.6 entry.
 
 ## Method coverage
 
-Stage 98 compared every official method heading in the Telegram Bot API documentation with exported `(*bot.Bot)` method wrappers.
+Stage 98 compared every official method heading in the Telegram Bot API documentation with exported `(*bot.Bot)` method wrappers. Stage 99 rechecked the official `setWebhook` parameter table and certificate upload note.
 
 Summary:
 
 - Official Bot API methods audited: **169**.
 - Implemented `(*bot.Bot)` wrappers: **169 / 169**.
 - Missing method wrappers: **none known**.
-- Needs verification / behavior blockers: **`setWebhook` certificate upload**.
+- Needs verification / behavior blockers: **none known after Stage 99**.
 
 Implemented method areas include:
 
 - lifecycle and profile reads: `getMe`, `logOut`, `close`, profile photos/audios, forum topic icon stickers;
-- updates and webhook management: `getUpdates`, `setWebhook`, `deleteWebhook`, `getWebhookInfo`;
+- updates and webhook management: `getUpdates`, `setWebhook` including upload-only certificate `InputFile`, `deleteWebhook`, `getWebhookInfo`;
 - send/edit/delete/copy/forward/batch methods, including checklists, drafts, games, media groups, paid media, and live-location edits;
 - chat/forum/admin/member/boost methods;
 - regular and subscription invite links plus join requests;
@@ -68,10 +68,9 @@ Official named types intentionally represented differently or needing a compatib
 
 The official Bot API uses `InputFile` for file uploads. `ai-gram` intentionally exposes `bot.FileRef` and `bot.FileUpload` so callers can pass Telegram `file_id`, HTTP(S) URLs, or multipart uploads through one Go type. This is acceptable as a public API design choice when every upload-capable field has JSON/multipart behavior.
 
-Stage 98 verified the direct official method parameters containing `InputFile`:
+Stage 98/99 verified the direct official method parameters containing `InputFile`:
 
-- implemented JSON/multipart upload behavior: `sendPhoto.photo`, `sendAudio.audio`, `sendAudio.thumbnail`, `sendDocument.document`, `sendDocument.thumbnail`, `sendVideo.video`, `sendVideo.thumbnail`, `sendVideo.cover`, `sendAnimation.animation`, `sendAnimation.thumbnail`, `sendVoice.voice`, `sendVideoNote.video_note`, `sendVideoNote.thumbnail`, `setChatPhoto.photo`, `sendSticker.sticker`, `uploadStickerFile.sticker`, and `setStickerSetThumbnail.thumbnail`;
-- **blocker:** `setWebhook.certificate` is not yet exposed and cannot be uploaded.
+- implemented JSON/multipart upload behavior: `sendPhoto.photo`, `sendAudio.audio`, `sendAudio.thumbnail`, `sendDocument.document`, `sendDocument.thumbnail`, `sendVideo.video`, `sendVideo.thumbnail`, `sendVideo.cover`, `sendAnimation.animation`, `sendAnimation.thumbnail`, `sendVoice.voice`, `sendVideoNote.video_note`, `sendVideoNote.thumbnail`, `setChatPhoto.photo`, `sendSticker.sticker`, `uploadStickerFile.sticker`, `setStickerSetThumbnail.thumbnail`, and upload-only `setWebhook.certificate`.
 
 Polymorphic upload objects (`InputMedia*`, `InputPaidMedia*`, `InputProfilePhoto*`, `InputStoryContent*`, `InputSticker`) are implemented through typed Go structs and multipart helpers in their method families.
 
@@ -89,13 +88,11 @@ The official docs describe concrete `ChatMember*` variants. `ai-gram` keeps a fl
 
 ### Webhook certificate upload
 
-`SetWebhookParams` currently exposes JSON webhook fields but lacks the official optional `certificate` `InputFile` parameter and multipart request path. This is a real coverage blocker because self-signed webhook certificate upload is part of official `setWebhook` behavior.
+`SetWebhookParams` now exposes the official optional `certificate` parameter through `FileRef` and accepts only `FileUpload` for that upload-only official `InputFile` path. When `Certificate` is empty, `SetWebhook` keeps the existing JSON request path; when it is a `FileUpload`, `SetWebhook` sends multipart/form-data with the certificate part named `certificate`. File IDs and URLs are rejected because the official docs state that sending a string will not work for this parameter.
 
 ## Release-readiness blockers
 
-| Item | Risk | Required fix stage |
-| --- | --- | --- |
-| `setWebhook.certificate` upload is missing | Full Bot API 9.6 behavior is not complete for webhook setup with self-signed certificates. Users cannot call the official multipart certificate path through the typed client. | Stage 99: add `SetWebhook` certificate upload support with `FileRef`/`FileUpload`, multipart tests, docs, and token/secret redaction checks. |
+No known Bot API 9.6 code coverage blockers remain after Stage 99. Sensitive and state-changing live smoke remains manual-only.
 
 Soft follow-up, not a release blocker if documented:
 
@@ -120,4 +117,4 @@ Decode/serialization-only areas such as reply metadata, service messages, direct
 
 ## Recommended next step
 
-Stage 99 should implement the remaining hard blocker: `setWebhook` certificate upload / multipart support. Do not push, tag, or create a GitHub Release before Stage 99 is implemented, verified, and followed by another short final audit.
+Recommended Stage 100: local release-readiness verification and manual-only smoke planning, with no push, tag, or GitHub Release unless the user explicitly asks later.

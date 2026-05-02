@@ -2,8 +2,10 @@ package bot
 
 import (
 	"context"
+	"encoding/json"
 	stderrors "errors"
 	"net/url"
+	"strconv"
 	"strings"
 
 	apierrors "github.com/xDilettante/ai-gram/errors"
@@ -14,6 +16,7 @@ import (
 // SetWebhookParams contains supported parameters for setWebhook.
 type SetWebhookParams struct {
 	URL                string   `json:"url"`
+	Certificate        FileRef  `json:"-"`
 	IPAddress          string   `json:"ip_address,omitempty"`
 	MaxConnections     int      `json:"max_connections,omitempty"`
 	AllowedUpdates     []string `json:"allowed_updates,omitempty"`
@@ -36,8 +39,20 @@ func (b *Bot) SetWebhook(ctx context.Context, params SetWebhookParams) (bool, er
 	}
 
 	var result bool
+	if params.Certificate.isSet() {
+		fields, files, err := params.multipart()
+		if err != nil {
+			return false, err
+		}
+		if err := b.callMultipart(ctx, "setWebhook", fields, files, &result); err != nil {
+			return false, redactSetWebhookError(err, params.SecretToken, params.URL)
+		}
+
+		return result, nil
+	}
+
 	if err := b.call(ctx, "setWebhook", params, &result); err != nil {
-		return false, redactSecretInError(err, params.SecretToken)
+		return false, redactSetWebhookError(err, params.SecretToken, params.URL)
 	}
 
 	return result, nil
@@ -84,6 +99,14 @@ func (params SetWebhookParams) validateWithLocalHTTP(allowHTTP bool) error {
 	if params.MaxConnections > 100 {
 		return stderrors.New("max_connections must be between 1 and 100")
 	}
+	if params.Certificate.isSet() {
+		if !params.Certificate.isUpload() {
+			return stderrors.New("certificate must be uploaded with FileUpload")
+		}
+		if err := params.Certificate.validate("certificate"); err != nil {
+			return err
+		}
+	}
 	if err := telegramsecret.Validate(params.SecretToken); err != nil {
 		return err
 	}
@@ -91,14 +114,44 @@ func (params SetWebhookParams) validateWithLocalHTTP(allowHTTP bool) error {
 	return nil
 }
 
-func redactSecretInError(err error, secret string) error {
-	if secret == "" || err == nil {
+func (params SetWebhookParams) multipart() (map[string]string, map[string]UploadFile, error) {
+	fields := map[string]string{"url": params.URL}
+	if params.IPAddress != "" {
+		fields["ip_address"] = params.IPAddress
+	}
+	if params.MaxConnections != 0 {
+		fields["max_connections"] = strconv.Itoa(params.MaxConnections)
+	}
+	if params.AllowedUpdates != nil {
+		body, err := json.Marshal(params.AllowedUpdates)
+		if err != nil {
+			return nil, nil, err
+		}
+		fields["allowed_updates"] = string(body)
+	}
+	if params.DropPendingUpdates {
+		fields["drop_pending_updates"] = strconv.FormatBool(params.DropPendingUpdates)
+	}
+	if params.SecretToken != "" {
+		fields["secret_token"] = params.SecretToken
+	}
+
+	return fields, map[string]UploadFile{"certificate": params.Certificate.upload}, nil
+}
+
+func redactSetWebhookError(err error, secret string, webhookURL string) error {
+	if err == nil {
 		return err
 	}
 
 	var apiErr *apierrors.APIError
 	if stderrors.As(err, &apiErr) && apiErr != nil {
-		apiErr.Description = strings.ReplaceAll(apiErr.Description, secret, "[redacted]")
+		if secret != "" {
+			apiErr.Description = strings.ReplaceAll(apiErr.Description, secret, "[redacted]")
+		}
+		if webhookURL != "" {
+			apiErr.Description = strings.ReplaceAll(apiErr.Description, webhookURL, "[redacted]")
+		}
 	}
 
 	return err
