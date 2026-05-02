@@ -1,25 +1,52 @@
-# ai-gram
+<p align="center">
+  <img src="docs/assets/readme-header.png" alt="ai-gram — Telegram Bot API library for Go" width="100%">
+</p>
 
-`ai-gram` is a typed Go library for building Telegram Bot API clients, update transports, dispatchers, and middleware.
+<h1 align="center">ai-gram</h1>
 
-## Status
+<p align="center">
+  <strong>A production-minded Go Telegram Bot API library built primarily with ChatGPT + Codex under maintainer direction.</strong>
+</p>
 
-- Latest public tag: `v0.2.0`.
-- Current local `main`: Telegram Bot API 9.6 code coverage is complete with documented architecture differences.
-- Publication is intentionally separate from local readiness: this repository has not been pushed, tagged, or released after the local-only Bot API 9.6 workstream in this checkout.
-- Sensitive or state-changing live checks remain manual-only: payments, Stars, gifts, business APIs, managed bot tokens, passport data, admin/destructive chat methods, sticker set mutation, games, lifecycle `LogOut`/`Close`, and webhook certificate upload.
+<p align="center">
+  <img alt="Go" src="https://img.shields.io/badge/Go-library-00ADD8?logo=go&logoColor=white">
+  <img alt="Status: active" src="https://img.shields.io/badge/status-active-22c55e">
+  <img alt="Tests: unit and httptest" src="https://img.shields.io/badge/tests-unit%20%2B%20httptest-2563eb">
+  <img alt="Docs: English" src="https://img.shields.io/badge/docs-English-7c3aed">
+  <img alt="API coverage: complete" src="https://img.shields.io/badge/API%20coverage-complete-0f766e">
+  <img alt="Built with ChatGPT and Codex" src="https://img.shields.io/badge/built%20with-ChatGPT%20%2B%20Codex-111827">
+</p>
 
-See [`docs/API_COVERAGE.md`](docs/API_COVERAGE.md) and [`docs/BOT_API_9_6_FINAL_AUDIT.md`](docs/BOT_API_9_6_FINAL_AUDIT.md) for the detailed coverage inventory.
+<p align="center">
+  <a href="#quick-start">Quick start</a> ·
+  <a href="docs/API_COVERAGE.md">API coverage</a> ·
+  <a href="docs/MANUAL_TESTING.md">Manual testing</a> ·
+  <a href="docs/ROADMAP.md">Roadmap</a> ·
+  <a href="CHANGELOG.md">Changelog</a>
+</p>
 
-## Install
+`ai-gram` is a typed Go library for building Telegram Bot API clients, update transports, dispatchers, and middleware. It is designed as an AI-native open-source project: the implementation is built almost entirely with ChatGPT and Codex, while architecture, review, scope, and release decisions stay under human maintainer control.
 
-```bash
-go get github.com/xDilettante/ai-gram@v0.2.0
-```
+The library focuses on a clear public API, token-safe HTTP behavior, replaceable transports, and testable building blocks instead of framework magic. It is suitable for low-level Bot API calls as well as production bot foundations that need long polling, webhooks, routing, middleware, and typed Telegram data contracts.
 
-For local development from this checkout, use the module path `github.com/xDilettante/ai-gram` and a local `replace` directive if needed.
+## Highlights
+
+- Typed Bot API method parameters, result types, and Telegram update/message contracts.
+- JSON and multipart method calls with `FileRef`/`FileUpload` helpers for upload-capable methods.
+- Long polling transport, inbound webhook handler, dispatcher/router, predicates, middleware, fallback, and error handling.
+- Token-safe configuration with configurable Bot API base URLs for official or local Bot API servers.
+- Broad test coverage built around unit tests and `httptest`-friendly client configuration.
+- Practical public examples, with advanced maintainer tooling kept separate from the user-facing quick start.
 
 ## Quick start
+
+Install the module once the repository or tag you need is available to your Go toolchain:
+
+```bash
+go get github.com/xDilettante/ai-gram
+```
+
+Create a bot client and call a typed Bot API method:
 
 ```go
 package main
@@ -55,49 +82,43 @@ func main() {
 
 To send messages, use `SendMessage` with typed parameters such as `aigram.SendMessageParams` and `aigram.ChatIDInt` or `aigram.ChatIDString`.
 
-## What is included
+## Why ai-gram
 
-- Typed Bot API client with token-safe configuration and configurable Bot API base URLs.
-- JSON and multipart method calls, including `FileRef`/`FileUpload` helpers for upload-capable methods.
-- Incoming update and message types for Bot API 9.6, including business, gifts, Stars, paid media, polls, checklists, Web Apps, games, passport, reply metadata, service messages, and chat boosts.
-- Long polling transport and inbound webhook handler.
-- Dispatcher/router with predicates, command routes, middleware, fallback, and error handling.
-- Middleware helpers for panic recovery, timeouts, observability hooks, and access control.
-- Testkit-style examples and `httptest`-friendly client configuration.
+`ai-gram` keeps the library layers separate:
 
-## Package overview
+- `telegram` contains Telegram Bot API data contracts.
+- `bot` contains the primary Bot API client and typed method parameters.
+- `transport/longpoll` provides a managed long polling update source.
+- `transport/webhook` provides an inbound webhook HTTP handler.
+- `dispatch` routes updates to handlers.
+- `middleware` provides reusable dispatcher middleware.
+- `errors` exposes typed Telegram API errors.
+- The root package `aigram` provides the convenience facade and common re-exports.
 
-- `telegram` — Telegram Bot API data contracts.
-- `bot` — primary Bot API client and typed method parameters.
-- `transport/longpoll` — managed long polling update source.
-- `transport/webhook` — inbound webhook HTTP handler.
-- `dispatch` — update routing and handler execution.
-- `middleware` — reusable dispatcher middleware.
-- `errors` — typed Telegram API errors.
-- root package `aigram` — convenience facade and common re-exports.
+The project intentionally keeps AI-assisted development visible without turning it into marketing noise: ChatGPT and Codex produce most of the code and documentation, while the maintainer directs requirements, validates behavior, and decides what is safe to ship.
 
 ## Examples
 
 Runnable examples are under [`examples/`](examples/):
 
-- `examples/echo_longpoll` — basic long polling echo bot.
-- `examples/inline_longpoll` — inline keyboard callbacks and access-control demo.
-- `examples/webhook_server` — inbound webhook server example.
-- `examples/media_upload` — document upload and file download checks.
-- `examples/local_api_server` — connectivity check for a local Telegram Bot API server.
+- [`examples/echo_longpoll`](examples/echo_longpoll) — basic long polling echo bot.
+- [`examples/inline_longpoll`](examples/inline_longpoll) — inline keyboard callbacks and access-control demo.
+- [`examples/webhook_server`](examples/webhook_server) — inbound webhook server example.
+- [`examples/media_upload`](examples/media_upload) — document upload and file download checks.
+- [`examples/local_api_server`](examples/local_api_server) — connectivity check for a local Telegram Bot API server.
 
-Maintainer-only smoke examples are separated under `examples/maintainer/` and are not needed for normal library use.
+Maintainer-only smoke examples are separated under [`examples/maintainer/`](examples/maintainer/) and are not needed for normal library use.
 
 ## Documentation
 
 - [`docs/API_COVERAGE.md`](docs/API_COVERAGE.md) — Bot API method/type coverage inventory and architecture notes.
-- [`docs/BOT_API_9_6_COVERAGE_PLAN.md`](docs/BOT_API_9_6_COVERAGE_PLAN.md) — local-only Bot API 9.6 coverage plan and freeze policy.
-- [`docs/BOT_API_9_6_FINAL_AUDIT.md`](docs/BOT_API_9_6_FINAL_AUDIT.md) — final Bot API 9.6 coverage audit.
+- [`docs/BOT_API_9_6_FINAL_AUDIT.md`](docs/BOT_API_9_6_FINAL_AUDIT.md) — final coverage audit for the local workstream.
+- [`docs/BOT_API_9_6_COVERAGE_PLAN.md`](docs/BOT_API_9_6_COVERAGE_PLAN.md) — coverage plan and local-only freeze policy.
 - [`docs/MANUAL_TESTING.md`](docs/MANUAL_TESTING.md) — public manual testing guide.
 - [`docs/ROADMAP.md`](docs/ROADMAP.md) — stabilization and future work.
 - [`CHANGELOG.md`](CHANGELOG.md) — project changelog.
 
-Maintainer-only deploy, live-smoke, and release-readiness notes live under [`docs/maintainer/`](docs/maintainer/). They are useful for project maintainers, but they are intentionally separated from the public quick start.
+Maintainer-only deploy, live-smoke, and release-readiness notes live under [`docs/maintainer/`](docs/maintainer/). They are useful for project maintainers, but intentionally separated from the public quick start.
 
 ## Development checks
 
@@ -105,6 +126,7 @@ Maintainer-only deploy, live-smoke, and release-readiness notes live under [`doc
 gofmt -w .
 go test ./...
 go vet ./...
+git diff --check
 ```
 
 For script syntax checks:
@@ -117,6 +139,6 @@ bash -n scripts/*.sh
 
 - Never commit real bot tokens, webhook secrets, private chat IDs, payment payloads, passport data, managed bot tokens, or token-bearing URLs.
 - `SetWebhook` supports the official upload-only certificate path via `FileUpload`; certificate live checks should use disposable test certificates only.
-- `GetChat` remains a backward-compatible minimal chat decode. Use `GetChatFullInfo` for the full Bot API 9.6 `getChat` result shape.
-- `ChatMember` keeps a flat compatibility shape while decoding official Bot API 9.6 fields.
+- `GetChat` remains a backward-compatible minimal chat decode. Use `GetChatFullInfo` for the full `getChat` result shape.
+- `ChatMember` keeps a flat compatibility shape while decoding current official fields.
 - `CallbackQuery.Message` remains available for accessible messages; maybe-inaccessible callback message data is represented separately for compatibility.
