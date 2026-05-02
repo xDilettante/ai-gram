@@ -2,7 +2,7 @@
 
 ## Goal
 
-Reach 100% Telegram Bot API 9.6 method, type, and update coverage before the next push, tag, or GitHub Release.
+Maintain complete local Telegram Bot API 9.6 method, type, and update coverage with documented architecture differences before any user-approved publication work.
 
 ## Source of truth
 
@@ -14,17 +14,17 @@ This plan is a working checklist derived from the official documentation and cha
 ## Repository policy
 
 - `v0.2.0` remains the latest public release.
-- Local development continues toward full Bot API 9.6 coverage.
-- Push, tag, and GitHub Release operations are frozen until full Bot API 9.6 coverage is reached.
+- Local Bot API 9.6 code coverage is complete with documented architecture differences.
+- Repository creation, push, tag, and GitHub Release operations remain frozen until the user explicitly asks later.
 - Local commits are still expected after verified local work.
 - Final user reports may say: "local commit created; push intentionally skipped by project policy".
 
 
 ## Stage 88 audit result
 
-Stage 88 compared the current local implementation with the official Telegram Bot API documentation and the April 3, 2026 Bot API 9.6 changelog. Full coverage is **not yet reached**. The precise missing method/type/field checklist now lives in [`docs/BOT_API_9_6_AUDIT.md`](BOT_API_9_6_AUDIT.md).
+Stage 88 compared the then-current local implementation with the official Telegram Bot API documentation and the April 3, 2026 Bot API 9.6 changelog. It found remaining gaps that were closed in Stages 89-99. The updated audit now lives in [`docs/BOT_API_9_6_AUDIT.md`](BOT_API_9_6_AUDIT.md).
 
-Top pending method groups after Stage 99:
+Top pending method groups after Stage 100:
 
 - No official method wrappers are missing (169/169 official methods are represented by exported `(*bot.Bot)` methods).
 - No known method behavior blockers remain after `setWebhook.certificate` upload/multipart support was implemented in Stage 99.
@@ -38,7 +38,7 @@ Top pending type/field groups:
 
 ## Stage 98/99 final audit result
 
-Stage 98 created [`docs/BOT_API_9_6_FINAL_AUDIT.md`](BOT_API_9_6_FINAL_AUDIT.md). The audit found all 169 official Bot API method wrappers present and no missing fields in the audited high-impact `User`, `Chat`, `ChatFullInfo`, `Update`, `Message`, `ReplyParameters`, `CallbackQuery`, `Video`, sticker, and keyboard field tables after adding `Message.giveaway`. Stage 99 added `SetWebhook` certificate upload support with `FileUpload`, JSON/multipart tests, secret redaction checks, and documentation updates. No known Bot API 9.6 code coverage blockers remain; push/tag/release remain frozen until the user explicitly asks later.
+Stage 98 created [`docs/BOT_API_9_6_FINAL_AUDIT.md`](BOT_API_9_6_FINAL_AUDIT.md). The audit found all 169 official Bot API method wrappers present and no missing fields in the audited high-impact `User`, `Chat`, `ChatFullInfo`, `Update`, `Message`, `ReplyParameters`, `CallbackQuery`, `Video`, sticker, and keyboard field tables after adding `Message.giveaway`. Stage 99 added `SetWebhook` certificate upload support with `FileUpload`, JSON/multipart tests, secret redaction checks, and documentation updates. No known Bot API 9.6 code coverage blockers remain. Stage 100 adds [`docs/BOT_API_9_6_RELEASE_READINESS.md`](BOT_API_9_6_RELEASE_READINESS.md) for local verification and manual-only smoke planning; repository creation, push, tag, and release remain frozen until the user explicitly asks later.
 
 ## Stage 89 result
 
@@ -466,6 +466,7 @@ Recommended local-only stages after the Stage 98 audit:
 9. Stage 97 completed: `ChatFullInfo`, full user/chat metadata, channel post/standalone poll update shape, and compatible flat chat member variant strategy.
 10. Stage 98 completed: final official-doc audit and release-readiness blocker review.
 11. Stage 99 completed: `SetWebhook` certificate upload / multipart support and focused final audit.
+12. Stage 100 completed: local release-readiness verification and manual-only smoke planning.
 
 Each stage should:
 

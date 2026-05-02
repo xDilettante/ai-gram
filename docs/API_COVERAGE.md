@@ -2,9 +2,9 @@
 
 This document maps the current `ai-gram` implementation to Telegram Bot API areas. It is a project inventory, not a generated copy of the full upstream Bot API specification. Telegram adds methods over time, so expansion work should still be checked against the official Bot API docs before implementation.
 
-> **Bot API 9.6 target:** The current coverage target is 100% Telegram Bot API 9.6. Track the local-only full coverage workstream in [`docs/BOT_API_9_6_COVERAGE_PLAN.md`](BOT_API_9_6_COVERAGE_PLAN.md). Push, tag, and GitHub Release suggestions are frozen until the full 9.6 plan is complete and the user explicitly asks later.
+> **Bot API 9.6 target:** Local code coverage for Telegram Bot API 9.6 is complete with documented architecture differences. Track the local-only coverage workstream in [`docs/BOT_API_9_6_COVERAGE_PLAN.md`](BOT_API_9_6_COVERAGE_PLAN.md) and release-readiness status in [`docs/BOT_API_9_6_RELEASE_READINESS.md`](BOT_API_9_6_RELEASE_READINESS.md). Repository creation, push, tag, and GitHub Release operations remain frozen until the user explicitly asks later.
 
-> **Stage 99 focused audit:** All 169 official method wrappers are present, high-impact field tables are covered after the Stage 98 `Message.giveaway` correction, and `setWebhook.certificate` multipart upload is now implemented. No known Bot API 9.6 code coverage blockers remain; sensitive/state-changing live smoke remains manual-only. See [`docs/BOT_API_9_6_FINAL_AUDIT.md`](BOT_API_9_6_FINAL_AUDIT.md).
+> **Stage 100 readiness:** Stage 99 resolved the final `setWebhook.certificate` blocker. Stage 100 records local release-readiness verification and the manual-only smoke plan. All 169 official method wrappers are present; no known Bot API 9.6 code coverage blockers remain; sensitive/state-changing live smoke remains manual-only. See [`docs/BOT_API_9_6_FINAL_AUDIT.md`](BOT_API_9_6_FINAL_AUDIT.md) and [`docs/BOT_API_9_6_RELEASE_READINESS.md`](BOT_API_9_6_RELEASE_READINESS.md).
 
 ## Implemented
 

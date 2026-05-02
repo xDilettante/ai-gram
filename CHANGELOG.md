@@ -4,6 +4,7 @@
 
 ### Added
 
+- Bot API 9.6 release-readiness documentation and local verification plan.
 - SetWebhook certificate upload support for the official upload-only `certificate` InputFile parameter.
 - Final Bot API 9.6 coverage audit documentation and `Message.giveaway` decoding coverage.
 - ChatFullInfo, GetChatFullInfo, fuller User/Chat metadata, and channel post/standalone poll update shapes.
@@ -39,6 +40,7 @@
 
 ### Documentation
 
+- Added Bot API 9.6 release-readiness documentation and manual-only smoke planning.
 - Added full Bot API 9.6 coverage audit documentation.
 - Added final Bot API 9.6 coverage audit documentation and release-readiness blockers.
 - Completed inline mode audit against official Bot API 9.6 documentation.

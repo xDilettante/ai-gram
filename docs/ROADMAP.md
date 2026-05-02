@@ -87,30 +87,30 @@ Milestone outcome:
 
 ## vNext Bot API 9.6 full coverage workstream
 
-Strategic change: the small v0.3 release plan is superseded. The current goal remains full Telegram Bot API 9.6 method, type, and update coverage before the next push, tag, or GitHub Release. See [`docs/BOT_API_9_6_COVERAGE_PLAN.md`](BOT_API_9_6_COVERAGE_PLAN.md) for the working plan and [`docs/BOT_API_9_6_FINAL_AUDIT.md`](BOT_API_9_6_FINAL_AUDIT.md) for the latest Stage 98 official-doc audit.
+Strategic change: the small v0.3 release plan is superseded. Local code coverage for Telegram Bot API 9.6 is now complete with documented architecture differences. See [`docs/BOT_API_9_6_COVERAGE_PLAN.md`](BOT_API_9_6_COVERAGE_PLAN.md), [`docs/BOT_API_9_6_FINAL_AUDIT.md`](BOT_API_9_6_FINAL_AUDIT.md), and [`docs/BOT_API_9_6_RELEASE_READINESS.md`](BOT_API_9_6_RELEASE_READINESS.md).
 
 Repository policy for this workstream:
 
 - `v0.2.0` remains the latest public release.
 - Continue local-only development with verified local commits.
-- Do not suggest pushing main after each local commit.
-- Do not create tags or GitHub Releases until full Bot API 9.6 coverage is complete.
+- Do not create a GitHub repository, push, tag, or create a GitHub Release until the user explicitly approves publication work.
 - Do not run `git push` unless the user explicitly asks.
 
-Stage 98 outcome: **full coverage is not yet reached**. The audit found wrappers for all 169 official Bot API methods and no missing fields in the audited high-impact object tables after adding `Message.giveaway`, but `setWebhook.certificate` upload remains a hard coverage blocker.
+Stage 98/99 outcome: **Bot API 9.6 local code coverage is complete with documented architecture differences**. The final audit found wrappers for all 169 official Bot API methods and no missing fields in the audited high-impact object tables after adding `Message.giveaway`; Stage 99 resolved the final `setWebhook.certificate` upload blocker.
 
-Recommended local-only implementation order after Stage 98:
+Stage 100 outcome: local release-readiness verification and manual-only smoke planning are documented. No publication has been performed.
 
-1. Implement `SetWebhook` certificate upload / multipart support for the official optional `certificate` `InputFile` parameter.
-2. Rerun a short final official-doc audit.
-3. Run local release-readiness verification.
-4. Only after full coverage is confirmed, discuss push/tag/GitHub Release if the user explicitly asks later.
+Next phase:
+
+1. Keep local verification green for any follow-up fixes.
+2. Keep sensitive/state-changing smoke manual-only and fixture-first by default.
+3. Wait for explicit user approval before any repository creation, push, tag, or GitHub Release work.
 
 Live smoke policy:
 
-- Safe/read-only flows may be live-smoked only when explicitly useful.
+- Safe/read-only flows may be live-smoked only when explicitly useful and explicitly requested.
 - Admin/state-changing flows require a dedicated test chat and explicit user confirmation.
-- Payments, Passport, Business, Managed Bots, gifts, and Stars flows require explicit confirmation.
+- Payments, Passport, Business, Managed Bots, gifts, Stars, lifecycle methods, and webhook certificate upload require explicit confirmation.
 - Destructive/admin flows must not be auto-smoked.
 
 ## Later
