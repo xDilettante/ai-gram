@@ -132,6 +132,7 @@ type Message struct {
 	ChatBackgroundSet             *ChatBackground                `json:"chat_background_set,omitempty"`
 	MessageAutoDeleteTimerChanged *MessageAutoDeleteTimerChanged `json:"message_auto_delete_timer_changed,omitempty"`
 	GiveawayCreated               *GiveawayCreated               `json:"giveaway_created,omitempty"`
+	Giveaway                      *Giveaway                      `json:"giveaway,omitempty"`
 	GiveawayWinners               *GiveawayWinners               `json:"giveaway_winners,omitempty"`
 	GiveawayCompleted             *GiveawayCompleted             `json:"giveaway_completed,omitempty"`
 	PaidMessagePriceChanged       *PaidMessagePriceChanged       `json:"paid_message_price_changed,omitempty"`

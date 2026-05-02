@@ -87,7 +87,7 @@ Milestone outcome:
 
 ## vNext Bot API 9.6 full coverage workstream
 
-Strategic change: the small v0.3 release plan is superseded. The current goal remains full Telegram Bot API 9.6 method, type, and update coverage before the next push, tag, or GitHub Release. See [`docs/BOT_API_9_6_COVERAGE_PLAN.md`](BOT_API_9_6_COVERAGE_PLAN.md) for the working plan and [`docs/BOT_API_9_6_AUDIT.md`](BOT_API_9_6_AUDIT.md) for the Stage 88 official-doc audit.
+Strategic change: the small v0.3 release plan is superseded. The current goal remains full Telegram Bot API 9.6 method, type, and update coverage before the next push, tag, or GitHub Release. See [`docs/BOT_API_9_6_COVERAGE_PLAN.md`](BOT_API_9_6_COVERAGE_PLAN.md) for the working plan and [`docs/BOT_API_9_6_FINAL_AUDIT.md`](BOT_API_9_6_FINAL_AUDIT.md) for the latest Stage 98 official-doc audit.
 
 Repository policy for this workstream:
 
@@ -97,20 +97,14 @@ Repository policy for this workstream:
 - Do not create tags or GitHub Releases until full Bot API 9.6 coverage is complete.
 - Do not run `git push` unless the user explicitly asks.
 
-Stage 88 outcome: **full coverage is not yet reached**. The largest recent slices are implemented locally through Games and Passport, but the audit found missing official methods and type/field groups.
+Stage 98 outcome: **full coverage is not yet reached**. The audit found wrappers for all 169 official Bot API methods and no missing fields in the audited high-impact object tables after adding `Message.giveaway`, but `setWebhook.certificate` upload remains a hard coverage blocker.
 
-Recommended local-only implementation order after Stage 88:
+Recommended local-only implementation order after Stage 98:
 
-1. Lifecycle/profile read APIs: `logOut`, `close`, profile photos/audios, forum topic icon stickers.
-2. Verification and user status APIs.
-3. Chat boosts, chat-member updates/tags, and sender-chat moderation.
-4. Subscription invite links.
-5. Checklists, message drafts, and structured poll options.
-6. Business/direct-message story completion.
-7. Prepared inline messages and reply-markup completion.
-8. Message field completeness.
-9. Service-message completeness.
-10. Final official-doc audit and release-readiness review only after the missing checklist is empty.
+1. Implement `SetWebhook` certificate upload / multipart support for the official optional `certificate` `InputFile` parameter.
+2. Rerun a short final official-doc audit.
+3. Run local release-readiness verification.
+4. Only after full coverage is confirmed, discuss push/tag/GitHub Release if the user explicitly asks later.
 
 Live smoke policy:
 
@@ -121,14 +115,10 @@ Live smoke policy:
 
 ## Later
 
-- Payments
-  - Invoice, shipping query, pre-checkout query, refunds, paid media.
+- Optional concrete `ChatMember*` variant types
+  - Preserve the current flat `ChatMember` compatibility shape unless a deliberate public API refinement is planned.
 - Passport decryption helpers
   - Intentionally out of scope for the typed Bot API wrapper unless a future product decision adds them.
-- Business APIs
-  - Business connection/message features and related account metadata.
-- Stars/gifts
-  - Review against the current official Bot API before planning.
 - Codegen
   - Consider generation only after the hand-written public API shape is proven.
   - Do not introduce codegen just to inflate method count.

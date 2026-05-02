@@ -24,14 +24,23 @@ This plan is a working checklist derived from the official documentation and cha
 
 Stage 88 compared the current local implementation with the official Telegram Bot API documentation and the April 3, 2026 Bot API 9.6 changelog. Full coverage is **not yet reached**. The precise missing method/type/field checklist now lives in [`docs/BOT_API_9_6_AUDIT.md`](BOT_API_9_6_AUDIT.md).
 
-Top pending method groups after Stage 97:
+Top pending method groups after Stage 98:
 
-- No Stage 88 missing method groups are currently tracked; remaining work is final audit verification and intentionally documented architecture differences.
+- No official method wrappers are missing (169/169 official methods are represented by exported `(*bot.Bot)` methods).
+- Hard behavior blocker: `setWebhook.certificate` upload/multipart support is still missing.
 
 Top pending type/field groups:
 
-- optional concrete chat member variants as a possible compatibility-preserving refinement.
+- `Message.giveaway` was corrected in Stage 98.
+- Optional concrete chat member variants remain a possible compatibility-preserving refinement; the flat `telegram.ChatMember` struct has the audited official fields.
 
+
+
+## Stage 98 final audit result
+
+Stage 98 created [`docs/BOT_API_9_6_FINAL_AUDIT.md`](BOT_API_9_6_FINAL_AUDIT.md). The audit found all 169 official Bot API method wrappers present and no missing fields in the audited high-impact `User`, `Chat`, `ChatFullInfo`, `Update`, `Message`, `ReplyParameters`, `CallbackQuery`, `Video`, sticker, and keyboard field tables after adding `Message.giveaway`. Full coverage is **not yet reached** because `SetWebhook` does not support the official optional `certificate` `InputFile` multipart upload path.
+
+Recommended Stage 99: add `SetWebhook` certificate upload support with `FileRef`/`FileUpload`, JSON/multipart tests, secret redaction checks, and documentation updates; then rerun a short final audit before any push/tag/release discussion.
 
 ## Stage 89 result
 
@@ -446,7 +455,7 @@ Stage 97 implemented `ChatFullInfo` and `GetChatFullInfo`, completed official Bo
 
 ## Implementation strategy
 
-Recommended local-only stages after the Stage 88 audit:
+Recommended local-only stages after the Stage 98 audit:
 
 1. Stage 89 completed: lifecycle/profile read APIs (`logOut`, `close`, profile photos/audios, forum topic icon stickers).
 2. Stage 90 completed: verification and user status APIs.
@@ -457,7 +466,8 @@ Recommended local-only stages after the Stage 88 audit:
 7. Stage 95 completed: prepared inline messages and reply-markup completion.
 8. Stage 96 completed: service/direct-message/story/media metadata gaps.
 9. Stage 97 completed: `ChatFullInfo`, full user/chat metadata, channel post/standalone poll update shape, and compatible flat chat member variant strategy.
-10. Final official-doc audit and release-readiness review after the missing checklist is empty.
+10. Stage 98 completed: final official-doc audit and release-readiness blocker review.
+11. Stage 99 recommended: implement `SetWebhook` certificate upload / multipart support, then rerun a short final audit.
 
 Each stage should:
 

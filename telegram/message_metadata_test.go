@@ -216,6 +216,7 @@ func TestMessageDecodesServiceDirectStoryAndMediaMetadata(t *testing.T) {
 		"chat_background_set":{"type":{"type":"fill","fill":{"type":"solid","color":1122867},"dark_theme_dimming":15}},
 		"direct_message_price_changed":{"are_direct_messages_enabled":true,"direct_message_star_count":5},
 		"giveaway_created":{"prize_star_count":100},
+		"giveaway":{"chats":[{"id":-101,"type":"channel","title":"Giveaway channel"}],"winners_selection_date":3100,"winner_count":2,"prize_star_count":50},
 		"giveaway_winners":{"chat":{"id":-100,"type":"supergroup","title":"Group"},"giveaway_message_id":55,"winners_selection_date":3000,"winner_count":1,"winners":[{"id":11,"is_bot":false,"first_name":"Winner"}],"prize_star_count":100},
 		"giveaway_completed":{"winner_count":3,"unclaimed_prize_count":1,"is_star_giveaway":true},
 		"paid_message_price_changed":{"paid_message_star_count":9},
@@ -257,7 +258,7 @@ func TestMessageDecodesServiceDirectStoryAndMediaMetadata(t *testing.T) {
 	if message.DirectMessagePriceChanged == nil || !message.DirectMessagePriceChanged.AreDirectMessagesEnabled || message.DirectMessagePriceChanged.DirectMessageStarCount != 5 {
 		t.Fatalf("unexpected direct message price: %#v", message.DirectMessagePriceChanged)
 	}
-	if message.GiveawayCreated == nil || message.GiveawayCreated.PrizeStarCount != 100 || message.GiveawayWinners == nil || len(message.GiveawayWinners.Winners) != 1 || message.GiveawayCompleted == nil || !message.GiveawayCompleted.IsStarGiveaway {
+	if message.GiveawayCreated == nil || message.GiveawayCreated.PrizeStarCount != 100 || message.Giveaway == nil || message.Giveaway.PrizeStarCount != 50 || message.GiveawayWinners == nil || len(message.GiveawayWinners.Winners) != 1 || message.GiveawayCompleted == nil || !message.GiveawayCompleted.IsStarGiveaway {
 		t.Fatalf("unexpected giveaway service fields: %#v", message)
 	}
 	if message.PaidMessagePriceChanged == nil || message.PaidMessagePriceChanged.PaidMessageStarCount != 9 {

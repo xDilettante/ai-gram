@@ -2,9 +2,9 @@
 
 This document maps the current `ai-gram` implementation to Telegram Bot API areas. It is a project inventory, not a generated copy of the full upstream Bot API specification. Telegram adds methods over time, so expansion work should still be checked against the official Bot API docs before implementation.
 
-> **Bot API 9.6 target:** The current coverage target is 100% Telegram Bot API 9.6. Track the local-only full coverage workstream in [`docs/BOT_API_9_6_COVERAGE_PLAN.md`](BOT_API_9_6_COVERAGE_PLAN.md). Not all Bot API 9.6 areas are implemented yet. Push, tag, and GitHub Release suggestions are frozen until the full 9.6 plan is complete.
+> **Bot API 9.6 target:** The current coverage target is 100% Telegram Bot API 9.6. Track the local-only full coverage workstream in [`docs/BOT_API_9_6_COVERAGE_PLAN.md`](BOT_API_9_6_COVERAGE_PLAN.md). Push, tag, and GitHub Release suggestions are frozen until the full 9.6 plan is complete and the user explicitly asks later.
 
-> **Stage 88 audit:** Full coverage is not yet reached. The precise missing-method and missing-type checklist is in [`docs/BOT_API_9_6_AUDIT.md`](BOT_API_9_6_AUDIT.md).
+> **Stage 98 final audit:** All 169 official method wrappers are present, and high-impact field tables are covered after the Stage 98 `Message.giveaway` correction. Full coverage is still not reached because `setWebhook.certificate` multipart upload is missing. See [`docs/BOT_API_9_6_FINAL_AUDIT.md`](BOT_API_9_6_FINAL_AUDIT.md).
 
 ## Implemented
 
@@ -41,7 +41,7 @@ This document maps the current `ai-gram` implementation to Telegram Bot API area
 
 | Public Go API | Telegram Bot API method | Tests | Notes |
 | --- | --- | --- | --- |
-| `(*bot.Bot).SetWebhook` | `setWebhook` | unit/httptest, live via deploy harness | JSON-only webhook registration with URL and secret token. Certificate upload is not implemented. |
+| `(*bot.Bot).SetWebhook` | `setWebhook` | unit/httptest, live via deploy harness | JSON-only webhook registration with URL and secret token. **Coverage blocker:** official certificate upload is not implemented. |
 | `(*bot.Bot).DeleteWebhook` | `deleteWebhook` | unit/httptest, manual/live harness | Supports `drop_pending_updates`; destructive use should be explicit. |
 | `(*bot.Bot).GetWebhookInfo` | `getWebhookInfo` | unit/httptest, smoke scripts | Used for troubleshooting and local Bot API checks. |
 | `transport/webhook.New` | inbound webhook handler | unit, live via deploy harness | Validates method, content type, optional secret token, JSON body, and handler errors. |
@@ -376,19 +376,20 @@ This document maps the current `ai-gram` implementation to Telegram Bot API area
 
 ## Not implemented yet
 
-Stage 88 performed a full official-doc comparison against the Telegram Bot API documentation and the April 3, 2026 Bot API 9.6 changelog. Full coverage is **not yet reached**. See [`docs/BOT_API_9_6_AUDIT.md`](BOT_API_9_6_AUDIT.md) for the detailed checklist and recommended order.
+Stage 98 performed the final official-doc comparison after Stage 97. Full coverage is **not yet reached** because `SetWebhook` still lacks the official optional `certificate` `InputFile` multipart upload path. See [`docs/BOT_API_9_6_FINAL_AUDIT.md`](BOT_API_9_6_FINAL_AUDIT.md) for release-readiness blockers.
 
-### Missing methods from the Stage 88 audit
+### Missing methods or method behavior from the Stage 98 audit
 
-No Stage 88 missing method groups are currently tracked after Stage 97. Remaining work is concentrated in final official-doc verification and intentionally documented architecture differences.
+- `setWebhook.certificate` upload support is missing. The method wrapper exists, but the optional official multipart certificate path is not implemented.
 
-### Missing type and field groups from the Stage 88 audit
+### Missing type and field groups from the Stage 98 audit
 
+- No missing fields were found in the audited high-impact official field tables after adding `Message.giveaway`.
 - Optional concrete chat member variant structs remain a possible future refinement; Stage 91/97 keep the current flat `ChatMember` compatibility shape while decoding official 9.6 fields.
 
 ### Intentional architecture differences to keep documented
 
-- Official `InputFile` is represented by the public `FileID`, `FileURL`, and `FileUpload` helpers.
+- Official `InputFile` is represented by the public `FileID`, `FileURL`, and `FileUpload` helpers; `setWebhook.certificate` is the remaining upload gap.
 - Official `MessageId` is represented as idiomatic Go `telegram.MessageID`.
 - Passport decryption helpers remain intentionally out of scope for the typed Bot API wrapper.
 - Live smoke for state-changing, payment/value, Business, Passport, Managed Bot token, admin/destructive, sticker mutation, games, inline, and Mini App flows remains manual-only.
@@ -485,7 +486,7 @@ These still require real credentials and may notify users, but they are not dest
 - `SendSticker`, `SendAnimation`, and `SendVideoNote` with `FileUpload`
 - `SendMediaGroup` with media or thumbnail `FileUpload`
 - `SetChatPhoto` with `FileUpload`
-- future upload methods such as remaining thumbnails, certificates
+- remaining upload blocker: `SetWebhook` certificate upload
 
 ### Requires live credentials
 
@@ -535,8 +536,7 @@ Unit and httptest suites do not require tokens.
 
 ### Defer after v0.1
 
-- Final audit for any Stars/gift/payment flows not covered by the gifts and remaining Stars slice.
-- Business APIs.
-- Stars/gifts.
-- Full Bot API codegen or openapi tooling.
+- `SetWebhook` certificate upload for self-signed webhook certificates.
+- Optional concrete chat member variant structs if exact official union type names become important.
+- Full Bot API codegen or OpenAPI tooling.
 - Broad admin/promote/forum management surface beyond methods already implemented.

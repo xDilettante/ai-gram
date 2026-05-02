@@ -2,8 +2,9 @@
 
 ## Source of truth
 
-- [Official Telegram Bot API documentation](https://core.telegram.org/bots/api), fetched for the original audit on 2026-04-30 and rechecked for Stages 89-94 on 2026-05-01.
+- [Official Telegram Bot API documentation](https://core.telegram.org/bots/api), fetched for the original audit on 2026-04-30 and rechecked through Stage 98 on 2026-05-02.
 - [Official Telegram Bot API changelog](https://core.telegram.org/bots/api-changelog), especially the April 3, 2026 Bot API 9.6 entry.
+- Latest source for release-readiness status: [`docs/BOT_API_9_6_FINAL_AUDIT.md`](BOT_API_9_6_FINAL_AUDIT.md).
 
 The audit compares official method/type headings and high-impact object fields against the current local implementation. Stage notes below are updated as follow-up slices are implemented locally.
 
@@ -11,7 +12,7 @@ The audit compares official method/type headings and high-impact object fields a
 
 **Full coverage not yet reached.**
 
-The current repository covers the large local Stage 66-97 workstream, including forum topics, reactions, inline mode, payments, paid media, Stars/gifts, subscription invite links, Managed Bots 9.6, Poll 9.6, WebApp/Mini App, Business API foundation/account/story/suggested posts/repost, games, Passport, lifecycle/profile read APIs, verification/user status APIs, chat member/boost updates, checklists, message drafts, structured poll options, reply/message metadata, prepared inline messages, reply markup completion, service-message metadata, video metadata completion, ChatFullInfo/full user-chat metadata, and channel post/standalone poll update parity. The remaining gaps are concentrated in final verification and intentionally documented architecture differences.
+Stage 98 found wrappers for all 169 official methods and no missing fields in the audited `User`, `Chat`, `ChatFullInfo`, `Update`, `Message`, `ReplyParameters`, `CallbackQuery`, `Video`, sticker, and keyboard field tables after correcting `Message.giveaway`. The remaining hard blocker is `setWebhook.certificate` upload support. See [`docs/BOT_API_9_6_FINAL_AUDIT.md`](BOT_API_9_6_FINAL_AUDIT.md) for the latest release-readiness decision.
 
 ## Implemented areas
 
@@ -35,21 +36,22 @@ The current repository covers the large local Stage 66-97 workstream, including 
 
 ## Missing methods
 
-No Stage 88 missing method groups are currently tracked after Stage 97. Remaining work is concentrated in final official-doc verification and intentional architecture differences.
+No official method wrappers are missing after Stage 98 (169/169 official methods have exported `(*bot.Bot)` wrappers). The remaining method behavior blocker is `setWebhook.certificate` multipart upload support.
 
 ## Missing types and fields
 
 | Official name | Parent type | Why it matters | Suggested stage |
 | --- | --- | --- | --- |
+| `setWebhook.certificate` | `SetWebhookParams` / upload behavior | Official `setWebhook` accepts an optional certificate `InputFile`; the current wrapper is JSON-only and cannot upload it. | Stage 99 blocker |
 | concrete `ChatMember*` variant structs | Chat member types | Stage 91/97 keep the existing flat `ChatMember` struct and extend it with official 9.6 fields instead of introducing a breaking polymorphic API. Dedicated concrete variants remain a possible future refinement, not a blocking decode gap. | Future refinement |
-| `InputFile` official object | Upload parameters | The library intentionally uses `FileRef`/`FileUpload`; this is a naming/architecture mismatch to document, not necessarily a missing public type. | Needs verification |
+| `InputFile` official object | Upload parameters | The library intentionally uses `FileRef`/`FileUpload`; direct upload-capable methods are covered except `setWebhook.certificate`. | Stage 99 for webhook certificate |
 
 ## Potential mismatches / needs verification
 
 - `GetChat` remains backward-compatible and returns `*telegram.Chat`; `GetChatFullInfo` now calls the same official `getChat` method and decodes the full `ChatFullInfo` result.
 - `MessageId` is represented idiomatically as `telegram.MessageID`; this is acceptable but should be documented as a naming difference.
 - `InputFile` is represented by `bot.FileID`, `bot.FileURL`, and `bot.FileUpload`; this is an intentional architecture difference, but future audit should ensure every official upload field is mapped.
-- `SetWebhook` is JSON-only and does not support certificate upload; official `setWebhook` accepts an `InputFile` certificate.
+- `SetWebhook` is JSON-only and does not support certificate upload; official `setWebhook` accepts an `InputFile` certificate. This is the Stage 98 hard blocker.
 - `sendPoll` still exposes the legacy singular `correct_option_id` for backward compatibility while official 9.6 replaced it with `correct_option_ids`; validation should continue rejecting ambiguous use.
 - `SendPollParams` keeps legacy `Options []string` while adding `OptionObjects []telegram.InputPollOption`; validation rejects ambiguous use and serializes both shapes through the official `options` field.
 - `ReactionType` and other polymorphic decoders should be rechecked when unknown official variants appear; current tests generally fail safely on unknown types.
@@ -82,4 +84,5 @@ These areas must remain manual-only and require explicit user confirmation plus 
 7. **Stage 95 completed:** prepared inline messages and reply-markup completion - `savePreparedInlineMessage`, `PreparedInlineMessage`, LoginUrl/switch-inline/copy/pay/request-poll/icon/style button fields.
 8. **Stage 96 completed:** service/direct-message/story/media metadata - `repostStory`, video quality/cover/start metadata, shared user/chat service messages, chat backgrounds, video chats, proximity alerts, auto-delete timers, giveaway service messages, and paid/direct message price changes.
 9. **Stage 97 completed:** ChatFullInfo/update shape strategy - `GetChatFullInfo`, fuller `User`/`Chat` metadata, channel post updates, standalone poll updates, and compatible flat `ChatMember` strategy.
-10. **Final audit after Stage 97** - rerun official method/type/field comparison and only then reconsider push/tag/release readiness.
+10. **Stage 98 completed:** final official-doc audit found all 169 official method wrappers present, corrected `Message.giveaway`, and identified `setWebhook.certificate` upload as the remaining hard blocker.
+11. **Stage 99 recommended:** implement `SetWebhook` certificate upload / multipart support, then rerun a short final audit before any push/tag/release discussion.

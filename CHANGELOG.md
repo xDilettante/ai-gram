@@ -4,6 +4,7 @@
 
 ### Added
 
+- Final Bot API 9.6 coverage audit documentation and `Message.giveaway` decoding coverage.
 - ChatFullInfo, GetChatFullInfo, fuller User/Chat metadata, and channel post/standalone poll update shapes.
 - Service/direct-message/story/media metadata completion: `RepostStory`, video cover/start/quality metadata, shared user/chat service messages, chat backgrounds, video chats, proximity alerts, auto-delete timers, giveaway service messages, and paid/direct message price-change service fields.
 - Prepared inline messages and reply markup completion: `SavePreparedInlineMessage`, `PreparedInlineMessage`, `LoginUrl`, `SwitchInlineQueryChosenChat`, `CopyTextButton`, `KeyboardButtonPollType`, request-poll buttons, pay buttons, and icon/style button fields.
@@ -38,6 +39,7 @@
 ### Documentation
 
 - Added full Bot API 9.6 coverage audit documentation.
+- Added final Bot API 9.6 coverage audit documentation and release-readiness blockers.
 - Completed inline mode audit against official Bot API 9.6 documentation.
 
 ### Planning
