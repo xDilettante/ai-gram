@@ -5,19 +5,20 @@
 <h1 align="center">ai-gram</h1>
 
 <p align="center">
-  <strong>A production-minded Go Telegram Bot API library built primarily with ChatGPT + Codex under maintainer direction.</strong>
+  <strong>A production-minded Telegram Bot API library for Go, built primarily with ChatGPT + Codex.</strong>
 </p>
 
 <p align="center">
-  <a href="https://github.com/xDilettante/ai-gram/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/xDilettante/ai-gram/actions/workflows/ci.yml/badge.svg?branch=main"></a>
+  <a href="https://github.com/xDilettante/ai-gram/actions/workflows/ci.yml"><img alt="CI" src="https://img.shields.io/github/actions/workflow/status/xDilettante/ai-gram/ci.yml?branch=main&style=for-the-badge&label=CI&logo=github"></a>
   <img alt="Telegram Bot API 9.6" src="https://img.shields.io/badge/Telegram%20Bot%20API-9.6-26A5E4?style=for-the-badge&logo=telegram&logoColor=white">
-  <img alt="Go library" src="https://img.shields.io/badge/Go-library-00ADD8?style=for-the-badge&logo=go&logoColor=white">
-  <img alt="Tests: unit and httptest" src="https://img.shields.io/badge/tests-unit%20%2B%20httptest-22C55E?style=for-the-badge">
-  <img alt="Coverage" src="docs/assets/coverage.svg">
-  <img alt="API coverage: complete" src="https://img.shields.io/badge/API%20coverage-complete-7C3AED?style=for-the-badge">
-  <img alt="Docs: English" src="https://img.shields.io/badge/docs-English-111827?style=for-the-badge">
+  <img alt="Go" src="https://img.shields.io/badge/Go-00ADD8?style=for-the-badge&logo=go&logoColor=white">
   <a href="LICENSE"><img alt="License: MIT" src="https://img.shields.io/badge/license-MIT-F59E0B?style=for-the-badge"></a>
-  <img alt="Stability: pre-1.0" src="https://img.shields.io/badge/stability-pre--1.0%20%2F%20beta-F97316?style=for-the-badge">
+</p>
+
+<p align="center">
+  <img alt="Coverage: 68.8%" src="https://img.shields.io/badge/coverage-68.8%25-F59E0B?style=for-the-badge">
+  <img alt="API coverage: complete" src="https://img.shields.io/badge/API%20coverage-complete-7C3AED?style=for-the-badge">
+  <img alt="Stability: pre-1.0 / beta" src="https://img.shields.io/badge/pre--1.0%20%2F%20beta-F97316?style=for-the-badge">
   <img alt="Built with ChatGPT and Codex" src="https://img.shields.io/badge/built%20with-ChatGPT%20%2B%20Codex-8B5CF6?style=for-the-badge">
 </p>
 
