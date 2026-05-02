@@ -14,6 +14,7 @@
   <img alt="Tests: unit and httptest" src="https://img.shields.io/badge/tests-unit%20%2B%20httptest-22C55E?style=for-the-badge">
   <img alt="API coverage: complete" src="https://img.shields.io/badge/API%20coverage-complete-7C3AED?style=for-the-badge">
   <img alt="Docs: English" src="https://img.shields.io/badge/docs-English-111827?style=for-the-badge">
+  <img alt="License: MIT" src="https://img.shields.io/badge/license-MIT-F59E0B?style=for-the-badge">
   <img alt="Built with ChatGPT and Codex" src="https://img.shields.io/badge/built%20with-ChatGPT%20%2B%20Codex-8B5CF6?style=for-the-badge">
 </p>
 
@@ -117,6 +118,7 @@ Maintainer-only smoke examples are separated under [`examples/maintainer/`](exam
 - [`docs/MANUAL_TESTING.md`](docs/MANUAL_TESTING.md) — public manual testing guide.
 - [`docs/ROADMAP.md`](docs/ROADMAP.md) — stabilization and future work.
 - [`CHANGELOG.md`](CHANGELOG.md) — project changelog.
+- [`LICENSE`](LICENSE) — MIT license.
 
 Maintainer-only deploy, live-smoke, and release-readiness notes live under [`docs/maintainer/`](docs/maintainer/). They are useful for project maintainers, but intentionally separated from the public quick start.
 
