@@ -92,8 +92,9 @@ Strategic change: the small v0.3 release plan is superseded. Code coverage for T
 Repository status for this workstream:
 
 - The public repository is available at <https://github.com/xDilettante/ai-gram>.
-- `v0.2.0` remains the latest historical release tag from the earlier workstream; no new tags or GitHub Releases have been created for the current public repository yet.
+- `v0.2.0` remains the latest published tag until `v0.3.0` is explicitly approved, tagged, and released.
 - Bot API 9.6 code coverage is complete on `main` with documented architecture differences.
+- [`docs/releases/v0.3.0.md`](releases/v0.3.0.md) contains prepared release notes and the tag plan for the first large pre-v1 public milestone.
 - Do not create new tags or GitHub Releases until the user explicitly approves release work.
 
 Stage 98/99 outcome: **Bot API 9.6 code coverage is complete with documented architecture differences**. The final audit found wrappers for all 169 official Bot API methods and no missing fields in the audited high-impact object tables after adding `Message.giveaway`; Stage 99 resolved the final `setWebhook.certificate` upload blocker.
@@ -104,7 +105,7 @@ Next phase:
 
 1. Keep CI and local verification green for any follow-up fixes.
 2. Keep sensitive/state-changing smoke manual-only and fixture-first by default.
-3. Prepare release tags and GitHub Releases only after explicit user approval.
+3. After explicit approval, create the annotated `v0.3.0` tag, push only that tag, verify `go get @v0.3.0`, and create the GitHub Release from [`docs/releases/v0.3.0.md`](releases/v0.3.0.md).
 
 Live smoke policy:
 

@@ -123,6 +123,7 @@ Maintainer-only smoke examples are separated under [`examples/maintainer/`](exam
 - [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) — short package and update-flow architecture diagram.
 - [`docs/API_COVERAGE.md`](docs/API_COVERAGE.md) — Bot API method/type coverage inventory and architecture notes.
 - [`docs/BOT_API_9_6_FINAL_AUDIT.md`](docs/BOT_API_9_6_FINAL_AUDIT.md) — final coverage audit for the local workstream.
+- [`docs/releases/v0.3.0.md`](docs/releases/v0.3.0.md) — prepared release notes and tag plan for the first large pre-v1 public milestone.
 - [`docs/BOT_API_9_6_COVERAGE_PLAN.md`](docs/BOT_API_9_6_COVERAGE_PLAN.md) — coverage plan and compatibility notes.
 - [`docs/MANUAL_TESTING.md`](docs/MANUAL_TESTING.md) — public manual testing guide.
 - [`docs/ROADMAP.md`](docs/ROADMAP.md) — stabilization and future work.

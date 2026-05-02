@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+No changes yet.
+
+## v0.3.0 - 2026-05-02
+
 ### Added
 
 - Repository maturity pack: GitHub Actions CI, local coverage badge generation, architecture docs, public examples, contribution policy, security policy, issue forms, and PR template.
