@@ -37,14 +37,14 @@ if [ -n "${BOT_USERNAME}" ]; then
 else
   BOT_LINE="username unknown"
 fi
-notify_user "v0.2 send methods smoke запускается.
+notify_user "v0.2 send methods smoke is starting.
 
-Бот: ${BOT_LINE}
-Чат: $(mask_chat_id "${CHAT_ID}")
+Bot: ${BOT_LINE}
+Chat: $(mask_chat_id "${CHAT_ID}")
 
-Codex отправит тестовые contact/location/venue/poll/dice сообщения.
-От тебя действий не требуется.
+Codex will send test contact/location/venue/poll/dice messages.
+No user action is required.
 
-Если optional media env задан, будут проверены sticker/animation/video note." || true
+If optional media env is set, sticker/animation/video note will be checked." || true
 
 run_sanitized go run ./examples/maintainer/v02_send_methods

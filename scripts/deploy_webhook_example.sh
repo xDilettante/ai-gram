@@ -70,7 +70,7 @@ on_exit() {
   local status=$?
   cleanup
   if [ "${status}" -ne 0 ] && [ "${DEPLOY_SUCCEEDED}" != "1" ]; then
-    notify_user "Webhook deploy упал. Проверь terminal output и remote logs." || true
+    notify_user "Webhook deploy failed. Check terminal output and remote logs." || true
   fi
   exit "${status}"
 }

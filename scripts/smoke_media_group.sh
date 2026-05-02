@@ -47,15 +47,15 @@ if [ -n "${BOT_USERNAME}" ]; then
 else
   BOT_LINE="username unknown"
 fi
-notify_user "SendMediaGroup smoke запускается.
+notify_user "SendMediaGroup smoke is starting.
 
-Бот: ${BOT_LINE}
-Чат: $(mask_chat_id "${CHAT_ID}")
+Bot: ${BOT_LINE}
+Chat: $(mask_chat_id "${CHAT_ID}")
 
-Codex отправит тестовую media group.
-От тебя действий не требуется.
+Codex will send a test media group.
+No user action is required.
 
-Если AIGRAM_MEDIA_GROUP_FILE_ID_* или AIGRAM_MEDIA_GROUP_PATH_* не заданы, будет использован generated upload fallback." || true
+If AIGRAM_MEDIA_GROUP_FILE_ID_* or AIGRAM_MEDIA_GROUP_PATH_* is not set, a generated upload fallback will be used." || true
 
 TMP_OUTPUT="$(mktemp)"
 cleanup_output() {

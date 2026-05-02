@@ -28,7 +28,7 @@ func TestAnswerCallbackQuerySendsPayloadAndDecodesResult(t *testing.T) {
 		if got := payload["callback_query_id"]; got != "callback-id" {
 			t.Fatalf("unexpected callback_query_id: %#v", got)
 		}
-		if got := payload["text"]; got != "Готово" {
+		if got := payload["text"]; got != "Done" {
 			t.Fatalf("unexpected text: %#v", got)
 		}
 		if got := payload["show_alert"]; got != true {
@@ -49,7 +49,7 @@ func TestAnswerCallbackQuerySendsPayloadAndDecodesResult(t *testing.T) {
 	bot := newTestBot(t, token, server.URL, server.Client())
 	ok, err := bot.AnswerCallbackQuery(context.Background(), AnswerCallbackQueryParams{
 		CallbackQueryID: "callback-id",
-		Text:            "Готово",
+		Text:            "Done",
 		ShowAlert:       true,
 		URL:             "https://example.com/callback",
 		CacheTime:       30,
@@ -90,8 +90,8 @@ func TestAnswerCallbackQueryMinimalSuccess(t *testing.T) {
 func TestAnswerCallbackQueryValidation(t *testing.T) {
 	const token = "123:secret"
 	bot := newTestBot(t, token, "https://example.test", nil)
-	text200 := strings.Repeat("я", 200)
-	text201 := strings.Repeat("я", 201)
+	text200 := strings.Repeat("a", 200)
+	text201 := strings.Repeat("a", 201)
 
 	valid := []AnswerCallbackQueryParams{
 		{CallbackQueryID: "id", Text: text200},

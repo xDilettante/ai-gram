@@ -23,6 +23,6 @@ run_sanitized go run ./examples/local_api_server
 status=$?
 set -e
 if [ "${status}" -eq 0 ]; then
-  notify_user "Local Bot API smoke успешен."
+  notify_user "Local Bot API smoke succeeded."
 fi
 exit "${status}"

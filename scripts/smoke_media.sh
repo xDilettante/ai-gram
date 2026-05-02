@@ -12,7 +12,7 @@ prepare_smoke_tunnel
 
 if [ -z "${AIGRAM_MEDIA_PATH:-}" ] && [ -z "${AIGRAM_FILE_ID:-}" ]; then
   echo "Media smoke skipped: set AIGRAM_MEDIA_PATH or AIGRAM_FILE_ID." >&2
-  notify_user "Media smoke пропущен: задай AIGRAM_MEDIA_PATH или AIGRAM_FILE_ID."
+  notify_user "Media smoke skipped: set AIGRAM_MEDIA_PATH or AIGRAM_FILE_ID."
   exit 0
 fi
 

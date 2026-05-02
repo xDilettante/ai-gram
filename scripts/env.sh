@@ -589,33 +589,33 @@ targeted_smoke() {
 notify_longpoll_smoke_ready() {
   local username="$1"
   local wait_seconds="${2:-120}"
-  local bot_line="Бот: username unknown"
-  local open_line="Открой бота вручную."
+  local bot_line="Bot: username unknown"
+  local open_line="Open the bot manually."
   if [ -n "${username}" ]; then
-    bot_line="Бот: @${username}"
-    open_line="Открой: $(telegram_bot_start_link "${username}" "smoke")"
+    bot_line="Bot: @${username}"
+    open_line="Open: $(telegram_bot_start_link "${username}" "smoke")"
   fi
 
-  notify_manual_action "Long polling smoke запущен." "${bot_line}
+  notify_manual_action "Long polling smoke started." "${bot_line}
 ${open_line}
 
-Сделай:
-1. Отправь одно обычное текстовое сообщение.
+Do this:
+1. Send one regular text message.
 
-Smoke завершится автоматически сразу после получения update и отправки reply.
-Timeout: ${wait_seconds} секунд.
+Smoke will finish automatically after receiving an update and sending a reply.
+Timeout: ${wait_seconds} seconds.
 
-Codex проверит safe output сам."
+Codex will verify safe output automatically."
 }
 
 webhook_bot_lines() {
   local username="$1"
   local payload="${2:-smoke}"
-  local bot_line="Бот: username unknown"
-  local open_line="Открой webhook bot вручную."
+  local bot_line="Bot: username unknown"
+  local open_line="Open the webhook bot manually."
   if [ -n "${username}" ]; then
-    bot_line="Бот: @${username}"
-    open_line="Открой: $(telegram_bot_start_link "${username}" "${payload}")"
+    bot_line="Bot: @${username}"
+    open_line="Open: $(telegram_bot_start_link "${username}" "${payload}")"
   fi
   printf '%s\n%s\n' "${bot_line}" "${open_line}"
 }
@@ -625,12 +625,12 @@ notify_full_webhook_smoke() {
   local lines
   lines="$(webhook_bot_lines "${username}" "smoke")"
 
-  notify_manual_action "Webhook full smoke готов." "${lines}
+  notify_manual_action "Webhook full smoke is ready." "${lines}
 
-Нажми ссылку: бот откроет smoke keyboard.
-Дальше пройди полный regression flow кнопками в боте.
+Open the link: the bot will show the smoke keyboard.
+Then complete the full regression flow using the bot buttons.
 
-Codex проверит safe action logs сам."
+Codex will verify safe action logs automatically."
 }
 
 notify_webhook_deploy_done() {
@@ -638,11 +638,11 @@ notify_webhook_deploy_done() {
   local lines
   lines="$(webhook_bot_lines "${username}" "smoke")"
 
-  notify_manual_action "Webhook example задеплоен." "${lines}
+  notify_manual_action "Webhook example deployed." "${lines}
 
-Действий от пользователя не требуется, если текущий этап отдельно не запросил targeted smoke.
+No user action is required unless the current stage explicitly requested targeted smoke.
 
-Если Codex прислал targeted notification, выполняй только указанные там шаги, не полный checklist."
+If Codex sent a targeted notification, perform only the listed steps, not the full checklist."
 }
 
 notify_webhook_smoke_ready() {
@@ -687,17 +687,17 @@ notify_access_panel_ready() {
   local lines
   lines="$(webhook_bot_lines "${username}" "access_panel")"
 
-  notify_targeted_action "Access control smoke готов." "${lines}
+  notify_targeted_action "Access control smoke is ready." "${lines}
 
-Нажми ссылку: бот откроет control panel.
-Дальше просто нажимай кнопки в боте:
+Open the link: the bot will show the control panel.
+Then press these bot buttons:
 - Access status
 - Bot chat info
 - Start smoke
 - Open access
 - Close access
 
-Codex проверит safe logs сам."
+Codex will verify safe logs automatically."
 }
 
 notify_reply_smoke_ready() {
@@ -705,11 +705,11 @@ notify_reply_smoke_ready() {
   local lines
   lines="$(webhook_bot_lines "${username}" "smoke")"
 
-  notify_targeted_action "Reply smoke готов." "${lines}
+  notify_targeted_action "Reply smoke is ready." "${lines}
 
-Нажми ссылку и отправь обычное текстовое сообщение.
+Open the link and send a regular text message.
 
-Codex проверит safe logs: matched=message и action=send_message с reply_to_message_id."
+Codex will verify safe logs: matched=message and action=send_message with reply_to_message_id."
 }
 
 notify_edit_smoke_ready() {
@@ -717,14 +717,14 @@ notify_edit_smoke_ready() {
   local lines
   lines="$(webhook_bot_lines "${username}" "smoke")"
 
-  notify_targeted_action "Edit smoke готов." "${lines}
+  notify_targeted_action "Edit smoke is ready." "${lines}
 
-Нажми ссылку: бот откроет smoke keyboard.
-Дальше нажми:
+Open the link: the bot will show the smoke keyboard.
+Then press:
 - Edit message
 - Remove keyboard
 
-Codex проверит action=edit_message_text и action=edit_message_reply_markup."
+Codex will verify action=edit_message_text and action=edit_message_reply_markup."
 }
 
 notify_caption_smoke_ready() {
@@ -732,15 +732,15 @@ notify_caption_smoke_ready() {
   local lines
   lines="$(webhook_bot_lines "${username}" "smoke")"
 
-  notify_targeted_action "Caption smoke готов." "${lines}
+  notify_targeted_action "Caption smoke is ready." "${lines}
 
-Нажми ссылку: бот откроет smoke keyboard.
-Дальше нажми:
+Open the link: the bot will show the smoke keyboard.
+Then press:
 - Caption demo
 - Edit caption
 - Delete media message
 
-Codex проверит action=send_media_caption_demo, action=edit_message_caption и action=delete_message."
+Codex will verify action=send_media_caption_demo, action=edit_message_caption, and action=delete_message."
 }
 
 notify_delete_smoke_ready() {
@@ -748,12 +748,12 @@ notify_delete_smoke_ready() {
   local lines
   lines="$(webhook_bot_lines "${username}" "smoke")"
 
-  notify_targeted_action "Delete smoke готов." "${lines}
+  notify_targeted_action "Delete smoke is ready." "${lines}
 
-Нажми ссылку: бот откроет smoke keyboard.
-Дальше нажми "Delete this message".
+Open the link: the bot will show the smoke keyboard.
+Then press "Delete this message".
 
-Codex проверит action=delete_message."
+Codex will verify action=delete_message."
 }
 
 notify_forward_copy_smoke_ready() {
@@ -761,28 +761,28 @@ notify_forward_copy_smoke_ready() {
   local lines
   lines="$(webhook_bot_lines "${username}" "smoke")"
 
-  notify_targeted_action "Forward/copy smoke готов." "${lines}
+  notify_targeted_action "Forward/copy smoke is ready." "${lines}
 
-Нажми ссылку: бот откроет smoke keyboard.
-Дальше нажми:
+Open the link: the bot will show the smoke keyboard.
+Then press:
 - Copy this message
 - Forward this message
 
-Codex проверит action=copy_message и action=forward_message."
+Codex will verify action=copy_message and action=forward_message."
 }
 
 notify_media_smoke_ready() {
   local username="$1"
-  local bot_line="Бот: username unknown"
-  local open_line="Проверь чат с media smoke bot вручную."
+  local bot_line="Bot: username unknown"
+  local open_line="Check the media smoke bot chat manually."
   if [ -n "${username}" ]; then
-    bot_line="Бот: @${username}"
-    open_line="Открой: https://t.me/${username}"
+    bot_line="Bot: @${username}"
+    open_line="Open: https://t.me/${username}"
   fi
 
-  notify_manual_action "Media smoke запускается." "${bot_line}
+  notify_manual_action "Media smoke is starting." "${bot_line}
 ${open_line}
 
-Проверь, что бот прислал или скачал файл.
-Codex проверит output/logs без token-bearing URLs."
+Check that the bot sent or downloaded a file.
+Codex will verify output/logs without token-bearing URLs."
 }

@@ -46,7 +46,7 @@ if command -v timeout >/dev/null 2>&1; then
     status=1
     set -e
     print_longpoll_timeout_diagnostics
-    notify_user "Long polling smoke timeout: update не пришёл за ${WAIT_SECONDS} секунд."
+    notify_user "Long polling smoke timeout: no update received within ${WAIT_SECONDS} seconds."
     exit "${status}"
   fi
 else
@@ -55,8 +55,8 @@ else
 fi
 set -e
 if [ "${status}" -eq 0 ]; then
-  notify_user "Long polling smoke завершён успешно: update получен и reply отправлен."
+  notify_user "Long polling smoke completed successfully: update received and reply sent."
 else
-  notify_user "Long polling smoke завершился с ошибкой. Проверь terminal output."
+  notify_user "Long polling smoke failed. Check terminal output."
 fi
 exit "${status}"
