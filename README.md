@@ -106,9 +106,18 @@ To send messages, use `SendMessage` with typed parameters such as `aigram.SendMe
 
 The project intentionally keeps AI-assisted development visible without turning it into marketing noise: ChatGPT and Codex produce most of the code and documentation, while the maintainer directs requirements, validates behavior, and decides what is safe to ship.
 
-## Examples
+## Beginner-friendly examples
 
-Runnable examples are under [`examples/`](examples/):
+Start with the numbered examples under [`examples/`](examples/):
+
+- [`examples/01_echo_bot`](examples/01_echo_bot) — minimal long polling echo bot with `/start`.
+- [`examples/02_commands`](examples/02_commands) — command routing with `/start`, `/help`, and `/about`.
+- [`examples/03_reply_keyboard`](examples/03_reply_keyboard) — regular reply keyboard and keyboard removal.
+- [`examples/04_inline_keyboard`](examples/04_inline_keyboard) — inline keyboard callbacks, `AnswerCallbackQuery`, and message editing.
+- [`examples/05_media_upload`](examples/05_media_upload) — photo/document sends by `file_id` or local upload.
+- [`examples/06_webhook_basic`](examples/06_webhook_basic) — simple webhook server with `/healthz` and `/webhook`.
+
+Additional examples remain available for advanced scenarios:
 
 - [`examples/echo_longpoll`](examples/echo_longpoll) — long polling bot with commands, echo, inline keyboard, callbacks, and message editing.
 - [`examples/webhook_basic`](examples/webhook_basic) — minimal inbound webhook server skeleton.

@@ -24,23 +24,24 @@ Common variables:
 | `AIGRAM_LISTEN_ADDR` | HTTP listen address for webhook examples. Defaults to `:8080`. |
 | `AIGRAM_WEBHOOK_URL` | Webhook URL passed to Telegram by the webhook example. |
 | `AIGRAM_WEBHOOK_SECRET` | Optional secret token used by both `SetWebhook` and the webhook handler. |
-| `AIGRAM_MEDIA_PATH` | Optional local file path for media upload checks. |
-| `AIGRAM_FILE_ID` | Optional Telegram `file_id` for file download checks. |
+| `AIGRAM_PHOTO_PATH` | Optional local photo path for the media upload example. |
+| `AIGRAM_PHOTO_FILE_ID` | Optional Telegram photo `file_id` for the media upload example. |
+| `AIGRAM_DOCUMENT_PATH` | Optional local document path for the media upload example. |
+| `AIGRAM_DOCUMENT_FILE_ID` | Optional Telegram document `file_id` for the media upload example. |
 
 ## Long polling echo bot
 
 ```bash
 export AIGRAM_BOT_TOKEN='123456:replace_me'
-go run ./examples/echo_longpoll
+go run ./examples/01_echo_bot
 ```
 
 Checklist:
 
 - The example deletes any active webhook before polling.
 - Send a text message to the bot.
-- The bot replies with `echo: <your text>`.
-- `/start` shows inline keyboard buttons.
-- Callback buttons answer the callback and demonstrate message editing or follow-up messages.
+- The bot replies with the same text.
+- `/start` returns the welcome message.
 - Stop with `Ctrl+C` and confirm graceful shutdown.
 
 ## Local Bot API connectivity
@@ -67,51 +68,48 @@ export AIGRAM_BOT_TOKEN='123456:replace_me'
 export AIGRAM_LISTEN_ADDR=':8080'
 export AIGRAM_WEBHOOK_URL='https://example.com/webhook'
 export AIGRAM_WEBHOOK_SECRET='replace_me_secret'
-go run ./examples/webhook_basic
+go run ./examples/06_webhook_basic
 ```
 
 Checklist:
 
 - Your reverse proxy or tunnel forwards the webhook URL to `/webhook` on the example server.
 - `SetWebhook` succeeds.
-- `GetWebhookInfo` shows the expected webhook and no recent error.
 - Incoming messages reach the handler and receive replies.
 
 ## Inline keyboard example
 
 ```bash
 export AIGRAM_BOT_TOKEN='123456:replace_me'
-export AIGRAM_ADMIN_USER_IDS='123456789'
-go run ./examples/inline_longpoll
+go run ./examples/04_inline_keyboard
 ```
 
 Checklist:
 
 - Send `/start` to the bot.
-- The bot shows the demo inline keyboard.
-- Press demo buttons and confirm callback answers and message edits work.
-- Access-control examples stay admin-only unless you intentionally configure a public mode.
+- The bot shows an inline keyboard.
+- Press demo buttons and confirm callback answers, message editing, and reply-markup removal work.
 
-## Media upload/download example
+## Media upload example
 
 ```bash
 export AIGRAM_BOT_TOKEN='123456:replace_me'
 export AIGRAM_CHAT_ID='123456789'
-export AIGRAM_MEDIA_PATH='./testdata/example.txt'
-go run ./examples/media_upload
+export AIGRAM_DOCUMENT_PATH='./testdata/example.txt'
+go run ./examples/05_media_upload
 ```
 
-Optional download check:
+Optional file ID check:
 
 ```bash
-export AIGRAM_FILE_ID='existing_file_id'
-go run ./examples/media_upload
+export AIGRAM_DOCUMENT_FILE_ID='existing_document_file_id'
+go run ./examples/05_media_upload
 ```
 
 Checklist:
 
 - Uploads use multipart when a local path is provided.
-- File download checks use `GetFile` and the configured file base URL.
+- If no document path or file ID is set, the example generates and uploads a small temporary text document.
 - Logs do not print the full bot token or token-bearing URLs.
 
 ## Sensitive and state-changing areas
