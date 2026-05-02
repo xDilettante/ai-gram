@@ -9,12 +9,12 @@
 </p>
 
 <p align="center">
-  <img alt="Go" src="https://img.shields.io/badge/Go-library-00ADD8?logo=go&logoColor=white">
-  <img alt="Status: active" src="https://img.shields.io/badge/status-active-22c55e">
-  <img alt="Tests: unit and httptest" src="https://img.shields.io/badge/tests-unit%20%2B%20httptest-2563eb">
-  <img alt="Docs: English" src="https://img.shields.io/badge/docs-English-7c3aed">
-  <img alt="API coverage: complete" src="https://img.shields.io/badge/API%20coverage-complete-0f766e">
-  <img alt="Built with ChatGPT and Codex" src="https://img.shields.io/badge/built%20with-ChatGPT%20%2B%20Codex-111827">
+  <img alt="Telegram Bot API 9.6" src="https://img.shields.io/badge/Telegram%20Bot%20API-9.6-26A5E4?style=for-the-badge&logo=telegram&logoColor=white">
+  <img alt="Go library" src="https://img.shields.io/badge/Go-library-00ADD8?style=for-the-badge&logo=go&logoColor=white">
+  <img alt="Tests: unit and httptest" src="https://img.shields.io/badge/tests-unit%20%2B%20httptest-22C55E?style=for-the-badge">
+  <img alt="API coverage: complete" src="https://img.shields.io/badge/API%20coverage-complete-7C3AED?style=for-the-badge">
+  <img alt="Docs: English" src="https://img.shields.io/badge/docs-English-111827?style=for-the-badge">
+  <img alt="Built with ChatGPT and Codex" src="https://img.shields.io/badge/built%20with-ChatGPT%20%2B%20Codex-8B5CF6?style=for-the-badge">
 </p>
 
 <p align="center">
