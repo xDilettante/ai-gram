@@ -30,14 +30,10 @@ Do not release if any command fails or if `git status --short` contains unintend
 Before tagging a future release, also verify the public branch from a temporary module outside this repository:
 
 ```bash
-go get github.com/xDilettante/ai-gram@main
-go test ./...
-go doc github.com/xDilettante/ai-gram
-go doc github.com/xDilettante/ai-gram/bot.Config
-go doc github.com/xDilettante/ai-gram/telegram.LoginURL
+scripts/smoke_public_consumer.sh
 ```
 
-If the public Go proxy has not yet observed the latest pushed commit, repeat the branch verification with `GOPROXY=direct`.
+If the public Go proxy has not yet observed the latest pushed commit, repeat the branch verification with `AIGRAM_CONSUMER_DIRECT=1 scripts/smoke_public_consumer.sh`.
 
 ## Documentation Gates
 
