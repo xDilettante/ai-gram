@@ -4,11 +4,12 @@ This checklist is for preparing a future `v0.4.0` tag. It does not create the ta
 
 ## Current Status
 
-Last verified: May 10, 2026, Bot API 10.0 final audit.
+Last verified: May 11, 2026, Bot API 10.0 final audit plus public `main` consumer smoke.
 
 - [x] Bot API 10.0 code coverage is complete with documented architecture differences.
 - [x] Final Bot API 10.0 audit is recorded in [`../BOT_API_10_0_FINAL_AUDIT.md`](../BOT_API_10_0_FINAL_AUDIT.md).
 - [x] README, API coverage, roadmap, release notes, and live smoke matrix are aligned with the Bot API 10.0 status.
+- [x] Public `main` consumer smoke passed after the root facade cleanup.
 - [x] Sensitive and state-changing live smoke remains manual-only.
 - [x] No `v0.4.0` tag or GitHub Release has been created.
 
@@ -25,6 +26,18 @@ git status --short
 ```
 
 Do not release if any command fails or if `git status --short` contains unintended changes.
+
+Before tagging, also verify the public branch from a temporary module outside this repository:
+
+```bash
+go get github.com/xDilettante/ai-gram@main
+go test ./...
+go doc github.com/xDilettante/ai-gram
+go doc github.com/xDilettante/ai-gram/bot.SendPollParams
+go doc github.com/xDilettante/ai-gram/telegram.ChatMember
+```
+
+If the public Go proxy has not yet observed the latest pushed commit, repeat the branch verification with `GOPROXY=direct`.
 
 ## Documentation Gates
 

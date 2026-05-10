@@ -95,6 +95,8 @@ Repository status for this workstream:
 - `v0.3.0` is already published; `v0.4.0` is the next planned tag for the Bot API 10.0 package.
 - Bot API 10.0 code coverage is complete on `main` with documented architecture differences.
 - Bot API 10.0 final audit found no known code coverage blockers.
+- The root `aigram` package is now a compact quick-start facade; the full Bot API surface lives in `bot` and `telegram`.
+- Public `main` consumer smoke passed after the root facade cleanup.
 - [`docs/releases/v0.4.0.md`](releases/v0.4.0.md) contains prepared release notes and the tag plan for the Bot API 10.0 pre-v1 milestone.
 - Do not create new tags or GitHub Releases until the user explicitly approves release work.
 
@@ -118,8 +120,6 @@ Live smoke policy:
 
 ## Later
 
-- Root facade reduction
-  - Keep the root `aigram` package convenient without making it a complete re-export mirror of every Bot API type.
 - Passport decryption helpers
   - Intentionally out of scope for the typed Bot API wrapper unless a future product decision adds them.
 - Codegen

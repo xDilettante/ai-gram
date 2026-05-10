@@ -2,12 +2,26 @@
 
 ## Unreleased
 
+### Added
+
+- Telegram Bot API 10.0 coverage on `main`, including guest mode, reaction deletion, poll media, live photos, managed bot access settings, personal chat message reads, and empty-text message drafts.
+- Release-readiness documentation for the planned `v0.4.0` pre-v1 milestone.
+
 ### Changed
 
 - Breaking pre-v1 cleanup: `GetChat` now returns `telegram.ChatFullInfo`, matching the official `getChat` result.
 - Breaking pre-v1 cleanup: `telegram.ChatMember` is now an interface implemented by official `ChatMember*` variants.
 - Breaking pre-v1 cleanup: `CallbackQuery.Message` now uses `telegram.MaybeInaccessibleMessage` directly.
 - Breaking pre-v1 cleanup: the root `aigram` package is now a compact quick-start facade instead of a broad re-export mirror.
+
+### Documentation
+
+- Updated README, architecture notes, API coverage, roadmap, and release notes for Bot API 10.0 readiness.
+- Documented intentional architecture differences for `FileRef`/`FileUpload`, `ChatFullInfo`, `ChatMember`, `MaybeInaccessibleMessage`, and live-photo URL handling.
+
+### Verification
+
+- Verified public `main` consumption from an external temporary module with root quick-start imports and direct `bot` / `telegram` imports.
 
 ## v0.3.0 - 2026-05-02
 
