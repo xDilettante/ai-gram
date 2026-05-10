@@ -1,119 +1,103 @@
 # Release Checklist
 
-This checklist is for preparing a future `v0.1.0` tag. It does not create the tag or publish a release by itself.
+This checklist is for preparing a future `v0.4.0` tag. It does not create the tag or publish a release by itself.
 
+## Current Status
 
-## Current pre-v0.1 status
+Last verified: May 10, 2026, Bot API 10.0 final audit.
 
-Last verified: 2026-04-30, Stage 30 pre-release verification.
+- [x] Bot API 10.0 code coverage is complete with documented architecture differences.
+- [x] Final Bot API 10.0 audit is recorded in [`../BOT_API_10_0_FINAL_AUDIT.md`](../BOT_API_10_0_FINAL_AUDIT.md).
+- [x] README, API coverage, roadmap, release notes, and live smoke matrix are aligned with the Bot API 10.0 status.
+- [x] Sensitive and state-changing live smoke remains manual-only.
+- [x] No `v0.4.0` tag or GitHub Release has been created.
 
-- [x] Static checks passed: `gofmt -w .`, `bash -n scripts/*.sh`, `go test ./...`, `go vet ./...`, `git diff --check`, and clean `git status --short` before live/docs updates.
-- [x] Docs checked: README, API coverage, roadmap, manual testing, deploy testing, live smoke matrix, and this checklist are present and aligned with current scope.
-- [x] Examples compile through `go test ./...` and keep admin-only access control enabled by default.
-- [x] API coverage checked: raw `Bot.Token()` accessor is removed; chat info, chat action/pin, and moderation methods are listed; destructive/admin methods are marked as not auto-smoked.
-- [x] Safe live smoke subset passed: local Bot API smoke, webhook deploy, access panel/status, chat info, edit text/reply markup, generated-document caption edit/delete, delete bot-created message, reply/sendChatAction, and forward/copy.
-- [x] Security/secrets checks passed: no tracked token-like strings found, `.env.local` and `.deploy/generated.env` are ignored, raw token accessor search is clean, and logs/reports used safe excerpts only.
-- [x] Known limitations remain documented; no `v0.1.0` tag or GitHub release has been created.
+## Required Local Checks
 
-## Pre-release checks
-
-- Confirm `docs/API_COVERAGE.md` matches current implemented methods.
-- Confirm `docs/ROADMAP.md` reflects the next planned stage.
-- Review exported API for obvious pre-v0.1 naming issues before the tag.
-- Token exposure decision resolved before v0.1: raw bot token is intentionally not exposed through public `Bot` methods; use `GetMe` for bot identity and redacted `fmt.Stringer` output for diagnostics.
-- Confirm no new Bot API method was added without unit/httptest coverage.
-- Confirm all public exported declarations have useful GoDoc comments.
-- Confirm all blocking/network operations accept `context.Context` where applicable.
-
-## Tests
-
-Run from the repository root:
+Run from the repository root before publishing:
 
 ```bash
-gofmt -w .
-bash -n scripts/*.sh
-go test ./...
-go vet ./...
-git diff --check
+scripts/check.sh
+go test -race ./bot ./dispatch ./middleware ./transport/longpoll ./transport/webhook ./internal/httpclient ./telegram
+go test -coverprofile=coverage.out ./...
+go tool cover -func=coverage.out
+git status --short
 ```
 
 Do not release if any command fails or if `git status --short` contains unintended changes.
 
-## Docs
+## Documentation Gates
 
-- README describes the project as early-stage and does not promise full Bot API coverage.
-- README links to:
-  - `docs/API_COVERAGE.md`
-  - `docs/ROADMAP.md`
-  - `docs/MANUAL_TESTING.md`
-  - `docs/maintainer/DEPLOY_TESTING.md`
-  - `docs/maintainer/LIVE_SMOKE_MATRIX.md`
-  - `docs/maintainer/RELEASE_CHECKLIST.md`
-- Manual testing docs describe access control/admin-only mode.
-- Deploy testing docs describe deep-link smoke panels, role-specific tokens, separate Bot API host support, and TUN/Xray/vk1 caveats.
-- Coverage docs classify destructive/admin methods and methods that should not be smoke-tested automatically.
+- Confirm `README.md` describes Bot API 10.0 coverage accurately.
+- Confirm `docs/API_COVERAGE.md` matches current implemented methods and intentional architecture differences.
+- Confirm `docs/ROADMAP.md` reflects the current release stage.
+- Confirm `docs/releases/v0.4.0.md` is the release notes source for the tag.
+- Confirm `docs/maintainer/LIVE_SMOKE_MATRIX.md` marks destructive, sensitive, and state-changing flows as manual-only.
 
-## Examples
+## API And Test Gates
 
-- `go test ./...` compiles all `examples/*` packages without runtime env.
-- Examples read env only inside `main` or runtime helpers, not package init.
-- Examples do not log bot tokens, webhook secrets, token-bearing URLs, `.env.local`, or full private message text.
-- `examples/webhook_server` defaults to admin-only access control.
-- `examples/inline_longpoll` uses access control and runtime access commands.
-- Webhook safe logs include action/update/chat/message IDs where useful and avoid full text/callback payloads except known demo callback data.
+- Confirm no new Bot API method was added without unit or httptest coverage.
+- Confirm all public exported declarations have useful GoDoc comments.
+- Confirm all blocking/network operations accept or use `context.Context`.
+- Confirm token redaction tests still cover API errors, invalid JSON, HTTP errors, and context cancellation paths where relevant.
+- Confirm examples compile through `scripts/check.sh`.
 
-## Live smoke safe flows
+## Security Gates
 
-Use `docs/maintainer/LIVE_SMOKE_MATRIX.md` as the source of truth. Recommended safe subset before `v0.1.0`:
-
-- local Bot API smoke;
-- webhook `/start`;
-- access panel status/open/close with immediate close;
-- edit text/reply markup flow;
-- caption flow using generated document;
-- delete flow limited to bot-created test message;
-- reply flow;
-- forward/copy flow;
-- sendChatAction flow.
-
-Record only safe log excerpts such as `update_id`, `action`, `matched`, `chat_id`, `from_user_id`, and `message_id`.
-
-## Security/secrets
-
-- No real token or secret is committed.
+- No real token, webhook secret, private chat ID, payment payload, Passport payload, managed bot token, SSH detail, or token-bearing URL is committed.
 - `.env.local`, `.deploy/`, generated env files, SSH keys, and private keys remain ignored.
-- No docs or examples contain token-bearing URLs or full `/bot<TOKEN>/...` endpoints.
-- Public API does not expose raw bot token accessors; diagnostics use redacted string output.
-- Telegram notifications and final reports do not include secrets or full private message text.
-- Webhook secret matches both `SetWebhook` and `webhook.Config` in examples/deploy env.
-- Destructive/admin methods are not run automatically.
+- No docs or examples contain full `/bot<TOKEN>/...` endpoints.
+- Logs and final reports do not include secrets or full private message text.
+- Destructive/admin live smoke was not run automatically.
 
-## Versioning/tag
+## Manual-Only Live Smoke Areas
 
-- Decide final module version and tag name, expected `v0.1.0`.
-- Ensure release commit is clean and all checks passed.
-- Create an annotated tag only after the release checklist is complete:
+Use [`LIVE_SMOKE_MATRIX.md`](LIVE_SMOKE_MATRIX.md) as the source of truth. The following areas require explicit approval and dedicated test assets:
+
+- payments, Stars, gifts, paid media, refunds, and subscription flows;
+- Passport data and Passport error reporting;
+- Business APIs and business account mutation;
+- managed bot token/access methods;
+- guest mode flows;
+- reaction deletion;
+- admin/destructive chat methods;
+- sticker set mutation;
+- games, inline mode, Web App, Mini App, and prepared inline flows;
+- lifecycle methods such as `logOut` and `close`;
+- webhook certificate upload and webhook state changes.
+
+## Versioning And Tag
+
+- Expected release tag: `v0.4.0`.
+- Ensure the intended release commit is clean and all checks passed.
+- Create an annotated tag only after explicit maintainer approval:
 
 ```bash
-git tag -a v0.1.0 -m "v0.1.0"
+git tag -a v0.4.0 -m "Release v0.4.0"
 ```
 
-- Do not create the tag or GitHub release during ordinary stabilization tasks unless explicitly requested.
+- Push only that tag:
 
-## Known limitations
+```bash
+git push origin v0.4.0
+```
 
-- Full Telegram Bot API coverage is not implemented.
-- No code generation/openapi pipeline is used.
-- Media groups, thumbnails, animation/video note sending, polls, stickers, invite links, join requests, payments, passport, games, inline mode, WebApp/LoginUrl, bot commands/menu, forum topics, business APIs, Stars/gifts, and many admin setters remain deferred.
-- Some Telegram types are intentionally minimal and should be expanded only when required by implemented methods or update handling.
-- Live smoke depends on real credentials and the local/network environment; local TUN/Xray and remote local Bot API routing can change observed behavior.
+- Verify public module installation after the tag is available:
 
-## Do not release if
+```bash
+go get github.com/xDilettante/ai-gram@v0.4.0
+```
+
+- Create the GitHub Release using [`../releases/v0.4.0.md`](../releases/v0.4.0.md) as the release notes source.
+
+Do not run `git push --tags`, create unrelated tags, or create a GitHub Release before explicit approval.
+
+## Do Not Release If
 
 - Any required local check fails.
-- Examples do not compile with `go test ./...`.
+- Examples do not compile through `scripts/check.sh`.
 - A secret or token-bearing URL appears in tracked files, logs, or reports.
-- README or coverage docs claim methods that are not implemented.
+- README or coverage docs claim behavior that is not implemented.
 - New public API was added without GoDoc and tests.
 - Destructive/admin smoke was run against a non-test chat or without explicit confirmation.
 - Access control examples default to public access.

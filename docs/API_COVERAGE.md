@@ -2,9 +2,9 @@
 
 This document maps the current `ai-gram` implementation to Telegram Bot API areas. It is a project inventory, not a generated copy of the full upstream Bot API specification. Telegram adds methods over time, so expansion work should still be checked against the official Bot API docs before implementation.
 
-> **Bot API 9.6 target:** Code coverage for Telegram Bot API 9.6 is complete with documented architecture differences. Track the coverage workstream in [`docs/BOT_API_9_6_COVERAGE_PLAN.md`](BOT_API_9_6_COVERAGE_PLAN.md). The public repository exists, but new tags and GitHub Releases still require explicit maintainer approval.
+> **Bot API status:** Code coverage for Telegram Bot API 10.0 is complete with documented architecture differences. See [`docs/BOT_API_10_0_FINAL_AUDIT.md`](BOT_API_10_0_FINAL_AUDIT.md). The public repository exists, but new tags and GitHub Releases still require explicit maintainer approval.
 
-> **Release-readiness:** Stage 99 resolved the final `setWebhook.certificate` blocker. Stage 100 records release-readiness verification and the manual-only smoke plan. All 169 official method wrappers are present; no known Bot API 9.6 code coverage blockers remain; sensitive/state-changing live smoke remains manual-only. See [`docs/BOT_API_9_6_FINAL_AUDIT.md`](BOT_API_9_6_FINAL_AUDIT.md) and [`docs/maintainer/BOT_API_9_6_RELEASE_READINESS.md`](maintainer/BOT_API_9_6_RELEASE_READINESS.md).
+> **Release-readiness:** Stage 99 resolved the final `setWebhook.certificate` blocker for Bot API 9.6, and the Bot API 10.0 final audit found no missing code coverage after the 10.0 implementation slices. Sensitive/state-changing live smoke remains manual-only. See [`docs/BOT_API_9_6_FINAL_AUDIT.md`](BOT_API_9_6_FINAL_AUDIT.md), [`docs/BOT_API_10_0_FINAL_AUDIT.md`](BOT_API_10_0_FINAL_AUDIT.md), and [`docs/maintainer/BOT_API_10_0_RELEASE_READINESS.md`](maintainer/BOT_API_10_0_RELEASE_READINESS.md).
 
 ## Implemented
 
@@ -24,7 +24,7 @@ This document maps the current `ai-gram` implementation to Telegram Bot API area
 | `(*bot.Bot).RemoveUserVerification` | `removeUserVerification` | unit/httptest | Removes organization verification from a user. Manual-only verification operation. |
 | `(*bot.Bot).RemoveChatVerification` | `removeChatVerification` | unit/httptest | Removes organization verification from a chat. Manual-only verification operation. |
 | `errors.APIError`, `errors.ResponseParameters` | Bot API error envelope | unit | `ok:false` responses return typed errors; tests cover `errors.As`. |
-| `bot.ChatID`, `ChatIDInt`, `ChatIDString` | `chat_id` parameter shape | unit | Supports numeric chat IDs and string IDs such as `@channelusername`. |
+| `bot.ChatID`, `ChatIDInt`, `ChatIDString` | `chat_id` parameter shape | unit | Supports numeric chat IDs and string IDs such as `@channelusername` or target bot usernames. |
 
 ### Updates
 
@@ -32,7 +32,7 @@ This document maps the current `ai-gram` implementation to Telegram Bot API area
 | --- | --- | --- | --- |
 | `(*bot.Bot).GetUpdates` | `getUpdates` | unit/httptest | Manual one-shot updates call. |
 | `transport/longpoll.Runner` | `getUpdates` loop | unit, live via examples/scripts | Managed offset advancement, backoff, context cancellation, handler error reporting. |
-| `telegram.Update`, `telegram.Message`, helpers | n/a | unit | Practical incoming update/message/callback/media decoding and helper methods, including `channel_post`, `edited_channel_post`, and standalone `poll` updates. |
+| `telegram.Update`, `telegram.Message`, helpers | n/a | unit | Practical incoming update/message/callback/media decoding and helper methods, including `channel_post`, `edited_channel_post`, standalone `poll`, and Bot API 10.0 `guest_message` updates. |
 | `dispatch.ChannelPost`, `EditedChannelPost`, `Poll` | n/a | unit | Predicate and handler registration helpers for channel post and standalone poll updates. |
 | Service/direct-message metadata on `telegram.Message` | n/a | unit | Decodes shared user/chat responses, chat background and boost service messages, video chat service messages, proximity alerts, auto-delete timer changes, giveaway service messages, paid/direct message price changes, connected websites, and ownership/chat creation service metadata. |
 | `dispatch.Dispatcher` | n/a | unit, live via examples | Predicate routing for messages, commands, callbacks, middleware, fallback, error handling. |
@@ -50,23 +50,26 @@ This document maps the current `ai-gram` implementation to Telegram Bot API area
 
 | Public Go API | Telegram Bot API method | Tests | Notes |
 | --- | --- | --- | --- |
-| `(*bot.Bot).SendMessage` | `sendMessage` | unit/httptest, live examples | Supports text, parse mode/entities conflict validation, reply markup, `message_thread_id`, `reply_parameters`, and optional `business_connection_id`. |
+| `(*bot.Bot).SendMessage` | `sendMessage` | unit/httptest, live examples | Supports text, parse mode/entities conflict validation, reply markup, `message_thread_id`, `reply_parameters`, optional `business_connection_id`, and Bot API 10.0 bot-username targets/business replies without client-side rejection. |
 | `(*bot.Bot).SendPhoto` | `sendPhoto` | unit/httptest, live examples | Supports `FileID`, `FileURL`, `FileUpload`, caption, reply markup, thread/reply params, and optional `business_connection_id`. |
 | `(*bot.Bot).SendDocument` | `sendDocument` | unit/httptest, live examples | Supports `FileID`, `FileURL`, `FileUpload`, caption, reply markup, thread/reply params, and optional `business_connection_id`. |
 | `(*bot.Bot).SendVideo` | `sendVideo` | unit/httptest | Supports `FileID`, `FileURL`, `FileUpload`, thumbnail/cover refs or uploads, caption, duration, dimensions, start timestamp, streaming, spoiler/caption placement, thread/reply params, and optional `business_connection_id`. |
+| `(*bot.Bot).SendLivePhoto` | `sendLivePhoto` | unit/httptest | Supports `FileID` and `FileUpload` live photo/video plus required preview photo, caption, spoiler/caption placement, direct-message topic, thread/reply params, reply markup, and optional `business_connection_id`. HTTP URLs are intentionally rejected for live-photo inputs. |
 | `(*bot.Bot).SendAudio` | `sendAudio` | unit/httptest | Supports `FileID`, `FileURL`, `FileUpload`, caption, duration, performer/title, thread/reply params, and optional `business_connection_id`. |
 | `(*bot.Bot).SendVoice` | `sendVoice` | unit/httptest | Supports `FileID`, `FileURL`, `FileUpload`, caption, duration, thread/reply params, and optional `business_connection_id`. |
 | `(*bot.Bot).SendContact` | `sendContact` | unit/httptest, live v0.2 smoke | Supports contact phone/name/vCard fields, reply markup, `message_thread_id`, `reply_parameters`, and optional `business_connection_id`. |
 | `(*bot.Bot).SendLocation` | `sendLocation` | unit/httptest, live v0.2 smoke | Supports latitude/longitude, live-location optional fields, reply markup, thread/reply params, and optional `business_connection_id`. |
 | `(*bot.Bot).SendVenue` | `sendVenue` | unit/httptest, live v0.2 smoke | Supports venue coordinates, title/address, Foursquare/Google place fields, reply markup, thread/reply params, and optional `business_connection_id`. |
-| `(*bot.Bot).SendPoll` | `sendPoll` | unit/httptest, live v0.2 smoke | Supports legacy string options and structured `telegram.InputPollOption` values, quiz fields, Bot API 9.6 `correct_option_ids`, revoting/options controls, question/description formatting, reply markup, thread/reply params, and optional `business_connection_id`. |
+| `(*bot.Bot).SendPoll` | `sendPoll` | unit/httptest, live v0.2 smoke | Supports legacy string options and structured `telegram.InputPollOption` values, quiz fields, Bot API 9.6 `correct_option_ids`, revoting/options controls, question/description formatting, reply markup, thread/reply params, optional `business_connection_id`, Bot API 10.0 `media`/`explanation_media`, `members_only`/`country_codes`, one-option polls, and multipart uploads for poll media file fields. |
 | `(*bot.Bot).SendDice` | `sendDice` | unit/httptest, live v0.2 smoke | Supports known Telegram dice emoji, reply markup, thread/reply params, and optional `business_connection_id`. |
 | `(*bot.Bot).SendGame` | `sendGame` | unit/httptest | Sends BotFather-configured games with inline keyboard, reply params, `message_thread_id`, `allow_paid_broadcast`, `message_effect_id`, and optional `business_connection_id`. Manual-only live smoke. |
 | `(*bot.Bot).SendSticker` | `sendSticker` | unit/httptest, optional live v0.2 smoke | Supports `FileID`, `FileURL`, `FileUpload`, emoji, reply markup, thread/reply params, and optional `business_connection_id`. |
 | `(*bot.Bot).SendAnimation` | `sendAnimation` | unit/httptest, optional live v0.2 smoke | Supports `FileID`, `FileURL`, `FileUpload`, caption fields, thumbnail file ref/upload, spoiler, reply markup, thread/reply params, and optional `business_connection_id`. |
 | `(*bot.Bot).SendVideoNote` | `sendVideoNote` | unit/httptest, optional live v0.2 smoke | Supports `FileID`, `FileUpload`, thumbnail file ref/upload, duration/length, reply markup, thread/reply params, and optional `business_connection_id`. HTTP URL is intentionally rejected for video notes. |
-| `(*bot.Bot).SendMediaGroup` | `sendMediaGroup` | unit/httptest, live generated-upload smoke | Supports `InputMediaPhoto`, `InputMediaVideo`, `InputMediaAudio`, `InputMediaDocument`, JSON file IDs/URLs, multipart uploads, thumbnail/cover uploads where supported, thread/reply params, and optional `business_connection_id`. Does not support reply markup because Telegram does not accept it for media groups; `InputMediaAnimation` remains rejected for media groups. |
-| `telegram.InputPollOption` | `sendPoll` options | unit/httptest | Entity-aware structured poll options serialize through the official `options` field while legacy `[]string` options remain supported for compatibility. |
+| `(*bot.Bot).SendMediaGroup` | `sendMediaGroup` | unit/httptest, live generated-upload smoke | Supports `InputMediaPhoto`, `InputMediaLivePhoto`, `InputMediaVideo`, `InputMediaAudio`, `InputMediaDocument`, JSON file IDs/URLs where Telegram supports them, multipart uploads, thumbnail/cover/live-photo preview uploads where supported, thread/reply params, and optional `business_connection_id`. Live-photo URLs are intentionally rejected. Does not support reply markup because Telegram does not accept it for media groups; `InputMediaAnimation` remains rejected for media groups. |
+| `telegram.InputPollOption`, `bot.InputPollOptionMedia` | `sendPoll` options | unit/httptest | Entity-aware structured poll options serialize through the official `options` field while legacy `[]string` options remain supported for compatibility. Bot API 10.0 option media supports animation, live photo, location, photo, sticker, venue, and video JSON/multipart payloads. |
+| `telegram.PollMedia`, `telegram.Poll`, `telegram.PollOption` | poll result objects | unit | Decodes Bot API 10.0 poll media on poll descriptions, quiz explanations, and options, plus `members_only` and `country_codes`. |
+| `telegram.LivePhoto`, `telegram.Message`, `telegram.ExternalReplyInfo` | live photo payloads | unit/httptest | Decodes incoming `live_photo` media on messages and external replies, including the preview `photo` array and file metadata. |
 | `telegram.ReplyParameters` | send/copy reply payload | unit | Supports `message_id`, cross-chat `chat_id`, `allow_sending_without_reply`, quote fields, Bot API 9.6 `checklist_task_id`, and `poll_option_id`. |
 | `telegram.MessageOrigin*`, `ExternalReplyInfo`, `TextQuote` | message reply/forward metadata | unit | Decodes `forward_origin`, `external_reply`, `quote`, `reply_to_message`, `reply_to_story`, direct-message topic, suggested-post, caption/media, star, and sender metadata fields. |
 | `telegram.MaybeInaccessibleMessage`, `InaccessibleMessage` | inaccessible message references | unit | Decodes accessible and inaccessible pinned/callback messages while preserving the legacy `CallbackQuery.Message` pointer for accessible messages. |
@@ -112,7 +115,7 @@ This document maps the current `ai-gram` implementation to Telegram Bot API area
 | `(*bot.Bot).EditMessageText` | `editMessageText` | unit/httptest, live examples | Supports chat and inline targets, optional `business_connection_id`, and result decoding as `Message` or `true`. |
 | `(*bot.Bot).EditMessageCaption` | `editMessageCaption` | unit/httptest, live examples | Supports empty caption removal, inline keyboard, and optional `business_connection_id`. |
 | `(*bot.Bot).EditMessageReplyMarkup` | `editMessageReplyMarkup` | unit/httptest, live examples | `nil` reply markup removes inline keyboard; optional `business_connection_id` is supported. |
-| `(*bot.Bot).EditMessageMedia` | `editMessageMedia` | unit/httptest, multipart | Supports chat and inline targets, `InputMediaPhoto`, `InputMediaVideo`, `InputMediaAnimation`, `InputMediaAudio`, `InputMediaDocument`, inline keyboard, optional `business_connection_id`, JSON mode, and multipart uploads for non-inline targets. Manual-only live smoke. |
+| `(*bot.Bot).EditMessageMedia` | `editMessageMedia` | unit/httptest, multipart | Supports chat and inline targets, `InputMediaPhoto`, `InputMediaLivePhoto`, `InputMediaVideo`, `InputMediaAnimation`, `InputMediaAudio`, `InputMediaDocument`, inline keyboard, optional `business_connection_id`, JSON mode, and multipart uploads for non-inline targets. Live-photo URLs and inline uploads are intentionally rejected. Manual-only live smoke. |
 | `(*bot.Bot).EditMessageLiveLocation` | `editMessageLiveLocation` | unit/httptest | Supports chat and inline targets, live-location update fields, inline keyboard, optional `business_connection_id`, and `Message`/`true` result decoding. Manual-only live smoke. |
 | `(*bot.Bot).StopMessageLiveLocation` | `stopMessageLiveLocation` | unit/httptest | Supports chat and inline targets, inline keyboard, optional `business_connection_id`, and `Message`/`true` result decoding. Manual-only live smoke. |
 | `bot.EditMessageTarget`, `bot.EditMessageResult` | edit helpers/result | unit | Validates chat-vs-inline target and handles `Message`/`true` return shape. |
@@ -145,6 +148,15 @@ This document maps the current `ai-gram` implementation to Telegram Bot API area
 | `telegram.WriteAccessAllowed` | `Message.write_access_allowed` | unit | Decodes service messages for Web App write access grants. |
 | `telegram.WebAppInfo` | `web_app` button descriptors | unit | Audited against Bot API 9.6; used by inline keyboard buttons, reply keyboard buttons, menu buttons, and inline query results buttons. |
 
+### Guest Mode
+
+| Public Go API | Telegram Bot API method / object | Tests | Notes |
+| --- | --- | --- | --- |
+| `(*bot.Bot).AnswerGuestQuery` | `answerGuestQuery` | unit/httptest | Replies to a received guest message with an inline query result and decodes `SentGuestMessage`. Manual-only live smoke. |
+| `telegram.SentGuestMessage` | `SentGuestMessage` | unit/httptest | Decodes the inline message identifier returned by `answerGuestQuery`. |
+| `telegram.User.SupportsGuestQueries`, `telegram.Message.GuestBotCallerUser`, `GuestBotCallerChat`, `GuestQueryID`, `telegram.Update.GuestMessage` | guest-mode objects and update fields | unit | Decodes Bot API 10.0 guest-mode fields and includes guest messages in effective update helpers. |
+| `dispatch.GuestMessage`, `(*dispatch.Dispatcher).OnGuestMessage` | n/a | unit | Routes guest message updates separately from regular `message` updates. |
+
 ### Business APIs
 
 | Public Go API | Telegram Bot API method / object | Tests | Notes |
@@ -159,7 +171,7 @@ This document maps the current `ai-gram` implementation to Telegram Bot API area
 | `telegram.Checklist`, `ChecklistTask`, `InputChecklist`, `InputChecklistTask`, `ChecklistTasksDone`, `ChecklistTasksAdded` | checklist objects and service messages | unit | Decodes checklist messages/service messages and validates outgoing checklist payloads. Manual-only live smoke. |
 | `(*bot.Bot).SendChecklist` | `sendChecklist` | unit/httptest | Sends a business checklist with `business_connection_id`, integer chat target, reply parameters, and inline keyboard. Manual-only live smoke. |
 | `(*bot.Bot).EditMessageChecklist` | `editMessageChecklist` | unit/httptest | Edits a business checklist message and returns the updated message. Manual-only live smoke. |
-| `(*bot.Bot).SendMessageDraft` | `sendMessageDraft` | unit/httptest | Sends a private-chat message draft by `draft_id` and text formatting fields. Manual-only live smoke. |
+| `(*bot.Bot).SendMessageDraft` | `sendMessageDraft` | unit/httptest | Sends a private-chat message draft by `draft_id` and text formatting fields, including Bot API 10.0 empty text. Manual-only live smoke. |
 | `(*bot.Bot).ReadBusinessMessage` | `readBusinessMessage` | unit/httptest | Marks a business message as read. Manual-only live smoke. |
 | `(*bot.Bot).SetBusinessAccountName`, `SetBusinessAccountUsername`, `SetBusinessAccountBio` | business account profile methods | unit/httptest | Changes business account name, username, and bio. Manual-only live smoke. |
 | `(*bot.Bot).SetBusinessAccountProfilePhoto`, `RemoveBusinessAccountProfilePhoto` | business account profile photo methods | unit/httptest, multipart | Uses `InputProfilePhoto` upload payloads for profile photo changes. Manual-only live smoke. |
@@ -179,7 +191,7 @@ This document maps the current `ai-gram` implementation to Telegram Bot API area
 | `telegram.ShippingQuery`, `telegram.PreCheckoutQuery` | payment updates | unit | Decodes payment query updates and supports `EffectiveUser` without inventing an effective chat. |
 | `dispatch.ShippingQuery`, `dispatch.PreCheckoutQuery` | dispatch predicates/helpers | unit | Includes `OnShippingQuery` and `OnPreCheckoutQuery` handler registration helpers. |
 | `telegram.LabeledPrice`, `telegram.ShippingOption`, `telegram.OrderInfo`, `telegram.ShippingAddress` | payment payload/support objects | unit through method payload/result tests | Minimal typed support for invoice prices, shipping options, and order metadata. |
-| `(*bot.Bot).SendPaidMedia` | `sendPaidMedia` | unit/httptest | Sends paid photo/video media by file ID, URL, or multipart upload with deterministic `attach://` names and optional `business_connection_id`. Manual-only live smoke. |
+| `(*bot.Bot).SendPaidMedia` | `sendPaidMedia` | unit/httptest | Sends paid photo/video/live-photo media by file ID or multipart upload with deterministic `attach://` names and optional `business_connection_id`; photo/video URL media remains supported, while live-photo URLs are intentionally rejected. Manual-only live smoke. |
 | `(*bot.Bot).GetStarTransactions` | `getStarTransactions` | unit/httptest | Retrieves typed Star transaction history with polymorphic transaction partner decoding. Manual-only live smoke. |
 | `(*bot.Bot).RefundStarPayment` | `refundStarPayment` | unit/httptest | Refunds successful Telegram Stars payments by user ID and Telegram payment charge ID. Manual-only live smoke. |
 | `(*bot.Bot).GetAvailableGifts` | `getAvailableGifts` | unit/httptest | Retrieves gifts available for the bot to send. Manual-only live smoke for value flows. |
@@ -191,7 +203,7 @@ This document maps the current `ai-gram` implementation to Telegram Bot API area
 | `(*bot.Bot).ConvertGiftToStars`, `UpgradeGift`, `TransferGift` | business gift mutation methods | unit/httptest | Converts, upgrades, and transfers business gifts. Manual-only live smoke. |
 | `(*bot.Bot).GetMyStarBalance` | `getMyStarBalance` | unit/httptest | Retrieves the bot's Telegram Stars balance. Manual-only live smoke. |
 | `(*bot.Bot).EditUserStarSubscription` | `editUserStarSubscription` | unit/httptest | Cancels or re-enables Telegram Stars subscription extension. Manual-only live smoke. |
-| `telegram.PaidMediaInfo`, `telegram.PaidMediaPreview`, `telegram.PaidMediaPhoto`, `telegram.PaidMediaVideo` | paid media message objects | unit | Decodes paid media attached to messages with polymorphic paid media items. |
+| `telegram.PaidMediaInfo`, `telegram.PaidMediaPreview`, `telegram.PaidMediaLivePhoto`, `telegram.PaidMediaPhoto`, `telegram.PaidMediaVideo` | paid media message objects | unit | Decodes paid media attached to messages with polymorphic paid media items. |
 | `telegram.PaidMediaPurchased` | `purchased_paid_media` update | unit | Decodes paid media purchase updates and supports `EffectiveUser` without inventing an effective chat. |
 | `dispatch.PaidMediaPurchased` | dispatch predicate/helper | unit | Includes `OnPaidMediaPurchased` handler registration helpers. |
 | `telegram.StarTransactions`, `telegram.StarTransaction`, `telegram.TransactionPartner*` | Stars transaction objects | unit | Decodes Star transactions, paid media purchases, affiliate details, Fragment withdrawal state, Telegram Ads/API, chat, user, other partner variants, and gift-specific partner payloads. |
@@ -199,7 +211,7 @@ This document maps the current `ai-gram` implementation to Telegram Bot API area
 
 
 
-### Managed Bots 9.6
+### Managed Bots 9.6 And 10.0
 
 | Public Go API | Telegram Bot API method / object | Tests | Notes |
 | --- | --- | --- | --- |
@@ -215,6 +227,10 @@ This document maps the current `ai-gram` implementation to Telegram Bot API area
 | `(*bot.Bot).SavePreparedInlineMessage` | `savePreparedInlineMessage` | unit/httptest | Stores inline query result payloads for Mini App users. Manual-only live smoke. |
 | `(*bot.Bot).GetManagedBotToken` | `getManagedBotToken` | unit/httptest | Returns a managed bot token; callers must treat the result as secret. Manual-only live smoke. |
 | `(*bot.Bot).ReplaceManagedBotToken` | `replaceManagedBotToken` | unit/httptest | Revokes and replaces a managed bot token; callers must treat the result as secret. Manual-only live smoke. |
+| `telegram.BotAccessSettings` | `BotAccessSettings` | unit | Decodes Bot API 10.0 access restrictions and added users for bots. |
+| `(*bot.Bot).GetManagedBotAccessSettings` | `getManagedBotAccessSettings` | unit/httptest | Retrieves access settings for a managed bot. Manual-only live smoke. |
+| `(*bot.Bot).SetManagedBotAccessSettings` | `setManagedBotAccessSettings` | unit/httptest | Changes managed bot access restrictions and up to 10 explicitly allowed users. Manual-only live smoke. |
+| `(*bot.Bot).GetUserPersonalChatMessages` | `getUserPersonalChatMessages` | unit/httptest | Retrieves 1-20 recent messages from a user's personal chat. Manual-only live smoke. |
 
 ### Forward/copy
 
@@ -240,9 +256,9 @@ This document maps the current `ai-gram` implementation to Telegram Bot API area
 | --- | --- | --- | --- |
 | `(*bot.Bot).GetChat` | `getChat` | unit/httptest, live example access panel | Backward-compatible minimal `telegram.Chat` decode with official lightweight `is_forum` and `is_direct_messages` metadata. |
 | `(*bot.Bot).GetChatFullInfo` | `getChat` | unit/httptest | Compatible full-result method returning `telegram.ChatFullInfo` for the official Bot API 9.6 `getChat` shape. |
-| `telegram.User`, `telegram.Chat`, `telegram.ChatFullInfo` | `User`, `Chat`, `ChatFullInfo` | unit | Decodes Bot API 9.6 user capability metadata, lightweight chat metadata, and representative full chat profile/business/reaction/gift/rating metadata. |
-| `(*bot.Bot).GetChatMember` | `getChatMember` | unit/httptest | `telegram.ChatMember` includes official status/user, admin, member tag, and restricted-permission fields in the current flat API shape. |
-| `(*bot.Bot).GetChatAdministrators` | `getChatAdministrators` | unit/httptest | Returns `[]telegram.ChatMember` with the same flat field coverage as `GetChatMember`. |
+| `telegram.User`, `telegram.Chat`, `telegram.ChatFullInfo` | `User`, `Chat`, `ChatFullInfo` | unit | Decodes Bot API 9.6 user capability metadata, Bot API 10.0 guest-query support, lightweight chat metadata, and representative full chat profile/business/reaction/gift/rating metadata. |
+| `(*bot.Bot).GetChatMember` | `getChatMember` | unit/httptest | `telegram.ChatMember` includes official status/user, admin, member tag, and restricted-permission fields in the current flat API shape, including `can_react_to_messages`. |
+| `(*bot.Bot).GetChatAdministrators` | `getChatAdministrators` | unit/httptest | Returns `[]telegram.ChatMember` with the same flat field coverage as `GetChatMember`; supports Bot API 10.0 `return_bots`. |
 | `(*bot.Bot).GetChatMemberCount` | `getChatMemberCount` | unit/httptest, optional live example | Safe read method; availability depends on chat permissions. |
 | `telegram.ChatMemberUpdated` | `my_chat_member`, `chat_member` updates | unit | Decodes old/new chat member data, invite-link flags, and effective chat/user helpers. |
 | `telegram.ChatBoostUpdated` / `telegram.ChatBoostRemoved` | `chat_boost`, `removed_chat_boost` updates | unit | Decodes chat boost updates and polymorphic boost sources. |
@@ -258,7 +274,7 @@ This document maps the current `ai-gram` implementation to Telegram Bot API area
 | `(*bot.Bot).SetChatMemberTag` | `setChatMemberTag` | unit/httptest | Admin/state-changing tag method; empty tag is allowed to clear the member tag. |
 | `(*bot.Bot).BanChatSenderChat` | `banChatSenderChat` | unit/httptest | Destructive sender-channel moderation method; no automatic live smoke. |
 | `(*bot.Bot).UnbanChatSenderChat` | `unbanChatSenderChat` | unit/httptest | Admin/state-changing sender-channel moderation method; no automatic live smoke. |
-| `telegram.ChatPermissions` | moderation permissions object | unit through method payload tests | Minimal supported permission fields for restriction and default chat permission payloads. |
+| `telegram.ChatPermissions` | moderation permissions object | unit through method payload tests | Minimal supported permission fields for restriction and default chat permission payloads, including Bot API 10.0 `can_react_to_messages`. |
 
 ### Chat management
 
@@ -296,6 +312,8 @@ This document maps the current `ai-gram` implementation to Telegram Bot API area
 | Public Go API | Telegram Bot API method / object | Tests | Notes |
 | --- | --- | --- | --- |
 | `(*bot.Bot).SetMessageReaction` | `setMessageReaction` | unit/httptest | Changes real message reaction state. Manual-only live smoke. |
+| `(*bot.Bot).DeleteMessageReaction` | `deleteMessageReaction` | unit/httptest | Deletes a reaction from a specific message for a user or actor chat. Manual-only live smoke. |
+| `(*bot.Bot).DeleteAllMessageReactions` | `deleteAllMessageReactions` | unit/httptest | Deletes recent reactions in a chat for a user or actor chat. Manual-only live smoke. |
 | `telegram.ReactionTypeEmoji` | `ReactionTypeEmoji` | unit | Polymorphic reaction marshal/unmarshal with required `type: "emoji"`. |
 | `telegram.ReactionTypeCustomEmoji` | `ReactionTypeCustomEmoji` | unit | Polymorphic reaction marshal/unmarshal with required `type: "custom_emoji"`. |
 | `telegram.ReactionTypePaid` | `ReactionTypePaid` | unit | Polymorphic paid reaction support from Bot API 9.6. |
@@ -376,15 +394,15 @@ This document maps the current `ai-gram` implementation to Telegram Bot API area
 
 ## Remaining notes and intentional differences
 
-Stage 98 performed the final official-doc comparison after Stage 97, and Stage 99 resolved the remaining `setWebhook.certificate` multipart upload blocker. No known Bot API 9.6 code coverage blockers remain. See [`docs/BOT_API_9_6_FINAL_AUDIT.md`](BOT_API_9_6_FINAL_AUDIT.md) for the final audit.
+Stage 98 performed the final official-doc comparison after Stage 97, and Stage 99 resolved the remaining `setWebhook.certificate` multipart upload blocker. No known Bot API 9.6 code coverage blockers remain. The Bot API 10.0 final audit also found no known 10.0 code coverage blockers. See [`docs/BOT_API_9_6_FINAL_AUDIT.md`](BOT_API_9_6_FINAL_AUDIT.md) and [`docs/BOT_API_10_0_FINAL_AUDIT.md`](BOT_API_10_0_FINAL_AUDIT.md).
 
-### Missing methods or method behavior from the Stage 99 focused audit
+### Missing methods or method behavior from the final audits
 
-- No known official method wrappers or method behavior blockers remain after implementing `setWebhook.certificate` multipart upload support.
+- No known official method wrappers or method behavior blockers remain after implementing `setWebhook.certificate` multipart upload support and the Bot API 10.0 implementation slices.
 
-### Missing type and field groups from the Stage 98 audit
+### Missing type and field groups from the final audits
 
-- No missing fields were found in the audited high-impact official field tables after adding `Message.giveaway`.
+- No missing fields were found in the audited high-impact official field tables after adding `Message.giveaway` and the Bot API 10.0 object/update fields.
 - Optional concrete chat member variant structs remain a possible future refinement; Stage 91/97 keep the current flat `ChatMember` compatibility shape while decoding official 9.6 fields.
 
 ### Intentional architecture differences to keep documented
@@ -392,7 +410,7 @@ Stage 98 performed the final official-doc comparison after Stage 97, and Stage 9
 - Official `InputFile` is represented by the public `FileID`, `FileURL`, and `FileUpload` helpers. `setWebhook.certificate` is upload-only and is represented by `FileUpload`; file IDs and URLs are rejected for that parameter.
 - Official `MessageId` is represented as idiomatic Go `telegram.MessageID`.
 - Passport decryption helpers remain intentionally out of scope for the typed Bot API wrapper.
-- Live smoke for state-changing, payment/value, Business, Passport, Managed Bot token, admin/destructive, sticker mutation, games, inline, and Mini App flows remains manual-only.
+- Live smoke for state-changing, payment/value, Business, Passport, Managed Bot token, admin/destructive, sticker mutation, games, inline, Guest Mode, and Mini App flows remains manual-only.
 
 ## Risk classification
 
@@ -429,6 +447,7 @@ Stage 98 performed the final official-doc comparison after Stage 97, and Stage 9
 - `SendVideoNote`
 - `SendMediaGroup`
 - `AnswerCallbackQuery`
+- `AnswerGuestQuery`
 - `EditMessageText`
 - `EditMessageCaption`
 - `EditMessageReplyMarkup`
@@ -455,7 +474,7 @@ These still require real credentials and may notify users, but they are not dest
 - forum topic methods and service message types
 - chat invite link methods (`ExportChatInviteLink`, `CreateChatInviteLink`, `EditChatInviteLink`, `RevokeChatInviteLink`)
 - chat join request methods (`ApproveChatJoinRequest`, `DeclineChatJoinRequest`)
-- reaction methods (`SetMessageReaction`) when used outside isolated test messages, because they change real message reaction state
+- reaction methods (`SetMessageReaction`, `DeleteMessageReaction`, `DeleteAllMessageReactions`) when used outside isolated test messages, because they change real message reaction state
 
 ### Destructive
 
@@ -507,8 +526,9 @@ Unit and httptest suites do not require tokens.
 - `DeleteWebhook` with `drop_pending_updates=true`
 - bot commands/menu setters because they change bot-level command/menu state
 - invite link and chat join request methods
+- reaction deletion methods because they change real message reaction state
 - `LogOut` and `Close` outside an explicit local Bot API migration window
-- payments, Passport, gifts, Stars, games, and other sensitive/value/state-changing methods outside dedicated manual test flows
+- payments, Passport, gifts, Stars, games, Guest Mode, and other sensitive/value/state-changing methods outside dedicated manual test flows
 
 ## v0.1 recommendation
 

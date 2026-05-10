@@ -2,7 +2,9 @@
 
 ## Status
 
-Code coverage for Telegram Bot API 9.6 is complete with documented architecture differences. The public repository exists and `main` has been published only after explicit user approval. No new tags or GitHub Releases have been created for the current public repository yet.
+This document is the historical Bot API 9.6 readiness record. It has been superseded by the Bot API 10.0 final audit in [`../BOT_API_10_0_FINAL_AUDIT.md`](../BOT_API_10_0_FINAL_AUDIT.md) and the current release checklist in [`RELEASE_CHECKLIST.md`](RELEASE_CHECKLIST.md).
+
+Code coverage for Telegram Bot API 10.0 is complete with documented architecture differences. The public repository exists and `main` has been published only after explicit user approval. The `v0.3.0` tag exists from the previous release line; Bot API 10.0 release preparation targets the next `v0.4.0` tag.
 
 ## Verification
 
@@ -61,7 +63,7 @@ Do not tag or create a GitHub Release while any of these are true:
 
 - tests fail;
 - `go vet` fails;
-- docs claim unsupported behavior;
+- docs claim unsupported behavior or current upstream completeness that is not backed by the Bot API 10.0 final audit;
 - any token, secret, webhook URL, payment payload, business payload, Passport payload, managed bot token, or private message payload leak is found;
 - uncommitted changes remain after the intended local commit;
 - the user has not explicitly approved the exact tag or GitHub Release action.

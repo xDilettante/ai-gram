@@ -10,14 +10,14 @@
 
 <p align="center">
   <a href="https://github.com/xDilettante/ai-gram/actions/workflows/ci.yml"><img alt="CI" src="https://img.shields.io/github/actions/workflow/status/xDilettante/ai-gram/ci.yml?branch=main&style=for-the-badge&label=CI&logo=github"></a>
-  <img alt="Telegram Bot API 9.6" src="https://img.shields.io/badge/Telegram%20Bot%20API-9.6-26A5E4?style=for-the-badge&logo=telegram&logoColor=white">
+  <img alt="Telegram Bot API 10.0 complete" src="https://img.shields.io/badge/Telegram%20Bot%20API-10.0%20complete-26A5E4?style=for-the-badge&logo=telegram&logoColor=white">
   <img alt="Go" src="https://img.shields.io/badge/Go-00ADD8?style=for-the-badge&logo=go&logoColor=white">
   <a href="LICENSE"><img alt="License: MIT" src="https://img.shields.io/badge/license-MIT-F59E0B?style=for-the-badge"></a>
 </p>
 
 <p align="center">
-  <img alt="Coverage: 68.8%" src="https://img.shields.io/badge/coverage-68.8%25-F59E0B?style=for-the-badge">
-  <img alt="API coverage: complete" src="https://img.shields.io/badge/API%20coverage-complete-7C3AED?style=for-the-badge">
+  <img alt="Coverage: 63.1%" src="https://img.shields.io/badge/coverage-63.1%25-F59E0B?style=for-the-badge">
+  <img alt="API coverage: 10.0 complete" src="https://img.shields.io/badge/API%20coverage-10.0%20complete-7C3AED?style=for-the-badge">
   <img alt="Stability: pre-1.0 / beta" src="https://img.shields.io/badge/pre--1.0%20%2F%20beta-F97316?style=for-the-badge">
   <img alt="Built with ChatGPT and Codex" src="https://img.shields.io/badge/built%20with-ChatGPT%20%2B%20Codex-8B5CF6?style=for-the-badge">
 </p>
@@ -36,7 +36,7 @@
 
 The library focuses on a clear public API, token-safe HTTP behavior, replaceable transports, and testable building blocks instead of framework magic. It is suitable for low-level Bot API calls as well as production bot foundations that need long polling, webhooks, routing, middleware, and typed Telegram data contracts.
 
-> **Compatibility:** Telegram Bot API 9.6 code coverage is complete with documented architecture differences. `ai-gram` is still a pre-v1 Go module, so public APIs may evolve before v1.0.
+> **Compatibility:** Telegram Bot API 10.0 code coverage is complete with documented architecture differences; see [`docs/BOT_API_10_0_FINAL_AUDIT.md`](docs/BOT_API_10_0_FINAL_AUDIT.md). `ai-gram` is still a pre-v1 Go module, so public APIs may evolve before v1.0.
 
 ## Highlights
 
@@ -133,8 +133,11 @@ Maintainer-only smoke examples are separated under [`examples/maintainer/`](exam
 - [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) — short package and update-flow architecture diagram.
 - [`docs/API_COVERAGE.md`](docs/API_COVERAGE.md) — Bot API method/type coverage inventory and architecture notes.
 - [`docs/BOT_API_9_6_FINAL_AUDIT.md`](docs/BOT_API_9_6_FINAL_AUDIT.md) — final coverage audit for the local workstream.
-- [`docs/releases/v0.3.0.md`](docs/releases/v0.3.0.md) — prepared release notes and tag plan for the first large pre-v1 public milestone.
-- [`docs/BOT_API_9_6_COVERAGE_PLAN.md`](docs/BOT_API_9_6_COVERAGE_PLAN.md) — coverage plan and compatibility notes.
+- [`docs/BOT_API_10_0_FINAL_AUDIT.md`](docs/BOT_API_10_0_FINAL_AUDIT.md) — final Bot API 10.0 coverage audit.
+- [`docs/releases/v0.4.0.md`](docs/releases/v0.4.0.md) — prepared release notes and tag plan for the Bot API 10.0 pre-v1 milestone.
+- [`docs/maintainer/BOT_API_10_0_RELEASE_READINESS.md`](docs/maintainer/BOT_API_10_0_RELEASE_READINESS.md) — maintainer release-readiness notes for Bot API 10.0.
+- [`docs/BOT_API_9_6_COVERAGE_PLAN.md`](docs/BOT_API_9_6_COVERAGE_PLAN.md) — Bot API 9.6 coverage plan and compatibility notes.
+- [`docs/BOT_API_10_0_COVERAGE_PLAN.md`](docs/BOT_API_10_0_COVERAGE_PLAN.md) — Bot API 10.0 update plan.
 - [`docs/MANUAL_TESTING.md`](docs/MANUAL_TESTING.md) — public manual testing guide.
 - [`docs/ROADMAP.md`](docs/ROADMAP.md) — stabilization and future work.
 - [`CONTRIBUTING.md`](CONTRIBUTING.md) — contribution guide and PR expectations.
@@ -146,13 +149,28 @@ Maintainer-only deploy, live-smoke, and release-readiness notes live under [`doc
 
 ## Development checks
 
+Use the unified local check before submitting changes:
+
 ```bash
-gofmt -w .
+scripts/check.sh
+```
+
+The script mirrors the main CI checks. Individual commands are:
+
+```bash
+find . -path './.git' -prune -o -path './build' -prune -o -path './vendor' -prune -o -name '*.go' -type f -print0 | xargs -0 gofmt -l
 bash -n scripts/*.sh
 go test ./...
 go vet ./...
+go build ./...
 go list ./...
 git diff --check
+```
+
+For a quick repository overview before making changes:
+
+```bash
+scripts/ai-context.sh
 ```
 
 
