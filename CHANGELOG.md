@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+No unreleased changes.
+
+## v0.4.0 - 2026-05-11
+
 ### Added
 
 - Telegram Bot API 10.0 coverage on `main`, including guest mode, reaction deletion, poll media, live photos, managed bot access settings, personal chat message reads, and empty-text message drafts.

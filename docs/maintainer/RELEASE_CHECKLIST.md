@@ -1,17 +1,17 @@
 # Release Checklist
 
-This checklist is for preparing a future `v0.4.0` tag. It does not create the tag or publish a release by itself.
+This checklist records the completed `v0.4.0` release and remains useful as the template for future pre-v1 releases.
 
 ## Current Status
 
-Last verified: May 11, 2026, Bot API 10.0 final audit plus public `main` consumer smoke.
+Last verified: May 11, 2026, Bot API 10.0 final audit, public `main` consumer smoke, and public `v0.4.0` install smoke.
 
 - [x] Bot API 10.0 code coverage is complete with documented architecture differences.
 - [x] Final Bot API 10.0 audit is recorded in [`../BOT_API_10_0_FINAL_AUDIT.md`](../BOT_API_10_0_FINAL_AUDIT.md).
 - [x] README, API coverage, roadmap, release notes, and live smoke matrix are aligned with the Bot API 10.0 status.
 - [x] Public `main` consumer smoke passed after the root facade cleanup.
 - [x] Sensitive and state-changing live smoke remains manual-only.
-- [x] No `v0.4.0` tag or GitHub Release has been created.
+- [x] Annotated `v0.4.0` tag and GitHub pre-release have been created after explicit maintainer approval.
 
 ## Required Local Checks
 
@@ -27,7 +27,7 @@ git status --short
 
 Do not release if any command fails or if `git status --short` contains unintended changes.
 
-Before tagging, also verify the public branch from a temporary module outside this repository:
+Before tagging a future release, also verify the public branch from a temporary module outside this repository:
 
 ```bash
 go get github.com/xDilettante/ai-gram@main
@@ -81,29 +81,29 @@ Use [`LIVE_SMOKE_MATRIX.md`](LIVE_SMOKE_MATRIX.md) as the source of truth. The f
 
 ## Versioning And Tag
 
-- Expected release tag: `v0.4.0`.
-- Ensure the intended release commit is clean and all checks passed.
-- Create an annotated tag only after explicit maintainer approval:
+- Published release tag: `v0.4.0`.
+- Release commit: `2ce948b`.
+- Annotated tag creation used explicit maintainer approval:
 
 ```bash
 git tag -a v0.4.0 -m "Release v0.4.0"
 ```
 
-- Push only that tag:
+- Only that tag was pushed:
 
 ```bash
 git push origin v0.4.0
 ```
 
-- Verify public module installation after the tag is available:
+- Public module installation was verified after the tag became available:
 
 ```bash
 go get github.com/xDilettante/ai-gram@v0.4.0
 ```
 
-- Create the GitHub Release using [`../releases/v0.4.0.md`](../releases/v0.4.0.md) as the release notes source.
+- GitHub Release: <https://github.com/xDilettante/ai-gram/releases/tag/v0.4.0>.
 
-Do not run `git push --tags`, create unrelated tags, or create a GitHub Release before explicit approval.
+Do not run `git push --tags`, create unrelated tags, or create future GitHub Releases before explicit approval.
 
 ## Do Not Release If
 

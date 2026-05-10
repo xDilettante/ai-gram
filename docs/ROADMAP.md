@@ -85,20 +85,20 @@ Milestone outcome:
 - v0.2.0 was released as the coherent expanded API milestone.
 - Chat management, forum topics, reactions, and inline mode are now planned for v0.3 instead of extending the v0.2 boundary.
 
-## vNext Bot API 10.0 complete
+## v0.4 Bot API 10.0 complete
 
 Strategic change: the small v0.3 release plan is superseded. Code coverage for Telegram Bot API 10.0 is complete with documented architecture differences. See [`docs/BOT_API_9_6_COVERAGE_PLAN.md`](BOT_API_9_6_COVERAGE_PLAN.md), [`docs/BOT_API_9_6_FINAL_AUDIT.md`](BOT_API_9_6_FINAL_AUDIT.md), [`docs/BOT_API_10_0_COVERAGE_PLAN.md`](BOT_API_10_0_COVERAGE_PLAN.md), [`docs/BOT_API_10_0_FINAL_AUDIT.md`](BOT_API_10_0_FINAL_AUDIT.md), and [`docs/maintainer/BOT_API_10_0_RELEASE_READINESS.md`](maintainer/BOT_API_10_0_RELEASE_READINESS.md).
 
 Repository status for this workstream:
 
 - The public repository is available at <https://github.com/xDilettante/ai-gram>.
-- `v0.3.0` is already published; `v0.4.0` is the next planned tag for the Bot API 10.0 package.
+- `v0.3.0` is already published; `v0.4.0` is published as the Bot API 10.0 package.
 - Bot API 10.0 code coverage is complete on `main` with documented architecture differences.
 - Bot API 10.0 final audit found no known code coverage blockers.
 - The root `aigram` package is now a compact quick-start facade; the full Bot API surface lives in `bot` and `telegram`.
 - Public `main` consumer smoke passed after the root facade cleanup.
-- [`docs/releases/v0.4.0.md`](releases/v0.4.0.md) contains prepared release notes and the tag plan for the Bot API 10.0 pre-v1 milestone.
-- Do not create new tags or GitHub Releases until the user explicitly approves release work.
+- [`docs/releases/v0.4.0.md`](releases/v0.4.0.md) contains the release notes for the Bot API 10.0 pre-v1 milestone.
+- Do not create future tags or GitHub Releases until the user explicitly approves release work.
 
 Stage 98/99 outcome: **Bot API 9.6 code coverage is complete with documented architecture differences**. The final audit found wrappers for all 169 official Bot API methods and no missing fields in the audited high-impact object tables after adding `Message.giveaway`; Stage 99 resolved the final `setWebhook.certificate` upload blocker.
 
@@ -109,7 +109,7 @@ Next phase:
 1. Keep CI and local verification green for any follow-up fixes.
 2. Keep Bot API 10.0 coverage docs current when Telegram publishes future Bot API releases.
 3. Keep sensitive/state-changing smoke manual-only and fixture-first by default.
-4. After explicit approval, create the annotated release tag, push only that tag, verify `go get`, and create the GitHub Release from prepared release notes.
+4. Monitor `v0.4.0` feedback and keep future release work behind explicit approval.
 
 Live smoke policy:
 

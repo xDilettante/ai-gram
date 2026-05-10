@@ -4,7 +4,7 @@
 
 Code coverage for Telegram Bot API 10.0 is complete with documented architecture differences. The final audit is recorded in [`../BOT_API_10_0_FINAL_AUDIT.md`](../BOT_API_10_0_FINAL_AUDIT.md).
 
-The public repository exists and `main` has been published only after explicit user approval. The `v0.3.0` tag already exists, so Bot API 10.0 release preparation targets the next `v0.4.0` tag. No `v0.4.0` tag or GitHub Release has been created yet.
+The public repository exists and `main` has been published only after explicit user approval. The Bot API 10.0 release was published as the annotated `v0.4.0` tag and GitHub pre-release after explicit maintainer approval.
 
 ## Verification
 
@@ -14,7 +14,7 @@ Final local verification for the Bot API 10.0 audit:
 - `scripts/check.sh`
 - `go test -race ./bot ./dispatch ./middleware ./transport/longpoll ./transport/webhook ./internal/httpclient ./telegram`
 - `go test -coverprofile=coverage.out ./...`
-- `go tool cover -func=coverage.out`
+- `go tool cover -func=coverage.out` -> total `63.4%`
 
 Public `main` consumer verification after the root facade cleanup:
 
@@ -25,9 +25,16 @@ Public `main` consumer verification after the root facade cleanup:
 - `go doc github.com/xDilettante/ai-gram/bot.SendPollParams`;
 - `go doc github.com/xDilettante/ai-gram/telegram.ChatMember`.
 
+Public tag verification after publishing:
+
+- external temporary module outside this repository;
+- `go get github.com/xDilettante/ai-gram@v0.4.0`;
+- `go list -m github.com/xDilettante/ai-gram`;
+- `go doc github.com/xDilettante/ai-gram`.
+
 Coverage evidence:
 
-- total statement coverage: 63.1%;
+- total statement coverage: 63.4%;
 - no known Bot API 10.0 method, request parameter, result object, update field, or high-impact message/type field blockers remain;
 - live smoke remains manual-only for sensitive and state-changing flows.
 
@@ -56,14 +63,12 @@ These flows must not be run automatically and require explicit user approval plu
 - lifecycle `logOut` and `close`;
 - `setWebhook` certificate upload and webhook state changes.
 
-## Publication Plan
+## Publication Result
 
-No automatic tag or GitHub Release creation is allowed.
+Published after explicit maintainer approval:
 
-If the user explicitly approves later:
-
-1. verify `main` is clean and green;
-2. create the local annotated `v0.4.0` tag;
-3. push only that tag;
-4. verify public `go get github.com/xDilettante/ai-gram@v0.4.0`;
-5. create the GitHub Release from [`../releases/v0.4.0.md`](../releases/v0.4.0.md).
+- annotated tag: `v0.4.0`;
+- tag target: `2ce948b`;
+- GitHub Release: <https://github.com/xDilettante/ai-gram/releases/tag/v0.4.0>;
+- release type: pre-release;
+- public module install: `go get github.com/xDilettante/ai-gram@v0.4.0`.
