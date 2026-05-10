@@ -16,6 +16,15 @@ Final local verification for the Bot API 10.0 audit:
 - `go test -coverprofile=coverage.out ./...`
 - `go tool cover -func=coverage.out`
 
+Public `main` consumer verification after the root facade cleanup:
+
+- external temporary module outside this repository;
+- `go get github.com/xDilettante/ai-gram@main`;
+- `go test ./...` with root-package quick-start usage and direct `bot` / `telegram` advanced usage;
+- `go doc github.com/xDilettante/ai-gram`;
+- `go doc github.com/xDilettante/ai-gram/bot.SendPollParams`;
+- `go doc github.com/xDilettante/ai-gram/telegram.ChatMember`.
+
 Coverage evidence:
 
 - total statement coverage: 63.1%;
