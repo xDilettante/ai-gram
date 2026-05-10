@@ -18,7 +18,7 @@
 
 Breaking pre-v1 changes are recorded in [`../CHANGELOG.md`](../CHANGELOG.md) under `Unreleased` or the release where they shipped.
 
-Recent unreleased breaking cleanups:
+Recent released breaking cleanups:
 
 - `bot.BotConfig` and root `aigram.BotConfig` were renamed to `Config`.
 - `telegram.LoginUrl` was renamed to `LoginURL`.

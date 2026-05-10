@@ -1,17 +1,18 @@
 # Release Checklist
 
-This checklist records the completed `v0.4.0` release and remains useful as the template for future pre-v1 releases.
+This checklist records the completed `v0.5.0` regular release and remains useful as the template for future pre-v1 releases.
 
 ## Current Status
 
-Last verified: May 11, 2026, Bot API 10.0 final audit, public `main` consumer smoke, post-cleanup `Config` / `LoginURL` consumer smoke, and public `v0.4.0` install smoke.
+Last verified: May 11, 2026, Bot API 10.0 final audit, public `main` consumer smoke, post-cleanup `Config` / `LoginURL` consumer smoke, and public `v0.5.0` release preparation.
 
 - [x] Bot API 10.0 code coverage is complete with documented architecture differences.
 - [x] Final Bot API 10.0 audit is recorded in [`../BOT_API_10_0_FINAL_AUDIT.md`](../BOT_API_10_0_FINAL_AUDIT.md).
 - [x] README, API coverage, roadmap, release notes, and live smoke matrix are aligned with the Bot API 10.0 status.
 - [x] Public `main` consumer smoke passed after the root facade cleanup and after the later `Config` / `LoginURL` pre-v1 rename.
 - [x] Sensitive and state-changing live smoke remains manual-only.
-- [x] Annotated `v0.4.0` tag and GitHub pre-release have been created after explicit maintainer approval.
+- [x] Annotated `v0.4.0` tag and GitHub pre-release were created after explicit maintainer approval.
+- [x] `v0.5.0` is prepared as the regular public release for the post-`v0.4.0` cleanup.
 
 ## Required Local Checks
 
@@ -42,7 +43,7 @@ The same check is available from GitHub Actions as the manually triggered `Publi
 - Confirm `README.md` describes Bot API 10.0 coverage accurately.
 - Confirm `docs/API_COVERAGE.md` matches current implemented methods and intentional architecture differences.
 - Confirm `docs/ROADMAP.md` reflects the current release stage.
-- Confirm `docs/releases/v0.4.0.md` is the release notes source for the tag.
+- Confirm `docs/releases/v0.5.0.md` is the release notes source for the current tag.
 - Confirm `docs/maintainer/LIVE_SMOKE_MATRIX.md` marks destructive, sensitive, and state-changing flows as manual-only.
 
 ## API And Test Gates
@@ -79,27 +80,29 @@ Use [`LIVE_SMOKE_MATRIX.md`](LIVE_SMOKE_MATRIX.md) as the source of truth. The f
 
 ## Versioning And Tag
 
-- Published release tag: `v0.4.0`.
-- Release commit: `2ce948b`.
+- Current release tag: `v0.5.0`.
+- Previous Bot API 10.0 package tag: `v0.4.0`.
+- `v0.5.0` release commit: the commit targeted by the annotated `v0.5.0` tag.
+- `v0.4.0` release commit: `2ce948b`.
 - Annotated tag creation used explicit maintainer approval:
 
 ```bash
-git tag -a v0.4.0 -m "Release v0.4.0"
+git tag -a v0.5.0 -m "Release v0.5.0"
 ```
 
 - Only that tag was pushed:
 
 ```bash
-git push origin v0.4.0
+git push origin v0.5.0
 ```
 
 - Public module installation was verified after the tag became available:
 
 ```bash
-go get github.com/xDilettante/ai-gram@v0.4.0
+go get github.com/xDilettante/ai-gram@v0.5.0
 ```
 
-- GitHub Release: <https://github.com/xDilettante/ai-gram/releases/tag/v0.4.0>.
+- GitHub Release: <https://github.com/xDilettante/ai-gram/releases/tag/v0.5.0>.
 
 Do not run `git push --tags`, create unrelated tags, or create future GitHub Releases before explicit approval.
 

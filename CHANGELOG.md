@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+No unreleased changes yet.
+
+## v0.5.0 - 2026-05-11
+
 ### Changed
 
 - Breaking pre-v1 cleanup: renamed `bot.BotConfig` and root `aigram.BotConfig` to `Config`.
@@ -11,6 +15,13 @@
 
 - Added missing GoDoc for inline result JSON encoders and chat-member helper methods.
 - Added pre-v1 notes and marked Bot API 9.6 workstream documents as historical where later cleanup superseded their compatibility notes.
+- Added public consumer smoke tooling and a manual GitHub Actions workflow for verifying external module consumption.
+- Hardened maintainer smoke tooling with dry-run support and broader identifier sanitization.
+
+### Verification
+
+- Verified public `main` consumption from an external temporary module after the `Config` / `LoginURL` cleanup.
+- Added repeatable public consumer smoke checks for `main` and release tags.
 
 ## v0.4.0 - 2026-05-11
 

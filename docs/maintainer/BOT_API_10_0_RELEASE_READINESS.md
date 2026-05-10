@@ -4,7 +4,7 @@
 
 Code coverage for Telegram Bot API 10.0 is complete with documented architecture differences. The final audit is recorded in [`../BOT_API_10_0_FINAL_AUDIT.md`](../BOT_API_10_0_FINAL_AUDIT.md).
 
-The public repository exists and `main` has been published only after explicit user approval. The Bot API 10.0 release was published as the annotated `v0.4.0` tag and GitHub pre-release after explicit maintainer approval.
+The public repository exists and `main` has been published only after explicit user approval. The Bot API 10.0 package was published as the annotated `v0.4.0` tag and GitHub pre-release after explicit maintainer approval. The current post-cleanup public release is `v0.5.0`, published as a regular GitHub Release.
 
 ## Verification
 
@@ -40,6 +40,12 @@ Public tag verification after publishing:
 - `go get github.com/xDilettante/ai-gram@v0.4.0`;
 - `go list -m github.com/xDilettante/ai-gram`;
 - `go doc github.com/xDilettante/ai-gram`.
+
+Current release preparation:
+
+- `v0.5.0` packages the post-`v0.4.0` `Config` / `LoginURL` cleanup and public consumer smoke tooling;
+- the release notes source is [`../releases/v0.5.0.md`](../releases/v0.5.0.md);
+- GitHub Release `v0.5.0` is intended to be a regular release, not a pre-release.
 
 Post-release public adoption sweep:
 
@@ -88,3 +94,10 @@ Published after explicit maintainer approval:
 - GitHub Release: <https://github.com/xDilettante/ai-gram/releases/tag/v0.4.0>;
 - release type: pre-release;
 - public module install: `go get github.com/xDilettante/ai-gram@v0.4.0`.
+
+Current regular public release:
+
+- annotated tag: `v0.5.0`;
+- GitHub Release: <https://github.com/xDilettante/ai-gram/releases/tag/v0.5.0>;
+- release type: regular release;
+- public module install: `go get github.com/xDilettante/ai-gram@v0.5.0`.
