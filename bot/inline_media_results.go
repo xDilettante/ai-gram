@@ -340,90 +340,105 @@ func InlineCachedAudio(id string, fileID string) InlineQueryResultCachedAudio {
 	return InlineQueryResultCachedAudio{Type: inlineQueryResultAudioType, ID: id, AudioFileID: fileID}
 }
 
+// MarshalJSON encodes result with the official photo inline result type.
 func (result InlineQueryResultPhoto) MarshalJSON() ([]byte, error) {
 	result.Type = inlineQueryResultPhotoType
 	type payload InlineQueryResultPhoto
 	return json.Marshal(payload(result))
 }
 
+// MarshalJSON encodes result with the official GIF inline result type.
 func (result InlineQueryResultGif) MarshalJSON() ([]byte, error) {
 	result.Type = inlineQueryResultGifType
 	type payload InlineQueryResultGif
 	return json.Marshal(payload(result))
 }
 
+// MarshalJSON encodes result with the official MPEG-4 GIF inline result type.
 func (result InlineQueryResultMpeg4Gif) MarshalJSON() ([]byte, error) {
 	result.Type = inlineQueryResultMpeg4GifType
 	type payload InlineQueryResultMpeg4Gif
 	return json.Marshal(payload(result))
 }
 
+// MarshalJSON encodes result with the official video inline result type.
 func (result InlineQueryResultVideo) MarshalJSON() ([]byte, error) {
 	result.Type = inlineQueryResultVideoType
 	type payload InlineQueryResultVideo
 	return json.Marshal(payload(result))
 }
 
+// MarshalJSON encodes result with the official audio inline result type.
 func (result InlineQueryResultAudio) MarshalJSON() ([]byte, error) {
 	result.Type = inlineQueryResultAudioType
 	type payload InlineQueryResultAudio
 	return json.Marshal(payload(result))
 }
 
+// MarshalJSON encodes result with the official voice inline result type.
 func (result InlineQueryResultVoice) MarshalJSON() ([]byte, error) {
 	result.Type = inlineQueryResultVoiceType
 	type payload InlineQueryResultVoice
 	return json.Marshal(payload(result))
 }
 
+// MarshalJSON encodes result with the official document inline result type.
 func (result InlineQueryResultDocument) MarshalJSON() ([]byte, error) {
 	result.Type = inlineQueryResultDocumentType
 	type payload InlineQueryResultDocument
 	return json.Marshal(payload(result))
 }
 
+// MarshalJSON encodes result with the official cached photo inline result type.
 func (result InlineQueryResultCachedPhoto) MarshalJSON() ([]byte, error) {
 	result.Type = inlineQueryResultPhotoType
 	type payload InlineQueryResultCachedPhoto
 	return json.Marshal(payload(result))
 }
 
+// MarshalJSON encodes result with the official cached GIF inline result type.
 func (result InlineQueryResultCachedGif) MarshalJSON() ([]byte, error) {
 	result.Type = inlineQueryResultGifType
 	type payload InlineQueryResultCachedGif
 	return json.Marshal(payload(result))
 }
 
+// MarshalJSON encodes result with the official cached MPEG-4 GIF inline result type.
 func (result InlineQueryResultCachedMpeg4Gif) MarshalJSON() ([]byte, error) {
 	result.Type = inlineQueryResultMpeg4GifType
 	type payload InlineQueryResultCachedMpeg4Gif
 	return json.Marshal(payload(result))
 }
 
+// MarshalJSON encodes result with the official cached sticker inline result type.
 func (result InlineQueryResultCachedSticker) MarshalJSON() ([]byte, error) {
 	result.Type = inlineQueryResultStickerType
 	type payload InlineQueryResultCachedSticker
 	return json.Marshal(payload(result))
 }
 
+// MarshalJSON encodes result with the official cached document inline result type.
 func (result InlineQueryResultCachedDocument) MarshalJSON() ([]byte, error) {
 	result.Type = inlineQueryResultDocumentType
 	type payload InlineQueryResultCachedDocument
 	return json.Marshal(payload(result))
 }
 
+// MarshalJSON encodes result with the official cached video inline result type.
 func (result InlineQueryResultCachedVideo) MarshalJSON() ([]byte, error) {
 	result.Type = inlineQueryResultVideoType
 	type payload InlineQueryResultCachedVideo
 	return json.Marshal(payload(result))
 }
 
+// MarshalJSON encodes result with the official cached voice inline result type.
 func (result InlineQueryResultCachedVoice) MarshalJSON() ([]byte, error) {
 	result.Type = inlineQueryResultVoiceType
 	type payload InlineQueryResultCachedVoice
 	return json.Marshal(payload(result))
 }
 
+// MarshalJSON encodes result with the official cached audio inline result type.
 func (result InlineQueryResultCachedAudio) MarshalJSON() ([]byte, error) {
 	result.Type = inlineQueryResultAudioType
 	type payload InlineQueryResultCachedAudio

@@ -250,7 +250,7 @@ func TestFileBaseURLDefaultsToBaseURLFileForCustomBaseURL(t *testing.T) {
 func newTestFileBot(t *testing.T, token string, baseURL string, fileBaseURL string, client *http.Client) *Bot {
 	t.Helper()
 
-	bot, err := New(BotConfig{Token: token, BaseURL: baseURL, FileBaseURL: fileBaseURL, HTTPClient: client})
+	bot, err := New(Config{Token: token, BaseURL: baseURL, FileBaseURL: fileBaseURL, HTTPClient: client})
 	if err != nil {
 		t.Fatalf("unexpected New error: %v", err)
 	}

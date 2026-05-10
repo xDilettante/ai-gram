@@ -99,26 +99,44 @@ func (u *ChatMemberUpdated) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
+// ChatMemberStatus returns the member status discriminator.
 func (m ChatMemberOwner) ChatMemberStatus() ChatMemberStatus { return m.Status }
-func (m ChatMemberOwner) ChatMemberUser() User               { return m.User }
-func (m ChatMemberOwner) isChatMember()                      {}
 
+// ChatMemberUser returns the user described by this chat member variant.
+func (m ChatMemberOwner) ChatMemberUser() User { return m.User }
+func (m ChatMemberOwner) isChatMember()        {}
+
+// ChatMemberStatus returns the member status discriminator.
 func (m ChatMemberAdministrator) ChatMemberStatus() ChatMemberStatus { return m.Status }
-func (m ChatMemberAdministrator) ChatMemberUser() User               { return m.User }
-func (m ChatMemberAdministrator) isChatMember()                      {}
 
+// ChatMemberUser returns the user described by this chat member variant.
+func (m ChatMemberAdministrator) ChatMemberUser() User { return m.User }
+func (m ChatMemberAdministrator) isChatMember()        {}
+
+// ChatMemberStatus returns the member status discriminator.
 func (m ChatMemberMember) ChatMemberStatus() ChatMemberStatus { return m.Status }
-func (m ChatMemberMember) ChatMemberUser() User               { return m.User }
-func (m ChatMemberMember) isChatMember()                      {}
 
+// ChatMemberUser returns the user described by this chat member variant.
+func (m ChatMemberMember) ChatMemberUser() User { return m.User }
+func (m ChatMemberMember) isChatMember()        {}
+
+// ChatMemberStatus returns the member status discriminator.
 func (m ChatMemberRestricted) ChatMemberStatus() ChatMemberStatus { return m.Status }
-func (m ChatMemberRestricted) ChatMemberUser() User               { return m.User }
-func (m ChatMemberRestricted) isChatMember()                      {}
 
+// ChatMemberUser returns the user described by this chat member variant.
+func (m ChatMemberRestricted) ChatMemberUser() User { return m.User }
+func (m ChatMemberRestricted) isChatMember()        {}
+
+// ChatMemberStatus returns the member status discriminator.
 func (m ChatMemberLeft) ChatMemberStatus() ChatMemberStatus { return m.Status }
-func (m ChatMemberLeft) ChatMemberUser() User               { return m.User }
-func (m ChatMemberLeft) isChatMember()                      {}
 
+// ChatMemberUser returns the user described by this chat member variant.
+func (m ChatMemberLeft) ChatMemberUser() User { return m.User }
+func (m ChatMemberLeft) isChatMember()        {}
+
+// ChatMemberStatus returns the member status discriminator.
 func (m ChatMemberBanned) ChatMemberStatus() ChatMemberStatus { return m.Status }
-func (m ChatMemberBanned) ChatMemberUser() User               { return m.User }
-func (m ChatMemberBanned) isChatMember()                      {}
+
+// ChatMemberUser returns the user described by this chat member variant.
+func (m ChatMemberBanned) ChatMemberUser() User { return m.User }
+func (m ChatMemberBanned) isChatMember()        {}

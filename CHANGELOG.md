@@ -2,7 +2,14 @@
 
 ## Unreleased
 
-No unreleased changes.
+### Changed
+
+- Breaking pre-v1 cleanup: renamed `bot.BotConfig` and root `aigram.BotConfig` to `Config`.
+- Breaking pre-v1 cleanup: renamed `telegram.LoginUrl` to `LoginURL`.
+
+### Documentation
+
+- Added missing GoDoc for inline result JSON encoders and chat-member helper methods.
 
 ## v0.4.0 - 2026-05-11
 

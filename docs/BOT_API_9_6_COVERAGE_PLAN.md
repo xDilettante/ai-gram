@@ -65,7 +65,7 @@ Stage 93 implemented structured poll options (`InputPollOption` and `Poll.questi
 ### Core
 
 - `aigram.New`, `aigram.NewBot`, and `bot.New`.
-- `bot.BotConfig`, typed `bot.ChatID`, configurable base URL and HTTP client.
+- `bot.Config`, typed `bot.ChatID`, configurable base URL and HTTP client.
 - Private token storage, token-safe diagnostics, and no public raw token accessor.
 - Typed Telegram API error handling with `errors.APIError`.
 - JSON and multipart request paths.
@@ -196,7 +196,7 @@ Stage 94 implemented reply and message metadata coverage: `MessageOrigin` varian
 
 ## Stage 95 result
 
-Stage 95 implemented prepared inline message and reply-markup completion coverage: `SavePreparedInlineMessage`, `PreparedInlineMessage`, `LoginUrl`, `SwitchInlineQueryChosenChat`, `CopyTextButton`, `KeyboardButtonPollType`, `KeyboardButton.request_poll`, `InlineKeyboardButton.pay`, and keyboard button `icon_custom_emoji_id`/`style` fields. Prepared inline and rich button flows remain manual-only for live testing.
+Stage 95 implemented prepared inline message and reply-markup completion coverage: `SavePreparedInlineMessage`, `PreparedInlineMessage`, `LoginURL`, `SwitchInlineQueryChosenChat`, `CopyTextButton`, `KeyboardButtonPollType`, `KeyboardButton.request_poll`, `InlineKeyboardButton.pay`, and keyboard button `icon_custom_emoji_id`/`style` fields. Prepared inline and rich button flows remain manual-only for live testing.
 
 ### Reactions
 
@@ -296,7 +296,7 @@ Stages 80 and 95 implement the remaining Bot API WebApp / Mini App support that 
 - [x] `KeyboardButtonRequestChat`
 - [x] `KeyboardButtonRequestManagedBot`
 - [x] `KeyboardButtonPollType` / `KeyboardButton.request_poll`
-- [x] `LoginUrl` / `InlineKeyboardButton.login_url`
+- [x] `LoginURL` / `InlineKeyboardButton.login_url`
 - [x] `SwitchInlineQueryChosenChat` / switch-inline button fields
 - [x] `CopyTextButton` / `InlineKeyboardButton.copy_text`
 - [x] `InlineKeyboardButton.pay`

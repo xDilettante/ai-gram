@@ -24,7 +24,7 @@ type InlineKeyboardButton struct {
 	URL                          string                       `json:"url,omitempty"`
 	CallbackData                 string                       `json:"callback_data,omitempty"`
 	WebApp                       *WebAppInfo                  `json:"web_app,omitempty"`
-	LoginURL                     *LoginUrl                    `json:"login_url,omitempty"`
+	LoginURL                     *LoginURL                    `json:"login_url,omitempty"`
 	SwitchInlineQuery            *string                      `json:"switch_inline_query,omitempty"`
 	SwitchInlineQueryCurrentChat *string                      `json:"switch_inline_query_current_chat,omitempty"`
 	SwitchInlineQueryChosenChat  *SwitchInlineQueryChosenChat `json:"switch_inline_query_chosen_chat,omitempty"`
@@ -33,8 +33,8 @@ type InlineKeyboardButton struct {
 	Pay                          bool                         `json:"pay,omitempty"`
 }
 
-// LoginUrl represents an automatic Telegram login URL for an inline keyboard button.
-type LoginUrl struct {
+// LoginURL represents an automatic Telegram login URL for an inline keyboard button.
+type LoginURL struct {
 	URL                string `json:"url"`
 	ForwardText        string `json:"forward_text,omitempty"`
 	BotUsername        string `json:"bot_username,omitempty"`
@@ -157,7 +157,7 @@ func InlineButtonWebApp(text string, url string) InlineKeyboardButton {
 
 // InlineButtonLoginURL creates an inline keyboard button with Telegram login authorization.
 func InlineButtonLoginURL(text string, rawURL string) InlineKeyboardButton {
-	return InlineKeyboardButton{Text: text, LoginURL: &LoginUrl{URL: rawURL}}
+	return InlineKeyboardButton{Text: text, LoginURL: &LoginURL{URL: rawURL}}
 }
 
 // InlineButtonSwitchInlineQuery creates an inline keyboard button that switches to inline mode.
@@ -536,7 +536,7 @@ func validateInlineKeyboardURL(rawURL string, field string) error {
 	return nil
 }
 
-func validateLoginURL(loginURL LoginUrl) error {
+func validateLoginURL(loginURL LoginURL) error {
 	if strings.TrimSpace(loginURL.URL) == "" {
 		return stderrors.New("inline keyboard login_url URL is required")
 	}

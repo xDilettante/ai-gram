@@ -31,7 +31,7 @@ Stage 98 found wrappers for all 169 official methods and no missing fields in th
 - Verification/status APIs: `setUserEmojiStatus`, `verifyUser`, `verifyChat`, `removeUserVerification`, and `removeChatVerification`.
 - Checklist/message draft APIs: `sendChecklist`, `editMessageChecklist`, `sendMessageDraft`, checklist message/service types, and manual-only safety documentation.
 - Reply/message metadata: `MessageOrigin` variants, `ExternalReplyInfo`, `TextQuote`, `InaccessibleMessage`, `MaybeInaccessibleMessage`, `ReplyParameters` quote/cross-chat/checklist fields, and high-impact `Message` metadata such as `forward_origin`, `reply_to_message`, `external_reply`, `quote`, `reply_to_story`, `direct_messages_topic`, `suggested_post_info`, `pinned_message`, sender metadata, caption/media flags, star/effect fields, and `reply_markup`.
-- Prepared inline and reply markup completion: `SavePreparedInlineMessage`, `PreparedInlineMessage`, `LoginUrl`, `SwitchInlineQueryChosenChat`, `CopyTextButton`, `KeyboardButtonPollType`, `KeyboardButton.request_poll`, `InlineKeyboardButton.pay`, and keyboard button `icon_custom_emoji_id`/`style` fields.
+- Prepared inline and reply markup completion: `SavePreparedInlineMessage`, `PreparedInlineMessage`, `LoginURL`, `SwitchInlineQueryChosenChat`, `CopyTextButton`, `KeyboardButtonPollType`, `KeyboardButton.request_poll`, `InlineKeyboardButton.pay`, and keyboard button `icon_custom_emoji_id`/`style` fields.
 - Unit/httptest coverage for implemented method families and token/payload redaction checks in sensitive areas.
 
 ## Missing methods
@@ -79,7 +79,7 @@ These areas must remain manual-only and require explicit user confirmation plus 
 4. **Stage 92 completed:** subscription invite links - `createChatSubscriptionInviteLink`, `editChatSubscriptionInviteLink`, invite link price/subscription fields.
 5. **Stage 93 completed:** checklists, message drafts, and structured poll options - `sendChecklist`, `editMessageChecklist`, `sendMessageDraft`, `InputPollOption`, checklist message/service types.
 6. **Stage 94 completed:** reply and message metadata types - `MessageOrigin*`, `ExternalReplyInfo`, `TextQuote`, `MaybeInaccessibleMessage`, `InaccessibleMessage`, `ReplyParameters` quote/cross-chat/checklist fields, and high-impact message metadata fields.
-7. **Stage 95 completed:** prepared inline messages and reply-markup completion - `savePreparedInlineMessage`, `PreparedInlineMessage`, LoginUrl/switch-inline/copy/pay/request-poll/icon/style button fields.
+7. **Stage 95 completed:** prepared inline messages and reply-markup completion - `savePreparedInlineMessage`, `PreparedInlineMessage`, LoginURL/switch-inline/copy/pay/request-poll/icon/style button fields.
 8. **Stage 96 completed:** service/direct-message/story/media metadata - `repostStory`, video quality/cover/start metadata, shared user/chat service messages, chat backgrounds, video chats, proximity alerts, auto-delete timers, giveaway service messages, and paid/direct message price changes.
 9. **Stage 97 completed:** ChatFullInfo/update shape strategy - `GetChatFullInfo`, fuller `User`/`Chat` metadata, channel post updates, standalone poll updates, and compatible flat `ChatMember` strategy.
 10. **Stage 98 completed:** final official-doc audit found all 169 official method wrappers present, corrected `Message.giveaway`, and identified `setWebhook.certificate` upload as the remaining hard blocker.

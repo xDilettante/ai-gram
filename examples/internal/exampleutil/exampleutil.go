@@ -39,7 +39,7 @@ func NewBotFromEnv() (*aigram.Bot, error) {
 		return nil, err
 	}
 
-	return aigram.New(aigram.BotConfig{
+	return aigram.New(aigram.Config{
 		Token:       token,
 		BaseURL:     strings.TrimSpace(os.Getenv("AIGRAM_BASE_URL")),
 		FileBaseURL: strings.TrimSpace(os.Getenv("AIGRAM_FILE_BASE_URL")),

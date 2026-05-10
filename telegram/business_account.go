@@ -8,11 +8,16 @@ import (
 )
 
 const (
-	StoryAreaTypeLocationType          = "location"
+	// StoryAreaTypeLocationType identifies StoryAreaTypeLocation payloads.
+	StoryAreaTypeLocationType = "location"
+	// StoryAreaTypeSuggestedReactionType identifies StoryAreaTypeSuggestedReaction payloads.
 	StoryAreaTypeSuggestedReactionType = "suggested_reaction"
-	StoryAreaTypeLinkType              = "link"
-	StoryAreaTypeWeatherType           = "weather"
-	StoryAreaTypeUniqueGiftType        = "unique_gift"
+	// StoryAreaTypeLinkType identifies StoryAreaTypeLink payloads.
+	StoryAreaTypeLinkType = "link"
+	// StoryAreaTypeWeatherType identifies StoryAreaTypeWeather payloads.
+	StoryAreaTypeWeatherType = "weather"
+	// StoryAreaTypeUniqueGiftType identifies StoryAreaTypeUniqueGift payloads.
+	StoryAreaTypeUniqueGiftType = "unique_gift"
 )
 
 // AcceptedGiftTypes describes gift types accepted by a user, chat, or business account.

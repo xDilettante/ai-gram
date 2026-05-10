@@ -13,8 +13,8 @@ import (
 // Bot is the primary Telegram Bot API client.
 type Bot = bot.Bot
 
-// BotConfig configures a Bot.
-type BotConfig = bot.BotConfig
+// Config configures a Bot.
+type Config = bot.Config
 
 // ChatID identifies a Telegram chat by integer ID or @username.
 type ChatID = bot.ChatID
@@ -170,12 +170,12 @@ type GetMyShortDescriptionParams = bot.GetMyShortDescriptionParams
 const ChatActionTyping = bot.ChatActionTyping
 
 // New creates a Bot.
-func New(config BotConfig) (*Bot, error) {
+func New(config Config) (*Bot, error) {
 	return bot.New(config)
 }
 
 // NewBot creates a Bot.
-func NewBot(config BotConfig) (*Bot, error) {
+func NewBot(config Config) (*Bot, error) {
 	return bot.New(config)
 }
 

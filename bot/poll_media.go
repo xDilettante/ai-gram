@@ -64,7 +64,6 @@ func (InputMediaLocation) inputPollOptionMedia()  {}
 func (InputMediaSticker) inputPollOptionMedia()   {}
 func (InputMediaVenue) inputPollOptionMedia()     {}
 
-// MediaLivePhoto creates a live photo input media item.
 // MediaLocation creates a location input media item.
 func MediaLocation(latitude float64, longitude float64) InputMediaLocation {
 	return InputMediaLocation{Type: "location", Latitude: latitude, Longitude: longitude}

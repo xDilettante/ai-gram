@@ -75,7 +75,7 @@ func main() {
         log.Fatal("AIGRAM_BOT_TOKEN is required")
     }
 
-    bot, err := aigram.New(aigram.BotConfig{Token: token})
+    bot, err := aigram.New(aigram.Config{Token: token})
     if err != nil {
         log.Fatal(err)
     }

@@ -41,7 +41,7 @@ func Recover(onPanic func(context.Context, telegram.Update, any)) dispatch.Middl
 		return dispatch.HandlerFunc(func(ctx context.Context, update telegram.Update) (err error) {
 			defer func() {
 				if recovered := recover(); recovered != nil {
-					callOnPanic(onPanic, ctx, update, recovered)
+					callOnPanic(ctx, update, onPanic, recovered)
 					err = &PanicError{Value: recovered}
 				}
 			}()
@@ -95,7 +95,7 @@ func Observe(observer Observer) dispatch.Middleware {
 	}
 }
 
-func callOnPanic(onPanic func(context.Context, telegram.Update, any), ctx context.Context, update telegram.Update, recovered any) {
+func callOnPanic(ctx context.Context, update telegram.Update, onPanic func(context.Context, telegram.Update, any), recovered any) {
 	if onPanic == nil {
 		return
 	}

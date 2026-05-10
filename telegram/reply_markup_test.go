@@ -73,7 +73,7 @@ func TestInlineKeyboardValidation(t *testing.T) {
 		{name: "invalid style", markup: NewInlineKeyboard([]InlineKeyboardButton{{Text: "x", CallbackData: "x", Style: "warning"}})},
 		{name: "blank icon", markup: NewInlineKeyboard([]InlineKeyboardButton{{Text: "x", CallbackData: "x", IconCustomEmojiID: "   "}})},
 		{name: "two actions", markup: NewInlineKeyboard([]InlineKeyboardButton{{Text: "x", URL: "https://example.com", CallbackData: "x"}})},
-		{name: "login and switch actions", markup: NewInlineKeyboard([]InlineKeyboardButton{{Text: "x", LoginURL: &LoginUrl{URL: "https://example.com"}, SwitchInlineQueryChosenChat: &SwitchInlineQueryChosenChat{}}})},
+		{name: "login and switch actions", markup: NewInlineKeyboard([]InlineKeyboardButton{{Text: "x", LoginURL: &LoginURL{URL: "https://example.com"}, SwitchInlineQueryChosenChat: &SwitchInlineQueryChosenChat{}}})},
 		{name: "pay not first", markup: NewInlineKeyboard([]InlineKeyboardButton{InlineButtonCallback("Other", "x"), InlineButtonPay("Pay")})},
 		{name: "no action", markup: NewInlineKeyboard([]InlineKeyboardButton{{Text: "x"}})},
 		{name: "empty keyboard", markup: InlineKeyboardMarkup{}},

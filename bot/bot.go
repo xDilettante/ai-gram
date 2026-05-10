@@ -32,8 +32,8 @@ type Bot struct {
 	client      *httpclient.Client
 }
 
-// BotConfig configures a Bot.
-type BotConfig struct {
+// Config configures a Bot.
+type Config struct {
 	// Token is the Telegram bot token. It is required and is stored privately by Bot.
 	Token string
 	// BaseURL is an optional Telegram Bot API base URL override for tests or compatible servers.
@@ -45,7 +45,7 @@ type BotConfig struct {
 }
 
 // New creates a Bot from config.
-func New(config BotConfig) (*Bot, error) {
+func New(config Config) (*Bot, error) {
 	if strings.TrimSpace(config.Token) == "" {
 		return nil, errEmptyToken
 	}

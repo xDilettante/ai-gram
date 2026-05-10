@@ -73,7 +73,7 @@ This document maps the current `ai-gram` implementation to Telegram Bot API area
 | `telegram.ReplyParameters` | send/copy reply payload | unit | Supports `message_id`, cross-chat `chat_id`, `allow_sending_without_reply`, quote fields, Bot API 9.6 `checklist_task_id`, and `poll_option_id`. |
 | `telegram.MessageOrigin*`, `ExternalReplyInfo`, `TextQuote` | message reply/forward metadata | unit | Decodes `forward_origin`, `external_reply`, `quote`, `reply_to_message`, `reply_to_story`, direct-message topic, suggested-post, caption/media, star, and sender metadata fields. |
 | `telegram.MaybeInaccessibleMessage`, `InaccessibleMessage` | inaccessible message references | unit | Decodes accessible and inaccessible pinned/callback messages. `CallbackQuery.Message` uses the official maybe-inaccessible shape and exposes helpers for accessible messages. |
-| `telegram.ReplyMarkup` implementations | send/edit reply markup | unit, live examples | Inline keyboard, reply keyboard, remove keyboard, force reply. Inline buttons support URL, callback, Web App, LoginUrl, switch-inline, copy-text, game, pay, icon, and style fields. Reply keyboard buttons support request users/chat/managed bot/contact/location/poll, Web App, icon, and style fields. Edit methods accept inline keyboard only. |
+| `telegram.ReplyMarkup` implementations | send/edit reply markup | unit, live examples | Inline keyboard, reply keyboard, remove keyboard, force reply. Inline buttons support URL, callback, Web App, LoginURL, switch-inline, copy-text, game, pay, icon, and style fields. Reply keyboard buttons support request users/chat/managed bot/contact/location/poll, Web App, icon, and style fields. Edit methods accept inline keyboard only. |
 
 ### Media/files
 

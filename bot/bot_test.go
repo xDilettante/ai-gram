@@ -15,7 +15,7 @@ import (
 )
 
 func TestNewRejectsEmptyToken(t *testing.T) {
-	bot, err := New(BotConfig{})
+	bot, err := New(Config{})
 	if err == nil {
 		t.Fatal("expected error for empty token")
 	}
@@ -25,7 +25,7 @@ func TestNewRejectsEmptyToken(t *testing.T) {
 }
 
 func TestNewCreatesBotWithToken(t *testing.T) {
-	bot, err := New(BotConfig{Token: "123:abc"})
+	bot, err := New(Config{Token: "123:abc"})
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -42,7 +42,7 @@ func TestBotDoesNotExposeRawTokenMethod(t *testing.T) {
 
 func TestNewCreatesBotWithBaseURLAndHTTPClient(t *testing.T) {
 	httpClient := &http.Client{}
-	bot, err := New(BotConfig{
+	bot, err := New(Config{
 		Token:      "123:abc",
 		BaseURL:    "https://example.test/",
 		HTTPClient: httpClient,
@@ -200,7 +200,7 @@ func TestBotStringRedactsToken(t *testing.T) {
 func newTestBot(t *testing.T, token string, baseURL string, client *http.Client) *Bot {
 	t.Helper()
 
-	bot, err := New(BotConfig{Token: token, BaseURL: baseURL, HTTPClient: client})
+	bot, err := New(Config{Token: token, BaseURL: baseURL, HTTPClient: client})
 	if err != nil {
 		t.Fatalf("unexpected New error: %v", err)
 	}
