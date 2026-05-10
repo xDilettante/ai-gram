@@ -12,7 +12,7 @@ This document maps the current `ai-gram` implementation to Telegram Bot API area
 
 | Public Go API | Telegram Bot API method | Tests | Notes |
 | --- | --- | --- | --- |
-| `aigram.New`, `aigram.NewBot`, `bot.New` | n/a | unit | Token validation, configurable base URL and HTTP client. Token is stored privately, not exposed by public accessors, and redacted from string output. |
+| `aigram.New`, `aigram.NewBot`, `bot.New` | n/a | unit | Token validation, configurable base URL and HTTP client. The root package is a compact facade; full method params live in `bot`, and Telegram contracts live in `telegram`. Token is stored privately, not exposed by public accessors, and redacted from string output. |
 | `(*bot.Bot).GetMe` | `getMe` | unit/httptest, live via smoke scripts | Basic identity check used by discovery and smoke helpers. |
 | `(*bot.Bot).LogOut` | `logOut` | unit/httptest | Logs the bot out from the cloud Bot API server before local Bot API migration. Manual-only lifecycle operation. |
 | `(*bot.Bot).Close` | `close` | unit/httptest | Closes a local Bot API bot instance before moving it between local servers. Manual-only lifecycle operation. |

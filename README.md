@@ -89,7 +89,7 @@ func main() {
 }
 ```
 
-To send messages, use `SendMessage` with typed parameters such as `aigram.SendMessageParams` and `aigram.ChatIDInt` or `aigram.ChatIDString`.
+To send messages, use `SendMessage` with typed parameters such as `aigram.SendMessageParams` and `aigram.ChatIDInt` or `aigram.ChatIDString`. For the full Telegram Bot API surface, import `github.com/xDilettante/ai-gram/bot` for method params and `github.com/xDilettante/ai-gram/telegram` for Telegram data contracts.
 
 ## Why ai-gram
 
@@ -102,7 +102,7 @@ To send messages, use `SendMessage` with typed parameters such as `aigram.SendMe
 - `dispatch` routes updates to handlers.
 - `middleware` provides reusable dispatcher middleware.
 - `errors` exposes typed Telegram API errors.
-- The root package `aigram` provides the convenience facade and common re-exports.
+- The root package `aigram` provides a small convenience facade for quick-start code; advanced methods and contracts are intentionally used through `bot` and `telegram`.
 
 The project intentionally keeps AI-assisted development visible without turning it into marketing noise: ChatGPT and Codex produce most of the code and documentation, while the maintainer directs requirements, validates behavior, and decides what is safe to ship.
 

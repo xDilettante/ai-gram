@@ -2,6 +2,8 @@
 
 `ai-gram` is organized as a library of small layers. Applications can use the low-level Bot API client directly, wire update transports into their own runtime, or add the dispatcher and middleware packages when they want routing.
 
+The root `aigram` package is intentionally a compact convenience facade. It is not a full re-export mirror of every Bot API method parameter or Telegram object. Import `bot` for the full outgoing method surface and `telegram` for data contracts.
+
 ```mermaid
 flowchart LR
     app[User code]
@@ -47,6 +49,8 @@ Telegram's official `InputFile` concept is represented by `FileRef` and `FileUpl
 
 ## Public API shape
 
+- The root `aigram` package keeps quick-start helpers and common message/reply markup types only.
+- Advanced Bot API method params live in `bot`; Telegram objects live in `telegram`.
 - `GetChat` returns the official `ChatFullInfo` result shape.
 - `GetChatFullInfo` remains as a same-result alias while the project is pre-v1.
 - `ChatMember` is an interface implemented by official `ChatMember*` variants.

@@ -7,6 +7,7 @@
 - Breaking pre-v1 cleanup: `GetChat` now returns `telegram.ChatFullInfo`, matching the official `getChat` result.
 - Breaking pre-v1 cleanup: `telegram.ChatMember` is now an interface implemented by official `ChatMember*` variants.
 - Breaking pre-v1 cleanup: `CallbackQuery.Message` now uses `telegram.MaybeInaccessibleMessage` directly.
+- Breaking pre-v1 cleanup: the root `aigram` package is now a compact quick-start facade instead of a broad re-export mirror.
 
 ## v0.3.0 - 2026-05-02
 
