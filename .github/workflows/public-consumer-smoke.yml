@@ -1,0 +1,30 @@
+---
+name: Public consumer smoke
+
+"on":
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Go module version to verify
+        required: false
+        default: main
+
+jobs:
+  smoke:
+    name: External Go module
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+
+      - name: Set up Go
+        uses: actions/setup-go@v6
+        with:
+          go-version-file: go.mod
+          cache: false
+
+      - name: Run public consumer smoke
+        env:
+          AIGRAM_CONSUMER_VERSION: ${{ inputs.version }}
+          AIGRAM_CONSUMER_DIRECT: "1"
+        run: ./scripts/smoke_public_consumer.sh

@@ -35,6 +35,8 @@ scripts/smoke_public_consumer.sh
 
 If the public Go proxy has not yet observed the latest pushed commit, repeat the branch verification with `AIGRAM_CONSUMER_DIRECT=1 scripts/smoke_public_consumer.sh`.
 
+The same check is available from GitHub Actions as the manually triggered `Public consumer smoke` workflow. Use the `version` input to verify `main` or a release tag.
+
 ## Documentation Gates
 
 - Confirm `README.md` describes Bot API 10.0 coverage accurately.
