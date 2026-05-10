@@ -25,6 +25,15 @@ Public `main` consumer verification after the root facade cleanup:
 - `go doc github.com/xDilettante/ai-gram/bot.SendPollParams`;
 - `go doc github.com/xDilettante/ai-gram/telegram.ChatMember`.
 
+Post-cleanup public `main` consumer verification after the `Config` / `LoginURL` pre-v1 rename:
+
+- external temporary module outside this repository;
+- `GOPROXY=direct go get github.com/xDilettante/ai-gram@main` -> `v0.4.1-0.20260510214756-47907d32d24e`;
+- `go test ./...` with root quick-start usage through `aigram.Config` and advanced direct imports through `bot.Config` and `telegram.LoginURL`;
+- `go doc github.com/xDilettante/ai-gram`;
+- `go doc github.com/xDilettante/ai-gram/bot.Config`;
+- `go doc github.com/xDilettante/ai-gram/telegram.LoginURL`.
+
 Public tag verification after publishing:
 
 - external temporary module outside this repository;

@@ -4,12 +4,12 @@ This checklist records the completed `v0.4.0` release and remains useful as the 
 
 ## Current Status
 
-Last verified: May 11, 2026, Bot API 10.0 final audit, public `main` consumer smoke, and public `v0.4.0` install smoke.
+Last verified: May 11, 2026, Bot API 10.0 final audit, public `main` consumer smoke, post-cleanup `Config` / `LoginURL` consumer smoke, and public `v0.4.0` install smoke.
 
 - [x] Bot API 10.0 code coverage is complete with documented architecture differences.
 - [x] Final Bot API 10.0 audit is recorded in [`../BOT_API_10_0_FINAL_AUDIT.md`](../BOT_API_10_0_FINAL_AUDIT.md).
 - [x] README, API coverage, roadmap, release notes, and live smoke matrix are aligned with the Bot API 10.0 status.
-- [x] Public `main` consumer smoke passed after the root facade cleanup.
+- [x] Public `main` consumer smoke passed after the root facade cleanup and after the later `Config` / `LoginURL` pre-v1 rename.
 - [x] Sensitive and state-changing live smoke remains manual-only.
 - [x] Annotated `v0.4.0` tag and GitHub pre-release have been created after explicit maintainer approval.
 
@@ -33,8 +33,8 @@ Before tagging a future release, also verify the public branch from a temporary 
 go get github.com/xDilettante/ai-gram@main
 go test ./...
 go doc github.com/xDilettante/ai-gram
-go doc github.com/xDilettante/ai-gram/bot.SendPollParams
-go doc github.com/xDilettante/ai-gram/telegram.ChatMember
+go doc github.com/xDilettante/ai-gram/bot.Config
+go doc github.com/xDilettante/ai-gram/telegram.LoginURL
 ```
 
 If the public Go proxy has not yet observed the latest pushed commit, repeat the branch verification with `GOPROXY=direct`.
