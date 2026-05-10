@@ -268,6 +268,23 @@ for value, repl in ((os.environ.get("AIGRAM_WEBHOOK_SECRET", ""), "<WEBHOOK_SECR
         text = text.replace(value, repl)
 text = re.sub(r"/bot[0-9]+:[A-Za-z0-9_-]+/", "/bot<TOKEN>/", text)
 text = re.sub(r"bot[0-9]+:[A-Za-z0-9_-]+", "bot<TOKEN>", text)
+for key in ("configured_chat", "from_user_id", "by_user_id", "chat_id", "user_id"):
+    marker = "<" + key.upper() + ">"
+    text = re.sub(
+        rf"(\"{re.escape(key)}\"\s*:\s*)-?\d+",
+        lambda match, marker=marker: match.group(1) + "\"" + marker + "\"",
+        text,
+    )
+    text = re.sub(
+        rf"(\"{re.escape(key)}\"\s*:\s*)\"-?\d+\"",
+        lambda match, marker=marker: match.group(1) + "\"" + marker + "\"",
+        text,
+    )
+    text = re.sub(
+        rf"(?<![A-Za-z0-9_])({re.escape(key)}=)-?\d+",
+        lambda match, marker=marker: match.group(1) + marker,
+        text,
+    )
 sys.stdout.write(text)
 '
 }

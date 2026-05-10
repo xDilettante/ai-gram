@@ -8,7 +8,7 @@ The `scripts/` directory contains helper scripts used by maintainers for local c
 - `ai-context.sh` prints a compact repository overview for maintainers and AI-assisted work.
 - `update_coverage_badge.sh` regenerates `docs/assets/coverage.svg` from `go test -coverprofile` without using external coverage services.
 - `remote_logs.sh` and related log helpers are useful when you intentionally run the webhook example on your own host.
-- `smoke_max_api_bot.sh` runs a broad maintainer live-smoke bot with structured logs. Default `once` mode sends safe test messages to `AIGRAM_CHAT_ID`; `poll` mode handles `/start`, `/smoke`, `/media`, and `/status`.
+- `smoke_max_api_bot.sh` runs a broad maintainer live-smoke bot with structured logs. Default `once` mode sends safe test messages to `AIGRAM_CHAT_ID`; `poll` mode handles `/start`, `/smoke`, `/media`, and `/status`. Set `AIGRAM_MAX_API_DRY_RUN=1` to compile-check the smoke bot without Telegram API calls.
 - `smoke_v02_send_methods.sh` and `smoke_media_group.sh` are targeted live smoke helpers, but they require a real bot token and a disposable test chat.
 
 ## Maintainer-only helpers
