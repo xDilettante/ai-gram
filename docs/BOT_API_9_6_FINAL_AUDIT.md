@@ -1,5 +1,7 @@
 # Bot API 9.6 Final Coverage Audit
 
+> **Historical note:** This final audit records the Bot API 9.6 release-readiness state. It predates later Bot API 10.0 work and some pre-v1 public API cleanup. For the current API shape, see [`PRE_V1_NOTES.md`](PRE_V1_NOTES.md), [`API_COVERAGE.md`](API_COVERAGE.md), and [`BOT_API_10_0_FINAL_AUDIT.md`](BOT_API_10_0_FINAL_AUDIT.md).
+
 ## Result
 
 **Full coverage reached with documented architecture differences.**

@@ -109,7 +109,8 @@ Next phase:
 1. Keep CI and local verification green for any follow-up fixes.
 2. Keep Bot API 10.0 coverage docs current when Telegram publishes future Bot API releases.
 3. Keep sensitive/state-changing smoke manual-only and fixture-first by default.
-4. Monitor `v0.4.0` feedback and keep future release work behind explicit approval.
+4. Keep [`PRE_V1_NOTES.md`](PRE_V1_NOTES.md) and [`CHANGELOG.md`](../CHANGELOG.md) current for breaking pre-v1 cleanup.
+5. Monitor `v0.4.0` feedback and keep future release work behind explicit approval.
 
 Live smoke policy:
 

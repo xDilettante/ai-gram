@@ -1,5 +1,7 @@
 # Bot API 9.6 Coverage Audit
 
+> **Historical note:** This document records the Bot API 9.6 workstream as it existed during that audit. Current public API shape may differ after later pre-v1 cleanup. For current names and intentional architecture differences, see [`PRE_V1_NOTES.md`](PRE_V1_NOTES.md), [`API_COVERAGE.md`](API_COVERAGE.md), and [`BOT_API_10_0_FINAL_AUDIT.md`](BOT_API_10_0_FINAL_AUDIT.md).
+
 ## Source of truth
 
 - [Official Telegram Bot API documentation](https://core.telegram.org/bots/api), fetched for the original audit on 2026-04-30 and rechecked through Stage 99 on 2026-05-02.

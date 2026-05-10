@@ -51,7 +51,10 @@ Telegram's official `InputFile` concept is represented by `FileRef` and `FileUpl
 
 - The root `aigram` package keeps quick-start helpers and common message/reply markup types only.
 - Advanced Bot API method params live in `bot`; Telegram objects live in `telegram`.
+- Bot construction uses `aigram.Config` or `bot.Config`.
 - `GetChat` returns the official `ChatFullInfo` result shape.
 - `GetChatFullInfo` remains as a same-result alias while the project is pre-v1.
 - `ChatMember` is an interface implemented by official `ChatMember*` variants.
 - `CallbackQuery.Message` uses the official `MaybeInaccessibleMessage` shape, with helpers for accessible messages.
+
+See [`PRE_V1_NOTES.md`](PRE_V1_NOTES.md) for current pre-v1 API cleanup notes.

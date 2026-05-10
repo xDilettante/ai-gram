@@ -2,6 +2,8 @@
 
 Date: 2026-05-10
 
+Historical note: this was the implementation plan for the root facade cleanup. It is not the current root package contract. See [`../PRE_V1_NOTES.md`](../PRE_V1_NOTES.md) and [`../ARCHITECTURE.md`](../ARCHITECTURE.md) for the current public API shape.
+
 ## Goal
 
 Reduce the root `aigram` package from a broad re-export mirror into a small convenience facade for quick-start usage.

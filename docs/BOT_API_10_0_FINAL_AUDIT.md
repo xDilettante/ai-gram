@@ -13,6 +13,8 @@ Bot API 10.0 code coverage is complete with documented architecture differences.
 
 No missing Bot API 10.0 method wrappers, request parameters, result objects, update fields, or high-impact message/type fields were found in the final audit.
 
+Current pre-v1 public API names and breaking-change notes live in [`PRE_V1_NOTES.md`](PRE_V1_NOTES.md) and [`../CHANGELOG.md`](../CHANGELOG.md).
+
 Live Telegram smoke remains manual-only because several Bot API 10.0 areas can interact with real chats, managed bots, business accounts, reactions, or guest-mode flows.
 
 ## Audited Changes

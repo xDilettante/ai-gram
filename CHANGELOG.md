@@ -10,6 +10,7 @@
 ### Documentation
 
 - Added missing GoDoc for inline result JSON encoders and chat-member helper methods.
+- Added pre-v1 notes and marked Bot API 9.6 workstream documents as historical where later cleanup superseded their compatibility notes.
 
 ## v0.4.0 - 2026-05-11
 

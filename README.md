@@ -132,11 +132,10 @@ Maintainer-only smoke examples are separated under [`examples/maintainer/`](exam
 
 - [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) — short package and update-flow architecture diagram.
 - [`docs/API_COVERAGE.md`](docs/API_COVERAGE.md) — Bot API method/type coverage inventory and architecture notes.
-- [`docs/BOT_API_9_6_FINAL_AUDIT.md`](docs/BOT_API_9_6_FINAL_AUDIT.md) — final coverage audit for the local workstream.
+- [`docs/PRE_V1_NOTES.md`](docs/PRE_V1_NOTES.md) — current pre-v1 API shape and breaking-change notes.
 - [`docs/BOT_API_10_0_FINAL_AUDIT.md`](docs/BOT_API_10_0_FINAL_AUDIT.md) — final Bot API 10.0 coverage audit.
 - [`docs/releases/v0.4.0.md`](docs/releases/v0.4.0.md) — release notes for the Bot API 10.0 pre-v1 milestone.
 - [`docs/maintainer/BOT_API_10_0_RELEASE_READINESS.md`](docs/maintainer/BOT_API_10_0_RELEASE_READINESS.md) — maintainer release-readiness notes for Bot API 10.0.
-- [`docs/BOT_API_9_6_COVERAGE_PLAN.md`](docs/BOT_API_9_6_COVERAGE_PLAN.md) — Bot API 9.6 coverage plan and compatibility notes.
 - [`docs/BOT_API_10_0_COVERAGE_PLAN.md`](docs/BOT_API_10_0_COVERAGE_PLAN.md) — Bot API 10.0 update plan.
 - [`docs/MANUAL_TESTING.md`](docs/MANUAL_TESTING.md) — public manual testing guide.
 - [`docs/ROADMAP.md`](docs/ROADMAP.md) — stabilization and future work.
@@ -144,6 +143,8 @@ Maintainer-only smoke examples are separated under [`examples/maintainer/`](exam
 - [`SECURITY.md`](SECURITY.md) — security reporting policy.
 - [`CHANGELOG.md`](CHANGELOG.md) — project changelog.
 - [`LICENSE`](LICENSE) — MIT license.
+
+Historical Bot API 9.6 workstream notes remain available in [`docs/BOT_API_9_6_FINAL_AUDIT.md`](docs/BOT_API_9_6_FINAL_AUDIT.md), [`docs/BOT_API_9_6_AUDIT.md`](docs/BOT_API_9_6_AUDIT.md), and [`docs/BOT_API_9_6_COVERAGE_PLAN.md`](docs/BOT_API_9_6_COVERAGE_PLAN.md). Treat them as historical records when they mention older compatibility decisions that were changed during later pre-v1 cleanup.
 
 Maintainer-only deploy, live-smoke, and release-readiness notes live under [`docs/maintainer/`](docs/maintainer/). They are useful for project maintainers, but intentionally separated from the public quick start.
 
@@ -181,3 +182,4 @@ scripts/ai-context.sh
 - `GetChat` returns the official `ChatFullInfo` result shape; `GetChatFullInfo` remains as a same-result alias during pre-v1 cleanup.
 - `ChatMember` is decoded as official `ChatMember*` variants through the `telegram.ChatMember` interface.
 - `CallbackQuery.Message` uses the official `MaybeInaccessibleMessage` shape with helpers for accessible messages.
+- Pre-v1 API cleanup notes live in [`docs/PRE_V1_NOTES.md`](docs/PRE_V1_NOTES.md).

@@ -2,9 +2,9 @@
 
 ## Status
 
-This document is the historical Bot API 9.6 readiness record. It has been superseded by the Bot API 10.0 final audit in [`../BOT_API_10_0_FINAL_AUDIT.md`](../BOT_API_10_0_FINAL_AUDIT.md) and the current release checklist in [`RELEASE_CHECKLIST.md`](RELEASE_CHECKLIST.md).
+This document is the historical Bot API 9.6 readiness record. It has been superseded by the Bot API 10.0 final audit in [`../BOT_API_10_0_FINAL_AUDIT.md`](../BOT_API_10_0_FINAL_AUDIT.md), current pre-v1 notes in [`../PRE_V1_NOTES.md`](../PRE_V1_NOTES.md), and the current release checklist in [`RELEASE_CHECKLIST.md`](RELEASE_CHECKLIST.md).
 
-Code coverage for Telegram Bot API 10.0 is complete with documented architecture differences. The public repository exists and `main` has been published only after explicit user approval. The `v0.3.0` tag exists from the previous release line; Bot API 10.0 release preparation targets the next `v0.4.0` tag.
+Code coverage for Telegram Bot API 10.0 is complete with documented architecture differences. The public repository exists and `main` has been published only after explicit user approval. The `v0.4.0` tag and GitHub pre-release were published after explicit maintainer approval.
 
 ## Verification
 
@@ -24,7 +24,9 @@ Coverage evidence from the Stage 98/99 audit:
 - `setWebhook.certificate` blocker resolved with upload-only `FileUpload` multipart support;
 - representative high-impact field audit found no remaining missing fields after the Stage 98 `Message.giveaway` correction.
 
-## Architecture differences
+## Historical Architecture Differences
+
+The notes below describe the Bot API 9.6 release-readiness state. Later pre-v1 cleanup changed some public shapes, including `GetChat`, `ChatMember`, and `CallbackQuery.Message`.
 
 - `FileRef` / `FileUpload` instead of official `InputFile`: upload-capable fields use typed Go helpers and multipart behavior. The upload-only `setWebhook.certificate` parameter accepts `FileUpload` and rejects file IDs or URLs.
 - `GetChat` + `GetChatFullInfo` compatibility split: `GetChat` remains backward-compatible and returns `*telegram.Chat`; `GetChatFullInfo` decodes the official Bot API 9.6 `ChatFullInfo` result.

@@ -1,5 +1,7 @@
 # Bot API 9.6 Coverage Plan
 
+> **Historical note:** This plan is the working record for the Bot API 9.6 implementation stages. It is not the current public API contract. For current pre-v1 names and architecture choices, see [`PRE_V1_NOTES.md`](PRE_V1_NOTES.md), [`API_COVERAGE.md`](API_COVERAGE.md), and [`BOT_API_10_0_FINAL_AUDIT.md`](BOT_API_10_0_FINAL_AUDIT.md).
+
 ## Goal
 
 Maintain complete Telegram Bot API 9.6 method, type, and update coverage with documented architecture differences while the public repository matures toward a future tagged release.
