@@ -743,8 +743,8 @@ func myChatMemberUpdate() telegram.Update {
 			Chat:          telegram.Chat{ID: -100123, Type: "supergroup"},
 			From:          telegram.User{ID: 777, FirstName: "Admin"},
 			Date:          1234567890,
-			OldChatMember: telegram.ChatMember{Status: telegram.ChatMemberStatusLeft, User: telegram.User{ID: 1}},
-			NewChatMember: telegram.ChatMember{Status: telegram.ChatMemberStatusMember, User: telegram.User{ID: 1}},
+			OldChatMember: telegram.ChatMemberLeft{Status: telegram.ChatMemberStatusLeft, User: telegram.User{ID: 1}},
+			NewChatMember: telegram.ChatMemberMember{Status: telegram.ChatMemberStatusMember, User: telegram.User{ID: 1}},
 		},
 	}
 }
@@ -756,8 +756,8 @@ func chatMemberUpdate() telegram.Update {
 			Chat:          telegram.Chat{ID: -100123, Type: "supergroup"},
 			From:          telegram.User{ID: 778, FirstName: "Admin"},
 			Date:          1234567891,
-			OldChatMember: telegram.ChatMember{Status: telegram.ChatMemberStatusMember, User: telegram.User{ID: 2}},
-			NewChatMember: telegram.ChatMember{Status: telegram.ChatMemberStatusRestricted, User: telegram.User{ID: 2}},
+			OldChatMember: telegram.ChatMemberMember{Status: telegram.ChatMemberStatusMember, User: telegram.User{ID: 2}},
+			NewChatMember: telegram.ChatMemberRestricted{Status: telegram.ChatMemberStatusRestricted, User: telegram.User{ID: 2}},
 		},
 	}
 }

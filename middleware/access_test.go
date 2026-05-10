@@ -237,11 +237,11 @@ func accessCallbackUpdate(userID int64, chatID int64) telegram.Update {
 			ID:   "callback",
 			From: telegram.User{ID: userID, FirstName: "User"},
 			Data: "demo:edit",
-			Message: &telegram.Message{
+			Message: &telegram.MaybeInaccessibleMessage{Message: &telegram.Message{
 				MessageID: 11,
 				Chat:      telegram.Chat{ID: chatID, Type: "private"},
 				Date:      1,
-			},
+			}, MessageID: 11, Chat: telegram.Chat{ID: chatID, Type: "private"}, Date: 1},
 		},
 	}
 }

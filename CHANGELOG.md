@@ -2,7 +2,11 @@
 
 ## Unreleased
 
-No changes yet.
+### Changed
+
+- Breaking pre-v1 cleanup: `GetChat` now returns `telegram.ChatFullInfo`, matching the official `getChat` result.
+- Breaking pre-v1 cleanup: `telegram.ChatMember` is now an interface implemented by official `ChatMember*` variants.
+- Breaking pre-v1 cleanup: `CallbackQuery.Message` now uses `telegram.MaybeInaccessibleMessage` directly.
 
 ## v0.3.0 - 2026-05-02
 

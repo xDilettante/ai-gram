@@ -118,8 +118,8 @@ Live smoke policy:
 
 ## Later
 
-- Optional concrete `ChatMember*` variant types
-  - Preserve the current flat `ChatMember` compatibility shape unless a deliberate public API refinement is planned.
+- Root facade reduction
+  - Keep the root `aigram` package convenient without making it a complete re-export mirror of every Bot API type.
 - Passport decryption helpers
   - Intentionally out of scope for the typed Bot API wrapper unless a future product decision adds them.
 - Codegen

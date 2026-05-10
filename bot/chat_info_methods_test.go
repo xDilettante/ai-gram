@@ -122,7 +122,11 @@ func TestGetChatMemberSendsPayloadAndDecodesResult(t *testing.T) {
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
-	if member.Status != telegram.ChatMemberStatusAdministrator || member.User.ID != 777 || !member.CanManageChat || !member.CanDeleteMessages || !member.CanPinMessages || member.CustomTitle != "Moderator" {
+	admin, ok := member.(telegram.ChatMemberAdministrator)
+	if !ok {
+		t.Fatalf("unexpected member type: %T", member)
+	}
+	if admin.Status != telegram.ChatMemberStatusAdministrator || admin.User.ID != 777 || !admin.CanManageChat || !admin.CanDeleteMessages || !admin.CanPinMessages || admin.CustomTitle != "Moderator" {
 		t.Fatalf("unexpected member: %#v", member)
 	}
 }
@@ -175,7 +179,15 @@ func TestGetChatAdministratorsSendsPayloadAndDecodesResult(t *testing.T) {
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
-	if len(admins) != 2 || admins[0].Status != telegram.ChatMemberStatusCreator || !admins[0].IsAnonymous || admins[1].User.ID != 2 || !admins[1].CanManageVideoChats || !admins[1].CanInviteUsers {
+	owner, ok := admins[0].(telegram.ChatMemberOwner)
+	if !ok {
+		t.Fatalf("unexpected owner type: %T", admins[0])
+	}
+	admin, ok := admins[1].(telegram.ChatMemberAdministrator)
+	if !ok {
+		t.Fatalf("unexpected admin type: %T", admins[1])
+	}
+	if len(admins) != 2 || owner.Status != telegram.ChatMemberStatusCreator || !owner.IsAnonymous || admin.User.ID != 2 || !admin.CanManageVideoChats || !admin.CanInviteUsers {
 		t.Fatalf("unexpected administrators: %#v", admins)
 	}
 }

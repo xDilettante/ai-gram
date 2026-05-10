@@ -159,7 +159,7 @@ func TestCallbackQueryDecodesMaybeInaccessibleMessage(t *testing.T) {
 	if err := json.Unmarshal([]byte(`{"id":"cb-1","from":{"id":1,"is_bot":false,"first_name":"Ada"},"message":{"message_id":5,"chat":{"id":1,"type":"private"},"date":100,"text":"ok"},"chat_instance":"ci","data":"payload"}`), &accessible); err != nil {
 		t.Fatalf("decode accessible callback: %v", err)
 	}
-	if accessible.Message == nil || accessible.MaybeMessage == nil || accessible.MaybeMessage.Message == nil || accessible.Message.Text != "ok" {
+	if accessible.Message == nil || accessible.Message.Message == nil || accessible.Message.AccessibleMessage().Text != "ok" {
 		t.Fatalf("unexpected accessible callback message: %#v", accessible)
 	}
 
@@ -167,7 +167,7 @@ func TestCallbackQueryDecodesMaybeInaccessibleMessage(t *testing.T) {
 	if err := json.Unmarshal([]byte(`{"id":"cb-2","from":{"id":1,"is_bot":false,"first_name":"Ada"},"message":{"message_id":6,"chat":{"id":1,"type":"private"},"date":0}}`), &inaccessible); err != nil {
 		t.Fatalf("decode inaccessible callback: %v", err)
 	}
-	if inaccessible.Message != nil || inaccessible.MaybeMessage == nil || inaccessible.MaybeMessage.InaccessibleMessage == nil || inaccessible.MaybeMessage.MessageID != 6 {
+	if inaccessible.Message == nil || inaccessible.Message.InaccessibleMessage == nil || inaccessible.Message.MessageID != 6 || inaccessible.Message.IsAccessible() {
 		t.Fatalf("unexpected inaccessible callback message: %#v", inaccessible)
 	}
 }

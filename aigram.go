@@ -690,8 +690,26 @@ type UserRating = telegram.UserRating
 // ChatMemberStatus identifies a user's membership state in a chat.
 type ChatMemberStatus = telegram.ChatMemberStatus
 
-// ChatMember describes a Telegram user's membership and permissions in a chat.
+// ChatMember is one of the official Telegram chat member variants.
 type ChatMember = telegram.ChatMember
+
+// ChatMemberOwner describes the chat owner.
+type ChatMemberOwner = telegram.ChatMemberOwner
+
+// ChatMemberAdministrator describes an administrator in a chat.
+type ChatMemberAdministrator = telegram.ChatMemberAdministrator
+
+// ChatMemberMember describes a regular chat member.
+type ChatMemberMember = telegram.ChatMemberMember
+
+// ChatMemberRestricted describes a restricted chat member.
+type ChatMemberRestricted = telegram.ChatMemberRestricted
+
+// ChatMemberLeft describes a user who is not currently a chat member.
+type ChatMemberLeft = telegram.ChatMemberLeft
+
+// ChatMemberBanned describes a user banned from a chat.
+type ChatMemberBanned = telegram.ChatMemberBanned
 
 // ChatMemberUpdated represents changes in the status of a chat member.
 type ChatMemberUpdated = telegram.ChatMemberUpdated

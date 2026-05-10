@@ -25,9 +25,9 @@ Coverage evidence:
 ## Architecture Differences
 
 - `FileRef` / `FileUpload` instead of official `InputFile`: upload-capable fields use typed Go helpers and multipart behavior.
-- `GetChat` + `GetChatFullInfo` compatibility split: `GetChat` remains backward-compatible and returns `*telegram.Chat`; `GetChatFullInfo` decodes the official `ChatFullInfo` result.
-- Flat `ChatMember` compatibility strategy: official chat member variant fields are decoded into the existing flat `telegram.ChatMember` shape. Optional concrete `ChatMember*` variant structs remain a possible future refinement.
-- `CallbackQuery.Message` + `MaybeMessage` compatibility strategy: accessible callback messages keep the existing `Message` field, while `MaybeMessage` preserves official `MaybeInaccessibleMessage` decoding.
+- `GetChatFullInfo` remains as a same-result pre-v1 alias for `GetChat`; `GetChat` returns the official `ChatFullInfo` result shape.
+- `telegram.ChatMember` is an interface implemented by official `ChatMember*` variants.
+- `CallbackQuery.Message` uses the official `MaybeInaccessibleMessage` shape.
 - Live-photo URL inputs are intentionally rejected where the implementation requires `file_id` or multipart upload for the official live-photo payload.
 
 ## Manual-Only Smoke Areas

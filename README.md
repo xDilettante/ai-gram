@@ -178,6 +178,6 @@ scripts/ai-context.sh
 
 - Never commit real bot tokens, webhook secrets, private chat IDs, payment payloads, passport data, managed bot tokens, or token-bearing URLs.
 - `SetWebhook` supports the official upload-only certificate path via `FileUpload`; certificate live checks should use disposable test certificates only.
-- `GetChat` remains a backward-compatible minimal chat decode. Use `GetChatFullInfo` for the full `getChat` result shape.
-- `ChatMember` keeps a flat compatibility shape while decoding current official fields.
-- `CallbackQuery.Message` remains available for accessible messages; maybe-inaccessible callback message data is represented separately for compatibility.
+- `GetChat` returns the official `ChatFullInfo` result shape; `GetChatFullInfo` remains as a same-result alias during pre-v1 cleanup.
+- `ChatMember` is decoded as official `ChatMember*` variants through the `telegram.ChatMember` interface.
+- `CallbackQuery.Message` uses the official `MaybeInaccessibleMessage` shape with helpers for accessible messages.

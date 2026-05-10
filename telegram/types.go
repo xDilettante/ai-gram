@@ -294,35 +294,64 @@ const (
 	ChatMemberStatusKicked ChatMemberStatus = "kicked"
 )
 
-// ChatMember describes a Telegram user's membership and relevant permissions in a chat.
-type ChatMember struct {
+// ChatMember is one of the official Telegram chat member variants.
+type ChatMember interface {
+	ChatMemberStatus() ChatMemberStatus
+	ChatMemberUser() User
+	isChatMember()
+}
+
+// ChatMemberOwner describes the chat owner.
+type ChatMemberOwner struct {
 	Status ChatMemberStatus `json:"status"`
 	User   User             `json:"user"`
 
 	IsAnonymous bool   `json:"is_anonymous,omitempty"`
 	CustomTitle string `json:"custom_title,omitempty"`
-	UntilDate   int64  `json:"until_date,omitempty"`
+}
 
-	CanBeEdited             bool `json:"can_be_edited,omitempty"`
-	CanManageChat           bool `json:"can_manage_chat,omitempty"`
-	CanDeleteMessages       bool `json:"can_delete_messages,omitempty"`
-	CanManageVideoChats     bool `json:"can_manage_video_chats,omitempty"`
-	CanRestrictMembers      bool `json:"can_restrict_members,omitempty"`
-	CanPromoteMembers       bool `json:"can_promote_members,omitempty"`
-	CanChangeInfo           bool `json:"can_change_info,omitempty"`
-	CanInviteUsers          bool `json:"can_invite_users,omitempty"`
-	CanPinMessages          bool `json:"can_pin_messages,omitempty"`
-	CanPostStories          bool `json:"can_post_stories,omitempty"`
-	CanEditStories          bool `json:"can_edit_stories,omitempty"`
-	CanDeleteStories        bool `json:"can_delete_stories,omitempty"`
-	CanPostMessages         bool `json:"can_post_messages,omitempty"`
-	CanEditMessages         bool `json:"can_edit_messages,omitempty"`
-	CanManageTopics         bool `json:"can_manage_topics,omitempty"`
-	CanManageDirectMessages bool `json:"can_manage_direct_messages,omitempty"`
-	CanManageTags           bool `json:"can_manage_tags,omitempty"`
+// ChatMemberAdministrator describes an administrator in a chat.
+type ChatMemberAdministrator struct {
+	Status ChatMemberStatus `json:"status"`
+	User   User             `json:"user"`
 
-	Tag                   string `json:"tag,omitempty"`
-	IsMember              bool   `json:"is_member,omitempty"`
+	CanBeEdited             bool   `json:"can_be_edited,omitempty"`
+	IsAnonymous             bool   `json:"is_anonymous,omitempty"`
+	CanManageChat           bool   `json:"can_manage_chat,omitempty"`
+	CanDeleteMessages       bool   `json:"can_delete_messages,omitempty"`
+	CanManageVideoChats     bool   `json:"can_manage_video_chats,omitempty"`
+	CanRestrictMembers      bool   `json:"can_restrict_members,omitempty"`
+	CanPromoteMembers       bool   `json:"can_promote_members,omitempty"`
+	CanChangeInfo           bool   `json:"can_change_info,omitempty"`
+	CanInviteUsers          bool   `json:"can_invite_users,omitempty"`
+	CanPostStories          bool   `json:"can_post_stories,omitempty"`
+	CanEditStories          bool   `json:"can_edit_stories,omitempty"`
+	CanDeleteStories        bool   `json:"can_delete_stories,omitempty"`
+	CanPostMessages         bool   `json:"can_post_messages,omitempty"`
+	CanEditMessages         bool   `json:"can_edit_messages,omitempty"`
+	CanPinMessages          bool   `json:"can_pin_messages,omitempty"`
+	CanManageTopics         bool   `json:"can_manage_topics,omitempty"`
+	CanManageDirectMessages bool   `json:"can_manage_direct_messages,omitempty"`
+	CanManageTags           bool   `json:"can_manage_tags,omitempty"`
+	CanEditTag              bool   `json:"can_edit_tag,omitempty"`
+	CustomTitle             string `json:"custom_title,omitempty"`
+	Tag                     string `json:"tag,omitempty"`
+}
+
+// ChatMemberMember describes a regular chat member.
+type ChatMemberMember struct {
+	Status    ChatMemberStatus `json:"status"`
+	User      User             `json:"user"`
+	Tag       string           `json:"tag,omitempty"`
+	UntilDate int64            `json:"until_date,omitempty"`
+}
+
+// ChatMemberRestricted describes a restricted chat member.
+type ChatMemberRestricted struct {
+	Status ChatMemberStatus `json:"status"`
+	User   User             `json:"user"`
+
+	IsMember              bool   `json:"is_member"`
 	CanSendMessages       bool   `json:"can_send_messages,omitempty"`
 	CanSendAudios         bool   `json:"can_send_audios,omitempty"`
 	CanSendDocuments      bool   `json:"can_send_documents,omitempty"`
@@ -334,7 +363,26 @@ type ChatMember struct {
 	CanSendOtherMessages  bool   `json:"can_send_other_messages,omitempty"`
 	CanReactToMessages    bool   `json:"can_react_to_messages,omitempty"`
 	CanAddWebPagePreviews bool   `json:"can_add_web_page_previews,omitempty"`
+	CanChangeInfo         bool   `json:"can_change_info,omitempty"`
+	CanInviteUsers        bool   `json:"can_invite_users,omitempty"`
+	CanPinMessages        bool   `json:"can_pin_messages,omitempty"`
+	CanManageTopics       bool   `json:"can_manage_topics,omitempty"`
 	CanEditTag            bool   `json:"can_edit_tag,omitempty"`
+	Tag                   string `json:"tag,omitempty"`
+	UntilDate             int64  `json:"until_date"`
+}
+
+// ChatMemberLeft describes a user who is not currently a chat member.
+type ChatMemberLeft struct {
+	Status ChatMemberStatus `json:"status"`
+	User   User             `json:"user"`
+}
+
+// ChatMemberBanned describes a user banned from a chat.
+type ChatMemberBanned struct {
+	Status    ChatMemberStatus `json:"status"`
+	User      User             `json:"user"`
+	UntilDate int64            `json:"until_date"`
 }
 
 // ChatMemberUpdated represents changes in the status of a chat member.
@@ -765,8 +813,7 @@ type Venue struct {
 type CallbackQuery struct {
 	ID              string                    `json:"id"`
 	From            User                      `json:"from"`
-	Message         *Message                  `json:"message,omitempty"`
-	MaybeMessage    *MaybeInaccessibleMessage `json:"-"`
+	Message         *MaybeInaccessibleMessage `json:"message,omitempty"`
 	InlineMessageID string                    `json:"inline_message_id,omitempty"`
 	ChatInstance    string                    `json:"chat_instance,omitempty"`
 	Data            string                    `json:"data,omitempty"`

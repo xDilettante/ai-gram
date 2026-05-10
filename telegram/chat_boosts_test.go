@@ -30,7 +30,15 @@ func TestUpdateDecodesChatMemberUpdated(t *testing.T) {
 	if change.Chat.ID != -100123 || change.From.ID != 7 || change.Date != 1234567890 || !change.ViaJoinRequest || !change.ViaChatFolderInviteLink {
 		t.Fatalf("unexpected chat member update: %+v", change)
 	}
-	if change.OldChatMember.Tag != "old" || change.NewChatMember.Status != ChatMemberStatusAdministrator || !change.NewChatMember.CanManageTags || !change.NewChatMember.CanManageDirectMessages {
+	oldMember, ok := change.OldChatMember.(ChatMemberMember)
+	if !ok {
+		t.Fatalf("unexpected old chat member type: %T", change.OldChatMember)
+	}
+	newMember, ok := change.NewChatMember.(ChatMemberAdministrator)
+	if !ok {
+		t.Fatalf("unexpected new chat member type: %T", change.NewChatMember)
+	}
+	if oldMember.Tag != "old" || newMember.Status != ChatMemberStatusAdministrator || !newMember.CanManageTags || !newMember.CanManageDirectMessages {
 		t.Fatalf("unexpected chat members: old=%+v new=%+v", change.OldChatMember, change.NewChatMember)
 	}
 	if chat := update.EffectiveChat(); chat == nil || chat.ID != -100123 {
@@ -61,7 +69,15 @@ func TestUpdateDecodesChatMember(t *testing.T) {
 	if change == nil || change.Chat.ID != -100124 || change.From.ID != 9 {
 		t.Fatalf("unexpected chat member update: %+v", update)
 	}
-	if !change.OldChatMember.IsMember || !change.OldChatMember.CanSendMessages || !change.OldChatMember.CanReactToMessages || !change.OldChatMember.CanEditTag || change.NewChatMember.UntilDate != 1234567999 {
+	oldMember, ok := change.OldChatMember.(ChatMemberRestricted)
+	if !ok {
+		t.Fatalf("unexpected old chat member type: %T", change.OldChatMember)
+	}
+	newMember, ok := change.NewChatMember.(ChatMemberBanned)
+	if !ok {
+		t.Fatalf("unexpected new chat member type: %T", change.NewChatMember)
+	}
+	if !oldMember.IsMember || !oldMember.CanSendMessages || !oldMember.CanReactToMessages || !oldMember.CanEditTag || newMember.UntilDate != 1234567999 {
 		t.Fatalf("unexpected chat member fields: old=%+v new=%+v", change.OldChatMember, change.NewChatMember)
 	}
 }

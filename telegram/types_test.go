@@ -87,7 +87,7 @@ func TestUpdateDecodesPracticalMessagePayloads(t *testing.T) {
 	if message.Venue == nil || message.Venue.Title != "Cafe" || message.Venue.Location.Latitude != 55.7 {
 		t.Fatalf("unexpected venue: %+v", message.Venue)
 	}
-	if update.CallbackQuery == nil || update.CallbackQuery.Message == nil || update.CallbackQuery.Data != "button:data" || update.CallbackQuery.ChatInstance != "chat-instance" || update.CallbackQuery.GameShortName != "game" {
+	if update.CallbackQuery == nil || update.CallbackQuery.Message == nil || !update.CallbackQuery.Message.IsAccessible() || update.CallbackQuery.Data != "button:data" || update.CallbackQuery.ChatInstance != "chat-instance" || update.CallbackQuery.GameShortName != "game" {
 		t.Fatalf("unexpected callback query: %+v", update.CallbackQuery)
 	}
 }
@@ -326,7 +326,7 @@ func TestUpdateHelpers(t *testing.T) {
 	}
 
 	callbackMessage := &Message{MessageID: 12, Chat: Chat{ID: 22, Type: "private"}}
-	update = &Update{CallbackQuery: &CallbackQuery{From: User{ID: 3, FirstName: "Carol"}, Message: callbackMessage}}
+	update = &Update{CallbackQuery: &CallbackQuery{From: User{ID: 3, FirstName: "Carol"}, Message: &MaybeInaccessibleMessage{Message: callbackMessage, MessageID: callbackMessage.MessageID, Chat: callbackMessage.Chat}}}
 	if update.EffectiveMessage() != callbackMessage {
 		t.Fatal("expected callback message as effective message")
 	}

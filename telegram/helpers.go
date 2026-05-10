@@ -89,10 +89,23 @@ func (u *Update) EffectiveMessage() *Message {
 		return u.GuestMessage
 	}
 	if u.CallbackQuery != nil && u.CallbackQuery.Message != nil {
-		return u.CallbackQuery.Message
+		return u.CallbackQuery.Message.AccessibleMessage()
 	}
 
 	return nil
+}
+
+// IsAccessible reports whether m contains a full accessible Message.
+func (m *MaybeInaccessibleMessage) IsAccessible() bool {
+	return m != nil && m.Message != nil
+}
+
+// AccessibleMessage returns the full message when it is accessible to the bot.
+func (m *MaybeInaccessibleMessage) AccessibleMessage() *Message {
+	if m == nil {
+		return nil
+	}
+	return m.Message
 }
 
 // EffectiveChat returns the chat most directly associated with u.

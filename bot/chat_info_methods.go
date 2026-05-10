@@ -29,22 +29,8 @@ type GetChatMemberCountParams struct {
 	ChatID ChatID `json:"chat_id"`
 }
 
-// GetChat returns information about a chat.
-func (b *Bot) GetChat(ctx context.Context, params GetChatParams) (*telegram.Chat, error) {
-	if err := params.validate(); err != nil {
-		return nil, err
-	}
-
-	var chat telegram.Chat
-	if err := b.call(ctx, "getChat", params, &chat); err != nil {
-		return nil, err
-	}
-
-	return &chat, nil
-}
-
-// GetChatFullInfo returns full information about a chat.
-func (b *Bot) GetChatFullInfo(ctx context.Context, params GetChatParams) (*telegram.ChatFullInfo, error) {
+// GetChat returns full information about a chat.
+func (b *Bot) GetChat(ctx context.Context, params GetChatParams) (*telegram.ChatFullInfo, error) {
 	if err := params.validate(); err != nil {
 		return nil, err
 	}
@@ -57,18 +43,23 @@ func (b *Bot) GetChatFullInfo(ctx context.Context, params GetChatParams) (*teleg
 	return &chat, nil
 }
 
+// GetChatFullInfo returns full information about a chat.
+func (b *Bot) GetChatFullInfo(ctx context.Context, params GetChatParams) (*telegram.ChatFullInfo, error) {
+	return b.GetChat(ctx, params)
+}
+
 // GetChatMember returns information about a chat member.
-func (b *Bot) GetChatMember(ctx context.Context, params GetChatMemberParams) (*telegram.ChatMember, error) {
+func (b *Bot) GetChatMember(ctx context.Context, params GetChatMemberParams) (telegram.ChatMember, error) {
 	if err := params.validate(); err != nil {
 		return nil, err
 	}
 
-	var member telegram.ChatMember
+	var member telegram.ChatMemberResult
 	if err := b.call(ctx, "getChatMember", params, &member); err != nil {
 		return nil, err
 	}
 
-	return &member, nil
+	return member.ChatMember, nil
 }
 
 // GetChatAdministrators returns administrators of a chat.
@@ -77,12 +68,19 @@ func (b *Bot) GetChatAdministrators(ctx context.Context, params GetChatAdministr
 		return nil, err
 	}
 
-	var administrators []telegram.ChatMember
+	var administrators []telegram.ChatMemberResult
 	if err := b.call(ctx, "getChatAdministrators", params, &administrators); err != nil {
 		return nil, err
 	}
 
-	return administrators, nil
+	members := make([]telegram.ChatMember, 0, len(administrators))
+	for _, administrator := range administrators {
+		if administrator.ChatMember != nil {
+			members = append(members, administrator.ChatMember)
+		}
+	}
+
+	return members, nil
 }
 
 // GetChatMemberCount returns the number of members in a chat.

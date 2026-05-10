@@ -45,9 +45,9 @@ The `bot` package owns outgoing Telegram Bot API calls. It accepts typed paramet
 
 Telegram's official `InputFile` concept is represented by `FileRef` and `FileUpload` in the client layer. Existing file IDs and URLs stay in JSON requests when the method allows them. New uploads use multipart requests and deterministic `attach://` references for media, thumbnails, covers, webhook certificates, and other upload-capable fields.
 
-## Compatibility choices
+## Public API shape
 
-- `GetChat` remains a backward-compatible minimal chat decode.
-- `GetChatFullInfo` exposes the full current `getChat` result shape.
-- `ChatMember` keeps a flat compatibility shape while decoding current official fields.
-- `CallbackQuery.Message` remains available for accessible messages; maybe-inaccessible callback message data is represented separately for compatibility.
+- `GetChat` returns the official `ChatFullInfo` result shape.
+- `GetChatFullInfo` remains as a same-result alias while the project is pre-v1.
+- `ChatMember` is an interface implemented by official `ChatMember*` variants.
+- `CallbackQuery.Message` uses the official `MaybeInaccessibleMessage` shape, with helpers for accessible messages.

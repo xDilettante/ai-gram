@@ -275,7 +275,7 @@ func (m MaybeInaccessibleMessage) MarshalJSON() ([]byte, error) {
 	}{maybeInaccessibleMessage: maybeInaccessibleMessage(m)})
 }
 
-// UnmarshalJSON decodes CallbackQuery.message without breaking the legacy Message field.
+// UnmarshalJSON decodes CallbackQuery.message as an official MaybeInaccessibleMessage.
 func (q *CallbackQuery) UnmarshalJSON(data []byte) error {
 	type callbackQueryAlias CallbackQuery
 	payload := struct {
@@ -286,14 +286,12 @@ func (q *CallbackQuery) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	q.Message = nil
-	q.MaybeMessage = nil
 	if len(payload.Message) > 0 && !bytes.Equal(payload.Message, []byte("null")) {
 		var message MaybeInaccessibleMessage
 		if err := json.Unmarshal(payload.Message, &message); err != nil {
 			return err
 		}
-		q.MaybeMessage = &message
-		q.Message = message.Message
+		q.Message = &message
 	}
 	return nil
 }

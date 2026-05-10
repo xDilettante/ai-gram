@@ -72,7 +72,7 @@ This document maps the current `ai-gram` implementation to Telegram Bot API area
 | `telegram.LivePhoto`, `telegram.Message`, `telegram.ExternalReplyInfo` | live photo payloads | unit/httptest | Decodes incoming `live_photo` media on messages and external replies, including the preview `photo` array and file metadata. |
 | `telegram.ReplyParameters` | send/copy reply payload | unit | Supports `message_id`, cross-chat `chat_id`, `allow_sending_without_reply`, quote fields, Bot API 9.6 `checklist_task_id`, and `poll_option_id`. |
 | `telegram.MessageOrigin*`, `ExternalReplyInfo`, `TextQuote` | message reply/forward metadata | unit | Decodes `forward_origin`, `external_reply`, `quote`, `reply_to_message`, `reply_to_story`, direct-message topic, suggested-post, caption/media, star, and sender metadata fields. |
-| `telegram.MaybeInaccessibleMessage`, `InaccessibleMessage` | inaccessible message references | unit | Decodes accessible and inaccessible pinned/callback messages while preserving the legacy `CallbackQuery.Message` pointer for accessible messages. |
+| `telegram.MaybeInaccessibleMessage`, `InaccessibleMessage` | inaccessible message references | unit | Decodes accessible and inaccessible pinned/callback messages. `CallbackQuery.Message` uses the official maybe-inaccessible shape and exposes helpers for accessible messages. |
 | `telegram.ReplyMarkup` implementations | send/edit reply markup | unit, live examples | Inline keyboard, reply keyboard, remove keyboard, force reply. Inline buttons support URL, callback, Web App, LoginUrl, switch-inline, copy-text, game, pay, icon, and style fields. Reply keyboard buttons support request users/chat/managed bot/contact/location/poll, Web App, icon, and style fields. Edit methods accept inline keyboard only. |
 
 ### Media/files
@@ -254,11 +254,11 @@ This document maps the current `ai-gram` implementation to Telegram Bot API area
 
 | Public Go API | Telegram Bot API method | Tests | Notes |
 | --- | --- | --- | --- |
-| `(*bot.Bot).GetChat` | `getChat` | unit/httptest, live example access panel | Backward-compatible minimal `telegram.Chat` decode with official lightweight `is_forum` and `is_direct_messages` metadata. |
-| `(*bot.Bot).GetChatFullInfo` | `getChat` | unit/httptest | Compatible full-result method returning `telegram.ChatFullInfo` for the official Bot API 9.6 `getChat` shape. |
+| `(*bot.Bot).GetChat` | `getChat` | unit/httptest, live example access panel | Returns `telegram.ChatFullInfo`, matching the official current `getChat` result shape. |
+| `(*bot.Bot).GetChatFullInfo` | `getChat` | unit/httptest | Pre-v1 same-result alias for `GetChat`. |
 | `telegram.User`, `telegram.Chat`, `telegram.ChatFullInfo` | `User`, `Chat`, `ChatFullInfo` | unit | Decodes Bot API 9.6 user capability metadata, Bot API 10.0 guest-query support, lightweight chat metadata, and representative full chat profile/business/reaction/gift/rating metadata. |
-| `(*bot.Bot).GetChatMember` | `getChatMember` | unit/httptest | `telegram.ChatMember` includes official status/user, admin, member tag, and restricted-permission fields in the current flat API shape, including `can_react_to_messages`. |
-| `(*bot.Bot).GetChatAdministrators` | `getChatAdministrators` | unit/httptest | Returns `[]telegram.ChatMember` with the same flat field coverage as `GetChatMember`; supports Bot API 10.0 `return_bots`. |
+| `(*bot.Bot).GetChatMember` | `getChatMember` | unit/httptest | Returns the `telegram.ChatMember` interface implemented by official `ChatMemberOwner`, `ChatMemberAdministrator`, `ChatMemberMember`, `ChatMemberRestricted`, `ChatMemberLeft`, and `ChatMemberBanned` variants. |
+| `(*bot.Bot).GetChatAdministrators` | `getChatAdministrators` | unit/httptest | Returns `[]telegram.ChatMember` official variants; supports Bot API 10.0 `return_bots`. |
 | `(*bot.Bot).GetChatMemberCount` | `getChatMemberCount` | unit/httptest, optional live example | Safe read method; availability depends on chat permissions. |
 | `telegram.ChatMemberUpdated` | `my_chat_member`, `chat_member` updates | unit | Decodes old/new chat member data, invite-link flags, and effective chat/user helpers. |
 | `telegram.ChatBoostUpdated` / `telegram.ChatBoostRemoved` | `chat_boost`, `removed_chat_boost` updates | unit | Decodes chat boost updates and polymorphic boost sources. |
@@ -403,7 +403,7 @@ Stage 98 performed the final official-doc comparison after Stage 97, and Stage 9
 ### Missing type and field groups from the final audits
 
 - No missing fields were found in the audited high-impact official field tables after adding `Message.giveaway` and the Bot API 10.0 object/update fields.
-- Optional concrete chat member variant structs remain a possible future refinement; Stage 91/97 keep the current flat `ChatMember` compatibility shape while decoding official 9.6 fields.
+- Current code uses official chat member variant structs through the `telegram.ChatMember` interface.
 
 ### Intentional architecture differences to keep documented
 
