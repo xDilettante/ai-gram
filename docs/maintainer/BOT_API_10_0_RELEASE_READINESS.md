@@ -32,6 +32,13 @@ Public tag verification after publishing:
 - `go list -m github.com/xDilettante/ai-gram`;
 - `go doc github.com/xDilettante/ai-gram`.
 
+Post-release public adoption sweep:
+
+- GitHub Release `v0.4.0` is public, non-draft, and marked as pre-release;
+- pkg.go.dev serves `github.com/xDilettante/ai-gram@v0.4.0` with HTTP 200;
+- external consumer compile smoke passed against `github.com/xDilettante/ai-gram@v0.4.0`;
+- README coverage badge and release-notes link text were aligned with the published release state.
+
 Coverage evidence:
 
 - total statement coverage: 63.4%;
