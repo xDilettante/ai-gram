@@ -44,3 +44,13 @@ func TestSentWebAppMessageDecode(t *testing.T) {
 		t.Fatalf("unexpected sent web app message: %+v", message)
 	}
 }
+
+func TestSentGuestMessageDecode(t *testing.T) {
+	var message SentGuestMessage
+	if err := json.Unmarshal([]byte(`{"inline_message_id":"inline-id"}`), &message); err != nil {
+		t.Fatalf("decode sent guest message: %v", err)
+	}
+	if message.InlineMessageID != "inline-id" {
+		t.Fatalf("unexpected sent guest message: %+v", message)
+	}
+}

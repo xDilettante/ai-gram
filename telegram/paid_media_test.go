@@ -14,22 +14,26 @@ func TestPaidMediaInfoDecoding(t *testing.T) {
 			"star_count": 5,
 			"paid_media": [
 				{"type":"preview","width":320,"height":240,"duration":10},
+				{"type":"live_photo","live_photo":{"photo":[{"file_id":"live-photo","file_unique_id":"live-photo-u","width":640,"height":480}],"file_id":"live","file_unique_id":"live-u","width":640,"height":480,"duration":3}},
 				{"type":"photo","photo":[{"file_id":"photo","file_unique_id":"photo-u","width":10,"height":10}]},
 				{"type":"video","video":{"file_id":"video","file_unique_id":"video-u","width":640,"height":480,"duration":12}}
 			]
 		}
 	}`)
-	if message.PaidMedia == nil || message.PaidMedia.StarCount != 5 || len(message.PaidMedia.PaidMedia) != 3 {
+	if message.PaidMedia == nil || message.PaidMedia.StarCount != 5 || len(message.PaidMedia.PaidMedia) != 4 {
 		t.Fatalf("unexpected paid media: %+v", message.PaidMedia)
 	}
 	if preview, ok := message.PaidMedia.PaidMedia[0].(PaidMediaPreview); !ok || preview.Width != 320 || preview.Duration != 10 {
 		t.Fatalf("unexpected preview: %#v", message.PaidMedia.PaidMedia[0])
 	}
-	if photo, ok := message.PaidMedia.PaidMedia[1].(PaidMediaPhoto); !ok || len(photo.Photo) != 1 || photo.Photo[0].FileID != "photo" {
-		t.Fatalf("unexpected photo: %#v", message.PaidMedia.PaidMedia[1])
+	if livePhoto, ok := message.PaidMedia.PaidMedia[1].(PaidMediaLivePhoto); !ok || livePhoto.LivePhoto.FileID != "live" || len(livePhoto.LivePhoto.Photo) != 1 {
+		t.Fatalf("unexpected live photo: %#v", message.PaidMedia.PaidMedia[1])
 	}
-	if video, ok := message.PaidMedia.PaidMedia[2].(PaidMediaVideo); !ok || video.Video.FileID != "video" {
-		t.Fatalf("unexpected video: %#v", message.PaidMedia.PaidMedia[2])
+	if photo, ok := message.PaidMedia.PaidMedia[2].(PaidMediaPhoto); !ok || len(photo.Photo) != 1 || photo.Photo[0].FileID != "photo" {
+		t.Fatalf("unexpected photo: %#v", message.PaidMedia.PaidMedia[2])
+	}
+	if video, ok := message.PaidMedia.PaidMedia[3].(PaidMediaVideo); !ok || video.Video.FileID != "video" {
+		t.Fatalf("unexpected video: %#v", message.PaidMedia.PaidMedia[3])
 	}
 }
 

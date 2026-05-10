@@ -135,9 +135,6 @@ func (params SendMessageDraftParams) validate() error {
 	if params.DraftID == 0 {
 		return stderrors.New("draft_id is required")
 	}
-	if strings.TrimSpace(params.Text) == "" {
-		return stderrors.New("text is required")
-	}
 	if err := validateEntityFormatting(params.ParseMode, params.Entities); err != nil {
 		return err
 	}

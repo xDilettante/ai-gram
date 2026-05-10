@@ -63,7 +63,7 @@ func TestMessageDecodesReplyMetadata(t *testing.T) {
 		"is_topic_message":true,
 		"is_automatic_forward":true,
 		"reply_to_message":{"message_id":100,"chat":{"id":123,"type":"private"},"date":999,"text":"original"},
-		"external_reply":{"origin":{"type":"channel","date":901,"chat":{"id":-200,"type":"channel","title":"News"},"message_id":77},"chat":{"id":-200,"type":"channel","title":"News"},"message_id":77,"photo":[{"file_id":"p","file_unique_id":"pu","width":10,"height":10}],"has_media_spoiler":true},
+		"external_reply":{"origin":{"type":"channel","date":901,"chat":{"id":-200,"type":"channel","title":"News"},"message_id":77},"chat":{"id":-200,"type":"channel","title":"News"},"message_id":77,"live_photo":{"photo":[{"file_id":"lp","file_unique_id":"lpu","width":640,"height":480}],"file_id":"live","file_unique_id":"liveu","width":640,"height":480,"duration":3},"photo":[{"file_id":"p","file_unique_id":"pu","width":10,"height":10}],"has_media_spoiler":true},
 		"quote":{"text":"quoted","position":4,"is_manual":true,"entities":[{"type":"bold","offset":0,"length":6}]},
 		"reply_to_story":{"chat":{"id":123,"type":"private"},"id":44},
 		"via_bot":{"id":10,"is_bot":true,"first_name":"Helper"},
@@ -98,7 +98,7 @@ func TestMessageDecodesReplyMetadata(t *testing.T) {
 	if message.ReplyToMessage == nil || message.ReplyToMessage.Text != "original" {
 		t.Fatalf("unexpected reply_to_message: %#v", message.ReplyToMessage)
 	}
-	if message.ExternalReply == nil || message.ExternalReply.MessageID != 77 || len(message.ExternalReply.Photo) != 1 || !message.ExternalReply.HasMediaSpoiler {
+	if message.ExternalReply == nil || message.ExternalReply.MessageID != 77 || len(message.ExternalReply.Photo) != 1 || message.ExternalReply.LivePhoto == nil || message.ExternalReply.LivePhoto.FileID != "live" || !message.ExternalReply.HasMediaSpoiler {
 		t.Fatalf("unexpected external reply: %#v", message.ExternalReply)
 	}
 	if _, ok := message.ExternalReply.Origin.(MessageOriginChannel); !ok {

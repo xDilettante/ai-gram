@@ -87,6 +87,71 @@ func TestReplaceManagedBotTokenSendsPayloadAndDecodesToken(t *testing.T) {
 	})
 }
 
+func TestGetManagedBotAccessSettingsSendsPayloadAndDecodesResult(t *testing.T) {
+	testBotProfileObjectSuccess(t, "getManagedBotAccessSettings", `{"is_access_restricted":true,"added_users":[{"id":7,"is_bot":false,"first_name":"Alice"}]}`, func(bot *Bot) (any, error) {
+		return bot.GetManagedBotAccessSettings(context.Background(), GetManagedBotAccessSettingsParams{UserID: 77})
+	}, func(t *testing.T, payload map[string]any) {
+		if payload["user_id"] != float64(77) {
+			t.Fatalf("unexpected payload: %#v", payload)
+		}
+	}, func(t *testing.T, result any) {
+		settings := result.(*telegram.BotAccessSettings)
+		if !settings.IsAccessRestricted || len(settings.AddedUsers) != 1 || settings.AddedUsers[0].ID != 7 {
+			t.Fatalf("unexpected result: %+v", settings)
+		}
+	})
+}
+
+func TestSetManagedBotAccessSettingsSendsPayloadAndDecodesResult(t *testing.T) {
+	testChatManagementSimpleBoolSuccess(t, "setManagedBotAccessSettings", func(bot *Bot) (bool, error) {
+		return bot.SetManagedBotAccessSettings(context.Background(), SetManagedBotAccessSettingsParams{
+			UserID:             77,
+			IsAccessRestricted: true,
+			AddedUserIDs:       []int64{7, 8},
+		})
+	}, func(t *testing.T, payload map[string]any) {
+		if payload["user_id"] != float64(77) || payload["is_access_restricted"] != true {
+			t.Fatalf("unexpected payload: %#v", payload)
+		}
+		userIDs, ok := payload["added_user_ids"].([]any)
+		if !ok || len(userIDs) != 2 || userIDs[0] != float64(7) || userIDs[1] != float64(8) {
+			t.Fatalf("unexpected added_user_ids payload: %#v", payload["added_user_ids"])
+		}
+	})
+}
+
+func TestSetManagedBotAccessSettingsIncludesFalseRestrictionFlag(t *testing.T) {
+	testChatManagementSimpleBoolSuccess(t, "setManagedBotAccessSettings", func(bot *Bot) (bool, error) {
+		return bot.SetManagedBotAccessSettings(context.Background(), SetManagedBotAccessSettingsParams{UserID: 77})
+	}, func(t *testing.T, payload map[string]any) {
+		if payload["user_id"] != float64(77) {
+			t.Fatalf("unexpected payload: %#v", payload)
+		}
+		restricted, ok := payload["is_access_restricted"].(bool)
+		if !ok || restricted {
+			t.Fatalf("expected explicit false restriction flag, got %#v", payload)
+		}
+		if _, ok := payload["added_user_ids"]; ok {
+			t.Fatalf("unexpected added_user_ids payload: %#v", payload)
+		}
+	})
+}
+
+func TestGetUserPersonalChatMessagesSendsPayloadAndDecodesMessages(t *testing.T) {
+	testBotProfileObjectSuccess(t, "getUserPersonalChatMessages", `[{"message_id":10,"chat":{"id":123,"type":"private"},"date":111,"text":"hello"}]`, func(bot *Bot) (any, error) {
+		return bot.GetUserPersonalChatMessages(context.Background(), GetUserPersonalChatMessagesParams{UserID: 77, Limit: 2})
+	}, func(t *testing.T, payload map[string]any) {
+		if payload["user_id"] != float64(77) || payload["limit"] != float64(2) {
+			t.Fatalf("unexpected payload: %#v", payload)
+		}
+	}, func(t *testing.T, result any) {
+		messages := result.([]telegram.Message)
+		if len(messages) != 1 || messages[0].MessageID != 10 || messages[0].Text != "hello" {
+			t.Fatalf("unexpected messages: %+v", messages)
+		}
+	})
+}
+
 func TestManagedBotTokenValidation(t *testing.T) {
 	const token = "123:secret"
 	bot := newTestBot(t, token, "https://example.test", nil)
@@ -120,6 +185,47 @@ func TestManagedBotTokenValidation(t *testing.T) {
 	}
 }
 
+func TestManagedBotAccessValidation(t *testing.T) {
+	const token = "123:secret"
+	bot := newTestBot(t, token, "https://example.test", nil)
+	tests := []struct {
+		name string
+		call func() (any, error)
+	}{
+		{name: "get access zero user", call: func() (any, error) {
+			return bot.GetManagedBotAccessSettings(context.Background(), GetManagedBotAccessSettingsParams{})
+		}},
+		{name: "set access zero user", call: func() (any, error) {
+			return bot.SetManagedBotAccessSettings(context.Background(), SetManagedBotAccessSettingsParams{})
+		}},
+		{name: "set access too many added users", call: func() (any, error) {
+			return bot.SetManagedBotAccessSettings(context.Background(), SetManagedBotAccessSettingsParams{UserID: 77, AddedUserIDs: makeInt64Range(11)})
+		}},
+		{name: "set access invalid added user", call: func() (any, error) {
+			return bot.SetManagedBotAccessSettings(context.Background(), SetManagedBotAccessSettingsParams{UserID: 77, AddedUserIDs: []int64{7, 0}})
+		}},
+		{name: "personal messages zero user", call: func() (any, error) {
+			return bot.GetUserPersonalChatMessages(context.Background(), GetUserPersonalChatMessagesParams{Limit: 1})
+		}},
+		{name: "personal messages missing limit", call: func() (any, error) {
+			return bot.GetUserPersonalChatMessages(context.Background(), GetUserPersonalChatMessagesParams{UserID: 77})
+		}},
+		{name: "personal messages excessive limit", call: func() (any, error) {
+			return bot.GetUserPersonalChatMessages(context.Background(), GetUserPersonalChatMessagesParams{UserID: 77, Limit: 21})
+		}},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result, err := tt.call()
+			if err == nil {
+				t.Fatal("expected error")
+			}
+			assertManagedBotAccessZeroResult(t, result)
+			assertNoToken(t, err, token)
+		})
+	}
+}
+
 func TestManagedBotTokenMethodErrors(t *testing.T) {
 	for _, tt := range []struct {
 		name            string
@@ -144,10 +250,65 @@ func TestManagedBotTokenMethodErrors(t *testing.T) {
 	}
 }
 
+func TestManagedBotAccessMethodErrors(t *testing.T) {
+	t.Run("get access settings", func(t *testing.T) {
+		testBotProfileObjectMethodErrorCases(t, "getManagedBotAccessSettings", func(bot *Bot) (any, error) {
+			return bot.GetManagedBotAccessSettings(context.Background(), GetManagedBotAccessSettingsParams{UserID: 77})
+		}, func(bot *Bot, ctx context.Context) (any, error) {
+			return bot.GetManagedBotAccessSettings(ctx, GetManagedBotAccessSettingsParams{UserID: 77})
+		})
+	})
+
+	t.Run("set access settings", func(t *testing.T) {
+		testBoolMethodErrorCases(t, "setManagedBotAccessSettings", func(bot *Bot) (bool, error) {
+			return bot.SetManagedBotAccessSettings(context.Background(), SetManagedBotAccessSettingsParams{UserID: 77, IsAccessRestricted: true})
+		}, func(bot *Bot, ctx context.Context) (bool, error) {
+			return bot.SetManagedBotAccessSettings(ctx, SetManagedBotAccessSettingsParams{UserID: 77, IsAccessRestricted: true})
+		})
+	})
+
+	t.Run("personal chat messages", func(t *testing.T) {
+		testBotProfileObjectMethodErrorCases(t, "getUserPersonalChatMessages", func(bot *Bot) (any, error) {
+			return bot.GetUserPersonalChatMessages(context.Background(), GetUserPersonalChatMessagesParams{UserID: 77, Limit: 2})
+		}, func(bot *Bot, ctx context.Context) (any, error) {
+			return bot.GetUserPersonalChatMessages(ctx, GetUserPersonalChatMessagesParams{UserID: 77, Limit: 2})
+		})
+	})
+}
+
 func validSavePreparedKeyboardButtonParams() SavePreparedKeyboardButtonParams {
 	return SavePreparedKeyboardButtonParams{
 		UserID: 123,
 		Button: telegram.KeyboardButtonManagedBot("Create", telegram.KeyboardButtonRequestManagedBot{RequestID: 1}),
+	}
+}
+
+func makeInt64Range(count int) []int64 {
+	values := make([]int64, count)
+	for index := range values {
+		values[index] = int64(index + 1)
+	}
+	return values
+}
+
+func assertManagedBotAccessZeroResult(t *testing.T, result any) {
+	t.Helper()
+	switch value := result.(type) {
+	case nil:
+	case bool:
+		if value {
+			t.Fatal("expected false result")
+		}
+	case []telegram.Message:
+		if value != nil {
+			t.Fatalf("expected nil messages, got %+v", value)
+		}
+	case *telegram.BotAccessSettings:
+		if value != nil {
+			t.Fatalf("expected nil settings, got %+v", value)
+		}
+	default:
+		t.Fatalf("unexpected result type %T", result)
 	}
 }
 

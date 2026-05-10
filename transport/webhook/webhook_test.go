@@ -138,6 +138,23 @@ func TestBodyAndJSONHandling(t *testing.T) {
 	}
 }
 
+func TestRejectsTrailingJSONValue(t *testing.T) {
+	var calls int
+	handler := newTestHandler(t, HandlerFunc(func(context.Context, telegram.Update) error {
+		calls++
+		return nil
+	}), Config{})
+
+	recorder := httptest.NewRecorder()
+	handler.ServeHTTP(recorder, newJSONRequest(validUpdateJSON("hello")+validUpdateJSON("extra")))
+	if recorder.Code != http.StatusBadRequest {
+		t.Fatalf("status = %d, want %d", recorder.Code, http.StatusBadRequest)
+	}
+	if calls != 0 {
+		t.Fatalf("handler calls = %d, want 0", calls)
+	}
+}
+
 func TestValidUpdateIsDecodedAndContextPassed(t *testing.T) {
 	type contextKey string
 	const key contextKey = "key"

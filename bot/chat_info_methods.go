@@ -20,7 +20,8 @@ type GetChatMemberParams struct {
 
 // GetChatAdministratorsParams contains supported parameters for getChatAdministrators.
 type GetChatAdministratorsParams struct {
-	ChatID ChatID `json:"chat_id"`
+	ChatID     ChatID `json:"chat_id"`
+	ReturnBots bool   `json:"return_bots,omitempty"`
 }
 
 // GetChatMemberCountParams contains supported parameters for getChatMemberCount.

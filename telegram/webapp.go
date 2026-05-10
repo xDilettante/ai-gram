@@ -17,3 +17,8 @@ type WriteAccessAllowed struct {
 type SentWebAppMessage struct {
 	InlineMessageID string `json:"inline_message_id,omitempty"`
 }
+
+// SentGuestMessage describes an inline message sent by a guest bot.
+type SentGuestMessage struct {
+	InlineMessageID string `json:"inline_message_id"`
+}

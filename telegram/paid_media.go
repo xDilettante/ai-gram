@@ -8,9 +8,10 @@ import (
 )
 
 const (
-	paidMediaPreviewType = "preview"
-	paidMediaPhotoType   = "photo"
-	paidMediaVideoType   = "video"
+	paidMediaPreviewType   = "preview"
+	paidMediaLivePhotoType = "live_photo"
+	paidMediaPhotoType     = "photo"
+	paidMediaVideoType     = "video"
 )
 
 // PaidMediaInfo describes paid media attached to a message.
@@ -32,6 +33,12 @@ type PaidMediaPreview struct {
 	Duration int    `json:"duration,omitempty"`
 }
 
+// PaidMediaLivePhoto describes a purchased paid live photo.
+type PaidMediaLivePhoto struct {
+	Type      string    `json:"type"`
+	LivePhoto LivePhoto `json:"live_photo"`
+}
+
 // PaidMediaPhoto describes a purchased paid photo.
 type PaidMediaPhoto struct {
 	Type  string      `json:"type"`
@@ -50,9 +57,10 @@ type PaidMediaPurchased struct {
 	PaidMediaPayload string `json:"paid_media_payload"`
 }
 
-func (PaidMediaPreview) paidMedia() {}
-func (PaidMediaPhoto) paidMedia()   {}
-func (PaidMediaVideo) paidMedia()   {}
+func (PaidMediaPreview) paidMedia()   {}
+func (PaidMediaLivePhoto) paidMedia() {}
+func (PaidMediaPhoto) paidMedia()     {}
+func (PaidMediaVideo) paidMedia()     {}
 
 // UnmarshalPaidMedia decodes a polymorphic Telegram PaidMedia object.
 func UnmarshalPaidMedia(data []byte) (PaidMedia, error) {
@@ -70,6 +78,13 @@ func UnmarshalPaidMedia(data []byte) (PaidMedia, error) {
 			return nil, err
 		}
 		media.Type = paidMediaPreviewType
+		return media, nil
+	case paidMediaLivePhotoType:
+		var media PaidMediaLivePhoto
+		if err := json.Unmarshal(data, &media); err != nil {
+			return nil, err
+		}
+		media.Type = paidMediaLivePhotoType
 		return media, nil
 	case paidMediaPhotoType:
 		var media PaidMediaPhoto

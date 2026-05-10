@@ -24,6 +24,9 @@ type SendDocumentParams = bot.SendDocumentParams
 // SendVideoParams contains supported parameters for sendVideo.
 type SendVideoParams = bot.SendVideoParams
 
+// SendLivePhotoParams contains supported parameters for sendLivePhoto.
+type SendLivePhotoParams = bot.SendLivePhotoParams
+
 // SendAudioParams contains supported parameters for sendAudio.
 type SendAudioParams = bot.SendAudioParams
 
@@ -65,6 +68,18 @@ type SendMessageDraftParams = bot.SendMessageDraftParams
 
 // InputPollOption describes one poll option to send.
 type InputPollOption = telegram.InputPollOption
+
+// PollMedia describes media attached to a poll, quiz explanation, or poll option.
+type PollMedia = telegram.PollMedia
+
+// PollOption describes one answer option in a Telegram poll.
+type PollOption = telegram.PollOption
+
+// Poll describes a native Telegram poll.
+type Poll = telegram.Poll
+
+// PollAnswer represents an answer of a user or anonymous voter in a non-anonymous poll.
+type PollAnswer = telegram.PollAnswer
 
 // InputChecklist describes a checklist to create.
 type InputChecklist = telegram.InputChecklist
@@ -173,6 +188,9 @@ type DeleteWebhookParams = bot.DeleteWebhookParams
 
 // AnswerInlineQueryParams contains supported parameters for answerInlineQuery.
 type AnswerInlineQueryParams = bot.AnswerInlineQueryParams
+
+// AnswerGuestQueryParams contains supported parameters for answerGuestQuery.
+type AnswerGuestQueryParams = bot.AnswerGuestQueryParams
 
 // AnswerWebAppQueryParams contains supported parameters for answerWebAppQuery.
 type AnswerWebAppQueryParams = bot.AnswerWebAppQueryParams
@@ -359,6 +377,12 @@ type UnpinAllChatMessagesParams = bot.UnpinAllChatMessagesParams
 
 // SetMessageReactionParams contains supported parameters for setMessageReaction.
 type SetMessageReactionParams = bot.SetMessageReactionParams
+
+// DeleteMessageReactionParams contains supported parameters for deleteMessageReaction.
+type DeleteMessageReactionParams = bot.DeleteMessageReactionParams
+
+// DeleteAllMessageReactionsParams contains supported parameters for deleteAllMessageReactions.
+type DeleteAllMessageReactionsParams = bot.DeleteAllMessageReactionsParams
 
 // GetUserChatBoostsParams contains supported parameters for getUserChatBoosts.
 type GetUserChatBoostsParams = bot.GetUserChatBoostsParams
@@ -600,6 +624,24 @@ type InputMediaAudio = bot.InputMediaAudio
 // InputMediaDocument describes a document input media item.
 type InputMediaDocument = bot.InputMediaDocument
 
+// InputPollMedia describes media accepted in sendPoll media fields.
+type InputPollMedia = bot.InputPollMedia
+
+// InputPollOptionMedia describes media accepted in InputPollOption.media.
+type InputPollOptionMedia = bot.InputPollOptionMedia
+
+// InputMediaLivePhoto describes a live photo input media item.
+type InputMediaLivePhoto = bot.InputMediaLivePhoto
+
+// InputMediaLocation describes a location input media item.
+type InputMediaLocation = bot.InputMediaLocation
+
+// InputMediaSticker describes a sticker input media item.
+type InputMediaSticker = bot.InputMediaSticker
+
+// InputMediaVenue describes a venue input media item.
+type InputMediaVenue = bot.InputMediaVenue
+
 // APIError represents a Telegram Bot API response with ok=false.
 type APIError = telegramerrors.APIError
 
@@ -822,6 +864,9 @@ type WriteAccessAllowed = telegram.WriteAccessAllowed
 // SentWebAppMessage describes an inline message sent by a Web App on behalf of a user.
 type SentWebAppMessage = telegram.SentWebAppMessage
 
+// SentGuestMessage describes an inline message sent by a guest bot.
+type SentGuestMessage = telegram.SentGuestMessage
+
 // BusinessBotRights represents the rights of a business bot.
 type BusinessBotRights = telegram.BusinessBotRights
 
@@ -884,6 +929,9 @@ type WebhookInfo = telegram.WebhookInfo
 
 // Sticker represents a Telegram sticker.
 type Sticker = telegram.Sticker
+
+// LivePhoto represents a Telegram live photo.
+type LivePhoto = telegram.LivePhoto
 
 // StickerSet represents a Telegram sticker set.
 type StickerSet = telegram.StickerSet
@@ -990,6 +1038,9 @@ type InputPaidMedia = bot.InputPaidMedia
 // InputPaidMediaPhoto describes a paid photo to send.
 type InputPaidMediaPhoto = bot.InputPaidMediaPhoto
 
+// InputPaidMediaLivePhoto describes a paid live photo to send.
+type InputPaidMediaLivePhoto = bot.InputPaidMediaLivePhoto
+
 // InputPaidMediaVideo describes a paid video to send.
 type InputPaidMediaVideo = bot.InputPaidMediaVideo
 
@@ -1053,6 +1104,15 @@ type GetManagedBotTokenParams = bot.GetManagedBotTokenParams
 // ReplaceManagedBotTokenParams contains supported parameters for replaceManagedBotToken.
 type ReplaceManagedBotTokenParams = bot.ReplaceManagedBotTokenParams
 
+// GetManagedBotAccessSettingsParams contains supported parameters for getManagedBotAccessSettings.
+type GetManagedBotAccessSettingsParams = bot.GetManagedBotAccessSettingsParams
+
+// SetManagedBotAccessSettingsParams contains supported parameters for setManagedBotAccessSettings.
+type SetManagedBotAccessSettingsParams = bot.SetManagedBotAccessSettingsParams
+
+// GetUserPersonalChatMessagesParams contains supported parameters for getUserPersonalChatMessages.
+type GetUserPersonalChatMessagesParams = bot.GetUserPersonalChatMessagesParams
+
 // InlineKeyboardMarkup represents an inline keyboard attached to a message.
 type InlineKeyboardMarkup = telegram.InlineKeyboardMarkup
 
@@ -1088,6 +1148,9 @@ type KeyboardButtonRequestManagedBot = telegram.KeyboardButtonRequestManagedBot
 
 // PreparedKeyboardButton describes a saved keyboard button for Mini App use.
 type PreparedKeyboardButton = telegram.PreparedKeyboardButton
+
+// BotAccessSettings describes access settings of a bot.
+type BotAccessSettings = telegram.BotAccessSettings
 
 // PreparedInlineMessage describes an inline message saved for a Mini App user.
 type PreparedInlineMessage = telegram.PreparedInlineMessage
@@ -1211,9 +1274,34 @@ func MediaDocument(media FileRef) InputMediaDocument {
 	return bot.MediaDocument(media)
 }
 
+// MediaLivePhoto creates a live photo input media item.
+func MediaLivePhoto(media FileRef, photo FileRef) InputMediaLivePhoto {
+	return bot.MediaLivePhoto(media, photo)
+}
+
+// MediaLocation creates a location input media item.
+func MediaLocation(latitude float64, longitude float64) InputMediaLocation {
+	return bot.MediaLocation(latitude, longitude)
+}
+
+// MediaSticker creates a sticker input media item.
+func MediaSticker(media FileRef) InputMediaSticker {
+	return bot.MediaSticker(media)
+}
+
+// MediaVenue creates a venue input media item.
+func MediaVenue(latitude float64, longitude float64, title string, address string) InputMediaVenue {
+	return bot.MediaVenue(latitude, longitude, title, address)
+}
+
 // PaidPhoto creates a paid photo input media item.
 func PaidPhoto(media FileRef) InputPaidMediaPhoto {
 	return bot.PaidPhoto(media)
+}
+
+// PaidLivePhoto creates a paid live photo input media item.
+func PaidLivePhoto(media FileRef, photo FileRef) InputPaidMediaLivePhoto {
+	return bot.PaidLivePhoto(media, photo)
 }
 
 // PaidVideo creates a paid video input media item.

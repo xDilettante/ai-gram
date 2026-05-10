@@ -33,14 +33,18 @@ func TestSendMediaGroupSendsJSONAndDecodesMessages(t *testing.T) {
 			t.Fatalf("unexpected chat_id: %#v", got)
 		}
 		media, ok := payload["media"].([]any)
-		if !ok || len(media) != 2 {
+		if !ok || len(media) != 3 {
 			t.Fatalf("unexpected media: %#v", payload["media"])
 		}
 		photo := media[0].(map[string]any)
 		if photo["type"] != "photo" || photo["media"] != "photo-file-id" || photo["caption"] != "caption" || photo["has_spoiler"] != true {
 			t.Fatalf("unexpected photo payload: %#v", photo)
 		}
-		video := media[1].(map[string]any)
+		livePhoto := media[1].(map[string]any)
+		if livePhoto["type"] != "live_photo" || livePhoto["media"] != "live-file-id" || livePhoto["photo"] != "live-photo-file-id" || livePhoto["caption"] != "live caption" || livePhoto["show_caption_above_media"] != true || livePhoto["has_spoiler"] != true {
+			t.Fatalf("unexpected live photo payload: %#v", livePhoto)
+		}
+		video := media[2].(map[string]any)
 		if video["type"] != "video" || video["media"] != "https://example.com/video.mp4" || video["width"] != float64(640) || video["height"] != float64(480) || video["duration"] != float64(12) || video["supports_streaming"] != true {
 			t.Fatalf("unexpected video payload: %#v", video)
 		}
@@ -50,7 +54,7 @@ func TestSendMediaGroupSendsJSONAndDecodesMessages(t *testing.T) {
 		}
 
 		w.Header().Set("Content-Type", "application/json")
-		_, _ = w.Write([]byte(`{"ok":true,"result":[{"message_id":5,"chat":{"id":12345,"type":"private"},"date":100,"photo":[{"file_id":"sent-photo","file_unique_id":"photo-u","width":10,"height":10}]},{"message_id":6,"chat":{"id":12345,"type":"private"},"date":101,"video":{"file_id":"sent-video","file_unique_id":"video-u","width":640,"height":480,"duration":12}}]}`))
+		_, _ = w.Write([]byte(`{"ok":true,"result":[{"message_id":5,"chat":{"id":12345,"type":"private"},"date":100,"photo":[{"file_id":"sent-photo","file_unique_id":"photo-u","width":10,"height":10}]},{"message_id":6,"chat":{"id":12345,"type":"private"},"date":101,"live_photo":{"photo":[{"file_id":"sent-live-photo","file_unique_id":"live-photo-u","width":640,"height":480}],"file_id":"sent-live","file_unique_id":"live-u","width":640,"height":480,"duration":3}},{"message_id":7,"chat":{"id":12345,"type":"private"},"date":102,"video":{"file_id":"sent-video","file_unique_id":"video-u","width":640,"height":480,"duration":12}}]}`))
 	}))
 	defer server.Close()
 
@@ -58,6 +62,10 @@ func TestSendMediaGroupSendsJSONAndDecodesMessages(t *testing.T) {
 	photo := MediaPhoto(FileID("photo-file-id"))
 	photo.Caption = "caption"
 	photo.HasSpoiler = true
+	livePhoto := MediaLivePhoto(FileID("live-file-id"), FileID("live-photo-file-id"))
+	livePhoto.Caption = "live caption"
+	livePhoto.ShowCaptionAboveMedia = true
+	livePhoto.HasSpoiler = true
 	video := MediaVideo(FileURL("https://example.com/video.mp4"))
 	video.Width = 640
 	video.Height = 480
@@ -65,13 +73,13 @@ func TestSendMediaGroupSendsJSONAndDecodesMessages(t *testing.T) {
 	video.SupportsStreaming = true
 	messages, err := bot.SendMediaGroup(context.Background(), SendMediaGroupParams{
 		ChatID:          ChatIDInt(12345),
-		Media:           []InputMedia{photo, video},
+		Media:           []InputMedia{photo, livePhoto, video},
 		ReplyParameters: &telegram.ReplyParameters{MessageID: 9},
 	})
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
-	if len(messages) != 2 || len(messages[0].Photo) != 1 || messages[1].Video == nil || messages[1].Video.FileID != "sent-video" {
+	if len(messages) != 3 || len(messages[0].Photo) != 1 || messages[1].LivePhoto == nil || messages[1].LivePhoto.FileID != "sent-live" || messages[2].Video == nil || messages[2].Video.FileID != "sent-video" {
 		t.Fatalf("unexpected messages: %+v", messages)
 	}
 }
@@ -95,7 +103,7 @@ func TestSendMediaGroupMultipartUpload(t *testing.T) {
 		if err := json.Unmarshal([]byte(r.MultipartForm.Value["media"][0]), &media); err != nil {
 			t.Fatalf("decode media field: %v", err)
 		}
-		if len(media) != 2 || media[0]["media"] != "attach://media0" || media[1]["media"] != "attach://media1" {
+		if len(media) != 3 || media[0]["media"] != "attach://media0" || media[1]["media"] != "attach://media1" || media[1]["photo"] != "attach://photo1" || media[2]["media"] != "attach://media2" {
 			t.Fatalf("unexpected media field: %#v", media)
 		}
 		content, header := readMultipartFile(t, r, "media0")
@@ -103,12 +111,20 @@ func TestSendMediaGroupMultipartUpload(t *testing.T) {
 			t.Fatalf("unexpected media0 file: filename=%q content=%q", header.Filename, content)
 		}
 		content, header = readMultipartFile(t, r, "media1")
-		if header.Filename != "document.txt" || string(content) != "document-data" {
+		if header.Filename != "live.mp4" || string(content) != "live-data" {
 			t.Fatalf("unexpected media1 file: filename=%q content=%q", header.Filename, content)
+		}
+		content, header = readMultipartFile(t, r, "photo1")
+		if header.Filename != "live-photo.jpg" || string(content) != "live-photo-data" {
+			t.Fatalf("unexpected photo1 file: filename=%q content=%q", header.Filename, content)
+		}
+		content, header = readMultipartFile(t, r, "media2")
+		if header.Filename != "document.txt" || string(content) != "document-data" {
+			t.Fatalf("unexpected media2 file: filename=%q content=%q", header.Filename, content)
 		}
 
 		w.Header().Set("Content-Type", "application/json")
-		_, _ = w.Write([]byte(`{"ok":true,"result":[{"message_id":7,"chat":{"id":12345,"type":"private"},"date":100},{"message_id":8,"chat":{"id":12345,"type":"private"},"date":101}]}`))
+		_, _ = w.Write([]byte(`{"ok":true,"result":[{"message_id":7,"chat":{"id":12345,"type":"private"},"date":100},{"message_id":8,"chat":{"id":12345,"type":"private"},"date":101},{"message_id":9,"chat":{"id":12345,"type":"private"},"date":102}]}`))
 	}))
 	defer server.Close()
 
@@ -118,6 +134,10 @@ func TestSendMediaGroupMultipartUpload(t *testing.T) {
 		MessageThreadID: 7,
 		Media: []InputMedia{
 			MediaPhoto(FileUpload(UploadFile{Name: "photo.jpg", Reader: strings.NewReader("photo-data"), ContentType: "image/jpeg"})),
+			MediaLivePhoto(
+				FileUpload(UploadFile{Name: "live.mp4", Reader: strings.NewReader("live-data"), ContentType: "video/mp4"}),
+				FileUpload(UploadFile{Name: "live-photo.jpg", Reader: strings.NewReader("live-photo-data"), ContentType: "image/jpeg"}),
+			),
 			MediaDocument(FileUpload(UploadFile{Name: "document.txt", Reader: strings.NewReader("document-data"), ContentType: "text/plain"})),
 		},
 		ReplyParameters: &telegram.ReplyParameters{MessageID: 11},
@@ -125,7 +145,7 @@ func TestSendMediaGroupMultipartUpload(t *testing.T) {
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
-	if len(messages) != 2 || messages[0].MessageID != 7 || messages[1].MessageID != 8 {
+	if len(messages) != 3 || messages[0].MessageID != 7 || messages[1].MessageID != 8 || messages[2].MessageID != 9 {
 		t.Fatalf("unexpected messages: %+v", messages)
 	}
 }
@@ -225,6 +245,21 @@ func TestSendMediaGroupValidation(t *testing.T) {
 			video := MediaVideo(FileID("video"))
 			video.Thumbnail = FileUpload(UploadFile{Name: "thumb.jpg"})
 			p.Media[0] = video
+		}},
+		{name: "live photo media url", mutate: func(p *SendMediaGroupParams) {
+			p.Media[0] = MediaLivePhoto(FileURL("https://example.com/live.mp4"), FileID("photo"))
+		}},
+		{name: "live photo preview url", mutate: func(p *SendMediaGroupParams) {
+			p.Media[0] = MediaLivePhoto(FileID("live"), FileURL("https://example.com/photo.jpg"))
+		}},
+		{name: "live photo missing preview", mutate: func(p *SendMediaGroupParams) {
+			p.Media[0] = MediaLivePhoto(FileID("live"), FileRef{})
+		}},
+		{name: "live photo parse mode and entities", mutate: func(p *SendMediaGroupParams) {
+			livePhoto := MediaLivePhoto(FileID("live"), FileID("photo"))
+			livePhoto.ParseMode = "HTML"
+			livePhoto.CaptionEntities = []telegram.MessageEntity{{Type: telegram.EntityBold, Offset: 0, Length: 1}}
+			p.Media[0] = livePhoto
 		}},
 	}
 

@@ -22,6 +22,13 @@ type InputPaidMediaPhoto struct {
 	Media FileRef `json:"media"`
 }
 
+// InputPaidMediaLivePhoto describes a paid live photo to send.
+type InputPaidMediaLivePhoto struct {
+	Type  string  `json:"type"`
+	Media FileRef `json:"media"`
+	Photo FileRef `json:"photo"`
+}
+
 // InputPaidMediaVideo describes a paid video to send.
 type InputPaidMediaVideo struct {
 	Type              string  `json:"type"`
@@ -35,12 +42,18 @@ type InputPaidMediaVideo struct {
 	SupportsStreaming bool    `json:"supports_streaming,omitempty"`
 }
 
-func (InputPaidMediaPhoto) inputPaidMedia() {}
-func (InputPaidMediaVideo) inputPaidMedia() {}
+func (InputPaidMediaPhoto) inputPaidMedia()     {}
+func (InputPaidMediaLivePhoto) inputPaidMedia() {}
+func (InputPaidMediaVideo) inputPaidMedia()     {}
 
 // PaidPhoto creates a paid photo input media item.
 func PaidPhoto(media FileRef) InputPaidMediaPhoto {
 	return InputPaidMediaPhoto{Type: "photo", Media: media}
+}
+
+// PaidLivePhoto creates a paid live photo input media item.
+func PaidLivePhoto(media FileRef, photo FileRef) InputPaidMediaLivePhoto {
+	return InputPaidMediaLivePhoto{Type: "live_photo", Media: media, Photo: photo}
 }
 
 // PaidVideo creates a paid video input media item.
@@ -175,6 +188,7 @@ type sendPaidMediaPayload struct {
 type inputPaidMediaPayload struct {
 	Type              string `json:"type"`
 	Media             string `json:"media"`
+	Photo             string `json:"photo,omitempty"`
 	Thumbnail         string `json:"thumbnail,omitempty"`
 	Cover             string `json:"cover,omitempty"`
 	StartTimestamp    int    `json:"start_timestamp,omitempty"`
@@ -254,6 +268,13 @@ func validateInputPaidMedia(media InputPaidMedia) error {
 			return stderrors.New("paid media item is required")
 		}
 		return validateInputPaidMediaPhoto(*item)
+	case InputPaidMediaLivePhoto:
+		return validateInputPaidMediaLivePhoto(item)
+	case *InputPaidMediaLivePhoto:
+		if item == nil {
+			return stderrors.New("paid media item is required")
+		}
+		return validateInputPaidMediaLivePhoto(*item)
 	case InputPaidMediaVideo:
 		return validateInputPaidMediaVideo(item)
 	case *InputPaidMediaVideo:
@@ -271,6 +292,16 @@ func validateInputPaidMediaPhoto(media InputPaidMediaPhoto) error {
 		return err
 	}
 	return media.Media.validate("media")
+}
+
+func validateInputPaidMediaLivePhoto(media InputPaidMediaLivePhoto) error {
+	if err := validateInputMediaType(media.Type, "live_photo"); err != nil {
+		return err
+	}
+	if err := validateLivePhotoFileRef(media.Media, "media"); err != nil {
+		return err
+	}
+	return validateLivePhotoFileRef(media.Photo, "photo")
 }
 
 func validateInputPaidMediaVideo(media InputPaidMediaVideo) error {
@@ -323,6 +354,13 @@ func buildInputPaidMediaPayload(media InputPaidMedia, index int, files map[strin
 			return inputPaidMediaPayload{}, stderrors.New("paid media item is required")
 		}
 		return buildInputPaidMediaPhotoPayload(*item, index, files)
+	case InputPaidMediaLivePhoto:
+		return buildInputPaidMediaLivePhotoPayload(item, index, files)
+	case *InputPaidMediaLivePhoto:
+		if item == nil {
+			return inputPaidMediaPayload{}, stderrors.New("paid media item is required")
+		}
+		return buildInputPaidMediaLivePhotoPayload(*item, index, files)
 	case InputPaidMediaVideo:
 		return buildInputPaidMediaVideoPayload(item, index, files)
 	case *InputPaidMediaVideo:
@@ -341,6 +379,18 @@ func buildInputPaidMediaPhotoPayload(media InputPaidMediaPhoto, index int, files
 		return inputPaidMediaPayload{}, err
 	}
 	return inputPaidMediaPayload{Type: mediaType(media.Type, "photo"), Media: mediaValue}, nil
+}
+
+func buildInputPaidMediaLivePhotoPayload(media InputPaidMediaLivePhoto, index int, files map[string]UploadFile) (inputPaidMediaPayload, error) {
+	mediaValue, err := paidLivePhotoFileValue(media.Media, "media", fmt.Sprintf("media%d", index), files)
+	if err != nil {
+		return inputPaidMediaPayload{}, err
+	}
+	photoValue, err := paidLivePhotoFileValue(media.Photo, "photo", fmt.Sprintf("photo%d", index), files)
+	if err != nil {
+		return inputPaidMediaPayload{}, err
+	}
+	return inputPaidMediaPayload{Type: mediaType(media.Type, "live_photo"), Media: mediaValue, Photo: photoValue}, nil
 }
 
 func buildInputPaidMediaVideoPayload(media InputPaidMediaVideo, index int, files map[string]UploadFile) (inputPaidMediaPayload, error) {
@@ -371,6 +421,17 @@ func buildInputPaidMediaVideoPayload(media InputPaidMediaVideo, index int, files
 
 func paidMediaFileValue(ref FileRef, name string, files map[string]UploadFile) (string, error) {
 	if err := ref.validate("media"); err != nil {
+		return "", err
+	}
+	if ref.isUpload() {
+		files[name] = ref.upload
+		return "attach://" + name, nil
+	}
+	return ref.value, nil
+}
+
+func paidLivePhotoFileValue(ref FileRef, field string, name string, files map[string]UploadFile) (string, error) {
+	if err := validateLivePhotoFileRef(ref, field); err != nil {
 		return "", err
 	}
 	if ref.isUpload() {

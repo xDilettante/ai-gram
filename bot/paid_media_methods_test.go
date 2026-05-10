@@ -24,6 +24,22 @@ func TestInputPaidMediaMarshalAndValidation(t *testing.T) {
 		t.Fatalf("photo validation: %v", err)
 	}
 
+	livePhoto := PaidLivePhoto(FileID("live-file-id"), FileID("photo-file-id"))
+	body, err = json.Marshal(livePhoto)
+	if err != nil {
+		t.Fatalf("marshal live photo: %v", err)
+	}
+	assertJSONFields(t, body, map[string]any{"type": "live_photo", "media": "live-file-id", "photo": "photo-file-id"})
+	if err := validateInputPaidMedia(livePhoto); err != nil {
+		t.Fatalf("live photo validation: %v", err)
+	}
+	if err := validateInputPaidMedia(PaidLivePhoto(FileURL("https://example.test/live.mp4"), FileID("photo-file-id"))); err == nil {
+		t.Fatal("expected live photo media URL error")
+	}
+	if err := validateInputPaidMedia(PaidLivePhoto(FileID("live-file-id"), FileURL("https://example.test/photo.jpg"))); err == nil {
+		t.Fatal("expected live photo preview URL error")
+	}
+
 	video := PaidVideo(FileURL("https://example.test/video.mp4"))
 	video.Width = 640
 	video.Height = 480
@@ -66,13 +82,17 @@ func TestSendPaidMediaSendsJSONAndDecodesMessage(t *testing.T) {
 			t.Fatalf("unexpected send flags: %#v", payload)
 		}
 		media, ok := payload["media"].([]any)
-		if !ok || len(media) != 2 {
+		if !ok || len(media) != 3 {
 			t.Fatalf("unexpected media: %#v", payload["media"])
 		}
 		photo := media[0].(map[string]any)
-		video := media[1].(map[string]any)
+		livePhoto := media[1].(map[string]any)
+		video := media[2].(map[string]any)
 		if photo["type"] != "photo" || photo["media"] != "photo-file-id" {
 			t.Fatalf("unexpected photo media: %#v", photo)
+		}
+		if livePhoto["type"] != "live_photo" || livePhoto["media"] != "live-file-id" || livePhoto["photo"] != "live-photo-file-id" {
+			t.Fatalf("unexpected live photo media: %#v", livePhoto)
 		}
 		if video["type"] != "video" || video["media"] != "https://example.test/video.mp4" || video["cover"] != "cover-file-id" || video["start_timestamp"] != float64(3) || video["width"] != float64(640) || video["height"] != float64(480) || video["duration"] != float64(12) || video["supports_streaming"] != true {
 			t.Fatalf("unexpected video media: %#v", video)
@@ -106,7 +126,7 @@ func TestSendPaidMediaSendsJSONAndDecodesMessage(t *testing.T) {
 		MessageThreadID:         7,
 		DirectMessagesTopicID:   8,
 		StarCount:               5,
-		Media:                   []InputPaidMedia{PaidPhoto(FileID("photo-file-id")), video},
+		Media:                   []InputPaidMedia{PaidPhoto(FileID("photo-file-id")), PaidLivePhoto(FileID("live-file-id"), FileID("live-photo-file-id")), video},
 		Payload:                 "safe-payload",
 		Caption:                 "caption",
 		ParseMode:               "HTML",
@@ -148,7 +168,7 @@ func TestSendPaidMediaMultipartUpload(t *testing.T) {
 		if err := json.Unmarshal([]byte(r.MultipartForm.Value["media"][0]), &media); err != nil {
 			t.Fatalf("decode media field: %v", err)
 		}
-		if len(media) != 2 || media[0]["media"] != "attach://media0" || media[1]["media"] != "attach://media1" || media[1]["thumbnail"] != "attach://thumb1" || media[1]["cover"] != "attach://cover1" {
+		if len(media) != 3 || media[0]["media"] != "attach://media0" || media[1]["media"] != "attach://media1" || media[1]["photo"] != "attach://photo1" || media[2]["media"] != "attach://media2" || media[2]["thumbnail"] != "attach://thumb2" || media[2]["cover"] != "attach://cover2" {
 			t.Fatalf("unexpected media field: %#v", media)
 		}
 		content, header := readMultipartFile(t, r, "media0")
@@ -156,14 +176,22 @@ func TestSendPaidMediaMultipartUpload(t *testing.T) {
 			t.Fatalf("unexpected media0 file: filename=%q content=%q", header.Filename, content)
 		}
 		content, header = readMultipartFile(t, r, "media1")
-		if header.Filename != "video.mp4" || string(content) != "video-data" {
+		if header.Filename != "live.mp4" || string(content) != "live-data" {
 			t.Fatalf("unexpected media1 file: filename=%q content=%q", header.Filename, content)
 		}
-		content, header = readMultipartFile(t, r, "thumb1")
+		content, header = readMultipartFile(t, r, "photo1")
+		if header.Filename != "live-photo.jpg" || string(content) != "live-photo-data" {
+			t.Fatalf("unexpected photo1 file: filename=%q content=%q", header.Filename, content)
+		}
+		content, header = readMultipartFile(t, r, "media2")
+		if header.Filename != "video.mp4" || string(content) != "video-data" {
+			t.Fatalf("unexpected media2 file: filename=%q content=%q", header.Filename, content)
+		}
+		content, header = readMultipartFile(t, r, "thumb2")
 		if header.Filename != "thumb.jpg" || string(content) != "thumb-data" {
 			t.Fatalf("unexpected thumb file: filename=%q content=%q", header.Filename, content)
 		}
-		content, header = readMultipartFile(t, r, "cover1")
+		content, header = readMultipartFile(t, r, "cover2")
 		if header.Filename != "cover.jpg" || string(content) != "cover-data" {
 			t.Fatalf("unexpected cover file: filename=%q content=%q", header.Filename, content)
 		}
@@ -181,6 +209,10 @@ func TestSendPaidMediaMultipartUpload(t *testing.T) {
 		StarCount: 5,
 		Media: []InputPaidMedia{
 			PaidPhoto(FileUpload(UploadFile{Name: "photo.jpg", Reader: strings.NewReader("photo-data"), ContentType: "image/jpeg"})),
+			PaidLivePhoto(
+				FileUpload(UploadFile{Name: "live.mp4", Reader: strings.NewReader("live-data"), ContentType: "video/mp4"}),
+				FileUpload(UploadFile{Name: "live-photo.jpg", Reader: strings.NewReader("live-photo-data"), ContentType: "image/jpeg"}),
+			),
 			video,
 		},
 		Payload: "safe-payload",

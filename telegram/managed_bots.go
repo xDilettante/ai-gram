@@ -11,6 +11,12 @@ type ManagedBotUpdated struct {
 	Bot  User `json:"bot"`
 }
 
+// BotAccessSettings describes the access settings of a bot.
+type BotAccessSettings struct {
+	IsAccessRestricted bool   `json:"is_access_restricted"`
+	AddedUsers         []User `json:"added_users,omitempty"`
+}
+
 // PreparedKeyboardButton describes a saved keyboard button that can be used by a Mini App user.
 type PreparedKeyboardButton struct {
 	ID string `json:"id"`

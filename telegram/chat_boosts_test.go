@@ -48,7 +48,7 @@ func TestUpdateDecodesChatMember(t *testing.T) {
 			"chat": {"id": -100124, "type": "supergroup", "title": "Test"},
 			"from": {"id": 9, "is_bot": false, "first_name": "Admin"},
 			"date": 1234567891,
-			"old_chat_member": {"status": "restricted", "tag": "guest", "user": {"id": 10, "is_bot": false, "first_name": "Member"}, "is_member": true, "can_send_messages": true, "can_edit_tag": true},
+			"old_chat_member": {"status": "restricted", "tag": "guest", "user": {"id": 10, "is_bot": false, "first_name": "Member"}, "is_member": true, "can_send_messages": true, "can_react_to_messages": true, "can_edit_tag": true},
 			"new_chat_member": {"status": "kicked", "user": {"id": 10, "is_bot": false, "first_name": "Member"}, "until_date": 1234567999}
 		}
 	}`)
@@ -61,7 +61,7 @@ func TestUpdateDecodesChatMember(t *testing.T) {
 	if change == nil || change.Chat.ID != -100124 || change.From.ID != 9 {
 		t.Fatalf("unexpected chat member update: %+v", update)
 	}
-	if !change.OldChatMember.IsMember || !change.OldChatMember.CanSendMessages || !change.OldChatMember.CanEditTag || change.NewChatMember.UntilDate != 1234567999 {
+	if !change.OldChatMember.IsMember || !change.OldChatMember.CanSendMessages || !change.OldChatMember.CanReactToMessages || !change.OldChatMember.CanEditTag || change.NewChatMember.UntilDate != 1234567999 {
 		t.Fatalf("unexpected chat member fields: old=%+v new=%+v", change.OldChatMember, change.NewChatMember)
 	}
 }

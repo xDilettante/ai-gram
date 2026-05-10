@@ -85,6 +85,9 @@ func (u *Update) EffectiveMessage() *Message {
 	if u.EditedBusinessMessage != nil {
 		return u.EditedBusinessMessage
 	}
+	if u.GuestMessage != nil {
+		return u.GuestMessage
+	}
 	if u.CallbackQuery != nil && u.CallbackQuery.Message != nil {
 		return u.CallbackQuery.Message
 	}
@@ -148,6 +151,14 @@ func (u *Update) EffectiveUser() *User {
 	}
 	if u.EditedBusinessMessage != nil && u.EditedBusinessMessage.From != nil {
 		return u.EditedBusinessMessage.From
+	}
+	if u.GuestMessage != nil {
+		if u.GuestMessage.From != nil {
+			return u.GuestMessage.From
+		}
+		if u.GuestMessage.GuestBotCallerUser != nil {
+			return u.GuestMessage.GuestBotCallerUser
+		}
 	}
 	if u.CallbackQuery != nil {
 		return &u.CallbackQuery.From

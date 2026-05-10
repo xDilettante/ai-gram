@@ -12,6 +12,7 @@ type Update struct {
 	BusinessMessage         *Message                     `json:"business_message,omitempty"`
 	EditedBusinessMessage   *Message                     `json:"edited_business_message,omitempty"`
 	DeletedBusinessMessages *BusinessMessagesDeleted     `json:"deleted_business_messages,omitempty"`
+	GuestMessage            *Message                     `json:"guest_message,omitempty"`
 	CallbackQuery           *CallbackQuery               `json:"callback_query,omitempty"`
 	InlineQuery             *InlineQuery                 `json:"inline_query,omitempty"`
 	ChosenInlineResult      *ChosenInlineResult          `json:"chosen_inline_result,omitempty"`
@@ -39,6 +40,9 @@ type Message struct {
 	SenderChat           *Chat                `json:"sender_chat,omitempty"`
 	SenderBoostCount     int                  `json:"sender_boost_count,omitempty"`
 	SenderBusinessBot    *User                `json:"sender_business_bot,omitempty"`
+	GuestBotCallerUser   *User                `json:"guest_bot_caller_user,omitempty"`
+	GuestBotCallerChat   *Chat                `json:"guest_bot_caller_chat,omitempty"`
+	GuestQueryID         string               `json:"guest_query_id,omitempty"`
 	SenderTag            string               `json:"sender_tag,omitempty"`
 	Chat                 Chat                 `json:"chat"`
 	Date                 int64                `json:"date"`
@@ -73,6 +77,7 @@ type Message struct {
 	Animation *Animation  `json:"animation,omitempty"`
 	Audio     *Audio      `json:"audio,omitempty"`
 	Document  *Document   `json:"document,omitempty"`
+	LivePhoto *LivePhoto  `json:"live_photo,omitempty"`
 	Photo     []PhotoSize `json:"photo,omitempty"`
 	Sticker   *Sticker    `json:"sticker,omitempty"`
 	Story     *Story      `json:"story,omitempty"`
@@ -204,6 +209,7 @@ type User struct {
 	CanJoinGroups             bool   `json:"can_join_groups,omitempty"`
 	CanReadAllGroupMessages   bool   `json:"can_read_all_group_messages,omitempty"`
 	SupportsInlineQueries     bool   `json:"supports_inline_queries,omitempty"`
+	SupportsGuestQueries      bool   `json:"supports_guest_queries,omitempty"`
 	CanConnectToBusiness      bool   `json:"can_connect_to_business,omitempty"`
 	HasMainWebApp             bool   `json:"has_main_web_app,omitempty"`
 	HasTopicsEnabled          bool   `json:"has_topics_enabled,omitempty"`
@@ -326,6 +332,7 @@ type ChatMember struct {
 	CanSendVoiceNotes     bool   `json:"can_send_voice_notes,omitempty"`
 	CanSendPolls          bool   `json:"can_send_polls,omitempty"`
 	CanSendOtherMessages  bool   `json:"can_send_other_messages,omitempty"`
+	CanReactToMessages    bool   `json:"can_react_to_messages,omitempty"`
 	CanAddWebPagePreviews bool   `json:"can_add_web_page_previews,omitempty"`
 	CanEditTag            bool   `json:"can_edit_tag,omitempty"`
 }
@@ -353,6 +360,7 @@ type ChatPermissions struct {
 	CanSendVoiceNotes     bool `json:"can_send_voice_notes,omitempty"`
 	CanSendPolls          bool `json:"can_send_polls,omitempty"`
 	CanSendOtherMessages  bool `json:"can_send_other_messages,omitempty"`
+	CanReactToMessages    bool `json:"can_react_to_messages,omitempty"`
 	CanAddWebPagePreviews bool `json:"can_add_web_page_previews,omitempty"`
 	CanChangeInfo         bool `json:"can_change_info,omitempty"`
 	CanInviteUsers        bool `json:"can_invite_users,omitempty"`
@@ -404,6 +412,20 @@ type InputPollOption struct {
 	Text          string          `json:"text"`
 	TextParseMode string          `json:"text_parse_mode,omitempty"`
 	TextEntities  []MessageEntity `json:"text_entities,omitempty"`
+	Media         any             `json:"media,omitempty"`
+}
+
+// PollMedia describes media attached to a poll, quiz explanation, or poll option.
+type PollMedia struct {
+	Animation *Animation  `json:"animation,omitempty"`
+	Audio     *Audio      `json:"audio,omitempty"`
+	Document  *Document   `json:"document,omitempty"`
+	LivePhoto *LivePhoto  `json:"live_photo,omitempty"`
+	Location  *Location   `json:"location,omitempty"`
+	Photo     []PhotoSize `json:"photo,omitempty"`
+	Sticker   *Sticker    `json:"sticker,omitempty"`
+	Venue     *Venue      `json:"venue,omitempty"`
+	Video     *Video      `json:"video,omitempty"`
 }
 
 // PollOption describes one answer option in a Telegram poll.
@@ -411,6 +433,7 @@ type PollOption struct {
 	PersistentID string          `json:"persistent_id,omitempty"`
 	Text         string          `json:"text"`
 	TextEntities []MessageEntity `json:"text_entities,omitempty"`
+	Media        *PollMedia      `json:"media,omitempty"`
 	VoterCount   int             `json:"voter_count"`
 	AddedByUser  *User           `json:"added_by_user,omitempty"`
 	AddedByChat  *Chat           `json:"added_by_chat,omitempty"`
@@ -429,14 +452,18 @@ type Poll struct {
 	Type                  string          `json:"type"`
 	AllowsMultipleAnswers bool            `json:"allows_multiple_answers,omitempty"`
 	AllowsRevoting        bool            `json:"allows_revoting,omitempty"`
+	MembersOnly           bool            `json:"members_only,omitempty"`
+	CountryCodes          []string        `json:"country_codes,omitempty"`
 	CorrectOptionID       int             `json:"correct_option_id,omitempty"`
 	CorrectOptionIDs      []int           `json:"correct_option_ids,omitempty"`
 	Explanation           string          `json:"explanation,omitempty"`
 	ExplanationEntities   []MessageEntity `json:"explanation_entities,omitempty"`
+	ExplanationMedia      *PollMedia      `json:"explanation_media,omitempty"`
 	OpenPeriod            int             `json:"open_period,omitempty"`
 	CloseDate             int64           `json:"close_date,omitempty"`
 	Description           string          `json:"description,omitempty"`
 	DescriptionEntities   []MessageEntity `json:"description_entities,omitempty"`
+	Media                 *PollMedia      `json:"media,omitempty"`
 }
 
 // PollAnswer represents an answer of a user or anonymous voter in a non-anonymous poll.
@@ -626,6 +653,18 @@ type Document struct {
 	FileName     string     `json:"file_name,omitempty"`
 	MimeType     string     `json:"mime_type,omitempty"`
 	FileSize     int64      `json:"file_size,omitempty"`
+}
+
+// LivePhoto represents an incoming live photo.
+type LivePhoto struct {
+	Photo        []PhotoSize `json:"photo,omitempty"`
+	FileID       string      `json:"file_id"`
+	FileUniqueID string      `json:"file_unique_id"`
+	Width        int         `json:"width"`
+	Height       int         `json:"height"`
+	Duration     int         `json:"duration"`
+	MimeType     string      `json:"mime_type,omitempty"`
+	FileSize     int64       `json:"file_size,omitempty"`
 }
 
 // Video represents an incoming video file.

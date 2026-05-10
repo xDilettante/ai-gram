@@ -148,6 +148,16 @@ func (d *Dispatcher) OnMessageFunc(handler HandlerFunc) error {
 	return d.OnMessage(handler)
 }
 
+// OnGuestMessage registers a handler for guest message updates.
+func (d *Dispatcher) OnGuestMessage(handler Handler) error {
+	return d.Handle(GuestMessage(), handler)
+}
+
+// OnGuestMessageFunc registers a function handler for guest message updates.
+func (d *Dispatcher) OnGuestMessageFunc(handler HandlerFunc) error {
+	return d.OnGuestMessage(handler)
+}
+
 // OnChannelPost registers a handler for channel post updates.
 func (d *Dispatcher) OnChannelPost(handler Handler) error {
 	return d.Handle(ChannelPost(), handler)
@@ -404,6 +414,11 @@ func Any() Predicate {
 // Message matches updates with a message.
 func Message() Predicate {
 	return func(update telegram.Update) bool { return update.Message != nil }
+}
+
+// GuestMessage matches updates with a guest message.
+func GuestMessage() Predicate {
+	return func(update telegram.Update) bool { return update.GuestMessage != nil }
 }
 
 // ChannelPost matches updates with a channel post.

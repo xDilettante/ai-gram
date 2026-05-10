@@ -162,7 +162,7 @@ func TestGetChatAdministratorsSendsPayloadAndDecodesResult(t *testing.T) {
 		if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
 			t.Fatalf("decode payload: %v", err)
 		}
-		if payload["chat_id"] != float64(12345) {
+		if payload["chat_id"] != float64(12345) || payload["return_bots"] != true {
 			t.Fatalf("unexpected payload: %#v", payload)
 		}
 		w.Header().Set("Content-Type", "application/json")
@@ -171,7 +171,7 @@ func TestGetChatAdministratorsSendsPayloadAndDecodesResult(t *testing.T) {
 	defer server.Close()
 
 	bot := newTestBot(t, token, server.URL, server.Client())
-	admins, err := bot.GetChatAdministrators(context.Background(), GetChatAdministratorsParams{ChatID: ChatIDInt(12345)})
+	admins, err := bot.GetChatAdministrators(context.Background(), GetChatAdministratorsParams{ChatID: ChatIDInt(12345), ReturnBots: true})
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}

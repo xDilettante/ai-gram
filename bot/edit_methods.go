@@ -171,7 +171,7 @@ func (b *Bot) EditMessageCaption(ctx context.Context, params EditMessageCaptionP
 	return &result, nil
 }
 
-// EditMessageMedia edits animation, audio, document, photo, or video media for an existing chat or inline message.
+// EditMessageMedia edits animation, audio, document, live photo, photo, or video media for an existing chat or inline message.
 func (b *Bot) EditMessageMedia(ctx context.Context, params EditMessageMediaParams) (*EditMessageResult, error) {
 	if err := params.validate(); err != nil {
 		return nil, err

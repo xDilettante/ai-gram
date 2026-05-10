@@ -21,6 +21,7 @@ func TestUpdateDecodesPracticalMessagePayloads(t *testing.T) {
 			"document": {"file_id": "doc-id", "file_unique_id": "doc-unique", "file_name": "report.pdf", "mime_type": "application/pdf", "file_size": 2000, "thumbnail": {"file_id": "doc-thumb", "file_unique_id": "doc-thumb-unique", "width": 50, "height": 50}},
 			"animation": {"file_id": "anim-id", "file_unique_id": "anim-unique", "width": 320, "height": 240, "duration": 3, "file_name": "a.gif", "mime_type": "image/gif", "file_size": 3000, "thumbnail": {"file_id": "anim-thumb", "file_unique_id": "anim-thumb-unique", "width": 50, "height": 40}},
 			"audio": {"file_id": "audio-id", "file_unique_id": "audio-unique", "duration": 60, "performer": "Artist", "title": "Song", "file_name": "song.mp3", "mime_type": "audio/mpeg", "file_size": 4000, "thumbnail": {"file_id": "audio-thumb", "file_unique_id": "audio-thumb-unique", "width": 60, "height": 60}},
+			"live_photo": {"photo": [{"file_id": "live-photo-id", "file_unique_id": "live-photo-unique", "width": 640, "height": 480}], "file_id": "live-id", "file_unique_id": "live-unique", "width": 640, "height": 480, "duration": 3, "mime_type": "video/mp4", "file_size": 8000},
 			"video": {"file_id": "video-id", "file_unique_id": "video-unique", "width": 640, "height": 480, "duration": 30, "file_name": "video.mp4", "mime_type": "video/mp4", "file_size": 5000, "thumbnail": {"file_id": "video-thumb", "file_unique_id": "video-thumb-unique", "width": 80, "height": 60}},
 			"voice": {"file_id": "voice-id", "file_unique_id": "voice-unique", "duration": 5, "mime_type": "audio/ogg", "file_size": 6000},
 			"sticker": {"file_id": "sticker-id", "file_unique_id": "sticker-unique", "type": "regular", "width": 512, "height": 512, "is_animated": false, "is_video": true, "emoji": "🙂", "set_name": "fun", "file_size": 7000, "thumbnail": {"file_id": "sticker-thumb", "file_unique_id": "sticker-thumb-unique", "width": 90, "height": 90}},
@@ -64,6 +65,9 @@ func TestUpdateDecodesPracticalMessagePayloads(t *testing.T) {
 	}
 	if message.Audio == nil || message.Audio.Performer != "Artist" || message.Audio.Thumbnail == nil {
 		t.Fatalf("unexpected audio: %+v", message.Audio)
+	}
+	if message.LivePhoto == nil || message.LivePhoto.FileID != "live-id" || len(message.LivePhoto.Photo) != 1 || message.LivePhoto.Photo[0].FileID != "live-photo-id" {
+		t.Fatalf("unexpected live photo: %+v", message.LivePhoto)
 	}
 	if message.Video == nil || message.Video.Width != 640 || message.Video.Thumbnail == nil {
 		t.Fatalf("unexpected video: %+v", message.Video)
@@ -386,6 +390,63 @@ func TestUpdateHelpers(t *testing.T) {
 	if chat := update.EffectiveChat(); chat == nil || chat.ID != -101 {
 		t.Fatalf("unexpected edited channel post effective chat: %+v", chat)
 	}
+
+	guest := &Message{
+		MessageID:          15,
+		Chat:               Chat{ID: -200, Type: "supergroup"},
+		GuestBotCallerUser: &User{ID: 77, FirstName: "Guest caller"},
+		GuestQueryID:       "guest-query-id",
+	}
+	update = &Update{GuestMessage: guest}
+	if update.EffectiveMessage() != guest {
+		t.Fatal("expected guest message as effective message")
+	}
+	if chat := update.EffectiveChat(); chat == nil || chat.ID != -200 {
+		t.Fatalf("unexpected guest effective chat: %+v", chat)
+	}
+	if user := update.EffectiveUser(); user == nil || user.ID != 77 {
+		t.Fatalf("unexpected guest effective user: %+v", user)
+	}
+}
+
+func TestUpdateDecodesGuestMessage(t *testing.T) {
+	payload := []byte(`{
+		"update_id": 900,
+		"guest_message": {
+			"message_id": 7,
+			"chat": {"id": -200, "type": "supergroup", "title": "Guest chat"},
+			"date": 1234567890,
+			"text": "hello",
+			"guest_bot_caller_user": {"id": 77, "is_bot": false, "first_name": "Caller"},
+			"guest_bot_caller_chat": {"id": -300, "type": "channel", "title": "Caller chat"},
+			"guest_query_id": "guest-query-id"
+		}
+	}`)
+
+	var update Update
+	if err := json.Unmarshal(payload, &update); err != nil {
+		t.Fatalf("decode guest update: %v", err)
+	}
+	message := update.GuestMessage
+	if update.UpdateID != 900 || message == nil || message.Text != "hello" || message.GuestQueryID != "guest-query-id" {
+		t.Fatalf("unexpected guest update: %+v", update)
+	}
+	if message.GuestBotCallerUser == nil || message.GuestBotCallerUser.ID != 77 {
+		t.Fatalf("unexpected guest caller user: %+v", message.GuestBotCallerUser)
+	}
+	if message.GuestBotCallerChat == nil || message.GuestBotCallerChat.ID != -300 {
+		t.Fatalf("unexpected guest caller chat: %+v", message.GuestBotCallerChat)
+	}
+}
+
+func TestChatPermissionsDecodesCanReactToMessages(t *testing.T) {
+	var permissions ChatPermissions
+	if err := json.Unmarshal([]byte(`{"can_send_messages":true,"can_react_to_messages":true}`), &permissions); err != nil {
+		t.Fatalf("decode permissions: %v", err)
+	}
+	if !permissions.CanSendMessages || !permissions.CanReactToMessages {
+		t.Fatalf("unexpected permissions: %+v", permissions)
+	}
 }
 
 func TestUserAndChatMetadataDecode(t *testing.T) {
@@ -672,6 +733,75 @@ func TestPoll96FieldsDecode(t *testing.T) {
 	}
 	if message.Poll.Description != "Details" || len(message.Poll.DescriptionEntities) != 1 || message.Poll.DescriptionEntities[0].Type != EntityBold {
 		t.Fatalf("unexpected poll description fields: %+v", message.Poll)
+	}
+}
+
+func TestPoll10MediaFieldsDecode(t *testing.T) {
+	message := mustDecodeMessage(t, `{
+		"message_id": 201,
+		"date": 1,
+		"chat": {"id": 123, "type": "private"},
+		"poll": {
+			"id": "poll-id",
+			"question": "Pick",
+			"options": [{
+				"persistent_id": "option-a",
+				"text": "A",
+				"media": {
+					"sticker": {
+						"file_id": "sticker-file",
+						"file_unique_id": "sticker-unique",
+						"type": "regular",
+						"width": 512,
+						"height": 512,
+						"is_animated": false,
+						"is_video": false
+					}
+				},
+				"voter_count": 2
+			}],
+			"total_voter_count": 2,
+			"is_closed": false,
+			"is_anonymous": false,
+			"type": "quiz",
+			"allows_multiple_answers": true,
+			"allows_revoting": true,
+			"members_only": true,
+			"country_codes": ["US", "DE"],
+			"correct_option_ids": [0],
+			"explanation": "Because",
+			"explanation_media": {
+				"live_photo": {
+					"photo": [{"file_id": "photo-file", "file_unique_id": "photo-unique", "width": 640, "height": 480}],
+					"file_id": "live-file",
+					"file_unique_id": "live-unique",
+					"width": 640,
+					"height": 480,
+					"duration": 3,
+					"mime_type": "video/mp4",
+					"file_size": 123456
+				}
+			},
+			"description": "Details",
+			"media": {
+				"photo": [{"file_id": "poll-photo", "file_unique_id": "poll-photo-unique", "width": 800, "height": 600}]
+			}
+		}
+	}`)
+
+	poll := message.Poll
+	if poll == nil || !poll.MembersOnly || len(poll.CountryCodes) != 2 || poll.CountryCodes[0] != "US" || poll.CountryCodes[1] != "DE" {
+		t.Fatalf("unexpected poll 10.0 fields: %+v", poll)
+	}
+	if poll.Media == nil || len(poll.Media.Photo) != 1 || poll.Media.Photo[0].FileID != "poll-photo" {
+		t.Fatalf("unexpected poll media: %+v", poll.Media)
+	}
+	if poll.ExplanationMedia == nil || poll.ExplanationMedia.LivePhoto == nil || poll.ExplanationMedia.LivePhoto.FileID != "live-file" || len(poll.ExplanationMedia.LivePhoto.Photo) != 1 {
+		t.Fatalf("unexpected explanation media: %+v", poll.ExplanationMedia)
+	}
+	option := poll.Options[0]
+	if option.Media == nil || option.Media.Sticker == nil || option.Media.Sticker.FileID != "sticker-file" {
+		t.Fatalf("unexpected poll option media: %+v", option.Media)
 	}
 }
 

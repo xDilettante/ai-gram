@@ -496,6 +496,196 @@ func TestSendDocumentAcceptsURL(t *testing.T) {
 	}
 }
 
+func TestSendLivePhotoSendsPayloadAndDecodesMessage(t *testing.T) {
+	const token = "123:secret"
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodPost {
+			t.Fatalf("unexpected method: %s", r.Method)
+		}
+		if r.URL.Path != "/bot"+token+"/sendLivePhoto" {
+			t.Fatalf("unexpected path: %q", r.URL.Path)
+		}
+		var payload map[string]any
+		if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
+			t.Fatalf("decode payload: %v", err)
+		}
+		if payload["business_connection_id"] != "business" || payload["chat_id"] != float64(12345) || payload["message_thread_id"] != float64(7) || payload["direct_messages_topic_id"] != float64(8) {
+			t.Fatalf("unexpected routing payload: %#v", payload)
+		}
+		if payload["live_photo"] != "live-file-id" || payload["photo"] != "photo-file-id" {
+			t.Fatalf("unexpected media payload: %#v", payload)
+		}
+		if payload["caption"] != "caption" || payload["parse_mode"] != "HTML" || payload["show_caption_above_media"] != true || payload["has_spoiler"] != true || payload["disable_notification"] != true || payload["protect_content"] != true {
+			t.Fatalf("unexpected flags payload: %#v", payload)
+		}
+		reply := payload["reply_parameters"].(map[string]any)
+		if reply["message_id"] != float64(42) {
+			t.Fatalf("unexpected reply_parameters: %#v", reply)
+		}
+		markup := payload["reply_markup"].(map[string]any)
+		if _, ok := markup["inline_keyboard"]; !ok {
+			t.Fatalf("reply_markup.inline_keyboard missing: %#v", markup)
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		_, _ = w.Write([]byte(`{"ok":true,"result":{"message_id":12,"chat":{"id":12345,"type":"private"},"date":100,"caption":"caption","live_photo":{"photo":[{"file_id":"photo-file-id","file_unique_id":"photo-unique","width":640,"height":480}],"file_id":"live-file-id","file_unique_id":"live-unique","width":640,"height":480,"duration":3,"mime_type":"video/mp4","file_size":12345},"photo":[{"file_id":"photo-file-id","file_unique_id":"photo-unique","width":640,"height":480}]}}`))
+	}))
+	defer server.Close()
+
+	bot := newTestBot(t, token, server.URL, server.Client())
+	message, err := bot.SendLivePhoto(context.Background(), SendLivePhotoParams{
+		BusinessConnectionID:  "business",
+		ChatID:                ChatIDInt(12345),
+		MessageThreadID:       7,
+		DirectMessagesTopicID: 8,
+		LivePhoto:             FileID("live-file-id"),
+		Photo:                 FileID("photo-file-id"),
+		Caption:               "caption",
+		ParseMode:             "HTML",
+		ShowCaptionAboveMedia: true,
+		HasSpoiler:            true,
+		DisableNotification:   true,
+		ProtectContent:        true,
+		ReplyParameters:       &telegram.ReplyParameters{MessageID: 42},
+		ReplyMarkup:           telegram.NewInlineKeyboard([]telegram.InlineKeyboardButton{telegram.InlineButtonCallback("OK", "ok")}),
+	})
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if message == nil || message.LivePhoto == nil || message.LivePhoto.FileID != "live-file-id" || len(message.LivePhoto.Photo) != 1 {
+		t.Fatalf("unexpected message: %+v", message)
+	}
+}
+
+func TestSendLivePhotoMultipartUpload(t *testing.T) {
+	const token = "123:secret"
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path != "/bot"+token+"/sendLivePhoto" {
+			t.Fatalf("unexpected path: %q", r.URL.Path)
+		}
+		if got := r.Header.Get("Content-Type"); strings.HasPrefix(got, "application/json") || !strings.HasPrefix(got, "multipart/form-data") {
+			t.Fatalf("unexpected content type: %q", got)
+		}
+		if err := r.ParseMultipartForm(1024); err != nil {
+			t.Fatalf("parse multipart: %v", err)
+		}
+		assertMultipartValue(t, r, "chat_id", "12345")
+		assertMultipartValue(t, r, "live_photo", "attach://live_photo")
+		assertMultipartValue(t, r, "photo", "attach://photo")
+		assertMultipartValue(t, r, "show_caption_above_media", "true")
+		assertMultipartValue(t, r, "has_spoiler", "true")
+		content, header := readMultipartFile(t, r, "live_photo")
+		if header.Filename != "live.mp4" || string(content) != "live-data" {
+			t.Fatalf("unexpected live_photo upload: filename=%q content=%q", header.Filename, content)
+		}
+		content, header = readMultipartFile(t, r, "photo")
+		if header.Filename != "photo.jpg" || string(content) != "photo-data" {
+			t.Fatalf("unexpected photo upload: filename=%q content=%q", header.Filename, content)
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		_, _ = w.Write([]byte(`{"ok":true,"result":{"message_id":13,"chat":{"id":12345,"type":"private"},"date":100,"live_photo":{"file_id":"uploaded-live","file_unique_id":"live-unique","width":640,"height":480,"duration":3},"photo":[{"file_id":"uploaded-photo","file_unique_id":"photo-unique","width":640,"height":480}]}}`))
+	}))
+	defer server.Close()
+
+	bot := newTestBot(t, token, server.URL, server.Client())
+	message, err := bot.SendLivePhoto(context.Background(), SendLivePhotoParams{
+		ChatID:                ChatIDInt(12345),
+		LivePhoto:             FileUpload(UploadFile{Name: "live.mp4", Reader: strings.NewReader("live-data"), ContentType: "video/mp4"}),
+		Photo:                 FileUpload(UploadFile{Name: "photo.jpg", Reader: strings.NewReader("photo-data"), ContentType: "image/jpeg"}),
+		ShowCaptionAboveMedia: true,
+		HasSpoiler:            true,
+	})
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if message == nil || message.LivePhoto == nil || message.LivePhoto.FileID != "uploaded-live" {
+		t.Fatalf("unexpected message: %+v", message)
+	}
+}
+
+func TestSendLivePhotoValidation(t *testing.T) {
+	const token = "123:secret"
+	bot := newTestBot(t, token, "https://example.test", nil)
+	valid := SendLivePhotoParams{ChatID: ChatIDInt(12345), LivePhoto: FileID("live"), Photo: FileID("photo")}
+	tests := []struct {
+		name   string
+		mutate func(*SendLivePhotoParams)
+	}{
+		{name: "empty chat", mutate: func(p *SendLivePhotoParams) { p.ChatID = ChatID{} }},
+		{name: "empty live photo", mutate: func(p *SendLivePhotoParams) { p.LivePhoto = FileRef{} }},
+		{name: "empty photo", mutate: func(p *SendLivePhotoParams) { p.Photo = FileRef{} }},
+		{name: "live photo url", mutate: func(p *SendLivePhotoParams) { p.LivePhoto = FileURL("https://example.com/live.mp4") }},
+		{name: "photo url", mutate: func(p *SendLivePhotoParams) { p.Photo = FileURL("https://example.com/photo.jpg") }},
+		{name: "negative thread", mutate: func(p *SendLivePhotoParams) { p.MessageThreadID = -1 }},
+		{name: "negative direct topic", mutate: func(p *SendLivePhotoParams) { p.DirectMessagesTopicID = -1 }},
+		{name: "parse mode and entities", mutate: func(p *SendLivePhotoParams) {
+			p.ParseMode = "HTML"
+			p.CaptionEntities = []telegram.MessageEntity{{Type: telegram.EntityBold, Offset: 0, Length: 1}}
+		}},
+		{name: "invalid reply parameters", mutate: func(p *SendLivePhotoParams) { p.ReplyParameters = &telegram.ReplyParameters{} }},
+		{name: "invalid reply markup", mutate: func(p *SendLivePhotoParams) { p.ReplyMarkup = telegram.InlineKeyboardMarkup{} }},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			params := valid
+			tt.mutate(&params)
+			message, err := bot.SendLivePhoto(context.Background(), params)
+			if err == nil {
+				t.Fatal("expected error")
+			}
+			if message != nil {
+				t.Fatalf("expected nil message, got %+v", message)
+			}
+			assertNoToken(t, err, token)
+		})
+	}
+}
+
+func TestSendLivePhotoAPIAndContextErrors(t *testing.T) {
+	const token = "123:secret"
+	t.Run("api error", func(t *testing.T) {
+		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			w.Header().Set("Content-Type", "application/json")
+			_, _ = w.Write([]byte(`{"ok":false,"error_code":400,"description":"Bad Request"}`))
+		}))
+		defer server.Close()
+
+		bot := newTestBot(t, token, server.URL, server.Client())
+		message, err := bot.SendLivePhoto(context.Background(), SendLivePhotoParams{ChatID: ChatIDInt(12345), LivePhoto: FileID("live"), Photo: FileID("photo")})
+		if err == nil {
+			t.Fatal("expected error")
+		}
+		if message != nil {
+			t.Fatalf("expected nil message, got %+v", message)
+		}
+		var apiErr *apierrors.APIError
+		if !stderrors.As(err, &apiErr) {
+			t.Fatalf("expected APIError, got %T", err)
+		}
+		assertNoToken(t, err, token)
+	})
+
+	t.Run("cancelled context", func(t *testing.T) {
+		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			t.Fatal("request should not reach server")
+		}))
+		defer server.Close()
+
+		bot := newTestBot(t, token, server.URL, server.Client())
+		ctx, cancel := context.WithCancel(context.Background())
+		cancel()
+		message, err := bot.SendLivePhoto(ctx, SendLivePhotoParams{ChatID: ChatIDInt(12345), LivePhoto: FileID("live"), Photo: FileID("photo")})
+		if err == nil {
+			t.Fatal("expected error")
+		}
+		if message != nil {
+			t.Fatalf("expected nil message, got %+v", message)
+		}
+		assertNoToken(t, err, token)
+	})
+}
+
 func TestMultipartUploadErrors(t *testing.T) {
 	const token = "123:secret"
 

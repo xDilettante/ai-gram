@@ -108,6 +108,35 @@ func TestOnMessageMatchesOnlyMessageUpdates(t *testing.T) {
 	}
 }
 
+func TestGuestMessageRoute(t *testing.T) {
+	dispatcher := New()
+	var calls int
+	must(t, dispatcher.OnGuestMessageFunc(func(ctx context.Context, update telegram.Update) error {
+		calls++
+		if update.GuestMessage == nil || update.GuestMessage.GuestQueryID != "guest-query" {
+			t.Fatalf("unexpected guest message update: %+v", update)
+		}
+		return nil
+	}))
+
+	guest := guestMessageUpdate()
+	if err := dispatcher.HandleUpdate(context.Background(), guest); err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if err := dispatcher.HandleUpdate(context.Background(), messageUpdate("hello")); err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if calls != 1 {
+		t.Fatalf("unexpected calls: %d", calls)
+	}
+	if !GuestMessage()(guest) {
+		t.Fatal("guest message predicate should match")
+	}
+	if GuestMessage()(messageUpdate("hello")) {
+		t.Fatal("guest message predicate should not match message updates")
+	}
+}
+
 func TestChannelPostRoutes(t *testing.T) {
 	dispatcher := New()
 	var channelCalls int
@@ -1029,4 +1058,15 @@ func editedBusinessMessageUpdate() telegram.Update {
 
 func deletedBusinessMessagesUpdate() telegram.Update {
 	return telegram.Update{UpdateID: 703, DeletedBusinessMessages: &telegram.BusinessMessagesDeleted{BusinessConnectionID: "bc-1", Chat: telegram.Chat{ID: 1003, Type: "private"}, MessageIDs: []int64{11, 12}}}
+}
+
+func guestMessageUpdate() telegram.Update {
+	return telegram.Update{
+		UpdateID: 704,
+		GuestMessage: &telegram.Message{
+			MessageID:    77,
+			GuestQueryID: "guest-query",
+			Chat:         telegram.Chat{ID: -1001, Type: "supergroup"},
+		},
+	}
 }

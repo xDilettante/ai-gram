@@ -56,6 +56,24 @@ func TestUpdateDecodesManagedBotAndEffectiveUser(t *testing.T) {
 	}
 }
 
+func TestBotAccessSettingsDecodesUsers(t *testing.T) {
+	payload := []byte(`{
+		"is_access_restricted": true,
+		"added_users": [
+			{"id": 7, "is_bot": false, "first_name": "Alice"},
+			{"id": 8, "is_bot": false, "first_name": "Bob"}
+		]
+	}`)
+
+	var settings BotAccessSettings
+	if err := json.Unmarshal(payload, &settings); err != nil {
+		t.Fatalf("decode access settings: %v", err)
+	}
+	if !settings.IsAccessRestricted || len(settings.AddedUsers) != 2 || settings.AddedUsers[0].ID != 7 || settings.AddedUsers[1].ID != 8 {
+		t.Fatalf("unexpected access settings: %+v", settings)
+	}
+}
+
 func TestValidateKeyboardButtonManagedBot(t *testing.T) {
 	button := KeyboardButtonManagedBot("Create bot", KeyboardButtonRequestManagedBot{RequestID: 42, SuggestedName: "Test Bot", SuggestedUsername: "test_bot"})
 	if err := ValidateKeyboardButton(button); err != nil {

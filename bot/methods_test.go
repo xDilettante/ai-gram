@@ -10,6 +10,7 @@ import (
 	"testing"
 
 	apierrors "github.com/xDilettante/ai-gram/errors"
+	"github.com/xDilettante/ai-gram/telegram"
 )
 
 func TestGetMeDecodesUser(t *testing.T) {
@@ -30,7 +31,7 @@ func TestGetMeDecodesUser(t *testing.T) {
 		}
 
 		w.Header().Set("Content-Type", "application/json")
-		_, _ = w.Write([]byte(`{"ok":true,"result":{"id":42,"is_bot":true,"first_name":"AiGram","username":"ai_gram_bot"}}`))
+		_, _ = w.Write([]byte(`{"ok":true,"result":{"id":42,"is_bot":true,"first_name":"AiGram","username":"ai_gram_bot","supports_guest_queries":true}}`))
 	}))
 	defer server.Close()
 
@@ -42,7 +43,7 @@ func TestGetMeDecodesUser(t *testing.T) {
 	if user == nil {
 		t.Fatal("expected user")
 	}
-	if user.ID != 42 || !user.IsBot || user.FirstName != "AiGram" || user.Username != "ai_gram_bot" {
+	if user.ID != 42 || !user.IsBot || user.FirstName != "AiGram" || user.Username != "ai_gram_bot" || !user.SupportsGuestQueries {
 		t.Fatalf("unexpected user: %+v", user)
 	}
 }
@@ -149,6 +150,43 @@ func TestSendMessageSendsStringChatID(t *testing.T) {
 		t.Fatalf("unexpected error: %v", err)
 	}
 	if message == nil || message.MessageID != 8 {
+		t.Fatalf("unexpected message: %+v", message)
+	}
+}
+
+func TestSendMessageAllowsBotUsernameAndBusinessReplyPayload(t *testing.T) {
+	const token = "123:secret"
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path != "/bot"+token+"/sendMessage" {
+			t.Fatalf("unexpected path: %q", r.URL.Path)
+		}
+		var payload map[string]any
+		if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
+			t.Fatalf("decode payload: %v", err)
+		}
+		if payload["business_connection_id"] != "bc-1" || payload["chat_id"] != "@other_bot" || payload["text"] != "hello bot" {
+			t.Fatalf("unexpected payload: %#v", payload)
+		}
+		reply := payload["reply_parameters"].(map[string]any)
+		if reply["message_id"] != float64(42) {
+			t.Fatalf("unexpected reply parameters: %#v", reply)
+		}
+		w.Header().Set("Content-Type", "application/json")
+		_, _ = w.Write([]byte(`{"ok":true,"result":{"message_id":9,"chat":{"id":777,"type":"private","username":"other_bot"},"date":102,"text":"hello bot"}}`))
+	}))
+	defer server.Close()
+
+	bot := newTestBot(t, token, server.URL, server.Client())
+	message, err := bot.SendMessage(context.Background(), SendMessageParams{
+		BusinessConnectionID: "bc-1",
+		ChatID:               ChatIDString("@other_bot"),
+		Text:                 "hello bot",
+		ReplyParameters:      &telegram.ReplyParameters{MessageID: 42},
+	})
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if message == nil || message.MessageID != 9 {
 		t.Fatalf("unexpected message: %+v", message)
 	}
 }

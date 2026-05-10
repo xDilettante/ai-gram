@@ -6,6 +6,7 @@ import (
 	stderrors "errors"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 
 	apierrors "github.com/xDilettante/ai-gram/errors"
@@ -63,6 +64,13 @@ func TestSendPollSendsPayloadAndDecodesMessage(t *testing.T) {
 		if got := payload["hide_results_until_closes"]; got != true {
 			t.Fatalf("unexpected hide_results_until_closes: %#v", got)
 		}
+		if got := payload["members_only"]; got != true {
+			t.Fatalf("unexpected members_only: %#v", got)
+		}
+		countryCodes, ok := payload["country_codes"].([]any)
+		if !ok || len(countryCodes) != 2 || countryCodes[0] != "US" || countryCodes[1] != "DE" {
+			t.Fatalf("unexpected country_codes: %#v", payload["country_codes"])
+		}
 		correctOptionIDs, ok := payload["correct_option_ids"].([]any)
 		if !ok || len(correctOptionIDs) != 1 || correctOptionIDs[0] != float64(1) {
 			t.Fatalf("unexpected correct_option_ids: %#v", payload["correct_option_ids"])
@@ -105,6 +113,14 @@ func TestSendPollSendsPayloadAndDecodesMessage(t *testing.T) {
 		if _, ok := markup["inline_keyboard"]; !ok {
 			t.Fatalf("reply_markup.inline_keyboard missing: %#v", markup)
 		}
+		media := payload["media"].(map[string]any)
+		if media["type"] != "photo" || media["media"] != "photo-id" || media["has_spoiler"] != true {
+			t.Fatalf("unexpected media: %#v", media)
+		}
+		explanationMedia := payload["explanation_media"].(map[string]any)
+		if explanationMedia["type"] != "location" || explanationMedia["latitude"] != 51.5 || explanationMedia["longitude"] != -0.12 {
+			t.Fatalf("unexpected explanation_media: %#v", explanationMedia)
+		}
 
 		w.Header().Set("Content-Type", "application/json")
 		_, _ = w.Write([]byte(`{"ok":true,"result":{"message_id":10,"chat":{"id":12345,"type":"private"},"date":100,"poll":{"id":"poll-id","question":"Pick one","question_entities":[{"type":"custom_emoji","offset":0,"length":1,"custom_emoji_id":"emoji-id"}],"options":[{"persistent_id":"a","text":"A","voter_count":1},{"persistent_id":"b","text":"B","voter_count":0}],"total_voter_count":1,"is_closed":false,"is_anonymous":false,"type":"quiz","allows_multiple_answers":true,"allows_revoting":true,"correct_option_ids":[1],"description":"Details","description_entities":[{"type":"bold","offset":0,"length":7}],"explanation":"Because","open_period":60,"close_date":1234567890}}}`))
@@ -125,6 +141,8 @@ func TestSendPollSendsPayloadAndDecodesMessage(t *testing.T) {
 		ShuffleOptions:         true,
 		AllowAddingOptions:     true,
 		HideResultsUntilCloses: true,
+		MembersOnly:            true,
+		CountryCodes:           []string{"US", "DE"},
 		CorrectOptionIDs:       []int{1},
 		Explanation:            "Because",
 		ExplanationParseMode:   "HTML",
@@ -137,6 +155,8 @@ func TestSendPollSendsPayloadAndDecodesMessage(t *testing.T) {
 		ProtectContent:         true,
 		ReplyParameters:        &telegram.ReplyParameters{MessageID: 44},
 		ReplyMarkup:            telegram.NewInlineKeyboard([]telegram.InlineKeyboardButton{telegram.InlineButtonCallback("OK", "ok")}),
+		Media:                  InputMediaPhoto{Media: FileID("photo-id"), HasSpoiler: true},
+		ExplanationMedia:       MediaLocation(51.5, -0.12),
 	})
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
@@ -149,6 +169,35 @@ func TestSendPollSendsPayloadAndDecodesMessage(t *testing.T) {
 	}
 	if len(message.Poll.QuestionEntities) != 1 || message.Poll.QuestionEntities[0].Type != telegram.EntityCustomEmoji {
 		t.Fatalf("unexpected question entities: %+v", message.Poll.QuestionEntities)
+	}
+}
+
+func TestSendPollAllowsSingleOption(t *testing.T) {
+	const token = "123:secret"
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path != "/bot"+token+"/sendPoll" {
+			t.Fatalf("unexpected path: %q", r.URL.Path)
+		}
+		var payload map[string]any
+		if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
+			t.Fatalf("decode payload: %v", err)
+		}
+		options, ok := payload["options"].([]any)
+		if !ok || len(options) != 1 || options[0] != "A" {
+			t.Fatalf("unexpected options: %#v", payload["options"])
+		}
+		w.Header().Set("Content-Type", "application/json")
+		_, _ = w.Write([]byte(`{"ok":true,"result":{"message_id":10,"chat":{"id":12345,"type":"private"},"date":100,"poll":{"id":"poll-id","question":"Pick one","options":[{"text":"A","voter_count":0}],"total_voter_count":0,"is_closed":false,"is_anonymous":true,"type":"regular"}}}`))
+	}))
+	defer server.Close()
+
+	bot := newTestBot(t, token, server.URL, server.Client())
+	message, err := bot.SendPoll(context.Background(), SendPollParams{ChatID: ChatIDInt(12345), Question: "Pick one", Options: []string{"A"}})
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if message == nil || message.Poll == nil || len(message.Poll.Options) != 1 {
+		t.Fatalf("unexpected message: %+v", message)
 	}
 }
 
@@ -169,6 +218,10 @@ func TestSendPollStructuredOptions(t *testing.T) {
 		first, ok := options[0].(map[string]any)
 		if !ok || first["text"] != "A" || first["text_parse_mode"] != "HTML" {
 			t.Fatalf("unexpected first option: %#v", options[0])
+		}
+		firstMedia, ok := first["media"].(map[string]any)
+		if !ok || firstMedia["type"] != "sticker" || firstMedia["media"] != "sticker-id" || firstMedia["emoji"] != "👍" {
+			t.Fatalf("unexpected first option media: %#v", first["media"])
 		}
 		second, ok := options[1].(map[string]any)
 		if !ok || second["text"] != "B" {
@@ -192,11 +245,106 @@ func TestSendPollStructuredOptions(t *testing.T) {
 		ChatID:   ChatIDInt(12345),
 		Question: "Pick one",
 		OptionObjects: []telegram.InputPollOption{
-			{Text: "A", TextParseMode: "HTML"},
+			{Text: "A", TextParseMode: "HTML", Media: InputMediaSticker{Media: FileID("sticker-id"), Emoji: "👍"}},
 			{Text: "B", TextEntities: []telegram.MessageEntity{{Type: telegram.EntityCustomEmoji, Offset: 0, Length: 1, CustomEmojiID: "emoji-id"}}},
 		},
 		Type:             "quiz",
 		CorrectOptionIDs: []int{1},
+	})
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if message == nil || message.Poll == nil || message.Poll.ID != "poll-id" {
+		t.Fatalf("unexpected message: %+v", message)
+	}
+}
+
+func TestSendPollMultipartMediaUploads(t *testing.T) {
+	const token = "123:secret"
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path != "/bot"+token+"/sendPoll" {
+			t.Fatalf("unexpected path: %q", r.URL.Path)
+		}
+		if got := r.Header.Get("Content-Type"); !strings.HasPrefix(got, "multipart/form-data") {
+			t.Fatalf("unexpected content type: %q", got)
+		}
+		if err := r.ParseMultipartForm(8192); err != nil {
+			t.Fatalf("parse multipart: %v", err)
+		}
+		assertMultipartValue(t, r, "chat_id", "12345")
+		assertMultipartValue(t, r, "question", "Pick one")
+
+		var media map[string]any
+		if err := json.Unmarshal([]byte(r.MultipartForm.Value["media"][0]), &media); err != nil {
+			t.Fatalf("decode media field: %v", err)
+		}
+		if media["type"] != "video" || media["media"] != "attach://media_media" || media["thumbnail"] != "attach://media_thumbnail" || media["cover"] != "attach://media_cover" {
+			t.Fatalf("unexpected media field: %#v", media)
+		}
+		var explanationMedia map[string]any
+		if err := json.Unmarshal([]byte(r.MultipartForm.Value["explanation_media"][0]), &explanationMedia); err != nil {
+			t.Fatalf("decode explanation_media field: %v", err)
+		}
+		if explanationMedia["type"] != "live_photo" || explanationMedia["media"] != "attach://explanation_media_media" || explanationMedia["photo"] != "attach://explanation_media_photo" {
+			t.Fatalf("unexpected explanation_media field: %#v", explanationMedia)
+		}
+		var options []map[string]any
+		if err := json.Unmarshal([]byte(r.MultipartForm.Value["options"][0]), &options); err != nil {
+			t.Fatalf("decode options field: %v", err)
+		}
+		optionMedia, ok := options[0]["media"].(map[string]any)
+		if !ok || optionMedia["type"] != "sticker" || optionMedia["media"] != "attach://options_0_media_media" {
+			t.Fatalf("unexpected option media: %#v", options)
+		}
+
+		content, header := readMultipartFile(t, r, "media_media")
+		if header.Filename != "video.mp4" || string(content) != "video-data" {
+			t.Fatalf("unexpected media file: filename=%q content=%q", header.Filename, content)
+		}
+		content, header = readMultipartFile(t, r, "media_thumbnail")
+		if header.Filename != "thumb.jpg" || string(content) != "thumb-data" {
+			t.Fatalf("unexpected thumbnail file: filename=%q content=%q", header.Filename, content)
+		}
+		content, header = readMultipartFile(t, r, "media_cover")
+		if header.Filename != "cover.jpg" || string(content) != "cover-data" {
+			t.Fatalf("unexpected cover file: filename=%q content=%q", header.Filename, content)
+		}
+		content, header = readMultipartFile(t, r, "explanation_media_media")
+		if header.Filename != "live.mp4" || string(content) != "live-data" {
+			t.Fatalf("unexpected live media file: filename=%q content=%q", header.Filename, content)
+		}
+		content, header = readMultipartFile(t, r, "explanation_media_photo")
+		if header.Filename != "live-photo.jpg" || string(content) != "live-photo-data" {
+			t.Fatalf("unexpected live photo file: filename=%q content=%q", header.Filename, content)
+		}
+		content, header = readMultipartFile(t, r, "options_0_media_media")
+		if header.Filename != "sticker.webp" || string(content) != "sticker-data" {
+			t.Fatalf("unexpected sticker file: filename=%q content=%q", header.Filename, content)
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		_, _ = w.Write([]byte(`{"ok":true,"result":{"message_id":10,"chat":{"id":12345,"type":"private"},"date":100,"poll":{"id":"poll-id","question":"Pick one","options":[{"text":"A","voter_count":0},{"text":"B","voter_count":0}],"total_voter_count":0,"is_closed":false,"is_anonymous":true,"type":"regular"}}}`))
+	}))
+	defer server.Close()
+
+	video := MediaVideo(FileUpload(UploadFile{Name: "video.mp4", Reader: strings.NewReader("video-data"), ContentType: "video/mp4"}))
+	video.Thumbnail = FileUpload(UploadFile{Name: "thumb.jpg", Reader: strings.NewReader("thumb-data"), ContentType: "image/jpeg"})
+	video.Cover = FileUpload(UploadFile{Name: "cover.jpg", Reader: strings.NewReader("cover-data"), ContentType: "image/jpeg"})
+	explanationMedia := MediaLivePhoto(
+		FileUpload(UploadFile{Name: "live.mp4", Reader: strings.NewReader("live-data"), ContentType: "video/mp4"}),
+		FileUpload(UploadFile{Name: "live-photo.jpg", Reader: strings.NewReader("live-photo-data"), ContentType: "image/jpeg"}),
+	)
+
+	bot := newTestBot(t, token, server.URL, server.Client())
+	message, err := bot.SendPoll(context.Background(), SendPollParams{
+		ChatID:   ChatIDInt(12345),
+		Question: "Pick one",
+		OptionObjects: []telegram.InputPollOption{
+			{Text: "A", Media: MediaSticker(FileUpload(UploadFile{Name: "sticker.webp", Reader: strings.NewReader("sticker-data"), ContentType: "image/webp"}))},
+			{Text: "B"},
+		},
+		Media:            video,
+		ExplanationMedia: explanationMedia,
 	})
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
@@ -215,7 +363,7 @@ func TestSendPollValidation(t *testing.T) {
 	}{
 		{name: "empty chat", mutate: func(p *SendPollParams) { p.ChatID = ChatID{} }},
 		{name: "empty question", mutate: func(p *SendPollParams) { p.Question = "" }},
-		{name: "too few options", mutate: func(p *SendPollParams) { p.Options = []string{"A"} }},
+		{name: "too few options", mutate: func(p *SendPollParams) { p.Options = nil }},
 		{name: "empty option", mutate: func(p *SendPollParams) { p.Options = []string{"A", ""} }},
 		{name: "options and option objects", mutate: func(p *SendPollParams) {
 			p.OptionObjects = []telegram.InputPollOption{{Text: "A"}, {Text: "B"}}
@@ -255,6 +403,16 @@ func TestSendPollValidation(t *testing.T) {
 		{name: "description parse mode and entities", mutate: func(p *SendPollParams) {
 			p.DescriptionParseMode = "HTML"
 			p.DescriptionEntities = []telegram.MessageEntity{{Type: telegram.EntityBold, Offset: 0, Length: 1}}
+		}},
+		{name: "invalid poll media", mutate: func(p *SendPollParams) {
+			p.Media = MediaLocation(-91, 0)
+		}},
+		{name: "invalid poll media upload", mutate: func(p *SendPollParams) {
+			p.Media = MediaPhoto(FileUpload(UploadFile{Name: "photo.jpg"}))
+		}},
+		{name: "unsupported option media", mutate: func(p *SendPollParams) {
+			p.Options = nil
+			p.OptionObjects = []telegram.InputPollOption{{Text: "A", Media: MediaAudio(FileID("audio-id"))}}
 		}},
 		{name: "invalid reply parameters", mutate: func(p *SendPollParams) { p.ReplyParameters = &telegram.ReplyParameters{} }},
 		{name: "invalid reply markup", mutate: func(p *SendPollParams) { p.ReplyMarkup = telegram.InlineKeyboardMarkup{} }},

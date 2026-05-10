@@ -138,6 +138,115 @@ func TestEditMessageMediaMultipartUpload(t *testing.T) {
 	}
 }
 
+func TestEditMessageMediaLivePhotoJSONAndMultipart(t *testing.T) {
+	const token = "123:secret"
+
+	t.Run("chat json", func(t *testing.T) {
+		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			if r.URL.Path != "/bot"+token+"/editMessageMedia" {
+				t.Fatalf("unexpected path: %q", r.URL.Path)
+			}
+			var payload map[string]any
+			if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
+				t.Fatalf("decode payload: %v", err)
+			}
+			media := payload["media"].(map[string]any)
+			if media["type"] != "live_photo" || media["media"] != "live-file-id" || media["photo"] != "photo-file-id" || media["caption"] != "updated live" || media["show_caption_above_media"] != true || media["has_spoiler"] != true {
+				t.Fatalf("unexpected media payload: %#v", media)
+			}
+			w.Header().Set("Content-Type", "application/json")
+			_, _ = w.Write([]byte(`{"ok":true,"result":{"message_id":77,"chat":{"id":12345,"type":"private"},"date":100,"live_photo":{"photo":[{"file_id":"photo-result","file_unique_id":"photo-u","width":640,"height":480}],"file_id":"live-result","file_unique_id":"live-u","width":640,"height":480,"duration":3}}}`))
+		}))
+		defer server.Close()
+
+		media := MediaLivePhoto(FileID("live-file-id"), FileID("photo-file-id"))
+		media.Caption = "updated live"
+		media.ShowCaptionAboveMedia = true
+		media.HasSpoiler = true
+		bot := newTestBot(t, token, server.URL, server.Client())
+		result, err := bot.EditMessageMedia(context.Background(), EditMessageMediaParams{Target: EditTargetChat(ChatIDInt(12345), 77), Media: media})
+		if err != nil {
+			t.Fatalf("unexpected error: %v", err)
+		}
+		if result == nil || !result.IsOK() || !result.IsMessage() || result.Message.LivePhoto == nil || result.Message.LivePhoto.FileID != "live-result" {
+			t.Fatalf("unexpected result: %+v", result)
+		}
+	})
+
+	t.Run("chat multipart", func(t *testing.T) {
+		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			if r.URL.Path != "/bot"+token+"/editMessageMedia" {
+				t.Fatalf("unexpected path: %q", r.URL.Path)
+			}
+			if got := r.Header.Get("Content-Type"); !strings.HasPrefix(got, "multipart/form-data") {
+				t.Fatalf("unexpected content type: %q", got)
+			}
+			if err := r.ParseMultipartForm(4096); err != nil {
+				t.Fatalf("parse multipart: %v", err)
+			}
+			var media map[string]any
+			if err := json.Unmarshal([]byte(r.MultipartForm.Value["media"][0]), &media); err != nil {
+				t.Fatalf("decode media field: %v", err)
+			}
+			if media["type"] != "live_photo" || media["media"] != "attach://media0" || media["photo"] != "attach://photo0" {
+				t.Fatalf("unexpected media field: %#v", media)
+			}
+			content, header := readMultipartFile(t, r, "media0")
+			if header.Filename != "live.mp4" || string(content) != "live-data" {
+				t.Fatalf("unexpected media0 file: filename=%q content=%q", header.Filename, content)
+			}
+			content, header = readMultipartFile(t, r, "photo0")
+			if header.Filename != "photo.jpg" || string(content) != "photo-data" {
+				t.Fatalf("unexpected photo0 file: filename=%q content=%q", header.Filename, content)
+			}
+			w.Header().Set("Content-Type", "application/json")
+			_, _ = w.Write([]byte(`{"ok":true,"result":{"message_id":77,"chat":{"id":12345,"type":"private"},"date":100}}`))
+		}))
+		defer server.Close()
+
+		media := MediaLivePhoto(
+			FileUpload(UploadFile{Name: "live.mp4", Reader: strings.NewReader("live-data"), ContentType: "video/mp4"}),
+			FileUpload(UploadFile{Name: "photo.jpg", Reader: strings.NewReader("photo-data"), ContentType: "image/jpeg"}),
+		)
+		bot := newTestBot(t, token, server.URL, server.Client())
+		result, err := bot.EditMessageMedia(context.Background(), EditMessageMediaParams{Target: EditTargetChat(ChatIDInt(12345), 77), Media: media})
+		if err != nil {
+			t.Fatalf("unexpected error: %v", err)
+		}
+		if result == nil || !result.IsOK() || !result.IsMessage() {
+			t.Fatalf("unexpected result: %+v", result)
+		}
+	})
+
+	t.Run("inline file id", func(t *testing.T) {
+		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			var payload map[string]any
+			if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
+				t.Fatalf("decode payload: %v", err)
+			}
+			if payload["inline_message_id"] != "inline-id" {
+				t.Fatalf("unexpected inline target: %#v", payload)
+			}
+			media := payload["media"].(map[string]any)
+			if media["type"] != "live_photo" || media["media"] != "live-file-id" || media["photo"] != "photo-file-id" {
+				t.Fatalf("unexpected media payload: %#v", media)
+			}
+			w.Header().Set("Content-Type", "application/json")
+			_, _ = w.Write([]byte(`{"ok":true,"result":true}`))
+		}))
+		defer server.Close()
+
+		bot := newTestBot(t, token, server.URL, server.Client())
+		result, err := bot.EditMessageMedia(context.Background(), EditMessageMediaParams{Target: EditTargetInline("inline-id"), Media: MediaLivePhoto(FileID("live-file-id"), FileID("photo-file-id"))})
+		if err != nil {
+			t.Fatalf("unexpected error: %v", err)
+		}
+		if result == nil || !result.IsOK() || result.IsMessage() {
+			t.Fatalf("unexpected result: %+v", result)
+		}
+	})
+}
+
 func TestInputMediaAnimationValidationAndMarshal(t *testing.T) {
 	media := MediaAnimation(FileID("animation-file-id"))
 	media.Caption = "caption"
@@ -179,6 +288,9 @@ func TestEditMessageMediaValidation(t *testing.T) {
 		{name: "invalid media", params: EditMessageMediaParams{Target: EditTargetChat(ChatIDInt(123), 1), Media: MediaPhoto(FileID(""))}},
 		{name: "invalid reply markup", params: EditMessageMediaParams{Target: EditTargetChat(ChatIDInt(123), 1), Media: MediaPhoto(FileID("photo")), ReplyMarkup: &invalidMarkup}},
 		{name: "inline upload", params: EditMessageMediaParams{Target: EditTargetInline("inline-id"), Media: MediaPhoto(FileUpload(UploadFile{Name: "photo.jpg", Reader: strings.NewReader("photo")}))}},
+		{name: "inline live photo upload", params: EditMessageMediaParams{Target: EditTargetInline("inline-id"), Media: MediaLivePhoto(FileUpload(UploadFile{Name: "live.mp4", Reader: strings.NewReader("live")}), FileID("photo"))}},
+		{name: "live photo media url", params: EditMessageMediaParams{Target: EditTargetChat(ChatIDInt(123), 1), Media: MediaLivePhoto(FileURL("https://example.test/live.mp4"), FileID("photo"))}},
+		{name: "live photo preview url", params: EditMessageMediaParams{Target: EditTargetChat(ChatIDInt(123), 1), Media: MediaLivePhoto(FileID("live"), FileURL("https://example.test/photo.jpg"))}},
 		{name: "invalid animation type", params: EditMessageMediaParams{Target: EditTargetChat(ChatIDInt(123), 1), Media: InputMediaAnimation{Type: "video", Media: FileID("animation")}}},
 	}
 	for _, tt := range tests {

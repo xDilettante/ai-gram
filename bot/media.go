@@ -120,6 +120,25 @@ type SendVideoParams struct {
 	ReplyMarkup           telegram.ReplyMarkup      `json:"reply_markup,omitempty"`
 }
 
+// SendLivePhotoParams contains supported parameters for sendLivePhoto.
+type SendLivePhotoParams struct {
+	BusinessConnectionID  string                    `json:"business_connection_id,omitempty"`
+	ChatID                ChatID                    `json:"chat_id"`
+	MessageThreadID       int64                     `json:"message_thread_id,omitempty"`
+	DirectMessagesTopicID int64                     `json:"direct_messages_topic_id,omitempty"`
+	LivePhoto             FileRef                   `json:"live_photo"`
+	Photo                 FileRef                   `json:"photo"`
+	Caption               string                    `json:"caption,omitempty"`
+	ParseMode             string                    `json:"parse_mode,omitempty"`
+	CaptionEntities       []telegram.MessageEntity  `json:"caption_entities,omitempty"`
+	ShowCaptionAboveMedia bool                      `json:"show_caption_above_media,omitempty"`
+	HasSpoiler            bool                      `json:"has_spoiler,omitempty"`
+	DisableNotification   bool                      `json:"disable_notification,omitempty"`
+	ProtectContent        bool                      `json:"protect_content,omitempty"`
+	ReplyParameters       *telegram.ReplyParameters `json:"reply_parameters,omitempty"`
+	ReplyMarkup           telegram.ReplyMarkup      `json:"reply_markup,omitempty"`
+}
+
 // SendAudioParams contains supported parameters for sendAudio.
 type SendAudioParams struct {
 	BusinessConnectionID string                    `json:"business_connection_id,omitempty"`
@@ -223,6 +242,31 @@ func (b *Bot) SendVideo(ctx context.Context, params SendVideoParams) (*telegram.
 	}
 
 	if err := b.call(ctx, "sendVideo", params.payload(), &message); err != nil {
+		return nil, err
+	}
+
+	return &message, nil
+}
+
+// SendLivePhoto sends a live photo by Telegram file_id or multipart upload.
+func (b *Bot) SendLivePhoto(ctx context.Context, params SendLivePhotoParams) (*telegram.Message, error) {
+	if err := params.validate(); err != nil {
+		return nil, err
+	}
+
+	var message telegram.Message
+	if params.requiresMultipart() {
+		fields, files, err := params.multipart()
+		if err != nil {
+			return nil, err
+		}
+		if err := b.callMultipart(ctx, "sendLivePhoto", fields, files, &message); err != nil {
+			return nil, err
+		}
+		return &message, nil
+	}
+
+	if err := b.call(ctx, "sendLivePhoto", params, &message); err != nil {
 		return nil, err
 	}
 
@@ -474,6 +518,68 @@ func (params SendVideoParams) multipart() (map[string]string, map[string]UploadF
 	boolField(fields, "supports_streaming", params.SupportsStreaming)
 	boolField(fields, "has_spoiler", params.HasSpoiler)
 	return fields, files, nil
+}
+
+func (params SendLivePhotoParams) validate() error {
+	if !params.ChatID.valid() {
+		return stderrors.New("chat_id is required")
+	}
+	if err := validateMessageThreadID(params.MessageThreadID); err != nil {
+		return err
+	}
+	if params.DirectMessagesTopicID < 0 {
+		return stderrors.New("direct_messages_topic_id must not be negative")
+	}
+	if err := validateLivePhotoFileRef(params.LivePhoto, "live_photo"); err != nil {
+		return err
+	}
+	if err := validateLivePhotoFileRef(params.Photo, "photo"); err != nil {
+		return err
+	}
+	if err := validateCaptionFormatting(params.ParseMode, params.CaptionEntities); err != nil {
+		return err
+	}
+	if err := telegram.ValidateReplyMarkup(params.ReplyMarkup); err != nil {
+		return err
+	}
+	if err := validateReplyParameters(params.ReplyParameters); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (params SendLivePhotoParams) requiresMultipart() bool {
+	return params.LivePhoto.isUpload() || params.Photo.isUpload()
+}
+
+func (params SendLivePhotoParams) multipart() (map[string]string, map[string]UploadFile, error) {
+	fields, err := baseMediaFields(params.ChatID, params.MessageThreadID, params.Caption, params.ParseMode, params.CaptionEntities, params.DisableNotification, params.ProtectContent, params.ReplyParameters, params.ReplyMarkup)
+	if err != nil {
+		return nil, nil, err
+	}
+	stringField(fields, "business_connection_id", params.BusinessConnectionID)
+	int64Field(fields, "direct_messages_topic_id", params.DirectMessagesTopicID)
+	boolField(fields, "show_caption_above_media", params.ShowCaptionAboveMedia)
+	boolField(fields, "has_spoiler", params.HasSpoiler)
+	files := make(map[string]UploadFile)
+	if err := fileRefMultipartField(fields, files, "live_photo", params.LivePhoto); err != nil {
+		return nil, nil, err
+	}
+	if err := fileRefMultipartField(fields, files, "photo", params.Photo); err != nil {
+		return nil, nil, err
+	}
+	return fields, files, nil
+}
+
+func validateLivePhotoFileRef(ref FileRef, field string) error {
+	if err := ref.validate(field); err != nil {
+		return err
+	}
+	if ref.kind == fileRefURL || strings.Contains(ref.value, "://") {
+		return stderrors.New(field + " must be a file_id or FileUpload; URLs are not supported")
+	}
+	return nil
 }
 
 func (params SendAudioParams) validate() error {

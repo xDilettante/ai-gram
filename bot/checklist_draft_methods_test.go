@@ -147,6 +147,38 @@ func TestSendMessageDraftSendsPayloadAndDecodesResult(t *testing.T) {
 	}
 }
 
+func TestSendMessageDraftAllowsEmptyText(t *testing.T) {
+	const token = "123:secret"
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path != "/bot"+token+"/sendMessageDraft" {
+			t.Fatalf("unexpected path: %q", r.URL.Path)
+		}
+		var payload map[string]any
+		if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
+			t.Fatalf("decode payload: %v", err)
+		}
+		if payload["chat_id"] != float64(12345) || payload["draft_id"] != float64(99) {
+			t.Fatalf("unexpected payload: %#v", payload)
+		}
+		text, ok := payload["text"].(string)
+		if !ok || text != "" {
+			t.Fatalf("expected explicit empty text, got %#v", payload["text"])
+		}
+		w.Header().Set("Content-Type", "application/json")
+		_, _ = w.Write([]byte(`{"ok":true,"result":true}`))
+	}))
+	defer server.Close()
+
+	bot := newTestBot(t, token, server.URL, server.Client())
+	ok, err := bot.SendMessageDraft(context.Background(), SendMessageDraftParams{ChatID: ChatIDInt(12345), DraftID: 99})
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if !ok {
+		t.Fatal("expected true")
+	}
+}
+
 func TestChecklistAndDraftValidation(t *testing.T) {
 	const token = "123:secret"
 	bot := newTestBot(t, token, "https://example.test", nil)
@@ -214,7 +246,6 @@ func TestChecklistAndDraftValidation(t *testing.T) {
 		{name: "missing chat", params: SendMessageDraftParams{DraftID: 1, Text: "Generating"}},
 		{name: "negative thread", params: SendMessageDraftParams{ChatID: ChatIDInt(1), MessageThreadID: -1, DraftID: 1, Text: "Generating"}},
 		{name: "missing draft id", params: SendMessageDraftParams{ChatID: ChatIDInt(1), Text: "Generating"}},
-		{name: "empty text", params: SendMessageDraftParams{ChatID: ChatIDInt(1), DraftID: 1}},
 		{name: "parse mode conflict", params: SendMessageDraftParams{ChatID: ChatIDInt(1), DraftID: 1, Text: "Generating", ParseMode: "HTML", Entities: []telegram.MessageEntity{{Type: telegram.EntityBold, Offset: 0, Length: 1}}}},
 	}
 	for _, tt := range draftTests {

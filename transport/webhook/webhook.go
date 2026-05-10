@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	stderrors "errors"
+	"io"
 	"mime"
 	"net/http"
 
@@ -91,7 +92,8 @@ func (r *receiver) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		writeSafeError(w, statusForDecodeError(err), "bad request")
 		return
 	}
-	if decoder.More() {
+	var extra json.RawMessage
+	if err := decoder.Decode(&extra); !stderrors.Is(err, io.EOF) {
 		writeSafeError(w, http.StatusBadRequest, "bad request")
 		return
 	}
