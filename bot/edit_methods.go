@@ -191,7 +191,7 @@ func (b *Bot) EditMessageMedia(ctx context.Context, params EditMessageMediaParam
 		if err != nil {
 			return nil, err
 		}
-		if err := b.callMultipart(ctx, "editMessageMedia", fields, files, &result); err != nil {
+		if err := b.callMultipartBuffered(ctx, "editMessageMedia", fields, files, &result); err != nil {
 			return nil, err
 		}
 		return &result, nil

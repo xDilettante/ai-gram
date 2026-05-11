@@ -104,6 +104,9 @@ func TestEditMessageMediaMultipartUpload(t *testing.T) {
 		if got := r.Header.Get("Content-Type"); !strings.HasPrefix(got, "multipart/form-data") {
 			t.Fatalf("unexpected content type: %q", got)
 		}
+		if r.ContentLength <= 0 {
+			t.Fatalf("editMessageMedia upload must send content length, got %d", r.ContentLength)
+		}
 		if err := r.ParseMultipartForm(4096); err != nil {
 			t.Fatalf("parse multipart: %v", err)
 		}

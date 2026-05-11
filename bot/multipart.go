@@ -1,6 +1,7 @@
 package bot
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	stderrors "errors"
@@ -50,6 +51,61 @@ func (b *Bot) callMultipart(ctx context.Context, method string, fields map[strin
 	responseBody, err := b.client.Do(ctx, req)
 	if err != nil {
 		_ = body.Close()
+		return err
+	}
+
+	var response telegramResponse
+	if err := json.Unmarshal(responseBody, &response); err != nil {
+		return fmt.Errorf("decode telegram API response: %w", err)
+	}
+	if !response.OK {
+		return &apierrors.APIError{
+			Code:        response.ErrorCode,
+			Description: b.redactToken(response.Description),
+			Parameters:  response.Parameters,
+		}
+	}
+	if result == nil || len(response.Result) == 0 {
+		return nil
+	}
+	if err := json.Unmarshal(response.Result, result); err != nil {
+		return fmt.Errorf("decode telegram API result: %w", err)
+	}
+
+	return nil
+}
+
+func (b *Bot) callMultipartBuffered(ctx context.Context, method string, fields map[string]string, files map[string]UploadFile, result any) error {
+	if b == nil {
+		return stderrors.New("bot is required")
+	}
+	if ctx == nil {
+		return stderrors.New("context is required")
+	}
+	if strings.TrimSpace(method) == "" {
+		return stderrors.New("telegram method is required")
+	}
+
+	var body bytes.Buffer
+	multipartWriter := multipart.NewWriter(&body)
+	if err := writeMultipart(multipartWriter, fields, files); err != nil {
+		_ = multipartWriter.Close()
+		return err
+	}
+	if err := multipartWriter.Close(); err != nil {
+		return err
+	}
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, b.endpoint(method), bytes.NewReader(body.Bytes()))
+	if err != nil {
+		return stderrors.New("create telegram multipart request")
+	}
+	req.Header.Set("Content-Type", multipartWriter.FormDataContentType())
+	req.Header.Set("Accept", "application/json")
+	req.ContentLength = int64(body.Len())
+
+	responseBody, err := b.client.Do(ctx, req)
+	if err != nil {
 		return err
 	}
 
