@@ -10,6 +10,7 @@
 ### Examples
 
 - Updated `examples/04_inline_keyboard` to use typed callback data instead of ad hoc callback strings.
+- Added `examples/07_inline_panel` with typed callbacks, pagination, confirm/cancel actions, dispatcher routing, and long polling.
 
 ## v0.5.0 - 2026-05-11
 

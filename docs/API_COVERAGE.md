@@ -386,6 +386,7 @@ This document maps the current `ai-gram` implementation to Telegram Bot API area
 | --- | --- | --- |
 | `middleware.Access`, `AccessWithPolicy`, `AccessConfig` | unit, live examples | Admin/public/off access control for dispatcher handlers without importing `bot`. |
 | `middleware.Recover`, `Timeout`, `Observe` | unit | Handler safety and instrumentation hooks. |
+| `examples/07_inline_panel` | compile via `go test ./...`, manual smoke | Production-style long polling panel using `dispatch`, typed callback data, pagination, and confirm/cancel flows without real side effects. |
 | `examples/echo_longpoll` | compile via `go test ./...`, manual smoke | Basic long polling echo. |
 | `examples/inline_longpoll` | compile via `go test ./...`, manual smoke | Inline callbacks, edit flow, access commands. |
 | `examples/webhook_server` | compile via `go test ./...`, live deploy smoke | Webhook, access panel, safe logs, callback/edit/delete/copy/forward/chat-info flows. |

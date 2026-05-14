@@ -48,6 +48,7 @@ Make `ai-gram` more useful for real production bots without turning it into a he
   - `Dispatcher.OnCallbackAction`;
   - `Dispatcher.OnCallbackActionFunc`;
   - `dispatch.CallbackDataHandler`.
+- Added `examples/07_inline_panel` as the first production-style callback example with pagination and confirm/cancel.
 
 ## Needed
 
@@ -200,7 +201,7 @@ Planned first implementation slice:
 Next callback follow-up after this slice:
 
 1. Add dispatch integration for parsed callback data. Done.
-2. Add a production-style inline panel example with pagination and confirm/cancel.
+2. Add a production-style inline panel example with pagination and confirm/cancel. Done.
 3. Audit public examples for raw private IDs in logs while updating callback flows.
 
 ## Not Now
