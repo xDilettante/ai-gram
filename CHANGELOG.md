@@ -2,7 +2,13 @@
 
 ## Unreleased
 
-No unreleased changes yet.
+### Added
+
+- Added a `callback` package for compact typed inline keyboard callback data, including encode/parse helpers, conventional confirm/cancel actions, pagination helpers, expiry checks, and callback button construction.
+
+### Examples
+
+- Updated `examples/04_inline_keyboard` to use typed callback data instead of ad hoc callback strings.
 
 ## v0.5.0 - 2026-05-11
 

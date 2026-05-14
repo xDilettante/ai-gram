@@ -42,6 +42,7 @@ The library focuses on a clear public API, token-safe HTTP behavior, replaceable
 
 - Typed Bot API method parameters, result types, and Telegram update/message contracts.
 - JSON and multipart method calls with `FileRef`/`FileUpload` helpers for upload-capable methods.
+- Compact typed callback data helpers for inline keyboard flows.
 - Long polling transport, inbound webhook handler, dispatcher/router, predicates, middleware, fallback, and error handling.
 - Token-safe configuration with configurable Bot API base URLs for official or local Bot API servers.
 - Broad test coverage built around unit tests and `httptest`-friendly client configuration.
@@ -101,6 +102,7 @@ To send messages, use `SendMessage` with typed parameters such as `aigram.SendMe
 - `transport/webhook` provides an inbound webhook HTTP handler.
 - `dispatch` routes updates to handlers.
 - `middleware` provides reusable dispatcher middleware.
+- `callback` builds and parses compact typed inline keyboard callback data.
 - `errors` exposes typed Telegram API errors.
 - The root package `aigram` provides a small convenience facade for quick-start code; advanced methods and contracts are intentionally used through `bot` and `telegram`.
 

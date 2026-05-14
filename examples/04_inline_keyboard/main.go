@@ -8,8 +8,11 @@ import (
 	"strings"
 
 	aigram "github.com/xDilettante/ai-gram"
+	"github.com/xDilettante/ai-gram/callback"
 	"github.com/xDilettante/ai-gram/examples/internal/exampleutil"
 )
+
+const callbackNamespace = "inline_demo"
 
 func main() {
 	if err := run(); err != nil {
@@ -60,30 +63,42 @@ func handleUpdate(ctx context.Context, b *aigram.Bot, update aigram.Update) erro
 	if message == nil || !strings.HasPrefix(message.Text, "/start") {
 		return nil
 	}
-	_, err := b.SendMessage(ctx, aigram.SendMessageParams{
+	editButton, err := callback.Button("Edit this message", callback.New(callbackNamespace, "edit"))
+	if err != nil {
+		return err
+	}
+	removeButton, err := callback.Button("Remove buttons", callback.New(callbackNamespace, "remove").WithID("buttons"))
+	if err != nil {
+		return err
+	}
+	_, err = b.SendMessage(ctx, aigram.SendMessageParams{
 		ChatID: aigram.ChatIDInt(message.Chat.ID),
 		Text:   "Press an inline button:",
 		ReplyMarkup: aigram.NewInlineKeyboard([]aigram.InlineKeyboardButton{
-			aigram.InlineButtonCallback("Edit this message", "edit"),
-			aigram.InlineButtonCallback("Remove buttons", "remove"),
+			editButton,
+			removeButton,
 		}),
 	})
 	return err
 }
 
-func handleCallback(ctx context.Context, b *aigram.Bot, callback *aigram.CallbackQuery) error {
+func handleCallback(ctx context.Context, b *aigram.Bot, query *aigram.CallbackQuery) error {
 	if _, err := b.AnswerCallbackQuery(ctx, aigram.AnswerCallbackQueryParams{
-		CallbackQueryID: callback.ID,
+		CallbackQueryID: query.ID,
 		Text:            "Callback received",
 	}); err != nil {
 		return err
 	}
-	if callback.Message == nil {
+	if query.Message == nil {
+		return nil
+	}
+	data, err := callback.Parse(query.Data)
+	if err != nil || !data.Match(callbackNamespace, "") {
 		return nil
 	}
 
-	target := aigram.EditTargetChat(aigram.ChatIDInt(callback.Message.Chat.ID), callback.Message.MessageID)
-	switch callback.Data {
+	target := aigram.EditTargetChat(aigram.ChatIDInt(query.Message.Chat.ID), query.Message.MessageID)
+	switch data.Action {
 	case "edit":
 		_, err := b.EditMessageText(ctx, aigram.EditMessageTextParams{
 			Target: target,

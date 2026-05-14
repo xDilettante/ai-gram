@@ -6,6 +6,7 @@ A long polling bot that sends inline buttons and handles callback queries.
 
 - reads `AIGRAM_BOT_TOKEN`;
 - sends an inline keyboard on `/start`;
+- builds typed callback data with the `callback` package;
 - handles `callback_query` updates;
 - calls `AnswerCallbackQuery`;
 - edits a message or removes inline buttons.

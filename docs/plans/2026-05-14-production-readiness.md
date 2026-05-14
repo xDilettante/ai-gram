@@ -11,7 +11,7 @@ Make `ai-gram` more useful for real production bots without turning it into a he
 ## Current State
 
 - `v0.5.0` is published as a regular GitHub Release, not a pre-release.
-- `main` has a local unpublished commit: `38a426e Use buffered multipart for edit media uploads`.
+- Local unpublished work was pushed before starting the callback slice.
 - Telegram Bot API 10.0 code coverage is complete with documented architecture differences.
 - The project has separate library layers:
   - `bot` for outgoing Bot API calls;
@@ -35,7 +35,14 @@ Make `ai-gram` more useful for real production bots without turning it into a he
 - Added `docs/PRE_V1_NOTES.md`.
 - Kept live smoke and destructive Telegram flows manual-only.
 - Added root-package facade documentation and current API split.
-- Added buffered multipart behavior for edit media uploads in the local unpublished commit.
+- Added buffered multipart behavior for edit media uploads before the callback slice.
+- Added the first callback helper slice:
+  - `callback.Data`;
+  - `Data.Encode` / `callback.Parse`;
+  - confirm/cancel conventions;
+  - pagination and expiry helpers;
+  - callback button construction;
+  - `examples/04_inline_keyboard` usage.
 
 ## Needed
 
@@ -177,13 +184,19 @@ Start with the callback layer.
 
 Planned first implementation slice:
 
-1. Push or otherwise resolve the current local `38a426e` commit before stacking more work.
-2. Add `callback` package with encode/parse and typed errors.
-3. Add tests for roundtrip, invalid input, expiry, and length limit.
-4. Add confirm/cancel and pagination helpers.
-5. Update one small example first, likely `examples/04_inline_keyboard`.
-6. Run `scripts/check.sh`.
-7. Commit the slice atomically.
+1. Push or otherwise resolve the current local `38a426e` commit before stacking more work. Done.
+2. Add `callback` package with encode/parse and typed errors. Done.
+3. Add tests for roundtrip, invalid input, expiry, and length limit. Done.
+4. Add confirm/cancel and pagination helpers. Done.
+5. Update one small example first, likely `examples/04_inline_keyboard`. Done.
+6. Run `scripts/check.sh`. Done.
+7. Commit the slice atomically. Done.
+
+Next callback follow-up after this slice:
+
+1. Add dispatch integration for parsed callback data.
+2. Add a production-style inline panel example with pagination and confirm/cancel.
+3. Audit public examples for raw private IDs in logs while updating callback flows.
 
 ## Not Now
 
