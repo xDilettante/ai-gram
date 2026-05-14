@@ -113,6 +113,36 @@ Next phase:
 5. Use [`docs/plans/2026-05-14-production-readiness.md`](plans/2026-05-14-production-readiness.md) as the working plan for callback helpers, error taxonomy, group identity helpers, production examples, and transport-mode parity.
 6. Monitor `v0.5.0` feedback and keep future release work behind explicit approval.
 
+## v0.6 production-readiness candidate
+
+Status: release-prep complete on `main`; not tagged or published.
+
+Completed scope since `v0.5.0`:
+
+- Typed callback helper layer in `callback`.
+- Dispatcher routes for parsed typed callback data.
+- Error taxonomy helpers for Telegram API errors, rate limits, migrations, forbidden/not-found responses, network errors, and context cancellation.
+- Telegram actor and reply-target identity helpers for group/admin workflows.
+- Production-style examples for inline panels, retry-aware sends, group admin identity, dry-run moderation, and webhook/long polling parity.
+- Safer public example logs with masked numeric private IDs.
+- Bot API update checklist and Bot API 10.0 lightweight freshness audit.
+- Release-candidate checklist, local gates, direct public consumer smoke, and draft `v0.6.0` release notes.
+
+Release-prep status:
+
+- Local release-candidate gates passed.
+- Direct public consumer smoke for `main` passed after the public Go proxy path timed out.
+- Main CI passed for the release-prep commits.
+- `docs/releases/v0.6.0.md` remains a draft until explicit maintainer approval.
+
+Before publishing:
+
+1. Re-run the final local and public consumer gates.
+2. Verify the official Telegram Bot API page has not published a newer release than the audited Bot API 10.0 state.
+3. Convert `docs/releases/v0.6.0.md` from draft to final notes.
+4. Update `CHANGELOG.md` from `Unreleased` to `v0.6.0`.
+5. Create the tag and GitHub Release only after explicit maintainer approval.
+
 Live smoke policy:
 
 - Safe/read-only flows may be live-smoked only when explicitly useful and explicitly requested.

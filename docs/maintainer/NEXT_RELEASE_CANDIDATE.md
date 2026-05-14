@@ -91,6 +91,16 @@ github.com/xDilettante/ai-gram v0.5.1-0.20260514192257-29f0f64349df
 
 The default proxy-backed run was attempted first and failed with a TLS handshake timeout from `proxy.golang.org`. The fallback direct mode is the documented path for stale or unavailable public proxy checks.
 
+### 2026-05-14 Freeze Pass
+
+Pre-release freeze pass completed without publishing:
+
+- official Telegram Bot API page still listed Bot API 10.0 dated 2026-05-08 as the latest recent change;
+- `docs/releases/v0.6.0.md` remained marked as draft and not published;
+- `CHANGELOG.md` remained under `Unreleased`;
+- README examples, manual testing examples, API coverage rows, and release notes listed the same post-`v0.5.0` production examples;
+- `docs/ROADMAP.md` was updated to reflect the completed `v0.6.0` release-prep state.
+
 ### Local Gates
 
 ```bash

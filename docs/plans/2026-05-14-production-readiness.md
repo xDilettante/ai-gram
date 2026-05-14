@@ -79,6 +79,7 @@ Make `ai-gram` more useful for real production bots without turning it into a he
 - Added `docs/BOT_API_10_0_LIGHTWEIGHT_AUDIT_2026_05_14.md`; the official Bot API page still lists 10.0 as latest, and the method-level comparison found no missing official method wrappers.
 - Added `docs/maintainer/NEXT_RELEASE_CANDIDATE.md` to prepare the accumulated post-`v0.5.0` work for a future release candidate without tagging or publishing.
 - Added draft `docs/releases/v0.6.0.md` release notes for the planned minor release.
+- Completed a pre-release freeze pass and updated `docs/ROADMAP.md` to reflect the prepared but unpublished `v0.6.0` candidate.
 
 ## Needed
 
@@ -275,7 +276,8 @@ Next release-prep follow-up after this slice:
 1. Run the release-candidate local gates from `docs/maintainer/NEXT_RELEASE_CANDIDATE.md`. Done.
 2. Run public consumer smoke for `main`. Done with `AIGRAM_CONSUMER_DIRECT=1` after the default proxy path timed out.
 3. Draft `docs/releases/v0.6.0.md` if the candidate proceeds as `v0.6.0`. Done.
-4. Tag and publish only after explicit maintainer approval.
+4. Complete the final pre-release freeze pass. Done.
+5. Tag and publish only after explicit maintainer approval.
 
 ## Not Now
 
