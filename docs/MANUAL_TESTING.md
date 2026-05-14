@@ -42,6 +42,7 @@ Checklist:
 - Send a text message to the bot.
 - The bot replies with the same text.
 - `/start` returns the welcome message.
+- Logs and smoke markers redact numeric chat/user IDs.
 - Stop with `Ctrl+C` and confirm graceful shutdown.
 
 ## Local Bot API connectivity
@@ -76,6 +77,7 @@ Checklist:
 - Your reverse proxy or tunnel forwards the webhook URL to `/webhook` on the example server.
 - `SetWebhook` succeeds.
 - Incoming messages reach the handler and receive replies.
+- Logs redact numeric chat/user IDs.
 
 ## Inline keyboard example
 
@@ -89,6 +91,7 @@ Checklist:
 - Send `/start` to the bot.
 - The bot shows an inline keyboard.
 - Press demo buttons and confirm callback answers, message editing, and reply-markup removal work.
+- Logs redact numeric chat/user IDs when advanced long-polling examples are used.
 
 ## Media upload example
 

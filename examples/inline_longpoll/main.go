@@ -37,13 +37,13 @@ func logSafeUpdate(update telegram.Update, matched string) {
 	message := update.EffectiveMessage()
 	chat := update.EffectiveChat()
 	user := update.EffectiveUser()
-	chatID := int64(0)
-	userID := int64(0)
+	chatID := "0"
+	userID := "0"
 	if chat != nil {
-		chatID = chat.ID
+		chatID = exampleutil.MaskInt64(chat.ID)
 	}
 	if user != nil {
-		userID = user.ID
+		userID = exampleutil.MaskInt64(user.ID)
 	}
 
 	updateType := "unknown"
@@ -65,10 +65,10 @@ func logSafeUpdate(update telegram.Update, matched string) {
 
 	callbackData := safeCallbackData(update)
 	if command != "" {
-		log.Printf("longpoll update_id=%d update_type=%s matched=%s chat_id=%d from_user_id=%d command=%s has_text=%t has_media=%t callback_data=%s", update.UpdateID, updateType, matched, chatID, userID, command, hasText, hasMedia, callbackData)
+		log.Printf("longpoll update_id=%d update_type=%s matched=%s chat_id=%s from_user_id=%s command=%s has_text=%t has_media=%t callback_data=%s", update.UpdateID, updateType, matched, chatID, userID, command, hasText, hasMedia, callbackData)
 		return
 	}
-	log.Printf("longpoll update_id=%d update_type=%s matched=%s chat_id=%d from_user_id=%d has_text=%t has_media=%t callback_data=%s", update.UpdateID, updateType, matched, chatID, userID, hasText, hasMedia, callbackData)
+	log.Printf("longpoll update_id=%d update_type=%s matched=%s chat_id=%s from_user_id=%s has_text=%t has_media=%t callback_data=%s", update.UpdateID, updateType, matched, chatID, userID, hasText, hasMedia, callbackData)
 }
 
 func safeCallbackData(update telegram.Update) string {
@@ -87,14 +87,14 @@ func smokeExitAfterUpdate() bool {
 	return os.Getenv("AIGRAM_SMOKE_EXIT_AFTER_UPDATE") == "1"
 }
 
-func smokeIDs(update telegram.Update) (int64, int64) {
-	chatID := int64(0)
-	userID := int64(0)
+func smokeIDs(update telegram.Update) (string, string) {
+	chatID := "0"
+	userID := "0"
 	if chat := update.EffectiveChat(); chat != nil {
-		chatID = chat.ID
+		chatID = exampleutil.MaskInt64(chat.ID)
 	}
 	if user := update.EffectiveUser(); user != nil {
-		userID = user.ID
+		userID = exampleutil.MaskInt64(user.ID)
 	}
 	return chatID, userID
 }
@@ -119,11 +119,11 @@ func registerAccessCommands(dp *dispatch.Dispatcher, b *aigram.Bot, controller *
 		if err != nil {
 			return err
 		}
-		userID := int64(0)
+		userID := "0"
 		if user := update.EffectiveUser(); user != nil {
-			userID = user.ID
+			userID = exampleutil.MaskInt64(user.ID)
 		}
-		log.Printf("%s action=access_status mode=%s update_id=%d by_user_id=%d", logPrefix, mode, update.UpdateID, userID)
+		log.Printf("%s action=access_status mode=%s update_id=%d by_user_id=%s", logPrefix, mode, update.UpdateID, userID)
 		return nil
 	}); err != nil {
 		return err
@@ -160,11 +160,11 @@ func setAccessMode(ctx context.Context, b *aigram.Bot, controller *exampleutil.A
 	if err != nil {
 		return err
 	}
-	userID := int64(0)
+	userID := "0"
 	if user := update.EffectiveUser(); user != nil {
-		userID = user.ID
+		userID = exampleutil.MaskInt64(user.ID)
 	}
-	log.Printf("%s action=access_mode_changed mode=%s update_id=%d by_user_id=%d", logPrefix, mode, update.UpdateID, userID)
+	log.Printf("%s action=access_mode_changed mode=%s update_id=%d by_user_id=%s", logPrefix, mode, update.UpdateID, userID)
 	return nil
 }
 
@@ -182,7 +182,7 @@ func accessDenyHandler(b *aigram.Bot, logPrefix string) func(context.Context, te
 		if message := update.EffectiveMessage(); message != nil {
 			messageThreadID = message.MessageThreadID
 		}
-		log.Printf("%s action=access_denied update_id=%d chat_id=%d from_user_id=%d", logPrefix, update.UpdateID, chatID, userID)
+		log.Printf("%s action=access_denied update_id=%d chat_id=%s from_user_id=%s", logPrefix, update.UpdateID, exampleutil.MaskInt64(chatID), exampleutil.MaskInt64(userID))
 		if chatID == 0 {
 			return nil
 		}
@@ -252,7 +252,7 @@ func run() error {
 		logSafeUpdate(update, "message")
 		chatID, userID := smokeIDs(update)
 		if smokeExitAfterUpdate() {
-			fmt.Printf("AIGRAM_SMOKE_UPDATE_RECEIVED update_id=%d chat_id=%d from_user_id=%d\n", update.UpdateID, chatID, userID)
+			fmt.Printf("AIGRAM_SMOKE_UPDATE_RECEIVED update_id=%d chat_id=%s from_user_id=%s\n", update.UpdateID, chatID, userID)
 		}
 		_, err := b.SendMessage(ctx, aigram.SendMessageParams{
 			ChatID:          aigram.ChatIDInt(message.Chat.ID),
@@ -263,10 +263,10 @@ func run() error {
 		if err != nil {
 			return err
 		}
-		log.Printf("longpoll action=send_message ok=true update_id=%d chat_id=%d reply_to_message_id=%d", update.UpdateID, message.Chat.ID, message.MessageID)
+		log.Printf("longpoll action=send_message ok=true update_id=%d chat_id=%s reply_to_message_id=%d", update.UpdateID, exampleutil.MaskInt64(message.Chat.ID), message.MessageID)
 		if smokeExitAfterUpdate() {
-			fmt.Printf("AIGRAM_SMOKE_REPLY_SENT update_id=%d chat_id=%d reply_to_message_id=%d\n", update.UpdateID, chatID, message.MessageID)
-			fmt.Printf("AIGRAM_SMOKE_OK update_id=%d chat_id=%d from_user_id=%d\n", update.UpdateID, chatID, userID)
+			fmt.Printf("AIGRAM_SMOKE_REPLY_SENT update_id=%d chat_id=%s reply_to_message_id=%d\n", update.UpdateID, chatID, message.MessageID)
+			fmt.Printf("AIGRAM_SMOKE_OK update_id=%d chat_id=%s from_user_id=%s\n", update.UpdateID, chatID, userID)
 			stop()
 		}
 		return nil

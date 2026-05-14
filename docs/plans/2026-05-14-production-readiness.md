@@ -49,6 +49,7 @@ Make `ai-gram` more useful for real production bots without turning it into a he
   - `Dispatcher.OnCallbackActionFunc`;
   - `dispatch.CallbackDataHandler`.
 - Added `examples/07_inline_panel` as the first production-style callback example with pagination and confirm/cancel.
+- Added shared example log masking and removed raw numeric `chat_id`, `from_user_id`, and `by_user_id` values from public long polling/webhook example logs.
 
 ## Needed
 
@@ -202,7 +203,7 @@ Next callback follow-up after this slice:
 
 1. Add dispatch integration for parsed callback data. Done.
 2. Add a production-style inline panel example with pagination and confirm/cancel. Done.
-3. Audit public examples for raw private IDs in logs while updating callback flows.
+3. Audit public examples for raw private IDs in logs while updating callback flows. Done.
 
 ## Not Now
 

@@ -127,7 +127,7 @@ func newDispatcher(b *aigram.Bot) (*dispatch.Dispatcher, error) {
 		logSafeUpdate(update, "command")
 		payload := startPayload(message)
 		if payload != "" {
-			log.Printf("webhook action=start_payload payload=%s update_id=%d chat_id=%d from_user_id=%d", safeStartPayload(payload), update.UpdateID, message.Chat.ID, effectiveUserID(update))
+			log.Printf("webhook action=start_payload payload=%s update_id=%d chat_id=%s from_user_id=%s", safeStartPayload(payload), update.UpdateID, maskID(message.Chat.ID), effectiveUserIDForLog(update))
 		}
 
 		switch payload {
@@ -160,7 +160,7 @@ func newDispatcher(b *aigram.Bot) (*dispatch.Dispatcher, error) {
 		if !ok {
 			return errors.New("send_chat_action returned false")
 		}
-		log.Printf("webhook action=send_chat_action ok=true update_id=%d chat_id=%d chat_action=%s", update.UpdateID, message.Chat.ID, aigram.ChatActionTyping)
+		log.Printf("webhook action=send_chat_action ok=true update_id=%d chat_id=%s chat_action=%s", update.UpdateID, maskID(message.Chat.ID), aigram.ChatActionTyping)
 
 		_, err = b.SendMessage(ctx, aigram.SendMessageParams{
 			ChatID:          aigram.ChatIDInt(message.Chat.ID),
@@ -171,7 +171,7 @@ func newDispatcher(b *aigram.Bot) (*dispatch.Dispatcher, error) {
 		if err != nil {
 			return err
 		}
-		log.Printf("webhook action=send_message ok=true update_id=%d chat_id=%d reply_to_message_id=%d", update.UpdateID, message.Chat.ID, message.MessageID)
+		log.Printf("webhook action=send_message ok=true update_id=%d chat_id=%s reply_to_message_id=%d", update.UpdateID, maskID(message.Chat.ID), message.MessageID)
 		return nil
 	}); err != nil {
 		return nil, err
@@ -199,7 +199,7 @@ func newDispatcher(b *aigram.Bot) (*dispatch.Dispatcher, error) {
 		if err != nil {
 			return err
 		}
-		log.Printf("webhook action=edit_message_text ok=true update_id=%d chat_id=%d message_id=%d", update.UpdateID, callback.Message.Chat.ID, callback.Message.MessageID)
+		log.Printf("webhook action=edit_message_text ok=true update_id=%d chat_id=%s message_id=%d", update.UpdateID, maskID(callback.Message.Chat.ID), callback.Message.MessageID)
 		return nil
 	}); err != nil {
 		return nil, err
@@ -223,7 +223,7 @@ func newDispatcher(b *aigram.Bot) (*dispatch.Dispatcher, error) {
 		if err != nil {
 			return err
 		}
-		log.Printf("webhook action=edit_message_reply_markup ok=true update_id=%d chat_id=%d message_id=%d", update.UpdateID, callback.Message.Chat.ID, callback.Message.MessageID)
+		log.Printf("webhook action=edit_message_reply_markup ok=true update_id=%d chat_id=%s message_id=%d", update.UpdateID, maskID(callback.Message.Chat.ID), callback.Message.MessageID)
 		return nil
 	}); err != nil {
 		return nil, err
@@ -249,7 +249,7 @@ func newDispatcher(b *aigram.Bot) (*dispatch.Dispatcher, error) {
 		if sent == nil {
 			return errors.New("send_media_caption_demo returned nil message")
 		}
-		log.Printf("webhook action=send_media_caption_demo ok=true source=%s update_id=%d chat_id=%d message_id=%d", source, update.UpdateID, sent.Chat.ID, sent.MessageID)
+		log.Printf("webhook action=send_media_caption_demo ok=true source=%s update_id=%d chat_id=%s message_id=%d", source, update.UpdateID, maskID(sent.Chat.ID), sent.MessageID)
 		return nil
 	}); err != nil {
 		return nil, err
@@ -280,7 +280,7 @@ func newDispatcher(b *aigram.Bot) (*dispatch.Dispatcher, error) {
 		if !result.IsOK() {
 			return errors.New("edit_message_caption returned non-ok result")
 		}
-		log.Printf("webhook action=edit_message_caption ok=true update_id=%d chat_id=%d message_id=%d", update.UpdateID, callback.Message.Chat.ID, callback.Message.MessageID)
+		log.Printf("webhook action=edit_message_caption ok=true update_id=%d chat_id=%s message_id=%d", update.UpdateID, maskID(callback.Message.Chat.ID), callback.Message.MessageID)
 		return nil
 	}); err != nil {
 		return nil, err
@@ -307,7 +307,7 @@ func newDispatcher(b *aigram.Bot) (*dispatch.Dispatcher, error) {
 		if err != nil {
 			return err
 		}
-		log.Printf("webhook action=copy_message ok=true update_id=%d chat_id=%d message_id=%d copied_message_id=%d", update.UpdateID, callback.Message.Chat.ID, callback.Message.MessageID, copied.MessageID)
+		log.Printf("webhook action=copy_message ok=true update_id=%d chat_id=%s message_id=%d copied_message_id=%d", update.UpdateID, maskID(callback.Message.Chat.ID), callback.Message.MessageID, copied.MessageID)
 		return nil
 	}); err != nil {
 		return nil, err
@@ -334,7 +334,7 @@ func newDispatcher(b *aigram.Bot) (*dispatch.Dispatcher, error) {
 		if err != nil {
 			return err
 		}
-		log.Printf("webhook action=forward_message ok=true update_id=%d chat_id=%d message_id=%d forwarded_message_id=%d", update.UpdateID, callback.Message.Chat.ID, callback.Message.MessageID, forwarded.MessageID)
+		log.Printf("webhook action=forward_message ok=true update_id=%d chat_id=%s message_id=%d forwarded_message_id=%d", update.UpdateID, maskID(callback.Message.Chat.ID), callback.Message.MessageID, forwarded.MessageID)
 		return nil
 	}); err != nil {
 		return nil, err
@@ -413,7 +413,7 @@ func handleAccessCallback(ctx context.Context, b *aigram.Bot, controller *exampl
 		if _, err := b.AnswerCallbackQuery(ctx, aigram.AnswerCallbackQueryParams{CallbackQueryID: callback.ID, Text: "Access denied", ShowAlert: true}); err != nil {
 			return err
 		}
-		log.Printf("%s action=access_denied update_id=%d chat_id=%d from_user_id=%d", logPrefix, update.UpdateID, effectiveChatID(update), effectiveUserID(update))
+		log.Printf("%s action=access_denied update_id=%d chat_id=%s from_user_id=%s", logPrefix, update.UpdateID, effectiveChatIDForLog(update), effectiveUserIDForLog(update))
 		return nil
 	}
 
@@ -467,7 +467,7 @@ func setAccessMode(ctx context.Context, b *aigram.Bot, controller *exampleutil.A
 	if err != nil {
 		return err
 	}
-	log.Printf("%s action=access_mode_changed ok=true mode=%s update_id=%d by_user_id=%d", logPrefix, mode, update.UpdateID, effectiveUserID(update))
+	log.Printf("%s action=access_mode_changed ok=true mode=%s update_id=%d by_user_id=%s", logPrefix, mode, update.UpdateID, effectiveUserIDForLog(update))
 	return nil
 }
 
@@ -486,7 +486,7 @@ func setAccessModeFromCallback(ctx context.Context, b *aigram.Bot, controller *e
 	if err != nil {
 		return err
 	}
-	log.Printf("%s action=access_mode_changed ok=true mode=%s update_id=%d by_user_id=%d", logPrefix, mode, update.UpdateID, effectiveUserID(update))
+	log.Printf("%s action=access_mode_changed ok=true mode=%s update_id=%d by_user_id=%s", logPrefix, mode, update.UpdateID, effectiveUserIDForLog(update))
 	return nil
 }
 
@@ -510,7 +510,7 @@ func sendAccessStatus(ctx context.Context, b *aigram.Bot, controller *exampleuti
 	if err != nil {
 		return err
 	}
-	log.Printf("%s action=access_status ok=true mode=%s update_id=%d by_user_id=%d", logPrefix, mode, update.UpdateID, effectiveUserID(update))
+	log.Printf("%s action=access_status ok=true mode=%s update_id=%d by_user_id=%s", logPrefix, mode, update.UpdateID, effectiveUserIDForLog(update))
 	return nil
 }
 
@@ -524,7 +524,7 @@ func sendChatInfo(ctx context.Context, b *aigram.Bot, update telegram.Update, lo
 		return err
 	}
 	memberCount, countErr := b.GetChatMemberCount(ctx, aigram.GetChatMemberCountParams{ChatID: aigram.ChatIDInt(message.Chat.ID)})
-	log.Printf("%s action=get_chat ok=true update_id=%d chat_id=%d chat_type=%s", logPrefix, update.UpdateID, message.Chat.ID, chat.Type)
+	log.Printf("%s action=get_chat ok=true update_id=%d chat_id=%s chat_type=%s", logPrefix, update.UpdateID, maskID(message.Chat.ID), chat.Type)
 
 	lines := []string{
 		"Chat info",
@@ -565,7 +565,7 @@ func sendAccessPanel(ctx context.Context, b *aigram.Bot, controller *exampleutil
 	if err != nil {
 		return err
 	}
-	log.Printf("%s action=access_panel_shown ok=true update_id=%d chat_id=%d", logPrefix, update.UpdateID, message.Chat.ID)
+	log.Printf("%s action=access_panel_shown ok=true update_id=%d chat_id=%s", logPrefix, update.UpdateID, maskID(message.Chat.ID))
 	return nil
 }
 
@@ -582,8 +582,8 @@ func sendSmokeKeyboard(ctx context.Context, b *aigram.Bot, update telegram.Updat
 	if err != nil {
 		return err
 	}
-	log.Printf("%s action=smoke_keyboard_shown ok=true update_id=%d chat_id=%d", logPrefix, update.UpdateID, message.Chat.ID)
-	log.Printf("%s action=send_message ok=true update_id=%d chat_id=%d", logPrefix, update.UpdateID, message.Chat.ID)
+	log.Printf("%s action=smoke_keyboard_shown ok=true update_id=%d chat_id=%s", logPrefix, update.UpdateID, maskID(message.Chat.ID))
+	log.Printf("%s action=send_message ok=true update_id=%d chat_id=%s", logPrefix, update.UpdateID, maskID(message.Chat.ID))
 	return nil
 }
 
@@ -601,7 +601,7 @@ func showSmokeKeyboardFromCallback(ctx context.Context, b *aigram.Bot, logPrefix
 	if err != nil {
 		return err
 	}
-	log.Printf("%s action=smoke_keyboard_shown ok=true update_id=%d chat_id=%d", logPrefix, update.UpdateID, callback.Message.Chat.ID)
+	log.Printf("%s action=smoke_keyboard_shown ok=true update_id=%d chat_id=%s", logPrefix, update.UpdateID, maskID(callback.Message.Chat.ID))
 	return nil
 }
 
@@ -619,7 +619,7 @@ func accessDenyHandler(b *aigram.Bot, logPrefix string) func(context.Context, te
 		if message := update.EffectiveMessage(); message != nil {
 			messageThreadID = message.MessageThreadID
 		}
-		log.Printf("%s action=access_denied update_id=%d chat_id=%d from_user_id=%d", logPrefix, update.UpdateID, chatID, userID)
+		log.Printf("%s action=access_denied update_id=%d chat_id=%s from_user_id=%s", logPrefix, update.UpdateID, maskID(chatID), maskID(userID))
 		if callback := update.CallbackQuery; callback != nil {
 			_, err := b.AnswerCallbackQuery(ctx, aigram.AnswerCallbackQueryParams{CallbackQueryID: callback.ID, Text: "Access denied", ShowAlert: true})
 			return err
@@ -652,18 +652,22 @@ func safeStartPayload(payload string) string {
 	}
 }
 
-func effectiveChatID(update telegram.Update) int64 {
+func effectiveChatIDForLog(update telegram.Update) string {
 	if chat := update.EffectiveChat(); chat != nil {
-		return chat.ID
+		return maskID(chat.ID)
 	}
-	return 0
+	return "0"
 }
 
-func effectiveUserID(update telegram.Update) int64 {
+func effectiveUserIDForLog(update telegram.Update) string {
 	if user := update.EffectiveUser(); user != nil {
-		return user.ID
+		return maskID(user.ID)
 	}
-	return 0
+	return "0"
+}
+
+func maskID(value int64) string {
+	return exampleutil.MaskInt64(value)
 }
 
 func demoKeyboard() aigram.InlineKeyboardMarkup {
@@ -792,7 +796,7 @@ func deleteCallbackMessage(ctx context.Context, b *aigram.Bot, update telegram.U
 	if !ok {
 		return errors.New("delete_message returned false")
 	}
-	log.Printf("webhook action=delete_message ok=true update_id=%d chat_id=%d message_id=%d", update.UpdateID, callback.Message.Chat.ID, callback.Message.MessageID)
+	log.Printf("webhook action=delete_message ok=true update_id=%d chat_id=%s message_id=%d", update.UpdateID, maskID(callback.Message.Chat.ID), callback.Message.MessageID)
 	return nil
 }
 
@@ -800,13 +804,13 @@ func logSafeUpdate(update telegram.Update, matched string) {
 	message := update.EffectiveMessage()
 	chat := update.EffectiveChat()
 	user := update.EffectiveUser()
-	chatID := int64(0)
-	userID := int64(0)
+	chatID := "0"
+	userID := "0"
 	if chat != nil {
-		chatID = chat.ID
+		chatID = maskID(chat.ID)
 	}
 	if user != nil {
-		userID = user.ID
+		userID = maskID(user.ID)
 	}
 
 	updateType := "unknown"
@@ -828,10 +832,10 @@ func logSafeUpdate(update telegram.Update, matched string) {
 
 	callbackData := safeCallbackData(update)
 	if command != "" {
-		log.Printf("webhook update_id=%d update_type=%s matched=%s chat_id=%d from_user_id=%d command=%s has_text=%t has_media=%t callback_data=%s", update.UpdateID, updateType, matched, chatID, userID, command, hasText, hasMedia, callbackData)
+		log.Printf("webhook update_id=%d update_type=%s matched=%s chat_id=%s from_user_id=%s command=%s has_text=%t has_media=%t callback_data=%s", update.UpdateID, updateType, matched, chatID, userID, command, hasText, hasMedia, callbackData)
 		return
 	}
-	log.Printf("webhook update_id=%d update_type=%s matched=%s chat_id=%d from_user_id=%d has_text=%t has_media=%t callback_data=%s", update.UpdateID, updateType, matched, chatID, userID, hasText, hasMedia, callbackData)
+	log.Printf("webhook update_id=%d update_type=%s matched=%s chat_id=%s from_user_id=%s has_text=%t has_media=%t callback_data=%s", update.UpdateID, updateType, matched, chatID, userID, hasText, hasMedia, callbackData)
 }
 
 func safeCallbackData(update telegram.Update) string {
