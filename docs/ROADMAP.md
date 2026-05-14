@@ -92,7 +92,7 @@ Strategic change: the small v0.3 release plan is superseded. Code coverage for T
 Repository status for this workstream:
 
 - The public repository is available at <https://github.com/xDilettante/ai-gram>.
-- `v0.3.0` and `v0.4.0` are already published; `v0.5.0` is the current regular public release for the post-`v0.4.0` API cleanup.
+- `v0.3.0`, `v0.4.0`, and `v0.5.0` are already published; `v0.6.0` is the current regular public release for the production-readiness helper and example work.
 - Bot API 10.0 code coverage is complete on `main` with documented architecture differences.
 - Bot API 10.0 final audit found no known code coverage blockers.
 - The root `aigram` package is now a compact quick-start facade; the full Bot API surface lives in `bot` and `telegram`.
@@ -111,11 +111,11 @@ Next phase:
 3. Keep sensitive/state-changing smoke manual-only and fixture-first by default.
 4. Keep [`PRE_V1_NOTES.md`](PRE_V1_NOTES.md) and [`CHANGELOG.md`](../CHANGELOG.md) current for breaking pre-v1 cleanup.
 5. Use [`docs/plans/2026-05-14-production-readiness.md`](plans/2026-05-14-production-readiness.md) as the working plan for callback helpers, error taxonomy, group identity helpers, production examples, and transport-mode parity.
-6. Monitor `v0.5.0` feedback and keep future release work behind explicit approval.
+6. Monitor `v0.6.0` feedback and keep future release work behind explicit approval.
 
 ## v0.6 production-readiness candidate
 
-Status: release-prep complete on `main`; not tagged or published.
+Status: completed and released as `v0.6.0`.
 
 Completed scope since `v0.5.0`:
 
@@ -126,22 +126,15 @@ Completed scope since `v0.5.0`:
 - Production-style examples for inline panels, retry-aware sends, group admin identity, dry-run moderation, and webhook/long polling parity.
 - Safer public example logs with masked numeric private IDs.
 - Bot API update checklist and Bot API 10.0 lightweight freshness audit.
-- Release-candidate checklist, local gates, direct public consumer smoke, and draft `v0.6.0` release notes.
+- Release-candidate checklist, local gates, direct public consumer smoke, and `v0.6.0` release notes.
 
-Release-prep status:
+Release status:
 
 - Local release-candidate gates passed.
 - Direct public consumer smoke for `main` passed after the public Go proxy path timed out.
 - Main CI passed for the release-prep commits.
-- `docs/releases/v0.6.0.md` remains a draft until explicit maintainer approval.
-
-Before publishing:
-
-1. Re-run the final local and public consumer gates.
-2. Verify the official Telegram Bot API page has not published a newer release than the audited Bot API 10.0 state.
-3. Convert `docs/releases/v0.6.0.md` from draft to final notes.
-4. Update `CHANGELOG.md` from `Unreleased` to `v0.6.0`.
-5. Create the tag and GitHub Release only after explicit maintainer approval.
+- `docs/releases/v0.6.0.md` contains the release notes.
+- The tag and GitHub Release were created only after explicit maintainer approval.
 
 Live smoke policy:
 

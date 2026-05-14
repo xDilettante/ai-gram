@@ -1,15 +1,15 @@
 # Next Release Candidate Checklist
 
-This document tracks the next release-candidate pass for the post-`v0.5.0` work on `main`.
+This document tracks the release-candidate pass for the post-`v0.5.0` work that became `v0.6.0`.
 
-It is a preparation checklist only. Do not create tags, GitHub Releases, or release notes uploads from this document without explicit maintainer approval.
+It is a preparation record. Future tags, GitHub Releases, or release notes uploads still require explicit maintainer approval.
 
 ## Candidate Shape
 
-- Current latest release: `v0.5.0`.
-- Candidate version class: minor release, likely `v0.6.0`.
+- Previous release: `v0.5.0`.
+- Candidate version class: minor release, completed as `v0.6.0`.
 - Reason: `main` contains new public helper APIs, dispatcher APIs, production examples, and maintainer compatibility workflow since `v0.5.0`.
-- Current release-candidate base: commits after `v0.5.0` through the commit that adds this document.
+- Release-candidate base: commits after `v0.5.0` through the `v0.6.0` release commit.
 
 ## Included Since `v0.5.0`
 
@@ -141,7 +141,7 @@ Also run the manual GitHub Actions workflow `Public consumer smoke` against `mai
 - `docs/BOT_API_10_0_LIGHTWEIGHT_AUDIT_2026_05_14.md` remains current enough for the release date, or a newer audit exists.
 - `docs/maintainer/BOT_API_UPDATE_CHECKLIST.md` has been followed if Telegram published a newer Bot API release.
 - `docs/maintainer/LIVE_SMOKE_MATRIX.md` still marks sensitive and destructive areas as manual-only.
-- Draft release notes exist in [`../releases/v0.6.0.md`](../releases/v0.6.0.md).
+- Release notes exist in [`../releases/v0.6.0.md`](../releases/v0.6.0.md).
 - README examples list matches the shipped examples.
 
 ### Security Gates
@@ -160,9 +160,9 @@ Also run the manual GitHub Actions workflow `Public consumer smoke` against `mai
 - Any pre-v1 breaking change is called out in `CHANGELOG.md` and, if needed, `docs/PRE_V1_NOTES.md`.
 - Blocking operations use caller-provided `context.Context`.
 
-## Candidate Release Notes Draft
+## Candidate Release Notes
 
-The full draft lives in [`../releases/v0.6.0.md`](../releases/v0.6.0.md). Keep this summary aligned with that file until the release is published.
+The full release notes live in [`../releases/v0.6.0.md`](../releases/v0.6.0.md). Keep this summary aligned with that file for future maintenance corrections.
 
 ### Added
 
@@ -195,4 +195,4 @@ The full draft lives in [`../releases/v0.6.0.md`](../releases/v0.6.0.md). Keep t
 - The official Bot API page shows a newer release that has not been audited.
 - `CHANGELOG.md`, release notes, and `docs/API_COVERAGE.md` disagree.
 - A secret or token-bearing URL appears in tracked files.
-- The maintainer has not explicitly approved tagging or publishing.
+- The maintainer has not explicitly approved tagging or publishing for the next release.

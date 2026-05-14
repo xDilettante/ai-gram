@@ -1,10 +1,10 @@
 # Release Checklist
 
-This checklist records the completed `v0.5.0` regular release and remains useful as the template for future pre-v1 releases. The next release-candidate preparation pass is tracked in [`NEXT_RELEASE_CANDIDATE.md`](NEXT_RELEASE_CANDIDATE.md).
+This checklist records completed regular releases and remains useful as the template for future pre-v1 releases. The `v0.6.0` release-candidate preparation pass is tracked in [`NEXT_RELEASE_CANDIDATE.md`](NEXT_RELEASE_CANDIDATE.md).
 
 ## Current Status
 
-Last verified: May 11, 2026, Bot API 10.0 final audit, public `main` consumer smoke, post-cleanup `Config` / `LoginURL` consumer smoke, and public `v0.5.0` release preparation.
+Last verified: May 14, 2026, Bot API 10.0 lightweight freshness audit, release-candidate local gates, direct public `main` consumer smoke, and public `v0.6.0` release preparation.
 
 - [x] Bot API 10.0 code coverage is complete with documented architecture differences.
 - [x] Final Bot API 10.0 audit is recorded in [`../BOT_API_10_0_FINAL_AUDIT.md`](../BOT_API_10_0_FINAL_AUDIT.md).
@@ -13,6 +13,7 @@ Last verified: May 11, 2026, Bot API 10.0 final audit, public `main` consumer sm
 - [x] Sensitive and state-changing live smoke remains manual-only.
 - [x] Annotated `v0.4.0` tag and GitHub pre-release were created after explicit maintainer approval.
 - [x] `v0.5.0` is prepared as the regular public release for the post-`v0.4.0` cleanup.
+- [x] `v0.6.0` is prepared as the regular public release for the post-`v0.5.0` production-readiness work.
 
 ## Required Local Checks
 
@@ -44,7 +45,7 @@ The same check is available from GitHub Actions as the manually triggered `Publi
 - Confirm `docs/API_COVERAGE.md` matches current implemented methods and intentional architecture differences.
 - Confirm Bot API update work followed [`BOT_API_UPDATE_CHECKLIST.md`](BOT_API_UPDATE_CHECKLIST.md) when upstream coverage changed.
 - Confirm `docs/ROADMAP.md` reflects the current release stage.
-- Confirm `docs/releases/v0.6.0.md` is updated from draft to final release notes before a future `v0.6.0` tag is created.
+- Confirm `docs/releases/v0.6.0.md` is updated to final release notes before the `v0.6.0` tag is created.
 - Confirm `docs/maintainer/LIVE_SMOKE_MATRIX.md` marks destructive, sensitive, and state-changing flows as manual-only.
 
 ## API And Test Gates
@@ -81,29 +82,31 @@ Use [`LIVE_SMOKE_MATRIX.md`](LIVE_SMOKE_MATRIX.md) as the source of truth. The f
 
 ## Versioning And Tag
 
-- Current release tag: `v0.5.0`.
+- Current release tag: `v0.6.0`.
+- Previous regular release tag: `v0.5.0`.
 - Previous Bot API 10.0 package tag: `v0.4.0`.
+- `v0.6.0` release commit: the commit targeted by the annotated `v0.6.0` tag.
 - `v0.5.0` release commit: the commit targeted by the annotated `v0.5.0` tag.
 - `v0.4.0` release commit: `2ce948b`.
 - Annotated tag creation used explicit maintainer approval:
 
 ```bash
-git tag -a v0.5.0 -m "Release v0.5.0"
+git tag -a v0.6.0 -m "Release v0.6.0"
 ```
 
 - Only that tag was pushed:
 
 ```bash
-git push origin v0.5.0
+git push https://github.com/xDilettante/ai-gram.git refs/tags/v0.6.0:refs/tags/v0.6.0
 ```
 
 - Public module installation was verified after the tag became available:
 
 ```bash
-go get github.com/xDilettante/ai-gram@v0.5.0
+go get github.com/xDilettante/ai-gram@v0.6.0
 ```
 
-- GitHub Release: <https://github.com/xDilettante/ai-gram/releases/tag/v0.5.0>.
+- GitHub Release: <https://github.com/xDilettante/ai-gram/releases/tag/v0.6.0>.
 
 Do not run `git push --tags`, create unrelated tags, or create future GitHub Releases before explicit approval.
 
