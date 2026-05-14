@@ -62,6 +62,16 @@ Make `ai-gram` more useful for real production bots without turning it into a he
   - `errors.IsContextCanceled`;
   - `errors.IsContextDeadlineExceeded`.
 - Added `examples/08_retry_sender` as the first production-style retry/rate-limit example using explicit application-level retry decisions.
+- Added the first group identity helper slice:
+  - `telegram.Actor`;
+  - `Message.Actor`;
+  - `CallbackQuery.Actor`;
+  - `Update.Actor`;
+  - `Message.IsAnonymousAdmin`;
+  - `Message.ReplyTarget`;
+  - `Message.ReplyTargetUser`;
+  - `Update.ReplyTarget`;
+  - `Update.ReplyTargetUser`.
 
 ## Needed
 
@@ -142,8 +152,8 @@ Required capabilities:
 
 Acceptance criteria:
 
-- helpers are documented;
-- tests use synthetic update fixtures;
+- helpers are documented. Done;
+- tests use synthetic update fixtures. Done;
 - middleware and examples can consume helpers without duplicating identity extraction logic.
 
 ### 4. Production Examples
@@ -223,6 +233,13 @@ Next error taxonomy follow-up after this slice:
 2. Cover wrapped Telegram API errors, rate limits, migrations, forbidden/not-found responses, network errors, and context cancellation with unit tests. Done.
 3. Update public docs and API coverage. Done.
 4. Add a production example that shows retry/rate-limit-aware sending without hidden automatic retries. Done.
+
+Next group identity follow-up after this slice:
+
+1. Add user/chat actor helpers for messages, callback queries, and updates. Done.
+2. Add anonymous admin and reply target helpers. Done.
+3. Cover helper behavior with synthetic update/message fixtures. Done.
+4. Add a production group/admin example that consumes the helpers without embedding moderation policy in the library.
 
 ## Not Now
 

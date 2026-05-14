@@ -7,6 +7,7 @@
 - Added a `callback` package for compact typed inline keyboard callback data, including encode/parse helpers, conventional confirm/cancel actions, pagination helpers, expiry checks, and callback button construction.
 - Added `dispatch.CallbackAction` and `Dispatcher.OnCallbackActionFunc` for routing parsed typed callback data by namespace and action.
 - Added `errors` helpers for classifying Telegram API errors, rate limits, chat migrations, forbidden/not-found responses, network errors, and context cancellation.
+- Added `telegram.Actor` and identity helpers for message/update/callback actors, anonymous admin detection, and reply target actors.
 
 ### Examples
 

@@ -102,6 +102,7 @@ To send messages, use `SendMessage` with typed parameters such as `aigram.SendMe
 - `transport/webhook` provides an inbound webhook HTTP handler.
 - `dispatch` routes updates to handlers, including typed callback-data routes.
 - `middleware` provides reusable dispatcher middleware.
+- `telegram` exposes identity helpers for user/chat actors, anonymous admins, and reply targets.
 - `callback` builds and parses compact typed inline keyboard callback data.
 - `errors` exposes typed Telegram API errors and classification helpers for rate limits, migrations, forbidden/not-found responses, network errors, and context cancellation.
 - The root package `aigram` provides a small convenience facade for quick-start code; advanced methods and contracts are intentionally used through `bot` and `telegram`.

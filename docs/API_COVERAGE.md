@@ -35,7 +35,7 @@ This document maps the current `ai-gram` implementation to Telegram Bot API area
 | --- | --- | --- | --- |
 | `(*bot.Bot).GetUpdates` | `getUpdates` | unit/httptest | Manual one-shot updates call. |
 | `transport/longpoll.Runner` | `getUpdates` loop | unit, live via examples/scripts | Managed offset advancement, backoff, context cancellation, handler error reporting. |
-| `telegram.Update`, `telegram.Message`, helpers | n/a | unit | Practical incoming update/message/callback/media decoding and helper methods, including `channel_post`, `edited_channel_post`, standalone `poll`, and Bot API 10.0 `guest_message` updates. |
+| `telegram.Update`, `telegram.Message`, `telegram.Actor`, helpers | n/a | unit | Practical incoming update/message/callback/media decoding and helper methods, including `channel_post`, `edited_channel_post`, standalone `poll`, Bot API 10.0 `guest_message` updates, actor identity, anonymous admin detection, and reply target actors. |
 | `dispatch.ChannelPost`, `EditedChannelPost`, `Poll` | n/a | unit | Predicate and handler registration helpers for channel post and standalone poll updates. |
 | Service/direct-message metadata on `telegram.Message` | n/a | unit | Decodes shared user/chat responses, chat background and boost service messages, video chat service messages, proximity alerts, auto-delete timer changes, giveaway service messages, paid/direct message price changes, connected websites, and ownership/chat creation service metadata. |
 | `dispatch.Dispatcher` | n/a | unit, live via examples | Predicate routing for messages, commands, exact callbacks, parsed typed callback data, middleware, fallback, and error handling. |
