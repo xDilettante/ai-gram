@@ -75,6 +75,7 @@ Make `ai-gram` more useful for real production bots without turning it into a he
 - Added `examples/09_group_admin` as a safe read-only group/admin example using `telegram.Actor`, anonymous admin detection, reply target helpers, and `middleware.Access`.
 - Added `examples/10_moderation_skeleton` as a dry-run moderation workflow with reports, admin previews, and join-request logging without destructive Bot API calls.
 - Added `examples/11_transport_parity` as a shared dispatcher/handler example that can run through either long polling or webhook intake with graceful shutdown and health checks.
+- Added `docs/maintainer/BOT_API_UPDATE_CHECKLIST.md` to make future Telegram Bot API update audits repeatable before introducing code generation.
 
 ## Needed
 
@@ -201,10 +202,10 @@ Do not introduce code generation until the public API shape is more proven.
 
 Required capabilities now:
 
-- checklist for Telegram Bot API updates;
-- audit workflow for new methods, fields, and result types;
-- tests for request encoding, result decoding, and JSON compatibility;
-- changelog and release-note discipline for breaking pre-v1 changes.
+- checklist for Telegram Bot API updates. Done;
+- audit workflow for new methods, fields, and result types. Done;
+- tests for request encoding, result decoding, and JSON compatibility. Done in checklist;
+- changelog and release-note discipline for breaking pre-v1 changes. Done in checklist.
 
 Future option:
 
@@ -256,7 +257,14 @@ Next webhook/polling parity follow-up after this slice:
 1. Add a shared dispatcher/handler example selectable by environment variable. Done.
 2. Cover polling `DeleteWebhook` and webhook `SetWebhook` plus graceful HTTP shutdown. Done.
 3. Document manual checks for both modes. Done.
-4. Move to Bot API compatibility discipline.
+4. Move to Bot API compatibility discipline. Done.
+
+Next Bot API compatibility follow-up after this slice:
+
+1. Add a maintainer checklist for Telegram Bot API update audits. Done.
+2. Link release and coverage docs to the checklist. Done.
+3. Keep code generation out until manual audits become the bottleneck. Done.
+4. Next useful stage: run a fresh lightweight audit against the current official Telegram Bot API docs before the next release candidate.
 
 ## Not Now
 

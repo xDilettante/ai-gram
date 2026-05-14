@@ -42,6 +42,7 @@ The same check is available from GitHub Actions as the manually triggered `Publi
 
 - Confirm `README.md` describes Bot API 10.0 coverage accurately.
 - Confirm `docs/API_COVERAGE.md` matches current implemented methods and intentional architecture differences.
+- Confirm Bot API update work followed [`BOT_API_UPDATE_CHECKLIST.md`](BOT_API_UPDATE_CHECKLIST.md) when upstream coverage changed.
 - Confirm `docs/ROADMAP.md` reflects the current release stage.
 - Confirm `docs/releases/v0.5.0.md` is the release notes source for the current tag.
 - Confirm `docs/maintainer/LIVE_SMOKE_MATRIX.md` marks destructive, sensitive, and state-changing flows as manual-only.
