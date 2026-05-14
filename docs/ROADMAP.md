@@ -110,7 +110,8 @@ Next phase:
 2. Keep Bot API 10.0 coverage docs current when Telegram publishes future Bot API releases.
 3. Keep sensitive/state-changing smoke manual-only and fixture-first by default.
 4. Keep [`PRE_V1_NOTES.md`](PRE_V1_NOTES.md) and [`CHANGELOG.md`](../CHANGELOG.md) current for breaking pre-v1 cleanup.
-5. Monitor `v0.5.0` feedback and keep future release work behind explicit approval.
+5. Use [`docs/plans/2026-05-14-production-readiness.md`](plans/2026-05-14-production-readiness.md) as the working plan for callback helpers, error taxonomy, group identity helpers, production examples, and transport-mode parity.
+6. Monitor `v0.5.0` feedback and keep future release work behind explicit approval.
 
 Live smoke policy:
 
