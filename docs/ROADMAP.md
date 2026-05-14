@@ -97,7 +97,7 @@ Repository status for this workstream:
 - Bot API 10.0 final audit found no known code coverage blockers.
 - The root `aigram` package is now a compact quick-start facade; the full Bot API surface lives in `bot` and `telegram`.
 - Public `main` consumer smoke passed after the root facade cleanup.
-- [`docs/releases/v0.5.0.md`](releases/v0.5.0.md) contains the release notes for the current public release.
+- [`docs/releases/v0.6.0.md`](releases/v0.6.0.md) contains the release notes for the current public release.
 - Do not create future tags or GitHub Releases until the user explicitly approves release work.
 
 Stage 98/99 outcome: **Bot API 9.6 code coverage is complete with documented architecture differences**. The final audit found wrappers for all 169 official Bot API methods and no missing fields in the audited high-impact object tables after adding `Message.giveaway`; Stage 99 resolved the final `setWebhook.certificate` upload blocker.

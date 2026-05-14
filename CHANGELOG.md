@@ -2,7 +2,11 @@
 
 ## Unreleased
 
-No unreleased changes.
+### Documentation
+
+- Added support guidance for public issue reports and safe reproduction details.
+- Updated public repository contributor and security guidance after the `v0.6.0` release.
+- Updated README release links and badges to the current `v0.6.0` release.
 
 ## v0.6.0 - 2026-05-14
 

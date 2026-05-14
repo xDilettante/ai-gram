@@ -18,7 +18,7 @@
 <p align="center">
   <img alt="Coverage: 63.4%" src="https://img.shields.io/badge/coverage-63.4%25-F59E0B?style=for-the-badge">
   <img alt="API coverage: 10.0 complete" src="https://img.shields.io/badge/API%20coverage-10.0%20complete-7C3AED?style=for-the-badge">
-  <img alt="Release: v0.5.0" src="https://img.shields.io/badge/release-v0.5.0-16A34A?style=for-the-badge">
+  <img alt="Release: v0.6.0" src="https://img.shields.io/badge/release-v0.6.0-16A34A?style=for-the-badge">
   <img alt="Built with ChatGPT and Codex" src="https://img.shields.io/badge/built%20with-ChatGPT%20%2B%20Codex-8B5CF6?style=for-the-badge">
 </p>
 
@@ -29,6 +29,7 @@
   <a href="docs/MANUAL_TESTING.md">Manual testing</a> ·
   <a href="CONTRIBUTING.md">Contributing</a> ·
   <a href="SECURITY.md">Security</a> ·
+  <a href="SUPPORT.md">Support</a> ·
   <a href="docs/ROADMAP.md">Roadmap</a>
 </p>
 
@@ -140,7 +141,7 @@ Maintainer-only smoke examples are separated under [`examples/maintainer/`](exam
 
 - [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) — short package and update-flow architecture diagram.
 - [`docs/API_COVERAGE.md`](docs/API_COVERAGE.md) — Bot API method/type coverage inventory and architecture notes.
-- [`docs/releases/v0.5.0.md`](docs/releases/v0.5.0.md) — release notes for the current public release.
+- [`docs/releases/v0.6.0.md`](docs/releases/v0.6.0.md) — release notes for the current public release.
 - [`docs/PRE_V1_NOTES.md`](docs/PRE_V1_NOTES.md) — current pre-v1 API shape and breaking-change notes.
 - [`docs/BOT_API_10_0_FINAL_AUDIT.md`](docs/BOT_API_10_0_FINAL_AUDIT.md) — final Bot API 10.0 coverage audit.
 - [`docs/releases/v0.4.0.md`](docs/releases/v0.4.0.md) — release notes for the Bot API 10.0 package milestone.
@@ -150,6 +151,7 @@ Maintainer-only smoke examples are separated under [`examples/maintainer/`](exam
 - [`docs/ROADMAP.md`](docs/ROADMAP.md) — stabilization and future work.
 - [`CONTRIBUTING.md`](CONTRIBUTING.md) — contribution guide and PR expectations.
 - [`SECURITY.md`](SECURITY.md) — security reporting policy.
+- [`SUPPORT.md`](SUPPORT.md) — support channels and safe issue-reporting guidance.
 - [`CHANGELOG.md`](CHANGELOG.md) — project changelog.
 - [`LICENSE`](LICENSE) — MIT license.
 
