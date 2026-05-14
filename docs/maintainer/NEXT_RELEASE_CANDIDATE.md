@@ -53,6 +53,28 @@ It is a preparation checklist only. Do not create tags, GitHub Releases, or rele
 
 Run these gates before tagging a release candidate or final release.
 
+## Gate Results
+
+### 2026-05-14 Local Gates
+
+Passed on `main` after adding this checklist:
+
+- `scripts/check.sh`;
+- `go test -race ./bot ./callback ./dispatch ./errors ./middleware ./transport/longpoll ./transport/webhook ./internal/httpclient ./telegram`;
+- `go test -coverprofile=coverage.out ./...`;
+- `go tool cover -func=coverage.out`;
+- `git diff --check`;
+- `git status --short`.
+
+Coverage summary:
+
+- total statement coverage: `60.0%`.
+
+Post-run cleanup:
+
+- `coverage.out` was removed after collecting the summary.
+- Working tree was clean before recording this result.
+
 ### Local Gates
 
 ```bash
