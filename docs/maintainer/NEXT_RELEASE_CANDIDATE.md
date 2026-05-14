@@ -75,6 +75,22 @@ Post-run cleanup:
 - `coverage.out` was removed after collecting the summary.
 - Working tree was clean before recording this result.
 
+### 2026-05-14 Public Consumer Smoke
+
+Direct public consumer smoke passed for `main`:
+
+```bash
+AIGRAM_CONSUMER_DIRECT=1 scripts/smoke_public_consumer.sh
+```
+
+Resolved module version:
+
+```text
+github.com/xDilettante/ai-gram v0.5.1-0.20260514192257-29f0f64349df
+```
+
+The default proxy-backed run was attempted first and failed with a TLS handshake timeout from `proxy.golang.org`. The fallback direct mode is the documented path for stale or unavailable public proxy checks.
+
 ### Local Gates
 
 ```bash

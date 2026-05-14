@@ -272,7 +272,7 @@ Next Bot API compatibility follow-up after this slice:
 Next release-prep follow-up after this slice:
 
 1. Run the release-candidate local gates from `docs/maintainer/NEXT_RELEASE_CANDIDATE.md`. Done.
-2. Run public consumer smoke for `main`.
+2. Run public consumer smoke for `main`. Done with `AIGRAM_CONSUMER_DIRECT=1` after the default proxy path timed out.
 3. Draft `docs/releases/v0.6.0.md` if the candidate proceeds as `v0.6.0`.
 4. Tag and publish only after explicit maintainer approval.
 
