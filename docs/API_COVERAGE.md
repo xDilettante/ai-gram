@@ -390,6 +390,7 @@ This document maps the current `ai-gram` implementation to Telegram Bot API area
 | `examples/07_inline_panel` | compile via `go test ./...`, manual smoke | Production-style long polling panel using `dispatch`, typed callback data, pagination, and confirm/cancel flows without real side effects. |
 | `examples/08_retry_sender` | compile via `go test ./...`, manual smoke | Production-style outgoing sender that uses explicit retry decisions for `retry_after`, network errors, and context deadlines without hidden automatic retries. |
 | `examples/09_group_admin` | unit, compile via `go test ./...`, manual smoke | Safe group/admin identity commands using `middleware.Access`, `telegram.Actor`, anonymous admin detection, and reply target helpers without destructive moderation actions. |
+| `examples/10_moderation_skeleton` | unit, compile via `go test ./...`, manual smoke | Dry-run moderation workflow using reports, admin previews, join-request logging, `middleware.Access`, and `telegram.Actor` helpers without calling destructive Bot API methods. |
 | `examples/echo_longpoll` | compile via `go test ./...`, manual smoke | Basic long polling echo. |
 | `examples/inline_longpoll` | compile via `go test ./...`, manual smoke | Inline callbacks, edit flow, access commands. |
 | `examples/webhook_server` | compile via `go test ./...`, live deploy smoke | Webhook, access panel, safe logs, callback/edit/delete/copy/forward/chat-info flows. |

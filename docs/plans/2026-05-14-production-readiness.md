@@ -73,6 +73,7 @@ Make `ai-gram` more useful for real production bots without turning it into a he
   - `Update.ReplyTarget`;
   - `Update.ReplyTargetUser`.
 - Added `examples/09_group_admin` as a safe read-only group/admin example using `telegram.Actor`, anonymous admin detection, reply target helpers, and `middleware.Access`.
+- Added `examples/10_moderation_skeleton` as a dry-run moderation workflow with reports, admin previews, and join-request logging without destructive Bot API calls.
 
 ## Needed
 
@@ -241,6 +242,13 @@ Next group identity follow-up after this slice:
 2. Add anonymous admin and reply target helpers. Done.
 3. Cover helper behavior with synthetic update/message fixtures. Done.
 4. Add a production group/admin example that consumes the helpers without embedding moderation policy in the library. Done.
+
+Next moderation example follow-up after this slice:
+
+1. Add a dry-run moderation skeleton with report and admin preview commands. Done.
+2. Include join-request observation without approve/decline side effects. Done.
+3. Keep ban/restrict/delete/approve/decline calls out of the example by default. Done.
+4. Move to webhook/long polling parity examples and docs.
 
 ## Not Now
 

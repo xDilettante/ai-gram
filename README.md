@@ -122,6 +122,7 @@ Start with the numbered examples under [`examples/`](examples/):
 - [`examples/07_inline_panel`](examples/07_inline_panel) — typed callback data, pagination, confirm/cancel, dispatcher, and long polling.
 - [`examples/08_retry_sender`](examples/08_retry_sender) — explicit retry/rate-limit-aware sending without hidden automatic retries.
 - [`examples/09_group_admin`](examples/09_group_admin) — safe group/admin identity commands using actor and reply-target helpers.
+- [`examples/10_moderation_skeleton`](examples/10_moderation_skeleton) — dry-run moderation workflow with reports, previews, and join-request logging.
 
 Additional examples remain available for advanced scenarios:
 

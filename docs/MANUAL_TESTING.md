@@ -161,6 +161,27 @@ Checklist:
 - Anonymous admin and `sender_chat` messages are described as chat actors instead of invented users.
 - Logs redact numeric chat/user IDs and do not print the bot token.
 
+## Moderation skeleton example
+
+Use a private test group or supergroup. The example is dry-run only: it does not call ban, restrict, delete, approve, or decline methods.
+
+```bash
+export AIGRAM_BOT_TOKEN='123456:replace_me'
+export AIGRAM_ACCESS_MODE='public'
+export AIGRAM_ADMIN_USER_IDS='123456789'
+export AIGRAM_ALLOWED_CHAT_IDS='-1001234567890'
+go run ./examples/10_moderation_skeleton
+```
+
+Checklist:
+
+- Add the bot to a test group and send `/help`.
+- Reply to a message and send `/report spam` to create a dry-run report.
+- As a configured admin, reply to a message and send `/mod_preview spam` to inspect the dry-run moderation plan.
+- `/mod_status` reports `dry_run=true` and `destructive_actions=disabled`.
+- If join requests are enabled in the test group, incoming requests are logged as dry-run observations only.
+- Logs and bot replies redact numeric chat/user IDs and do not print the bot token.
+
 ## Sensitive and state-changing areas
 
 The following areas should remain manual-only and should be tested only with dedicated test bots, disposable chats, or explicit maintainer approval:

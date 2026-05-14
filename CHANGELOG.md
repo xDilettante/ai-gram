@@ -16,6 +16,7 @@
 - Added `examples/07_inline_panel` with typed callbacks, pagination, confirm/cancel actions, dispatcher routing, and long polling.
 - Added `examples/08_retry_sender` with explicit retry/rate-limit-aware sending using the public error classification helpers.
 - Added `examples/09_group_admin` with safe read-only group/admin identity commands using `telegram.Actor` helpers.
+- Added `examples/10_moderation_skeleton` with dry-run reports, moderation previews, and join-request logging without destructive Bot API calls.
 
 ## v0.5.0 - 2026-05-11
 
