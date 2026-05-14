@@ -131,7 +131,7 @@ Also run the manual GitHub Actions workflow `Public consumer smoke` against `mai
 - `docs/BOT_API_10_0_LIGHTWEIGHT_AUDIT_2026_05_14.md` remains current enough for the release date, or a newer audit exists.
 - `docs/maintainer/BOT_API_UPDATE_CHECKLIST.md` has been followed if Telegram published a newer Bot API release.
 - `docs/maintainer/LIVE_SMOKE_MATRIX.md` still marks sensitive and destructive areas as manual-only.
-- Release notes exist under `docs/releases/` before a final release is created.
+- Draft release notes exist in [`../releases/v0.6.0.md`](../releases/v0.6.0.md).
 - README examples list matches the shipped examples.
 
 ### Security Gates
@@ -152,7 +152,7 @@ Also run the manual GitHub Actions workflow `Public consumer smoke` against `mai
 
 ## Candidate Release Notes Draft
 
-Use this as the starting point for `docs/releases/v0.6.0.md` if the candidate proceeds as `v0.6.0`.
+The full draft lives in [`../releases/v0.6.0.md`](../releases/v0.6.0.md). Keep this summary aligned with that file until the release is published.
 
 ### Added
 
