@@ -2,7 +2,7 @@
 
 This document maps the current `ai-gram` implementation to Telegram Bot API areas. It is a project inventory, not a generated copy of the full upstream Bot API specification. Telegram adds methods over time, so expansion work should still follow the maintainer [`Bot API update checklist`](maintainer/BOT_API_UPDATE_CHECKLIST.md) and be checked against the official Bot API docs before implementation.
 
-> **Bot API status:** Code coverage for Telegram Bot API 10.0 is complete with documented architecture differences. See [`docs/BOT_API_10_0_FINAL_AUDIT.md`](BOT_API_10_0_FINAL_AUDIT.md). The public repository exists, but new tags and GitHub Releases still require explicit maintainer approval.
+> **Bot API status:** Code coverage for Telegram Bot API 10.0 is complete with documented architecture differences. See [`docs/BOT_API_10_0_FINAL_AUDIT.md`](BOT_API_10_0_FINAL_AUDIT.md). A lightweight freshness audit on 2026-05-14 found no newer official Bot API release and no missing official method wrappers; see [`docs/BOT_API_10_0_LIGHTWEIGHT_AUDIT_2026_05_14.md`](BOT_API_10_0_LIGHTWEIGHT_AUDIT_2026_05_14.md). The public repository exists, but new tags and GitHub Releases still require explicit maintainer approval.
 
 > **Pre-v1 API shape:** Public APIs may still change before v1.0. Current naming and breaking-change notes live in [`docs/PRE_V1_NOTES.md`](PRE_V1_NOTES.md) and [`CHANGELOG.md`](../CHANGELOG.md).
 

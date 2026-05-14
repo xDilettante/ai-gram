@@ -5,6 +5,7 @@
 ### Added
 
 - Added a maintainer Bot API update checklist for future Telegram API compatibility audits.
+- Added a Bot API 10.0 lightweight freshness audit against the current official Telegram Bot API documentation.
 - Added a `callback` package for compact typed inline keyboard callback data, including encode/parse helpers, conventional confirm/cancel actions, pagination helpers, expiry checks, and callback button construction.
 - Added `dispatch.CallbackAction` and `Dispatcher.OnCallbackActionFunc` for routing parsed typed callback data by namespace and action.
 - Added `errors` helpers for classifying Telegram API errors, rate limits, chat migrations, forbidden/not-found responses, network errors, and context cancellation.
