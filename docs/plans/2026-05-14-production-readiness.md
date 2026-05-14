@@ -61,6 +61,7 @@ Make `ai-gram` more useful for real production bots without turning it into a he
   - `errors.IsNetworkError`;
   - `errors.IsContextCanceled`;
   - `errors.IsContextDeadlineExceeded`.
+- Added `examples/08_retry_sender` as the first production-style retry/rate-limit example using explicit application-level retry decisions.
 
 ## Needed
 
@@ -221,7 +222,7 @@ Next error taxonomy follow-up after this slice:
 1. Add error classification helpers on top of `errors.APIError`. Done.
 2. Cover wrapped Telegram API errors, rate limits, migrations, forbidden/not-found responses, network errors, and context cancellation with unit tests. Done.
 3. Update public docs and API coverage. Done.
-4. Add a production example that shows retry/rate-limit-aware sending without hidden automatic retries.
+4. Add a production example that shows retry/rate-limit-aware sending without hidden automatic retries. Done.
 
 ## Not Now
 

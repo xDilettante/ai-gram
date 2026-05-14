@@ -28,6 +28,11 @@ Common variables:
 | `AIGRAM_PHOTO_FILE_ID` | Optional Telegram photo `file_id` for the media upload example. |
 | `AIGRAM_DOCUMENT_PATH` | Optional local document path for the media upload example. |
 | `AIGRAM_DOCUMENT_FILE_ID` | Optional Telegram document `file_id` for the media upload example. |
+| `AIGRAM_RETRY_TEXT` | Optional message text for the retry sender example. |
+| `AIGRAM_RETRY_MAX_ATTEMPTS` | Optional retry sender attempt limit. Defaults to `4`, maximum `10`. |
+| `AIGRAM_RETRY_ATTEMPT_TIMEOUT` | Optional per-attempt timeout for the retry sender example. Defaults to `10s`. |
+| `AIGRAM_RETRY_BASE_DELAY` | Optional fallback retry delay. Defaults to `1s`. |
+| `AIGRAM_RETRY_MAX_DELAY` | Optional maximum fallback retry delay. Defaults to `30s`. |
 
 ## Long polling echo bot
 
@@ -114,6 +119,23 @@ Checklist:
 - Uploads use multipart when a local path is provided.
 - If no document path or file ID is set, the example generates and uploads a small temporary text document.
 - Logs do not print the full bot token or token-bearing URLs.
+
+## Retry sender example
+
+```bash
+export AIGRAM_BOT_TOKEN='123456:replace_me'
+export AIGRAM_CHAT_ID='123456789'
+export AIGRAM_RETRY_TEXT='Retry sender smoke message'
+go run ./examples/08_retry_sender
+```
+
+Checklist:
+
+- The example sends one message and exits after success.
+- `429 retry_after` responses are retried explicitly after the Telegram-provided delay.
+- Network errors and per-attempt context deadlines use bounded exponential backoff.
+- Forbidden, not-found, migrated-chat, and unrelated Telegram API errors are not retried by default.
+- Logs redact numeric chat IDs and do not print the bot token.
 
 ## Sensitive and state-changing areas
 

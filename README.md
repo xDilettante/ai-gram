@@ -119,6 +119,7 @@ Start with the numbered examples under [`examples/`](examples/):
 - [`examples/05_media_upload`](examples/05_media_upload) — photo/document sends by `file_id` or local upload.
 - [`examples/06_webhook_basic`](examples/06_webhook_basic) — simple webhook server with `/healthz` and `/webhook`.
 - [`examples/07_inline_panel`](examples/07_inline_panel) — typed callback data, pagination, confirm/cancel, dispatcher, and long polling.
+- [`examples/08_retry_sender`](examples/08_retry_sender) — explicit retry/rate-limit-aware sending without hidden automatic retries.
 
 Additional examples remain available for advanced scenarios:
 

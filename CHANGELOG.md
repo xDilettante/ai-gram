@@ -13,6 +13,7 @@
 - Added shared example log masking for numeric private IDs and updated long polling/webhook examples to avoid raw `chat_id`, `from_user_id`, and `by_user_id` values in logs.
 - Updated `examples/04_inline_keyboard` to use typed callback data instead of ad hoc callback strings.
 - Added `examples/07_inline_panel` with typed callbacks, pagination, confirm/cancel actions, dispatcher routing, and long polling.
+- Added `examples/08_retry_sender` with explicit retry/rate-limit-aware sending using the public error classification helpers.
 
 ## v0.5.0 - 2026-05-11
 
