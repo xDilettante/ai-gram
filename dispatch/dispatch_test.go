@@ -6,6 +6,7 @@ import (
 	"reflect"
 	"testing"
 
+	"github.com/xDilettante/ai-gram/callback"
 	"github.com/xDilettante/ai-gram/telegram"
 )
 
@@ -257,6 +258,69 @@ func TestCallbackRoutes(t *testing.T) {
 
 	if err := dispatcher.OnCallbackData("", HandlerFunc(func(context.Context, telegram.Update) error { return nil })); err == nil {
 		t.Fatal("expected error for empty callback data")
+	}
+}
+
+func TestCallbackActionRoutes(t *testing.T) {
+	dispatcher := New()
+	var got callback.Data
+	var calls int
+	must(t, dispatcher.OnCallbackActionFunc("panel", "open", func(ctx context.Context, update telegram.Update, data callback.Data) error {
+		calls++
+		got = data
+		return nil
+	}))
+
+	raw := callback.Must(callback.New("panel", "open").WithID("item-42").WithPage(2))
+	if err := dispatcher.HandleUpdate(context.Background(), callbackUpdate(raw)); err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if calls != 1 {
+		t.Fatalf("callback action route calls = %d, want 1", calls)
+	}
+	if got.Namespace != "panel" || got.Action != "open" || got.ID != "item-42" || !got.HasPage || got.Page != 2 {
+		t.Fatalf("unexpected parsed callback data: %+v", got)
+	}
+
+	if err := dispatcher.HandleUpdate(context.Background(), callbackUpdate(callback.Must(callback.New("panel", "close")))); err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if calls != 1 {
+		t.Fatalf("callback action route matched wrong action: %d", calls)
+	}
+
+	if err := dispatcher.HandleUpdate(context.Background(), callbackUpdate("not-typed")); err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if calls != 1 {
+		t.Fatalf("callback action route matched invalid data: %d", calls)
+	}
+}
+
+func TestCallbackActionValidation(t *testing.T) {
+	dispatcher := New()
+	handler := CallbackDataHandlerFunc(func(context.Context, telegram.Update, callback.Data) error { return nil })
+
+	for _, tt := range []struct {
+		namespace string
+		action    string
+	}{
+		{namespace: "", action: "open"},
+		{namespace: "panel", action: ""},
+		{namespace: "bad namespace", action: "open"},
+		{namespace: "very-long-namespace", action: "very-long-action-with-a-very-long-name-that-does-not-fit"},
+	} {
+		if err := dispatcher.OnCallbackAction(tt.namespace, tt.action, handler); err == nil {
+			t.Fatalf("expected validation error for namespace=%q action=%q", tt.namespace, tt.action)
+		}
+	}
+
+	if err := dispatcher.OnCallbackAction("panel", "open", nil); err == nil {
+		t.Fatal("expected error for nil callback data handler")
+	}
+	var typedNil CallbackDataHandlerFunc
+	if err := dispatcher.OnCallbackAction("panel", "open", typedNil); err == nil {
+		t.Fatal("expected error for typed nil callback data handler")
 	}
 }
 
@@ -655,6 +719,15 @@ func TestPredicateHelpersAreSafeForInvalidInputs(t *testing.T) {
 	}
 	if CallbackData("")(callbackUpdate("")) {
 		t.Fatal("empty callback data should not match")
+	}
+	if CallbackAction("", "open")(callbackUpdate(callback.Must(callback.New("panel", "open")))) {
+		t.Fatal("empty callback action namespace should not match")
+	}
+	if CallbackAction("panel", "")(callbackUpdate(callback.Must(callback.New("panel", "open")))) {
+		t.Fatal("empty callback action should not match")
+	}
+	if CallbackAction("panel", "open")(callbackUpdate("not-typed")) {
+		t.Fatal("malformed callback data should not match")
 	}
 }
 

@@ -7,6 +7,7 @@ import (
 	"reflect"
 	"strings"
 
+	"github.com/xDilettante/ai-gram/callback"
 	"github.com/xDilettante/ai-gram/telegram"
 )
 
@@ -21,6 +22,19 @@ type HandlerFunc func(context.Context, telegram.Update) error
 // HandleUpdate calls f(ctx, update).
 func (f HandlerFunc) HandleUpdate(ctx context.Context, update telegram.Update) error {
 	return f(ctx, update)
+}
+
+// CallbackDataHandler handles a callback query update with parsed callback data.
+type CallbackDataHandler interface {
+	HandleCallbackData(context.Context, telegram.Update, callback.Data) error
+}
+
+// CallbackDataHandlerFunc adapts a function to CallbackDataHandler.
+type CallbackDataHandlerFunc func(context.Context, telegram.Update, callback.Data) error
+
+// HandleCallbackData calls f(ctx, update, data).
+func (f CallbackDataHandlerFunc) HandleCallbackData(ctx context.Context, update telegram.Update, data callback.Data) error {
+	return f(ctx, update, data)
 }
 
 // Middleware wraps a Handler with additional behavior.
@@ -214,6 +228,29 @@ func (d *Dispatcher) OnCallbackData(data string, handler Handler) error {
 // OnCallbackDataFunc registers a function handler for callback query updates with matching data.
 func (d *Dispatcher) OnCallbackDataFunc(data string, handler HandlerFunc) error {
 	return d.OnCallbackData(data, handler)
+}
+
+// OnCallbackAction registers a handler for parsed callback data with matching namespace and action.
+func (d *Dispatcher) OnCallbackAction(namespace string, action string, handler CallbackDataHandler) error {
+	if !validCallbackAction(namespace, action) {
+		return stderrors.New("callback namespace and action are required and must encode as valid callback data")
+	}
+	if isNilCallbackDataHandler(handler) {
+		return stderrors.New("callback data handler is required")
+	}
+
+	return d.Handle(CallbackAction(namespace, action), HandlerFunc(func(ctx context.Context, update telegram.Update) error {
+		data, err := parsedCallbackData(update)
+		if err != nil || !data.Match(namespace, action) {
+			return nil
+		}
+		return handler.HandleCallbackData(ctx, update, data)
+	}))
+}
+
+// OnCallbackActionFunc registers a function handler for parsed callback data with matching namespace and action.
+func (d *Dispatcher) OnCallbackActionFunc(namespace string, action string, handler CallbackDataHandlerFunc) error {
+	return d.OnCallbackAction(namespace, action, handler)
 }
 
 // OnInlineQuery registers a handler for inline query updates.
@@ -450,6 +487,18 @@ func CallbackData(data string) Predicate {
 	}
 }
 
+// CallbackAction matches parsed callback data with the given namespace and action.
+func CallbackAction(namespace string, action string) Predicate {
+	valid := validCallbackAction(namespace, action)
+	return func(update telegram.Update) bool {
+		if !valid {
+			return false
+		}
+		data, err := parsedCallbackData(update)
+		return err == nil && data.Match(namespace, action)
+	}
+}
+
 // InlineQuery matches updates with an inline query.
 func InlineQuery() Predicate {
 	return func(update telegram.Update) bool { return update.InlineQuery != nil }
@@ -602,6 +651,32 @@ func isNilHandler(handler Handler) bool {
 	}
 }
 
+func isNilCallbackDataHandler(handler CallbackDataHandler) bool {
+	if handler == nil {
+		return true
+	}
+
+	value := reflect.ValueOf(handler)
+	switch value.Kind() {
+	case reflect.Chan, reflect.Func, reflect.Interface, reflect.Map, reflect.Pointer, reflect.Slice:
+		return value.IsNil()
+	default:
+		return false
+	}
+}
+
 func validCommand(command string) bool {
 	return command != "" && !strings.HasPrefix(command, "/") && !strings.ContainsAny(command, " \t\n\r")
+}
+
+func validCallbackAction(namespace string, action string) bool {
+	_, err := callback.New(namespace, action).Encode()
+	return err == nil
+}
+
+func parsedCallbackData(update telegram.Update) (callback.Data, error) {
+	if update.CallbackQuery == nil {
+		return callback.Data{}, callback.ErrEmptyData
+	}
+	return callback.Parse(update.CallbackQuery.Data)
 }

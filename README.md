@@ -100,7 +100,7 @@ To send messages, use `SendMessage` with typed parameters such as `aigram.SendMe
 - `bot` contains the primary Bot API client and typed method parameters.
 - `transport/longpoll` provides a managed long polling update source.
 - `transport/webhook` provides an inbound webhook HTTP handler.
-- `dispatch` routes updates to handlers.
+- `dispatch` routes updates to handlers, including typed callback-data routes.
 - `middleware` provides reusable dispatcher middleware.
 - `callback` builds and parses compact typed inline keyboard callback data.
 - `errors` exposes typed Telegram API errors.

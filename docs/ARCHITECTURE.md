@@ -49,6 +49,8 @@ The `bot` package owns outgoing Telegram Bot API calls. It accepts typed paramet
 
 The `callback` package builds and parses compact inline keyboard `callback_data` values. It is intentionally stateless: applications own authorization, storage, and side effects, while the package provides typed namespace/action/ID/page/expiry fields, length validation, and helpers for common confirm/cancel or pagination flows.
 
+`dispatch` can route typed callback data with namespace/action predicates and handlers that receive the parsed callback payload.
+
 ## File uploads
 
 Telegram's official `InputFile` concept is represented by `FileRef` and `FileUpload` in the client layer. Existing file IDs and URLs stay in JSON requests when the method allows them. New uploads use multipart requests and deterministic `attach://` references for media, thumbnails, covers, webhook certificates, and other upload-capable fields.

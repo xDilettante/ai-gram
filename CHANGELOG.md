@@ -5,6 +5,7 @@
 ### Added
 
 - Added a `callback` package for compact typed inline keyboard callback data, including encode/parse helpers, conventional confirm/cancel actions, pagination helpers, expiry checks, and callback button construction.
+- Added `dispatch.CallbackAction` and `Dispatcher.OnCallbackActionFunc` for routing parsed typed callback data by namespace and action.
 
 ### Examples
 

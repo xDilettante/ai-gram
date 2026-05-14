@@ -43,6 +43,11 @@ Make `ai-gram` more useful for real production bots without turning it into a he
   - pagination and expiry helpers;
   - callback button construction;
   - `examples/04_inline_keyboard` usage.
+- Added dispatch integration for typed callback data:
+  - `dispatch.CallbackAction`;
+  - `Dispatcher.OnCallbackAction`;
+  - `Dispatcher.OnCallbackActionFunc`;
+  - `dispatch.CallbackDataHandler`.
 
 ## Needed
 
@@ -194,7 +199,7 @@ Planned first implementation slice:
 
 Next callback follow-up after this slice:
 
-1. Add dispatch integration for parsed callback data.
+1. Add dispatch integration for parsed callback data. Done.
 2. Add a production-style inline panel example with pagination and confirm/cancel.
 3. Audit public examples for raw private IDs in logs while updating callback flows.
 
