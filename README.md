@@ -123,6 +123,7 @@ Start with the numbered examples under [`examples/`](examples/):
 - [`examples/08_retry_sender`](examples/08_retry_sender) — explicit retry/rate-limit-aware sending without hidden automatic retries.
 - [`examples/09_group_admin`](examples/09_group_admin) — safe group/admin identity commands using actor and reply-target helpers.
 - [`examples/10_moderation_skeleton`](examples/10_moderation_skeleton) — dry-run moderation workflow with reports, previews, and join-request logging.
+- [`examples/11_transport_parity`](examples/11_transport_parity) — shared dispatcher and handlers that switch between long polling and webhook intake.
 
 Additional examples remain available for advanced scenarios:
 

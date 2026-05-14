@@ -24,9 +24,11 @@ Common variables:
 | `AIGRAM_ACCESS_MODE` | Optional access mode for protected examples: `admin`, `public`, or `off`. Defaults to `admin`. |
 | `AIGRAM_BASE_URL` | Optional custom Bot API base URL, for example a local Telegram Bot API server. |
 | `AIGRAM_FILE_BASE_URL` | Optional file base URL for a custom Bot API endpoint. |
+| `AIGRAM_TRANSPORT` | Optional transport mode for parity examples: `polling` or `webhook`. Defaults to `polling`. |
 | `AIGRAM_LISTEN_ADDR` | HTTP listen address for webhook examples. Defaults to `:8080`. |
 | `AIGRAM_WEBHOOK_URL` | Webhook URL passed to Telegram by the webhook example. |
 | `AIGRAM_WEBHOOK_SECRET` | Optional secret token used by both `SetWebhook` and the webhook handler. |
+| `AIGRAM_WEBHOOK_PATH` | Optional webhook HTTP path for transport parity examples. Defaults to `/webhook`. |
 | `AIGRAM_PHOTO_PATH` | Optional local photo path for the media upload example. |
 | `AIGRAM_PHOTO_FILE_ID` | Optional Telegram photo `file_id` for the media upload example. |
 | `AIGRAM_DOCUMENT_PATH` | Optional local document path for the media upload example. |
@@ -181,6 +183,38 @@ Checklist:
 - `/mod_status` reports `dry_run=true` and `destructive_actions=disabled`.
 - If join requests are enabled in the test group, incoming requests are logged as dry-run observations only.
 - Logs and bot replies redact numeric chat/user IDs and do not print the bot token.
+
+## Transport parity example
+
+Polling mode:
+
+```bash
+export AIGRAM_BOT_TOKEN='123456:replace_me'
+export AIGRAM_ACCESS_MODE='public'
+export AIGRAM_TRANSPORT='polling'
+go run ./examples/11_transport_parity
+```
+
+Webhook mode:
+
+```bash
+export AIGRAM_BOT_TOKEN='123456:replace_me'
+export AIGRAM_ACCESS_MODE='public'
+export AIGRAM_TRANSPORT='webhook'
+export AIGRAM_LISTEN_ADDR=':8080'
+export AIGRAM_WEBHOOK_PATH='/webhook'
+export AIGRAM_WEBHOOK_URL='https://example.com/webhook'
+export AIGRAM_WEBHOOK_SECRET='replace_me_secret'
+go run ./examples/11_transport_parity
+```
+
+Checklist:
+
+- Both modes use the same dispatcher, middleware, and handlers.
+- Polling mode deletes the active webhook before polling.
+- Webhook mode serves `/healthz` and the configured webhook path, then registers `SetWebhook`.
+- `/status` works in both modes and redacts numeric IDs.
+- Stop with `Ctrl+C` and confirm graceful shutdown.
 
 ## Sensitive and state-changing areas
 

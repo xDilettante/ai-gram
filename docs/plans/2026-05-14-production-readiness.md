@@ -74,6 +74,7 @@ Make `ai-gram` more useful for real production bots without turning it into a he
   - `Update.ReplyTargetUser`.
 - Added `examples/09_group_admin` as a safe read-only group/admin example using `telegram.Actor`, anonymous admin detection, reply target helpers, and `middleware.Access`.
 - Added `examples/10_moderation_skeleton` as a dry-run moderation workflow with reports, admin previews, and join-request logging without destructive Bot API calls.
+- Added `examples/11_transport_parity` as a shared dispatcher/handler example that can run through either long polling or webhook intake with graceful shutdown and health checks.
 
 ## Needed
 
@@ -191,8 +192,8 @@ Required capabilities:
 
 Acceptance criteria:
 
-- users can compare long polling and webhook examples without rewriting business handlers;
-- docs explain mode-specific tradeoffs and Telegram constraints.
+- users can compare long polling and webhook examples without rewriting business handlers. Done;
+- docs explain mode-specific tradeoffs and Telegram constraints. Done.
 
 ### 6. Bot API Compatibility Discipline
 
@@ -248,7 +249,14 @@ Next moderation example follow-up after this slice:
 1. Add a dry-run moderation skeleton with report and admin preview commands. Done.
 2. Include join-request observation without approve/decline side effects. Done.
 3. Keep ban/restrict/delete/approve/decline calls out of the example by default. Done.
-4. Move to webhook/long polling parity examples and docs.
+4. Move to webhook/long polling parity examples and docs. Done.
+
+Next webhook/polling parity follow-up after this slice:
+
+1. Add a shared dispatcher/handler example selectable by environment variable. Done.
+2. Cover polling `DeleteWebhook` and webhook `SetWebhook` plus graceful HTTP shutdown. Done.
+3. Document manual checks for both modes. Done.
+4. Move to Bot API compatibility discipline.
 
 ## Not Now
 
