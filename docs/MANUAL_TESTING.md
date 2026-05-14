@@ -19,6 +19,9 @@ Common variables:
 | `AIGRAM_BOT_TOKEN` | Telegram bot token. Required for examples that call Telegram. |
 | `AIGRAM_CHAT_ID` | Chat ID or username for examples that send messages proactively. |
 | `AIGRAM_ADMIN_USER_IDS` | Optional comma-separated admin user IDs for protected examples. |
+| `AIGRAM_ALLOWED_USER_IDS` | Optional comma-separated non-admin user IDs for protected examples. |
+| `AIGRAM_ALLOWED_CHAT_IDS` | Optional comma-separated chat IDs for protected examples. |
+| `AIGRAM_ACCESS_MODE` | Optional access mode for protected examples: `admin`, `public`, or `off`. Defaults to `admin`. |
 | `AIGRAM_BASE_URL` | Optional custom Bot API base URL, for example a local Telegram Bot API server. |
 | `AIGRAM_FILE_BASE_URL` | Optional file base URL for a custom Bot API endpoint. |
 | `AIGRAM_LISTEN_ADDR` | HTTP listen address for webhook examples. Defaults to `:8080`. |
@@ -136,6 +139,27 @@ Checklist:
 - Network errors and per-attempt context deadlines use bounded exponential backoff.
 - Forbidden, not-found, migrated-chat, and unrelated Telegram API errors are not retried by default.
 - Logs redact numeric chat IDs and do not print the bot token.
+
+## Group admin identity example
+
+Use a private test group or supergroup. The example is read-only: it does not ban, restrict, delete, approve, or decline users.
+
+```bash
+export AIGRAM_BOT_TOKEN='123456:replace_me'
+export AIGRAM_ADMIN_USER_IDS='123456789'
+export AIGRAM_ALLOWED_CHAT_IDS='-1001234567890'
+go run ./examples/09_group_admin
+```
+
+Checklist:
+
+- Add the bot to a test group and send `/help`.
+- `/whoami` shows the actor user or sender chat with redacted numeric IDs.
+- `/chat` shows the effective chat with redacted numeric IDs.
+- Reply to a message and send `/replytarget` to inspect the replied-to actor.
+- `/admin_panel` works only for configured admin users and remains read-only.
+- Anonymous admin and `sender_chat` messages are described as chat actors instead of invented users.
+- Logs redact numeric chat/user IDs and do not print the bot token.
 
 ## Sensitive and state-changing areas
 

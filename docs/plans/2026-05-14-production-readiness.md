@@ -72,6 +72,7 @@ Make `ai-gram` more useful for real production bots without turning it into a he
   - `Message.ReplyTargetUser`;
   - `Update.ReplyTarget`;
   - `Update.ReplyTargetUser`.
+- Added `examples/09_group_admin` as a safe read-only group/admin example using `telegram.Actor`, anonymous admin detection, reply target helpers, and `middleware.Access`.
 
 ## Needed
 
@@ -239,7 +240,7 @@ Next group identity follow-up after this slice:
 1. Add user/chat actor helpers for messages, callback queries, and updates. Done.
 2. Add anonymous admin and reply target helpers. Done.
 3. Cover helper behavior with synthetic update/message fixtures. Done.
-4. Add a production group/admin example that consumes the helpers without embedding moderation policy in the library.
+4. Add a production group/admin example that consumes the helpers without embedding moderation policy in the library. Done.
 
 ## Not Now
 
