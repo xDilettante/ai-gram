@@ -25,7 +25,7 @@ This document maps the current `ai-gram` implementation to Telegram Bot API area
 | `(*bot.Bot).VerifyChat` | `verifyChat` | unit/httptest | Verifies a chat on behalf of the bot organization. Manual-only verification operation. |
 | `(*bot.Bot).RemoveUserVerification` | `removeUserVerification` | unit/httptest | Removes organization verification from a user. Manual-only verification operation. |
 | `(*bot.Bot).RemoveChatVerification` | `removeChatVerification` | unit/httptest | Removes organization verification from a chat. Manual-only verification operation. |
-| `errors.APIError`, `errors.ResponseParameters` | Bot API error envelope | unit | `ok:false` responses return typed errors; tests cover `errors.As`. |
+| `errors.APIError`, `errors.ResponseParameters`, error classification helpers | Bot API error envelope | unit | `ok:false` responses return typed errors; helpers cover wrapped API errors, `retry_after`, `migrate_to_chat_id`, forbidden/not-found style responses, network errors, and context cancellation. |
 | `bot.ChatID`, `ChatIDInt`, `ChatIDString` | `chat_id` parameter shape | unit | Supports numeric chat IDs and string IDs such as `@channelusername` or target bot usernames. |
 | `callback.Data`, `callback.Parse`, `callback.Button` | `callback_data` helper layer | unit, live examples | Builds compact typed inline keyboard callback data with namespace/action/ID/page/expiry fields and rejects payloads over Telegram's 64-byte limit. |
 
