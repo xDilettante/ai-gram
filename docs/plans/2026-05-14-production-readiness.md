@@ -77,6 +77,7 @@ Make `ai-gram` more useful for real production bots without turning it into a he
 - Added `examples/11_transport_parity` as a shared dispatcher/handler example that can run through either long polling or webhook intake with graceful shutdown and health checks.
 - Added `docs/maintainer/BOT_API_UPDATE_CHECKLIST.md` to make future Telegram Bot API update audits repeatable before introducing code generation.
 - Added `docs/BOT_API_10_0_LIGHTWEIGHT_AUDIT_2026_05_14.md`; the official Bot API page still lists 10.0 as latest, and the method-level comparison found no missing official method wrappers.
+- Added `docs/maintainer/NEXT_RELEASE_CANDIDATE.md` to prepare the accumulated post-`v0.5.0` work for a future release candidate without tagging or publishing.
 
 ## Needed
 
@@ -266,7 +267,14 @@ Next Bot API compatibility follow-up after this slice:
 2. Link release and coverage docs to the checklist. Done.
 3. Keep code generation out until manual audits become the bottleneck. Done.
 4. Run a fresh lightweight audit against the current official Telegram Bot API docs before the next release candidate. Done.
-5. Next useful stage: prepare a small public release candidate checklist for the accumulated post-v0.5.0 improvements.
+5. Prepare a small public release candidate checklist for the accumulated post-v0.5.0 improvements. Done.
+
+Next release-prep follow-up after this slice:
+
+1. Run the release-candidate local gates from `docs/maintainer/NEXT_RELEASE_CANDIDATE.md`.
+2. Run public consumer smoke for `main`.
+3. Draft `docs/releases/v0.6.0.md` if the candidate proceeds as `v0.6.0`.
+4. Tag and publish only after explicit maintainer approval.
 
 ## Not Now
 

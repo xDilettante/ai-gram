@@ -1,6 +1,6 @@
 # Release Checklist
 
-This checklist records the completed `v0.5.0` regular release and remains useful as the template for future pre-v1 releases.
+This checklist records the completed `v0.5.0` regular release and remains useful as the template for future pre-v1 releases. The next release-candidate preparation pass is tracked in [`NEXT_RELEASE_CANDIDATE.md`](NEXT_RELEASE_CANDIDATE.md).
 
 ## Current Status
 
