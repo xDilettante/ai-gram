@@ -2,7 +2,7 @@
 
 This document maps the current `ai-gram` implementation to Telegram Bot API areas. It is a project inventory, not a generated copy of the full upstream Bot API specification. Telegram adds methods over time, so expansion work should still follow the maintainer [`Bot API update checklist`](maintainer/BOT_API_UPDATE_CHECKLIST.md) and be checked against the official Bot API docs before implementation.
 
-> **Bot API status:** Code coverage for Telegram Bot API 10.0 is complete with documented architecture differences. See [`docs/BOT_API_10_0_FINAL_AUDIT.md`](BOT_API_10_0_FINAL_AUDIT.md). A lightweight freshness audit on 2026-05-14 found no newer official Bot API release and no missing official method wrappers; see [`docs/BOT_API_10_0_LIGHTWEIGHT_AUDIT_2026_05_14.md`](BOT_API_10_0_LIGHTWEIGHT_AUDIT_2026_05_14.md). The public repository exists, but new tags and GitHub Releases still require explicit maintainer approval.
+> **Bot API status:** Code coverage for Telegram Bot API 10.0 is complete with documented architecture differences. Telegram Bot API 10.1 was published on 2026-06-11 and coverage is in progress. The first 10.1 slice covers join request queries and poll link media; Rich Messages remain pending. See [`docs/BOT_API_10_0_FINAL_AUDIT.md`](BOT_API_10_0_FINAL_AUDIT.md) and [`docs/BOT_API_10_1_AUDIT.md`](BOT_API_10_1_AUDIT.md). The public repository exists, but new tags and GitHub Releases still require explicit maintainer approval.
 
 > **Pre-v1 API shape:** Public APIs may still change before v1.0. Current naming and breaking-change notes live in [`docs/PRE_V1_NOTES.md`](PRE_V1_NOTES.md) and [`CHANGELOG.md`](../CHANGELOG.md).
 
@@ -15,7 +15,7 @@ This document maps the current `ai-gram` implementation to Telegram Bot API area
 | Public Go API | Telegram Bot API method | Tests | Notes |
 | --- | --- | --- | --- |
 | `aigram.New`, `aigram.NewBot`, `bot.New` | n/a | unit | Token validation, configurable base URL and HTTP client. The root package is a compact facade; full method params live in `bot`, and Telegram contracts live in `telegram`. Token is stored privately, not exposed by public accessors, and redacted from string output. |
-| `(*bot.Bot).GetMe` | `getMe` | unit/httptest, live via smoke scripts | Basic identity check used by discovery and smoke helpers. |
+| `(*bot.Bot).GetMe` | `getMe` | unit/httptest, live via smoke scripts | Basic identity check used by discovery and smoke helpers. Decodes Bot API 10.1 `supports_join_request_queries` on `telegram.User`. |
 | `(*bot.Bot).LogOut` | `logOut` | unit/httptest | Logs the bot out from the cloud Bot API server before local Bot API migration. Manual-only lifecycle operation. |
 | `(*bot.Bot).Close` | `close` | unit/httptest | Closes a local Bot API bot instance before moving it between local servers. Manual-only lifecycle operation. |
 | `(*bot.Bot).GetUserProfilePhotos` | `getUserProfilePhotos` | unit/httptest | Safe profile read returning `telegram.UserProfilePhotos`. |
@@ -63,15 +63,15 @@ This document maps the current `ai-gram` implementation to Telegram Bot API area
 | `(*bot.Bot).SendContact` | `sendContact` | unit/httptest, live v0.2 smoke | Supports contact phone/name/vCard fields, reply markup, `message_thread_id`, `reply_parameters`, and optional `business_connection_id`. |
 | `(*bot.Bot).SendLocation` | `sendLocation` | unit/httptest, live v0.2 smoke | Supports latitude/longitude, live-location optional fields, reply markup, thread/reply params, and optional `business_connection_id`. |
 | `(*bot.Bot).SendVenue` | `sendVenue` | unit/httptest, live v0.2 smoke | Supports venue coordinates, title/address, Foursquare/Google place fields, reply markup, thread/reply params, and optional `business_connection_id`. |
-| `(*bot.Bot).SendPoll` | `sendPoll` | unit/httptest, live v0.2 smoke | Supports legacy string options and structured `telegram.InputPollOption` values, quiz fields, Bot API 9.6 `correct_option_ids`, revoting/options controls, question/description formatting, reply markup, thread/reply params, optional `business_connection_id`, Bot API 10.0 `media`/`explanation_media`, `members_only`/`country_codes`, one-option polls, and multipart uploads for poll media file fields. |
+| `(*bot.Bot).SendPoll` | `sendPoll` | unit/httptest, live v0.2 smoke | Supports legacy string options and structured `telegram.InputPollOption` values, quiz fields, Bot API 9.6 `correct_option_ids`, revoting/options controls, question/description formatting, reply markup, thread/reply params, optional `business_connection_id`, Bot API 10.0 `media`/`explanation_media`, `members_only`/`country_codes`, one-option polls, Bot API 10.1 link option media, and multipart uploads for poll media file fields. |
 | `(*bot.Bot).SendDice` | `sendDice` | unit/httptest, live v0.2 smoke | Supports known Telegram dice emoji, reply markup, thread/reply params, and optional `business_connection_id`. |
 | `(*bot.Bot).SendGame` | `sendGame` | unit/httptest | Sends BotFather-configured games with inline keyboard, reply params, `message_thread_id`, `allow_paid_broadcast`, `message_effect_id`, and optional `business_connection_id`. Manual-only live smoke. |
 | `(*bot.Bot).SendSticker` | `sendSticker` | unit/httptest, optional live v0.2 smoke | Supports `FileID`, `FileURL`, `FileUpload`, emoji, reply markup, thread/reply params, and optional `business_connection_id`. |
 | `(*bot.Bot).SendAnimation` | `sendAnimation` | unit/httptest, optional live v0.2 smoke | Supports `FileID`, `FileURL`, `FileUpload`, caption fields, thumbnail file ref/upload, spoiler, reply markup, thread/reply params, and optional `business_connection_id`. |
 | `(*bot.Bot).SendVideoNote` | `sendVideoNote` | unit/httptest, optional live v0.2 smoke | Supports `FileID`, `FileUpload`, thumbnail file ref/upload, duration/length, reply markup, thread/reply params, and optional `business_connection_id`. HTTP URL is intentionally rejected for video notes. |
 | `(*bot.Bot).SendMediaGroup` | `sendMediaGroup` | unit/httptest, live generated-upload smoke | Supports `InputMediaPhoto`, `InputMediaLivePhoto`, `InputMediaVideo`, `InputMediaAudio`, `InputMediaDocument`, JSON file IDs/URLs where Telegram supports them, multipart uploads, thumbnail/cover/live-photo preview uploads where supported, thread/reply params, and optional `business_connection_id`. Live-photo URLs are intentionally rejected. Does not support reply markup because Telegram does not accept it for media groups; `InputMediaAnimation` remains rejected for media groups. |
-| `telegram.InputPollOption`, `bot.InputPollOptionMedia` | `sendPoll` options | unit/httptest | Entity-aware structured poll options serialize through the official `options` field while legacy `[]string` options remain supported for compatibility. Bot API 10.0 option media supports animation, live photo, location, photo, sticker, venue, and video JSON/multipart payloads. |
-| `telegram.PollMedia`, `telegram.Poll`, `telegram.PollOption` | poll result objects | unit | Decodes Bot API 10.0 poll media on poll descriptions, quiz explanations, and options, plus `members_only` and `country_codes`. |
+| `telegram.InputPollOption`, `bot.InputPollOptionMedia` | `sendPoll` options | unit/httptest | Entity-aware structured poll options serialize through the official `options` field while legacy `[]string` options remain supported for compatibility. Bot API 10.0 option media supports animation, live photo, location, photo, sticker, venue, and video JSON/multipart payloads. Bot API 10.1 adds link option media through `bot.InputMediaLink`. |
+| `telegram.PollMedia`, `telegram.Poll`, `telegram.PollOption` | poll result objects | unit | Decodes Bot API 10.0 poll media on poll descriptions, quiz explanations, and options, plus `members_only` and `country_codes`. Bot API 10.1 `PollMedia.link` is decoded as `telegram.Link`. |
 | `telegram.LivePhoto`, `telegram.Message`, `telegram.ExternalReplyInfo` | live photo payloads | unit/httptest | Decodes incoming `live_photo` media on messages and external replies, including the preview `photo` array and file metadata. |
 | `telegram.ReplyParameters` | send/copy reply payload | unit | Supports `message_id`, cross-chat `chat_id`, `allow_sending_without_reply`, quote fields, Bot API 9.6 `checklist_task_id`, and `poll_option_id`. |
 | `telegram.MessageOrigin*`, `ExternalReplyInfo`, `TextQuote` | message reply/forward metadata | unit | Decodes `forward_origin`, `external_reply`, `quote`, `reply_to_message`, `reply_to_story`, direct-message topic, suggested-post, caption/media, star, and sender metadata fields. |
@@ -259,7 +259,7 @@ This document maps the current `ai-gram` implementation to Telegram Bot API area
 | --- | --- | --- | --- |
 | `(*bot.Bot).GetChat` | `getChat` | unit/httptest, live example access panel | Returns `telegram.ChatFullInfo`, matching the official current `getChat` result shape. |
 | `(*bot.Bot).GetChatFullInfo` | `getChat` | unit/httptest | Pre-v1 same-result alias for `GetChat`. |
-| `telegram.User`, `telegram.Chat`, `telegram.ChatFullInfo` | `User`, `Chat`, `ChatFullInfo` | unit | Decodes Bot API 9.6 user capability metadata, Bot API 10.0 guest-query support, lightweight chat metadata, and representative full chat profile/business/reaction/gift/rating metadata. |
+| `telegram.User`, `telegram.Chat`, `telegram.ChatFullInfo` | `User`, `Chat`, `ChatFullInfo` | unit | Decodes Bot API 9.6 user capability metadata, Bot API 10.0 guest-query support, Bot API 10.1 join-request-query support and `ChatFullInfo.guard_bot`, lightweight chat metadata, and representative full chat profile/business/reaction/gift/rating metadata. |
 | `(*bot.Bot).GetChatMember` | `getChatMember` | unit/httptest | Returns the `telegram.ChatMember` interface implemented by official `ChatMemberOwner`, `ChatMemberAdministrator`, `ChatMemberMember`, `ChatMemberRestricted`, `ChatMemberLeft`, and `ChatMemberBanned` variants. |
 | `(*bot.Bot).GetChatAdministrators` | `getChatAdministrators` | unit/httptest | Returns `[]telegram.ChatMember` official variants; supports Bot API 10.0 `return_bots`. |
 | `(*bot.Bot).GetChatMemberCount` | `getChatMemberCount` | unit/httptest, optional live example | Safe read method; availability depends on chat permissions. |
@@ -377,7 +377,9 @@ This document maps the current `ai-gram` implementation to Telegram Bot API area
 | --- | --- | --- | --- |
 | `(*bot.Bot).ApproveChatJoinRequest` | `approveChatJoinRequest` | unit/httptest | Admin-required method that approves a real pending join request. Not auto-smoked. |
 | `(*bot.Bot).DeclineChatJoinRequest` | `declineChatJoinRequest` | unit/httptest | Admin-required method that declines a real pending join request. Not auto-smoked. |
-| `telegram.ChatJoinRequest`, `telegram.Update.ChatJoinRequest` | `chat_join_request` update | unit | Decodes join request updates and supports `EffectiveChat`/`EffectiveUser`. |
+| `(*bot.Bot).AnswerChatJoinRequestQuery` | `answerChatJoinRequestQuery` | unit/httptest | Bot API 10.1 method for processing join request queries with `approve`, `decline`, or `queue`. Manual-only because it can affect real users. |
+| `(*bot.Bot).SendChatJoinRequestWebApp` | `sendChatJoinRequestWebApp` | unit/httptest | Bot API 10.1 method for opening a Mini App during a join request query. Manual-only. |
+| `telegram.ChatJoinRequest`, `telegram.Update.ChatJoinRequest` | `chat_join_request` update | unit | Decodes join request updates including Bot API 10.1 `query_id`, and supports `EffectiveChat`/`EffectiveUser`. |
 | `dispatch.ChatJoinRequest`, `(*dispatch.Dispatcher).OnChatJoinRequest` | n/a | unit | Predicate and route helper for join request updates. |
 
 ### Access/example infrastructure
@@ -403,11 +405,12 @@ This document maps the current `ai-gram` implementation to Telegram Bot API area
 
 ## Remaining notes and intentional differences
 
-Stage 98 performed the final official-doc comparison after Stage 97, and Stage 99 resolved the remaining `setWebhook.certificate` multipart upload blocker. No known Bot API 9.6 code coverage blockers remain. The Bot API 10.0 final audit also found no known 10.0 code coverage blockers. See [`docs/BOT_API_9_6_FINAL_AUDIT.md`](BOT_API_9_6_FINAL_AUDIT.md) and [`docs/BOT_API_10_0_FINAL_AUDIT.md`](BOT_API_10_0_FINAL_AUDIT.md).
+Stage 98 performed the final official-doc comparison after Stage 97, and Stage 99 resolved the remaining `setWebhook.certificate` multipart upload blocker. No known Bot API 9.6 code coverage blockers remain. The Bot API 10.0 final audit also found no known 10.0 code coverage blockers. Bot API 10.1 coverage is partial and tracked in [`docs/BOT_API_10_1_AUDIT.md`](BOT_API_10_1_AUDIT.md). See [`docs/BOT_API_9_6_FINAL_AUDIT.md`](BOT_API_9_6_FINAL_AUDIT.md) and [`docs/BOT_API_10_0_FINAL_AUDIT.md`](BOT_API_10_0_FINAL_AUDIT.md).
 
 ### Missing methods or method behavior from the final audits
 
-- No known official method wrappers or method behavior blockers remain after implementing `setWebhook.certificate` multipart upload support and the Bot API 10.0 implementation slices.
+- No known Bot API 10.0 method wrappers or method behavior blockers remain after implementing `setWebhook.certificate` multipart upload support and the Bot API 10.0 implementation slices.
+- Bot API 10.1 Rich Messages are pending and are not yet claimed as implemented.
 
 ### Missing type and field groups from the final audits
 

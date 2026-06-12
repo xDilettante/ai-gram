@@ -101,6 +101,7 @@ func TestUpdateDecodesChatJoinRequest(t *testing.T) {
 			"user_chat_id": 888,
 			"date": 1234567890,
 			"bio": "hello",
+			"query_id": "join-query-id",
 			"invite_link": {
 				"invite_link": "https://t.me/+redacted",
 				"creator": {"id": 1, "is_bot": true, "first_name": "Bot"},
@@ -120,11 +121,39 @@ func TestUpdateDecodesChatJoinRequest(t *testing.T) {
 	if update.UpdateID != 101 || request == nil {
 		t.Fatalf("unexpected update: %+v", update)
 	}
-	if request.Chat.ID != -100123 || request.Chat.Type != "supergroup" || request.From.ID != 777 || request.UserChatID != 888 || request.Date != 1234567890 || request.Bio != "hello" {
+	if request.Chat.ID != -100123 || request.Chat.Type != "supergroup" || request.From.ID != 777 || request.UserChatID != 888 || request.Date != 1234567890 || request.Bio != "hello" || request.QueryID != "join-query-id" {
 		t.Fatalf("unexpected join request: %+v", request)
 	}
 	if request.InviteLink == nil || request.InviteLink.Creator.ID != 1 || !request.InviteLink.CreatesJoinRequest || request.InviteLink.Name != "join requests" {
 		t.Fatalf("unexpected invite link: %+v", request.InviteLink)
+	}
+}
+
+func TestUserDecodesBotAPI101Fields(t *testing.T) {
+	var user User
+	if err := json.Unmarshal([]byte(`{"id":1,"is_bot":true,"first_name":"Bot","supports_join_request_queries":true}`), &user); err != nil {
+		t.Fatalf("decode user: %v", err)
+	}
+	if !user.SupportsJoinRequestQueries {
+		t.Fatalf("expected supports_join_request_queries: %+v", user)
+	}
+}
+
+func TestPollMediaDecodesLink(t *testing.T) {
+	var poll Poll
+	if err := json.Unmarshal([]byte(`{
+		"id":"poll-id",
+		"question":"Pick one",
+		"options":[{"text":"A","voter_count":0,"media":{"link":{"url":"https://example.com/a"}}}],
+		"total_voter_count":0,
+		"is_closed":false,
+		"is_anonymous":true,
+		"type":"regular"
+	}`), &poll); err != nil {
+		t.Fatalf("decode poll: %v", err)
+	}
+	if len(poll.Options) != 1 || poll.Options[0].Media == nil || poll.Options[0].Media.Link == nil || poll.Options[0].Media.Link.URL != "https://example.com/a" {
+		t.Fatalf("unexpected poll media: %+v", poll.Options)
 	}
 }
 
@@ -545,7 +574,8 @@ func TestChatFullInfoDecode(t *testing.T) {
 			"dark_theme_main_color": 4,
 			"dark_theme_other_colors": [5, 6]
 		},
-		"paid_message_star_count": 15
+		"paid_message_star_count": 15,
+		"guard_bot": {"id": 42, "is_bot": true, "first_name": "Guard"}
 	}`), &info); err != nil {
 		t.Fatalf("decode chat full info: %v", err)
 	}
@@ -567,7 +597,7 @@ func TestChatFullInfoDecode(t *testing.T) {
 	if info.PinnedMessage == nil || info.PinnedMessage.MessageID != 9 || info.Permissions == nil || !info.Permissions.CanEditTag || !info.AcceptedGiftTypes.GiftsFromChannels {
 		t.Fatalf("unexpected permissions or pinned message: %+v", info)
 	}
-	if info.Location == nil || info.Location.Address != "Address" || info.Rating == nil || info.Rating.Level != 3 || info.FirstProfileAudio == nil || info.FirstProfileAudio.FileID != "audio" || info.UniqueGiftColors == nil || info.PaidMessageStarCount != 15 {
+	if info.Location == nil || info.Location.Address != "Address" || info.Rating == nil || info.Rating.Level != 3 || info.FirstProfileAudio == nil || info.FirstProfileAudio.FileID != "audio" || info.UniqueGiftColors == nil || info.PaidMessageStarCount != 15 || info.GuardBot == nil || info.GuardBot.ID != 42 {
 		t.Fatalf("unexpected remaining chat full info fields: %+v", info)
 	}
 }

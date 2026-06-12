@@ -198,23 +198,24 @@ type MessageID struct {
 
 // User represents a Telegram user or bot account.
 type User struct {
-	ID                        int64  `json:"id"`
-	IsBot                     bool   `json:"is_bot"`
-	FirstName                 string `json:"first_name"`
-	LastName                  string `json:"last_name,omitempty"`
-	Username                  string `json:"username,omitempty"`
-	LanguageCode              string `json:"language_code,omitempty"`
-	IsPremium                 bool   `json:"is_premium,omitempty"`
-	AddedToAttachmentMenu     bool   `json:"added_to_attachment_menu,omitempty"`
-	CanJoinGroups             bool   `json:"can_join_groups,omitempty"`
-	CanReadAllGroupMessages   bool   `json:"can_read_all_group_messages,omitempty"`
-	SupportsInlineQueries     bool   `json:"supports_inline_queries,omitempty"`
-	SupportsGuestQueries      bool   `json:"supports_guest_queries,omitempty"`
-	CanConnectToBusiness      bool   `json:"can_connect_to_business,omitempty"`
-	HasMainWebApp             bool   `json:"has_main_web_app,omitempty"`
-	HasTopicsEnabled          bool   `json:"has_topics_enabled,omitempty"`
-	AllowsUsersToCreateTopics bool   `json:"allows_users_to_create_topics,omitempty"`
-	CanManageBots             bool   `json:"can_manage_bots,omitempty"`
+	ID                         int64  `json:"id"`
+	IsBot                      bool   `json:"is_bot"`
+	FirstName                  string `json:"first_name"`
+	LastName                   string `json:"last_name,omitempty"`
+	Username                   string `json:"username,omitempty"`
+	LanguageCode               string `json:"language_code,omitempty"`
+	IsPremium                  bool   `json:"is_premium,omitempty"`
+	AddedToAttachmentMenu      bool   `json:"added_to_attachment_menu,omitempty"`
+	CanJoinGroups              bool   `json:"can_join_groups,omitempty"`
+	CanReadAllGroupMessages    bool   `json:"can_read_all_group_messages,omitempty"`
+	SupportsInlineQueries      bool   `json:"supports_inline_queries,omitempty"`
+	SupportsGuestQueries       bool   `json:"supports_guest_queries,omitempty"`
+	CanConnectToBusiness       bool   `json:"can_connect_to_business,omitempty"`
+	HasMainWebApp              bool   `json:"has_main_web_app,omitempty"`
+	HasTopicsEnabled           bool   `json:"has_topics_enabled,omitempty"`
+	AllowsUsersToCreateTopics  bool   `json:"allows_users_to_create_topics,omitempty"`
+	CanManageBots              bool   `json:"can_manage_bots,omitempty"`
+	SupportsJoinRequestQueries bool   `json:"supports_join_request_queries,omitempty"`
 }
 
 // Chat represents a Telegram chat.
@@ -255,6 +256,7 @@ type ChatJoinRequest struct {
 	Date       int64           `json:"date"`
 	Bio        string          `json:"bio,omitempty"`
 	InviteLink *ChatInviteLink `json:"invite_link,omitempty"`
+	QueryID    string          `json:"query_id,omitempty"`
 }
 
 // InlineQuery represents an incoming inline query.
@@ -468,12 +470,18 @@ type PollMedia struct {
 	Animation *Animation  `json:"animation,omitempty"`
 	Audio     *Audio      `json:"audio,omitempty"`
 	Document  *Document   `json:"document,omitempty"`
+	Link      *Link       `json:"link,omitempty"`
 	LivePhoto *LivePhoto  `json:"live_photo,omitempty"`
 	Location  *Location   `json:"location,omitempty"`
 	Photo     []PhotoSize `json:"photo,omitempty"`
 	Sticker   *Sticker    `json:"sticker,omitempty"`
 	Venue     *Venue      `json:"venue,omitempty"`
 	Video     *Video      `json:"video,omitempty"`
+}
+
+// Link represents an HTTP link attached to a poll media payload.
+type Link struct {
+	URL string `json:"url"`
 }
 
 // PollOption describes one answer option in a Telegram poll.

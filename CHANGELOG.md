@@ -2,9 +2,20 @@
 
 ## Unreleased
 
+### Added
+
+- Added initial Telegram Bot API 10.1 coverage for join request query helpers:
+  - `bot.AnswerChatJoinRequestQuery`;
+  - `bot.SendChatJoinRequestWebApp`;
+  - `telegram.User.SupportsJoinRequestQueries`;
+  - `telegram.ChatFullInfo.GuardBot`;
+  - `telegram.ChatJoinRequest.QueryID`.
+- Added Bot API 10.1 poll link media support with `telegram.Link`, `telegram.PollMedia.Link`, `bot.InputMediaLink`, and `bot.MediaLink`.
+
 ### Documentation
 
 - Added support guidance for public issue reports and safe reproduction details.
+- Added a Bot API 10.1 audit and marked rich-message support as the next pending slice.
 - Updated public repository contributor and security guidance after the `v0.6.0` release.
 - Updated README release links and badges to the current `v0.6.0` release.
 

@@ -47,6 +47,12 @@ type InputMediaVenue struct {
 	GooglePlaceType string  `json:"google_place_type,omitempty"`
 }
 
+// InputMediaLink describes an HTTP link input media item.
+type InputMediaLink struct {
+	Type string `json:"type"`
+	URL  string `json:"url"`
+}
+
 func (InputMediaPhoto) inputPollMedia()     {}
 func (InputMediaVideo) inputPollMedia()     {}
 func (InputMediaAnimation) inputPollMedia() {}
@@ -61,6 +67,7 @@ func (InputMediaVideo) inputPollOptionMedia()     {}
 func (InputMediaAnimation) inputPollOptionMedia() {}
 func (InputMediaLivePhoto) inputPollOptionMedia() {}
 func (InputMediaLocation) inputPollOptionMedia()  {}
+func (InputMediaLink) inputPollOptionMedia()      {}
 func (InputMediaSticker) inputPollOptionMedia()   {}
 func (InputMediaVenue) inputPollOptionMedia()     {}
 
@@ -77,6 +84,11 @@ func MediaSticker(media FileRef) InputMediaSticker {
 // MediaVenue creates a venue input media item.
 func MediaVenue(latitude float64, longitude float64, title string, address string) InputMediaVenue {
 	return InputMediaVenue{Type: "venue", Latitude: latitude, Longitude: longitude, Title: title, Address: address}
+}
+
+// MediaLink creates a link input media item.
+func MediaLink(rawURL string) InputMediaLink {
+	return InputMediaLink{Type: "link", URL: rawURL}
 }
 
 type inputPollMediaPayload struct {
@@ -107,6 +119,7 @@ type inputPollMediaPayload struct {
 	GooglePlaceID               string                   `json:"google_place_id,omitempty"`
 	GooglePlaceType             string                   `json:"google_place_type,omitempty"`
 	Emoji                       string                   `json:"emoji,omitempty"`
+	URL                         string                   `json:"url,omitempty"`
 }
 
 type inputPollOptionPayload struct {
@@ -240,6 +253,13 @@ func buildInputPollOptionMediaPayload(media any, field string, files map[string]
 			return inputPollMediaPayload{}, nil
 		}
 		return buildPollMediaLocationPayload(*item, field)
+	case InputMediaLink:
+		return buildPollMediaLinkPayload(item, field)
+	case *InputMediaLink:
+		if item == nil {
+			return inputPollMediaPayload{}, nil
+		}
+		return buildPollMediaLinkPayload(*item, field)
 	case InputMediaSticker:
 		return buildPollMediaStickerPayload(item, field, files)
 	case *InputMediaSticker:
@@ -450,6 +470,19 @@ func buildPollMediaLocationPayload(media InputMediaLocation, field string) (inpu
 		Latitude:           media.Latitude,
 		Longitude:          media.Longitude,
 		HorizontalAccuracy: media.HorizontalAccuracy,
+	}, nil
+}
+
+func buildPollMediaLinkPayload(media InputMediaLink, field string) (inputPollMediaPayload, error) {
+	if err := validateInputMediaType(media.Type, "link"); err != nil {
+		return inputPollMediaPayload{}, err
+	}
+	if err := validateRequiredInlineHTTPURL(media.URL, field+".url"); err != nil {
+		return inputPollMediaPayload{}, err
+	}
+	return inputPollMediaPayload{
+		Type: mediaType(media.Type, "link"),
+		URL:  media.URL,
 	}, nil
 }
 

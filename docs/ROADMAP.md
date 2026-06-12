@@ -143,6 +143,29 @@ Live smoke policy:
 - Payments, Passport, Business, Managed Bots, gifts, Stars, lifecycle methods, and webhook certificate upload require explicit confirmation.
 - Destructive/admin flows must not be auto-smoked.
 
+## v0.7 Bot API 10.1 update
+
+Status: in progress.
+
+Telegram published Bot API 10.1 on June 11, 2026. The update is tracked in [`docs/BOT_API_10_1_AUDIT.md`](BOT_API_10_1_AUDIT.md).
+
+Completed first slice:
+
+- `User.supports_join_request_queries`.
+- `ChatFullInfo.guard_bot`.
+- `ChatJoinRequest.query_id`.
+- `answerChatJoinRequestQuery`.
+- `sendChatJoinRequestWebApp`.
+- `Link`, `PollMedia.link`, and `InputMediaLink` for poll option media.
+
+Remaining main slice:
+
+- Rich Message data contracts.
+- `Message.rich_message`.
+- `InputRichMessage` and `InputRichMessageContent`.
+- `sendRichMessage` and `sendRichMessageDraft`.
+- `editMessageText.rich_message`.
+
 ## Later
 
 - Passport decryption helpers

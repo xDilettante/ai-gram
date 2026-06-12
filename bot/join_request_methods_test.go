@@ -73,6 +73,74 @@ func TestDeclineChatJoinRequestSendsPayloadAndDecodesResult(t *testing.T) {
 	}
 }
 
+func TestAnswerChatJoinRequestQuerySendsPayloadAndDecodesResult(t *testing.T) {
+	const token = "123:secret"
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodPost {
+			t.Fatalf("unexpected method: %s", r.Method)
+		}
+		if r.URL.Path != "/bot"+token+"/answerChatJoinRequestQuery" {
+			t.Fatalf("unexpected path: %q", r.URL.Path)
+		}
+		var payload map[string]any
+		if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
+			t.Fatalf("decode payload: %v", err)
+		}
+		if payload["chat_join_request_query_id"] != "join-query-id" || payload["result"] != "queue" {
+			t.Fatalf("unexpected payload: %#v", payload)
+		}
+		w.Header().Set("Content-Type", "application/json")
+		_, _ = w.Write([]byte(`{"ok":true,"result":true}`))
+	}))
+	defer server.Close()
+
+	bot := newTestBot(t, token, server.URL, server.Client())
+	ok, err := bot.AnswerChatJoinRequestQuery(context.Background(), AnswerChatJoinRequestQueryParams{
+		ChatJoinRequestQueryID: "join-query-id",
+		Result:                 ChatJoinRequestQueryQueue,
+	})
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if !ok {
+		t.Fatal("expected true result")
+	}
+}
+
+func TestSendChatJoinRequestWebAppSendsPayloadAndDecodesResult(t *testing.T) {
+	const token = "123:secret"
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodPost {
+			t.Fatalf("unexpected method: %s", r.Method)
+		}
+		if r.URL.Path != "/bot"+token+"/sendChatJoinRequestWebApp" {
+			t.Fatalf("unexpected path: %q", r.URL.Path)
+		}
+		var payload map[string]any
+		if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
+			t.Fatalf("decode payload: %v", err)
+		}
+		if payload["chat_join_request_query_id"] != "join-query-id" || payload["web_app_url"] != "https://example.com/check" {
+			t.Fatalf("unexpected payload: %#v", payload)
+		}
+		w.Header().Set("Content-Type", "application/json")
+		_, _ = w.Write([]byte(`{"ok":true,"result":true}`))
+	}))
+	defer server.Close()
+
+	bot := newTestBot(t, token, server.URL, server.Client())
+	ok, err := bot.SendChatJoinRequestWebApp(context.Background(), SendChatJoinRequestWebAppParams{
+		ChatJoinRequestQueryID: "join-query-id",
+		WebAppURL:              "https://example.com/check",
+	})
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if !ok {
+		t.Fatal("expected true result")
+	}
+}
+
 func TestChatJoinRequestMethodValidation(t *testing.T) {
 	const token = "123:secret"
 	bot := newTestBot(t, token, "https://example.test", nil)
@@ -109,6 +177,41 @@ func TestChatJoinRequestMethodValidation(t *testing.T) {
 	}
 }
 
+func TestChatJoinRequestQueryValidation(t *testing.T) {
+	const token = "123:secret"
+	bot := newTestBot(t, token, "https://example.test", nil)
+	answerTests := []AnswerChatJoinRequestQueryParams{
+		{Result: ChatJoinRequestQueryApprove},
+		{ChatJoinRequestQueryID: "query", Result: "maybe"},
+	}
+	for _, params := range answerTests {
+		ok, err := bot.AnswerChatJoinRequestQuery(context.Background(), params)
+		if err == nil {
+			t.Fatal("expected answer error")
+		}
+		if ok {
+			t.Fatal("expected false answer result")
+		}
+		assertNoToken(t, err, token)
+	}
+
+	webAppTests := []SendChatJoinRequestWebAppParams{
+		{WebAppURL: "https://example.com/check"},
+		{ChatJoinRequestQueryID: "query"},
+		{ChatJoinRequestQueryID: "query", WebAppURL: "ftp://example.com/check"},
+	}
+	for _, params := range webAppTests {
+		ok, err := bot.SendChatJoinRequestWebApp(context.Background(), params)
+		if err == nil {
+			t.Fatal("expected web app error")
+		}
+		if ok {
+			t.Fatal("expected false web app result")
+		}
+		assertNoToken(t, err, token)
+	}
+}
+
 func TestChatJoinRequestMethodsReturnAPIError(t *testing.T) {
 	const token = "123:secret"
 	tests := []struct {
@@ -121,6 +224,12 @@ func TestChatJoinRequestMethodsReturnAPIError(t *testing.T) {
 		}},
 		{name: "decline", method: "declineChatJoinRequest", call: func(bot *Bot) (bool, error) {
 			return bot.DeclineChatJoinRequest(context.Background(), DeclineChatJoinRequestParams{ChatID: ChatIDInt(123), UserID: 1})
+		}},
+		{name: "answer query", method: "answerChatJoinRequestQuery", call: func(bot *Bot) (bool, error) {
+			return bot.AnswerChatJoinRequestQuery(context.Background(), AnswerChatJoinRequestQueryParams{ChatJoinRequestQueryID: "query", Result: ChatJoinRequestQueryApprove})
+		}},
+		{name: "send web app", method: "sendChatJoinRequestWebApp", call: func(bot *Bot) (bool, error) {
+			return bot.SendChatJoinRequestWebApp(context.Background(), SendChatJoinRequestWebAppParams{ChatJoinRequestQueryID: "query", WebAppURL: "https://example.com/check"})
 		}},
 	}
 	for _, tt := range tests {
@@ -163,6 +272,12 @@ func TestChatJoinRequestMethodsResponseAndContextErrors(t *testing.T) {
 		}},
 		{name: "decline", method: "declineChatJoinRequest", call: func(ctx context.Context, bot *Bot) (bool, error) {
 			return bot.DeclineChatJoinRequest(ctx, DeclineChatJoinRequestParams{ChatID: ChatIDInt(123), UserID: 1})
+		}},
+		{name: "answer query", method: "answerChatJoinRequestQuery", call: func(ctx context.Context, bot *Bot) (bool, error) {
+			return bot.AnswerChatJoinRequestQuery(ctx, AnswerChatJoinRequestQueryParams{ChatJoinRequestQueryID: "query", Result: ChatJoinRequestQueryApprove})
+		}},
+		{name: "send web app", method: "sendChatJoinRequestWebApp", call: func(ctx context.Context, bot *Bot) (bool, error) {
+			return bot.SendChatJoinRequestWebApp(ctx, SendChatJoinRequestWebAppParams{ChatJoinRequestQueryID: "query", WebAppURL: "https://example.com/check"})
 		}},
 	}
 	for _, tt := range tests {

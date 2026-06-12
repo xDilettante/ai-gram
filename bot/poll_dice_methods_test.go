@@ -220,7 +220,7 @@ func TestSendPollStructuredOptions(t *testing.T) {
 			t.Fatalf("unexpected first option: %#v", options[0])
 		}
 		firstMedia, ok := first["media"].(map[string]any)
-		if !ok || firstMedia["type"] != "sticker" || firstMedia["media"] != "sticker-id" || firstMedia["emoji"] != "👍" {
+		if !ok || firstMedia["type"] != "link" || firstMedia["url"] != "https://example.com/poll-option" {
 			t.Fatalf("unexpected first option media: %#v", first["media"])
 		}
 		second, ok := options[1].(map[string]any)
@@ -245,7 +245,7 @@ func TestSendPollStructuredOptions(t *testing.T) {
 		ChatID:   ChatIDInt(12345),
 		Question: "Pick one",
 		OptionObjects: []telegram.InputPollOption{
-			{Text: "A", TextParseMode: "HTML", Media: InputMediaSticker{Media: FileID("sticker-id"), Emoji: "👍"}},
+			{Text: "A", TextParseMode: "HTML", Media: MediaLink("https://example.com/poll-option")},
 			{Text: "B", TextEntities: []telegram.MessageEntity{{Type: telegram.EntityCustomEmoji, Offset: 0, Length: 1, CustomEmojiID: "emoji-id"}}},
 		},
 		Type:             "quiz",
@@ -413,6 +413,10 @@ func TestSendPollValidation(t *testing.T) {
 		{name: "unsupported option media", mutate: func(p *SendPollParams) {
 			p.Options = nil
 			p.OptionObjects = []telegram.InputPollOption{{Text: "A", Media: MediaAudio(FileID("audio-id"))}}
+		}},
+		{name: "invalid option link media", mutate: func(p *SendPollParams) {
+			p.Options = nil
+			p.OptionObjects = []telegram.InputPollOption{{Text: "A", Media: MediaLink("ftp://example.com/poll-option")}}
 		}},
 		{name: "invalid reply parameters", mutate: func(p *SendPollParams) { p.ReplyParameters = &telegram.ReplyParameters{} }},
 		{name: "invalid reply markup", mutate: func(p *SendPollParams) { p.ReplyMarkup = telegram.InlineKeyboardMarkup{} }},

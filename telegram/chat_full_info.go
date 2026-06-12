@@ -58,6 +58,7 @@ type ChatFullInfo struct {
 	FirstProfileAudio                  *Audio                `json:"first_profile_audio,omitempty"`
 	UniqueGiftColors                   *UniqueGiftColors     `json:"unique_gift_colors,omitempty"`
 	PaidMessageStarCount               int                   `json:"paid_message_star_count,omitempty"`
+	GuardBot                           *User                 `json:"guard_bot,omitempty"`
 }
 
 // ChatPhoto represents a chat photo.
