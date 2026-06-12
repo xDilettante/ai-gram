@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+No unreleased changes yet.
+
+## v0.7.0 - 2026-06-12
+
 ### Added
 
 - Added initial Telegram Bot API 10.1 coverage for join request query helpers:
@@ -24,7 +28,7 @@
 - Added support guidance for public issue reports and safe reproduction details.
 - Added a Bot API 10.1 audit and Rich Message implementation plan.
 - Updated public repository contributor and security guidance after the `v0.6.0` release.
-- Updated README release links and badges to the current `v0.6.0` release.
+- Updated README release links and badges to the current `v0.7.0` release.
 
 ## v0.6.0 - 2026-05-14
 

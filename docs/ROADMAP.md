@@ -92,12 +92,12 @@ Strategic change: the small v0.3 release plan is superseded. Code coverage for T
 Repository status for this workstream:
 
 - The public repository is available at <https://github.com/xDilettante/ai-gram>.
-- `v0.3.0`, `v0.4.0`, and `v0.5.0` are already published; `v0.6.0` is the current regular public release for the production-readiness helper and example work.
+- `v0.3.0`, `v0.4.0`, `v0.5.0`, and `v0.6.0` are already published; `v0.7.0` is the current regular public release for Telegram Bot API 10.1 support.
 - Bot API 10.0 code coverage is complete on `main` with documented architecture differences.
 - Bot API 10.0 final audit found no known code coverage blockers.
 - The root `aigram` package is now a compact quick-start facade; the full Bot API surface lives in `bot` and `telegram`.
 - Public `main` consumer smoke passed after the root facade cleanup.
-- [`docs/releases/v0.6.0.md`](releases/v0.6.0.md) contains the release notes for the current public release.
+- [`docs/releases/v0.7.0.md`](releases/v0.7.0.md) contains the release notes for the current public release.
 - Do not create future tags or GitHub Releases until the user explicitly approves release work.
 
 Stage 98/99 outcome: **Bot API 9.6 code coverage is complete with documented architecture differences**. The final audit found wrappers for all 169 official Bot API methods and no missing fields in the audited high-impact object tables after adding `Message.giveaway`; Stage 99 resolved the final `setWebhook.certificate` upload blocker.
@@ -111,7 +111,7 @@ Next phase:
 3. Keep sensitive/state-changing smoke manual-only and fixture-first by default.
 4. Keep [`PRE_V1_NOTES.md`](PRE_V1_NOTES.md) and [`CHANGELOG.md`](../CHANGELOG.md) current for breaking pre-v1 cleanup.
 5. Use [`docs/plans/2026-05-14-production-readiness.md`](plans/2026-05-14-production-readiness.md) as the working plan for callback helpers, error taxonomy, group identity helpers, production examples, and transport-mode parity.
-6. Monitor `v0.6.0` feedback and keep future release work behind explicit approval.
+6. Monitor `v0.7.0` feedback and keep future release work behind explicit approval.
 
 ## v0.6 production-readiness candidate
 
@@ -162,6 +162,13 @@ Completed:
 - `InputRichMessage` and `InputRichMessageContent`.
 - `sendRichMessage` and `sendRichMessageDraft`.
 - `editMessageText.rich_message`.
+
+Release status:
+
+- Local release-candidate gates passed.
+- Main CI passed for the Bot API 10.1 implementation commits.
+- `docs/releases/v0.7.0.md` contains the release notes.
+- The tag and GitHub Release were created only after explicit maintainer approval.
 
 ## Later
 
