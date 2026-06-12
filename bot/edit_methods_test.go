@@ -128,6 +128,48 @@ func TestEditMessageTextChatTargetSendsPayloadAndDecodesMessage(t *testing.T) {
 	}
 }
 
+func TestEditMessageTextSendsRichMessagePayload(t *testing.T) {
+	const token = "123:secret"
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodPost {
+			t.Fatalf("unexpected method: %s", r.Method)
+		}
+		if r.URL.Path != "/bot"+token+"/editMessageText" {
+			t.Fatalf("unexpected path: %q", r.URL.Path)
+		}
+		var payload map[string]any
+		if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
+			t.Fatalf("decode payload: %v", err)
+		}
+		if payload["chat_id"] != float64(12345) || payload["message_id"] != float64(77) {
+			t.Fatalf("unexpected target payload: %#v", payload)
+		}
+		if _, ok := payload["text"]; ok {
+			t.Fatalf("text should be omitted for rich edit: %#v", payload)
+		}
+		rich, ok := payload["rich_message"].(map[string]any)
+		if !ok || rich["markdown"] != "**edited**" {
+			t.Fatalf("unexpected rich_message: %#v", payload["rich_message"])
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		_, _ = w.Write([]byte(`{"ok":true,"result":{"message_id":77,"chat":{"id":12345,"type":"private"},"date":100,"rich_message":{"blocks":[{"type":"paragraph","text":"edited"}]}}}`))
+	}))
+	defer server.Close()
+
+	bot := newTestBot(t, token, server.URL, server.Client())
+	result, err := bot.EditMessageText(context.Background(), EditMessageTextParams{
+		Target:      EditTargetChat(ChatIDInt(12345), 77),
+		RichMessage: InputRichMarkdown("**edited**"),
+	})
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if result == nil || !result.IsOK() || !result.IsMessage() || result.Message.RichMessage == nil {
+		t.Fatalf("unexpected result: %+v", result)
+	}
+}
+
 func TestEditMessageTextInlineTargetDecodesTrue(t *testing.T) {
 	const token = "123:secret"
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -171,6 +213,8 @@ func TestEditMessageTextValidation(t *testing.T) {
 		params EditMessageTextParams
 	}{
 		{name: "empty text", params: EditMessageTextParams{Target: EditTargetChat(ChatIDInt(123), 1)}},
+		{name: "text with rich message", params: EditMessageTextParams{Target: EditTargetChat(ChatIDInt(123), 1), Text: "edited", RichMessage: InputRichMarkdown("**edited**")}},
+		{name: "invalid rich message", params: EditMessageTextParams{Target: EditTargetChat(ChatIDInt(123), 1), RichMessage: InputRichMessage{HTML: "<b>edited</b>", Markdown: "**edited**"}}},
 		{name: "invalid target", params: EditMessageTextParams{Text: "edited"}},
 		{name: "parse mode with entities", params: EditMessageTextParams{Target: EditTargetChat(ChatIDInt(123), 1), Text: "edited", ParseMode: "HTML", Entities: []telegram.MessageEntity{{Type: telegram.EntityBold, Offset: 0, Length: 1}}}},
 		{name: "invalid markup", params: EditMessageTextParams{Target: EditTargetChat(ChatIDInt(123), 1), Text: "edited", ReplyMarkup: &markup}},

@@ -81,6 +81,7 @@ type EditMessageTextParams struct {
 	ParseMode            string                         `json:"parse_mode,omitempty"`
 	Entities             []telegram.MessageEntity       `json:"entities,omitempty"`
 	LinkPreviewDisabled  bool                           `json:"disable_web_page_preview,omitempty"`
+	RichMessage          InputRichMessage               `json:"rich_message,omitempty"`
 	ReplyMarkup          *telegram.InlineKeyboardMarkup `json:"reply_markup,omitempty"`
 }
 
@@ -261,8 +262,18 @@ func (params EditMessageTextParams) validate() error {
 	if err := params.Target.validate(); err != nil {
 		return err
 	}
-	if params.Text == "" {
-		return stderrors.New("text is required")
+	textSet := params.Text != ""
+	richSet := params.RichMessage.hasContent()
+	if !textSet && !richSet {
+		return stderrors.New("text or rich_message is required")
+	}
+	if textSet && richSet {
+		return stderrors.New("text and rich_message are mutually exclusive")
+	}
+	if richSet {
+		if err := validateInputRichMessage(params.RichMessage); err != nil {
+			return err
+		}
 	}
 	if err := validateEntityFormatting(params.ParseMode, params.Entities); err != nil {
 		return err
@@ -370,10 +381,11 @@ type editMessageTextPayload struct {
 	ChatID               *ChatID                        `json:"chat_id,omitempty"`
 	MessageID            int64                          `json:"message_id,omitempty"`
 	InlineMessageID      string                         `json:"inline_message_id,omitempty"`
-	Text                 string                         `json:"text"`
+	Text                 string                         `json:"text,omitempty"`
 	ParseMode            string                         `json:"parse_mode,omitempty"`
 	Entities             []telegram.MessageEntity       `json:"entities,omitempty"`
 	LinkPreviewDisabled  bool                           `json:"disable_web_page_preview,omitempty"`
+	RichMessage          *InputRichMessage              `json:"rich_message,omitempty"`
 	ReplyMarkup          *telegram.InlineKeyboardMarkup `json:"reply_markup,omitempty"`
 }
 
@@ -439,6 +451,9 @@ func (params EditMessageTextParams) payload() editMessageTextPayload {
 		Entities:             params.Entities,
 		LinkPreviewDisabled:  params.LinkPreviewDisabled,
 		ReplyMarkup:          params.ReplyMarkup,
+	}
+	if params.RichMessage.hasContent() {
+		payload.RichMessage = &params.RichMessage
 	}
 
 	return payload

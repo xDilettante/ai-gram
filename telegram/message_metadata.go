@@ -203,6 +203,7 @@ func (m *Message) UnmarshalJSON(data []byte) error {
 	payload := struct {
 		ForwardOrigin json.RawMessage `json:"forward_origin"`
 		PinnedMessage json.RawMessage `json:"pinned_message"`
+		RichMessage   json.RawMessage `json:"rich_message"`
 		*messageAlias
 	}{messageAlias: (*messageAlias)(m)}
 	if err := json.Unmarshal(data, &payload); err != nil {
@@ -221,6 +222,13 @@ func (m *Message) UnmarshalJSON(data []byte) error {
 			return err
 		}
 		m.PinnedMessage = &pinned
+	}
+	if len(payload.RichMessage) > 0 && !bytes.Equal(payload.RichMessage, []byte("null")) {
+		var richMessage RichMessage
+		if err := json.Unmarshal(payload.RichMessage, &richMessage); err != nil {
+			return err
+		}
+		m.RichMessage = &richMessage
 	}
 	return nil
 }

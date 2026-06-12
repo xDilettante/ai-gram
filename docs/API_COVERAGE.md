@@ -2,7 +2,7 @@
 
 This document maps the current `ai-gram` implementation to Telegram Bot API areas. It is a project inventory, not a generated copy of the full upstream Bot API specification. Telegram adds methods over time, so expansion work should still follow the maintainer [`Bot API update checklist`](maintainer/BOT_API_UPDATE_CHECKLIST.md) and be checked against the official Bot API docs before implementation.
 
-> **Bot API status:** Code coverage for Telegram Bot API 10.0 is complete with documented architecture differences. Telegram Bot API 10.1 was published on 2026-06-11 and coverage is in progress. The first 10.1 slice covers join request queries and poll link media; Rich Messages remain pending. See [`docs/BOT_API_10_0_FINAL_AUDIT.md`](BOT_API_10_0_FINAL_AUDIT.md) and [`docs/BOT_API_10_1_AUDIT.md`](BOT_API_10_1_AUDIT.md). The public repository exists, but new tags and GitHub Releases still require explicit maintainer approval.
+> **Bot API status:** Code coverage for Telegram Bot API 10.1 is complete with documented architecture differences. Telegram Bot API 10.1 was published on 2026-06-11; see [`docs/BOT_API_10_1_AUDIT.md`](BOT_API_10_1_AUDIT.md). The public repository exists, but new tags and GitHub Releases still require explicit maintainer approval.
 
 > **Pre-v1 API shape:** Public APIs may still change before v1.0. Current naming and breaking-change notes live in [`docs/PRE_V1_NOTES.md`](PRE_V1_NOTES.md) and [`CHANGELOG.md`](../CHANGELOG.md).
 
@@ -54,6 +54,9 @@ This document maps the current `ai-gram` implementation to Telegram Bot API area
 | Public Go API | Telegram Bot API method | Tests | Notes |
 | --- | --- | --- | --- |
 | `(*bot.Bot).SendMessage` | `sendMessage` | unit/httptest, live examples | Supports text, parse mode/entities conflict validation, reply markup, `message_thread_id`, `reply_parameters`, optional `business_connection_id`, and Bot API 10.0 bot-username targets/business replies without client-side rejection. |
+| `(*bot.Bot).SendRichMessage` | `sendRichMessage` | unit/httptest | Bot API 10.1 rich-message send method with HTML/Markdown rich content, thread/direct-topic fields, notification/protection/broadcast/effect options, suggested post parameters, reply parameters, and reply markup. Manual-only live smoke. |
+| `(*bot.Bot).SendRichMessageDraft` | `sendRichMessageDraft` | unit/httptest | Bot API 10.1 private-chat rich-message draft streaming method by non-zero `draft_id`. Manual-only live smoke. |
+| `telegram.RichMessage`, `telegram.RichText`, `telegram.RichBlock` | Rich Message objects | unit | Decodes Bot API 10.1 rich messages, plain/string/list rich text values, all official rich text variants, all official rich block variants, rich table/list/caption helpers, media blocks, and `Message.rich_message`. |
 | `(*bot.Bot).SendPhoto` | `sendPhoto` | unit/httptest, live examples | Supports `FileID`, `FileURL`, `FileUpload`, caption, reply markup, thread/reply params, and optional `business_connection_id`. |
 | `(*bot.Bot).SendDocument` | `sendDocument` | unit/httptest, live examples | Supports `FileID`, `FileURL`, `FileUpload`, caption, reply markup, thread/reply params, and optional `business_connection_id`. |
 | `(*bot.Bot).SendVideo` | `sendVideo` | unit/httptest | Supports `FileID`, `FileURL`, `FileUpload`, thumbnail/cover refs or uploads, caption, duration, dimensions, start timestamp, streaming, spoiler/caption placement, thread/reply params, and optional `business_connection_id`. |
@@ -115,7 +118,7 @@ This document maps the current `ai-gram` implementation to Telegram Bot API area
 | Public Go API | Telegram Bot API method | Tests | Notes |
 | --- | --- | --- | --- |
 | `(*bot.Bot).AnswerCallbackQuery` | `answerCallbackQuery` | unit/httptest, live examples | Supports toast/alert and URL/cache fields. |
-| `(*bot.Bot).EditMessageText` | `editMessageText` | unit/httptest, live examples | Supports chat and inline targets, optional `business_connection_id`, and result decoding as `Message` or `true`. |
+| `(*bot.Bot).EditMessageText` | `editMessageText` | unit/httptest, live examples | Supports chat and inline targets, optional `business_connection_id`, Bot API 10.1 `rich_message` as an alternative to `text`, and result decoding as `Message` or `true`. |
 | `(*bot.Bot).EditMessageCaption` | `editMessageCaption` | unit/httptest, live examples | Supports empty caption removal, inline keyboard, and optional `business_connection_id`. |
 | `(*bot.Bot).EditMessageReplyMarkup` | `editMessageReplyMarkup` | unit/httptest, live examples | `nil` reply markup removes inline keyboard; optional `business_connection_id` is supported. |
 | `(*bot.Bot).EditMessageMedia` | `editMessageMedia` | unit/httptest, multipart | Supports chat and inline targets, `InputMediaPhoto`, `InputMediaLivePhoto`, `InputMediaVideo`, `InputMediaAnimation`, `InputMediaAudio`, `InputMediaDocument`, inline keyboard, optional `business_connection_id`, JSON mode, and multipart uploads for non-inline targets. Live-photo URLs and inline uploads are intentionally rejected. Manual-only live smoke. |
@@ -175,6 +178,7 @@ This document maps the current `ai-gram` implementation to Telegram Bot API area
 | `(*bot.Bot).SendChecklist` | `sendChecklist` | unit/httptest | Sends a business checklist with `business_connection_id`, integer chat target, reply parameters, and inline keyboard. Manual-only live smoke. |
 | `(*bot.Bot).EditMessageChecklist` | `editMessageChecklist` | unit/httptest | Edits a business checklist message and returns the updated message. Manual-only live smoke. |
 | `(*bot.Bot).SendMessageDraft` | `sendMessageDraft` | unit/httptest | Sends a private-chat message draft by `draft_id` and text formatting fields, including Bot API 10.0 empty text. Manual-only live smoke. |
+| `bot.InputRichMessageContent` | `InputMessageContent` | unit | Allows rich messages in inline, guest, and Web App query results through the shared input message content validation path. |
 | `(*bot.Bot).ReadBusinessMessage` | `readBusinessMessage` | unit/httptest | Marks a business message as read. Manual-only live smoke. |
 | `(*bot.Bot).SetBusinessAccountName`, `SetBusinessAccountUsername`, `SetBusinessAccountBio` | business account profile methods | unit/httptest | Changes business account name, username, and bio. Manual-only live smoke. |
 | `(*bot.Bot).SetBusinessAccountProfilePhoto`, `RemoveBusinessAccountProfilePhoto` | business account profile photo methods | unit/httptest, multipart | Uses `InputProfilePhoto` upload payloads for profile photo changes. Manual-only live smoke. |
@@ -405,12 +409,11 @@ This document maps the current `ai-gram` implementation to Telegram Bot API area
 
 ## Remaining notes and intentional differences
 
-Stage 98 performed the final official-doc comparison after Stage 97, and Stage 99 resolved the remaining `setWebhook.certificate` multipart upload blocker. No known Bot API 9.6 code coverage blockers remain. The Bot API 10.0 final audit also found no known 10.0 code coverage blockers. Bot API 10.1 coverage is partial and tracked in [`docs/BOT_API_10_1_AUDIT.md`](BOT_API_10_1_AUDIT.md). See [`docs/BOT_API_9_6_FINAL_AUDIT.md`](BOT_API_9_6_FINAL_AUDIT.md) and [`docs/BOT_API_10_0_FINAL_AUDIT.md`](BOT_API_10_0_FINAL_AUDIT.md).
+Stage 98 performed the final official-doc comparison after Stage 97, and Stage 99 resolved the remaining `setWebhook.certificate` multipart upload blocker. No known Bot API 9.6 code coverage blockers remain. The Bot API 10.0 final audit also found no known 10.0 code coverage blockers. Bot API 10.1 coverage is complete and tracked in [`docs/BOT_API_10_1_AUDIT.md`](BOT_API_10_1_AUDIT.md). See [`docs/BOT_API_9_6_FINAL_AUDIT.md`](BOT_API_9_6_FINAL_AUDIT.md), [`docs/BOT_API_10_0_FINAL_AUDIT.md`](BOT_API_10_0_FINAL_AUDIT.md), and [`docs/BOT_API_10_1_AUDIT.md`](BOT_API_10_1_AUDIT.md).
 
 ### Missing methods or method behavior from the final audits
 
-- No known Bot API 10.0 method wrappers or method behavior blockers remain after implementing `setWebhook.certificate` multipart upload support and the Bot API 10.0 implementation slices.
-- Bot API 10.1 Rich Messages are pending and are not yet claimed as implemented.
+- No known Bot API 10.1 method wrappers or method behavior blockers remain after implementing Rich Messages, join request query helpers, and poll link media.
 
 ### Missing type and field groups from the final audits
 

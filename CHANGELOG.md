@@ -11,11 +11,18 @@
   - `telegram.ChatFullInfo.GuardBot`;
   - `telegram.ChatJoinRequest.QueryID`.
 - Added Bot API 10.1 poll link media support with `telegram.Link`, `telegram.PollMedia.Link`, `bot.InputMediaLink`, and `bot.MediaLink`.
+- Added Telegram Bot API 10.1 Rich Message support:
+  - `telegram.RichMessage`, `telegram.RichText`, `telegram.RichBlock`, and all official 10.1 rich variants;
+  - `telegram.Message.RichMessage`;
+  - `bot.InputRichMessage` and `bot.InputRichMessageContent`;
+  - `bot.SendRichMessage`;
+  - `bot.SendRichMessageDraft`;
+  - `bot.EditMessageTextParams.RichMessage`.
 
 ### Documentation
 
 - Added support guidance for public issue reports and safe reproduction details.
-- Added a Bot API 10.1 audit and marked rich-message support as the next pending slice.
+- Added a Bot API 10.1 audit and Rich Message implementation plan.
 - Updated public repository contributor and security guidance after the `v0.6.0` release.
 - Updated README release links and badges to the current `v0.6.0` release.
 

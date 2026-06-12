@@ -2,7 +2,7 @@
 
 Date: 2026-06-12
 
-Telegram published Bot API 10.1 on June 11, 2026. This audit tracks the update from the Bot API 10.0-complete implementation to Bot API 10.1 coverage.
+Telegram published Bot API 10.1 on June 11, 2026. This audit tracks the update from the Bot API 10.0-complete implementation to Bot API 10.1-complete coverage.
 
 Source: <https://core.telegram.org/bots/api#recent-changes>
 
@@ -87,7 +87,7 @@ Source: <https://core.telegram.org/bots/api#recent-changes>
 - New `PollMedia.link`.
 - New `InputMediaLink`, allowed as `InputPollOptionMedia`.
 
-## Implemented In The First 10.1 Slice
+## Implemented
 
 - `telegram.User.SupportsJoinRequestQueries`.
 - `telegram.ChatFullInfo.GuardBot`.
@@ -96,35 +96,39 @@ Source: <https://core.telegram.org/bots/api#recent-changes>
 - `bot.InputMediaLink` and `bot.MediaLink`.
 - `bot.AnswerChatJoinRequestQuery`.
 - `bot.SendChatJoinRequestWebApp`.
-- Focused unit and `httptest` coverage for the additions above.
-
-## Pending
-
-Rich Messages remain the main Bot API 10.1 gap:
-
-- typed decode coverage for `RichText`, `RichBlock`, and all official rich variants;
+- `telegram.RichMessage`.
+- `telegram.RichText`, including plain strings, rich text arrays, and all official rich text variants.
+- `telegram.RichBlock`, including all official rich block helper classes and block variants.
 - `telegram.Message.RichMessage`;
 - `bot.InputRichMessage`;
 - `bot.InputRichMessageContent`;
 - `bot.SendRichMessage`;
 - `bot.SendRichMessageDraft`;
 - `bot.EditMessageTextParams.RichMessage`;
-- validation and request encoding tests for rich-message methods and inline/guest/Web App result usage.
+- validation and request encoding tests for join request queries, poll link media, rich-message methods, rich edit payloads, and inline/guest/Web App rich input content.
+
+## Pending
+
+- No known Bot API 10.1 code coverage gaps remain.
+- Live Rich Message, join request query, and advanced poll checks remain manual-only because they are user-visible or state-changing.
 
 ## Safety Classification
 
 - `answerChatJoinRequestQuery` is admin/state-changing because it can approve or decline a real user, or leave the request queued.
 - `sendChatJoinRequestWebApp` opens a Mini App during a join request query and is manual-only.
 - `InputMediaLink` in poll options is poll-state-changing/noisy when live-smoked, so unit tests remain the default evidence.
-- Rich message sends and drafts are user-visible message mutations and should be manual-only until dedicated test examples exist.
+- Rich message sends, edits, and drafts are user-visible message mutations and should be manual-only until dedicated test examples exist.
 
 ## Verification
 
-First 10.1 slice:
+Focused checks used during implementation:
 
 ```bash
 go test ./bot ./telegram
-scripts/check.sh
 ```
 
-Full completion still requires `scripts/check.sh` after the rich-message slice.
+Full completion check:
+
+```bash
+scripts/check.sh
+```

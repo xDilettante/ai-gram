@@ -10,14 +10,14 @@
 
 <p align="center">
   <a href="https://github.com/xDilettante/ai-gram/actions/workflows/ci.yml"><img alt="CI" src="https://img.shields.io/github/actions/workflow/status/xDilettante/ai-gram/ci.yml?branch=main&style=for-the-badge&label=CI&logo=github"></a>
-  <img alt="Telegram Bot API 10.1 partial" src="https://img.shields.io/badge/Telegram%20Bot%20API-10.1%20partial-26A5E4?style=for-the-badge&logo=telegram&logoColor=white">
+  <img alt="Telegram Bot API 10.1 complete" src="https://img.shields.io/badge/Telegram%20Bot%20API-10.1%20complete-26A5E4?style=for-the-badge&logo=telegram&logoColor=white">
   <img alt="Go" src="https://img.shields.io/badge/Go-00ADD8?style=for-the-badge&logo=go&logoColor=white">
   <a href="LICENSE"><img alt="License: MIT" src="https://img.shields.io/badge/license-MIT-F59E0B?style=for-the-badge"></a>
 </p>
 
 <p align="center">
   <img alt="Coverage: 63.4%" src="https://img.shields.io/badge/coverage-63.4%25-F59E0B?style=for-the-badge">
-  <img alt="API coverage: 10.1 partial" src="https://img.shields.io/badge/API%20coverage-10.1%20partial-7C3AED?style=for-the-badge">
+  <img alt="API coverage: 10.1 complete" src="https://img.shields.io/badge/API%20coverage-10.1%20complete-7C3AED?style=for-the-badge">
   <img alt="Release: v0.6.0" src="https://img.shields.io/badge/release-v0.6.0-16A34A?style=for-the-badge">
   <img alt="Built with ChatGPT and Codex" src="https://img.shields.io/badge/built%20with-ChatGPT%20%2B%20Codex-8B5CF6?style=for-the-badge">
 </p>
@@ -37,7 +37,7 @@
 
 The library focuses on a clear public API, token-safe HTTP behavior, replaceable transports, and testable building blocks instead of framework magic. It is suitable for low-level Bot API calls as well as production bot foundations that need long polling, webhooks, routing, middleware, and typed Telegram data contracts.
 
-> **Compatibility:** Telegram Bot API 10.0 code coverage is complete with documented architecture differences, and Bot API 10.1 coverage is in progress. The first 10.1 slice covers join request queries and poll link media; Rich Messages remain pending. See [`docs/BOT_API_10_0_FINAL_AUDIT.md`](docs/BOT_API_10_0_FINAL_AUDIT.md) and [`docs/BOT_API_10_1_AUDIT.md`](docs/BOT_API_10_1_AUDIT.md). `ai-gram` is still a pre-v1 Go module, so public APIs may evolve before v1.0.
+> **Compatibility:** Telegram Bot API 10.1 code coverage is complete with documented architecture differences; see [`docs/BOT_API_10_1_AUDIT.md`](docs/BOT_API_10_1_AUDIT.md). `ai-gram` is still a pre-v1 Go module, so public APIs may evolve before v1.0.
 
 ## Highlights
 

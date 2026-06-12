@@ -550,6 +550,10 @@ func validateInputMessageContent(content InputMessageContent) error {
 		return validateInputTextMessageContent(value)
 	case *InputTextMessageContent:
 		return validateInputTextMessageContent(*value)
+	case InputRichMessageContent:
+		return validateInputRichMessage(value.RichMessage)
+	case *InputRichMessageContent:
+		return validateInputRichMessage(value.RichMessage)
 	case InputLocationMessageContent:
 		return validateInputLocationMessageContent(value)
 	case *InputLocationMessageContent:
