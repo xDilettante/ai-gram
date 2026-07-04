@@ -4,6 +4,13 @@
 
 No unreleased changes yet.
 
+## v0.7.1 - 2026-07-04
+
+### Fixed
+
+- Telegram Bot API error payloads sent with non-2xx HTTP statuses (400/403/429/...) are no longer discarded: the JSON body now reaches the caller and surfaces as `errors.APIError` with the Telegram `description`, `error_code`, and `parameters` (previously such responses degraded to an opaque `telegram HTTP request failed with status 400`). This also makes `errors.IsRateLimited`, `errors.RetryAfter`, `errors.IsForbidden`, and `errors.MigrateToChatID` work for HTTP-status error responses.
+- `httpclient.StatusError` (still returned for non-JSON error bodies such as proxy HTML pages) now includes the Bot API method name (never the token) in its message and exposes it via the new `Method` field.
+
 ## v0.7.0 - 2026-06-12
 
 ### Added

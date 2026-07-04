@@ -87,3 +87,62 @@ func TestNewWithNilHTTPClientUsesDefault(t *testing.T) {
 		t.Fatalf("unexpected body: %s", body)
 	}
 }
+
+func TestDoPassesThroughTelegramErrorPayload(t *testing.T) {
+	payload := `{"ok":false,"error_code":400,"description":"Bad Request: message is not modified"}`
+	client := New(doerFunc(func(*http.Request) (*http.Response, error) {
+		return &http.Response{StatusCode: http.StatusBadRequest, Body: io.NopCloser(strings.NewReader(payload))}, nil
+	}))
+	req, err := http.NewRequest(http.MethodPost, "https://example.test/bot123:secret/editMessageText", nil)
+	if err != nil {
+		t.Fatalf("unexpected request error: %v", err)
+	}
+
+	got, err := client.Do(context.Background(), req)
+	if err != nil {
+		t.Fatalf("expected telegram error payload to pass through, got error: %v", err)
+	}
+	if string(got) != payload {
+		t.Fatalf("unexpected body: %q", got)
+	}
+}
+
+func TestDoNonJSONErrorIncludesMethodWithoutToken(t *testing.T) {
+	client := New(doerFunc(func(*http.Request) (*http.Response, error) {
+		return &http.Response{StatusCode: http.StatusBadGateway, Body: io.NopCloser(strings.NewReader("<html>bad gateway</html>"))}, nil
+	}))
+	req, err := http.NewRequest(http.MethodPost, "https://example.test/bot123:secret/sendMessage", nil)
+	if err != nil {
+		t.Fatalf("unexpected request error: %v", err)
+	}
+
+	_, err = client.Do(context.Background(), req)
+	if err == nil {
+		t.Fatal("expected error")
+	}
+	message := err.Error()
+	if !strings.Contains(message, "sendMessage") || !strings.Contains(message, "502") {
+		t.Fatalf("expected method and status in error, got %q", message)
+	}
+	if strings.Contains(message, "123:secret") {
+		t.Fatalf("token leaked into error: %q", message)
+	}
+}
+
+func TestCopyReturnsStatusErrorOnFailure(t *testing.T) {
+	client := New(doerFunc(func(*http.Request) (*http.Response, error) {
+		return &http.Response{StatusCode: http.StatusNotFound, Body: io.NopCloser(strings.NewReader("missing"))}, nil
+	}))
+	req, err := http.NewRequest(http.MethodGet, "https://example.test/file/bot123:secret/path/to/file.bin", nil)
+	if err != nil {
+		t.Fatalf("unexpected request error: %v", err)
+	}
+
+	err = client.Copy(context.Background(), req, io.Discard)
+	if err == nil {
+		t.Fatal("expected error")
+	}
+	if !strings.Contains(err.Error(), "404") {
+		t.Fatalf("expected status in error, got %q", err.Error())
+	}
+}

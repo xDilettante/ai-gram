@@ -221,3 +221,54 @@ type roundTripFunc func(*http.Request) (*http.Response, error)
 func (f roundTripFunc) RoundTrip(req *http.Request) (*http.Response, error) {
 	return f(req)
 }
+
+// Telegram шлёт детали ошибки JSON-телом ВМЕСТЕ с HTTP-статусом ошибки
+// (400/403/429). Раньше non-2xx обрывался в httpclient голым StatusError и
+// description терялся; теперь такой ответ обязан доехать до APIError.
+func TestCallReturnsAPIErrorOnHTTPErrorStatus(t *testing.T) {
+	const token = "123:secret"
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusBadRequest)
+		_, _ = w.Write([]byte(`{"ok":false,"error_code":400,"description":"Bad Request: message thread not found","parameters":{"retry_after":0}}`))
+	}))
+	defer server.Close()
+
+	bot := newTestBot(t, token, server.URL+"/", server.Client())
+	err := bot.call(context.Background(), "sendMessage", map[string]string{}, nil)
+	if err == nil {
+		t.Fatal("expected error")
+	}
+	apiErr, ok := apierrors.AsAPIError(err)
+	if !ok {
+		t.Fatalf("expected APIError, got %T: %v", err, err)
+	}
+	if apiErr.Code != 400 {
+		t.Fatalf("unexpected code: %d", apiErr.Code)
+	}
+	if !strings.Contains(apiErr.Description, "message thread not found") {
+		t.Fatalf("unexpected description: %q", apiErr.Description)
+	}
+}
+
+func TestCallReturnsRateLimitAPIErrorOn429Status(t *testing.T) {
+	const token = "123:secret"
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusTooManyRequests)
+		_, _ = w.Write([]byte(`{"ok":false,"error_code":429,"description":"Too Many Requests: retry after 7","parameters":{"retry_after":7}}`))
+	}))
+	defer server.Close()
+
+	bot := newTestBot(t, token, server.URL+"/", server.Client())
+	err := bot.call(context.Background(), "sendMessage", map[string]string{}, nil)
+	if err == nil {
+		t.Fatal("expected error")
+	}
+	if !apierrors.IsRateLimited(err) {
+		t.Fatalf("expected rate-limit error, got: %v", err)
+	}
+	if after, ok := apierrors.RetryAfter(err); !ok || after != 7 {
+		t.Fatalf("retry_after = %d,%v want 7,true", after, ok)
+	}
+}
